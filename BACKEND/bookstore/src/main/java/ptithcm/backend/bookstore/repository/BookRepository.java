@@ -2,8 +2,8 @@ package ptithcm.backend.bookstore.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ptithcm.backend.bookstore.entity.Customer;
+import ptithcm.backend.bookstore.entity.Book;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, String> {
+public interface BookRepository extends JpaRepository<Book, String> {
 }
