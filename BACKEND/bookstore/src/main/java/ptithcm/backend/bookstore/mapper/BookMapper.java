@@ -12,6 +12,7 @@ import ptithcm.backend.bookstore.entity.Publisher;
 // componentModel = "spring" giúp @Autowired mapper này ở Service
 @Mapper(componentModel = "spring")
 public interface BookMapper {
+
     Book toEntity(CreateBookRequest createBookRequest);
 
     @Mapping(target="coverImgUrl", ignore = true)

@@ -16,6 +16,9 @@ import ptithcm.backend.bookstore.mapper.SupplierMapper;
 import ptithcm.backend.bookstore.repository.PublisherRepository;
 import ptithcm.backend.bookstore.repository.SupplierRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -24,8 +27,16 @@ public class PublisherService {
     PublisherRepository publisherRepository;
     PublisherMapper publisherMapper;
 
-    public PublisherResponse createPublisher(CreatePublisherRequest createPublisherRequest){
+    public PublisherResponse create(CreatePublisherRequest createPublisherRequest){
         Publisher publisher = publisherMapper.toEntity(createPublisherRequest);
         return publisherMapper.toResponse(publisherRepository.save(publisher));
+    }
+
+    public List<PublisherResponse> getAll(){
+        List<PublisherResponse> publishers = new ArrayList<>();
+        for(Publisher publisher : publisherRepository.findAll()){
+            publishers.add(publisherMapper.toResponse(publisher));
+        }
+        return publishers;
     }
 }

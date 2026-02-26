@@ -36,11 +36,11 @@ public class Book {
     )
     Set<Author> authors = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
+    @ManyToOne(fetch = FetchType.EAGER) // Tối ưu hiệu năng
     @JoinColumn(name = "supplier_id")  // Rõ ràng khóa ngoại
     Supplier supplier;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
+    @ManyToOne(fetch = FetchType.EAGER) // Tối ưu hiệu năng
     @JoinColumn(name = "publisher_id") // Rõ ràng khóa ngoại
     Publisher publisher;
 
@@ -55,7 +55,7 @@ public class Book {
     String coverImage;
     int stockQuantity = 0;
 
-    BigDecimal price; // Chọn kiểu này để giúp cho nhiều mệnh giá tiền
+    BigDecimal price; // Chọn kiểu nàm,y để giúp cho nhiều mệnh giá tiền
     float avgRating; //0 - 5
     int salePercent = 0; // Đơn vị %
     @ManyToMany
