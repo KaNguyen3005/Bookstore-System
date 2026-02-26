@@ -11,6 +11,9 @@ import ptithcm.backend.bookstore.entity.Author;
 import ptithcm.backend.bookstore.mapper.AuthorMapper;
 import ptithcm.backend.bookstore.repository.AuthorRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -18,9 +21,17 @@ import ptithcm.backend.bookstore.repository.AuthorRepository;
 public class AuthorService {
     AuthorRepository authorRepository;
     AuthorMapper authorMapper;
-    public AuthorResponse createAuthor(CreateAuthorRequest createAuthorRequest) {
+    public AuthorResponse create(CreateAuthorRequest createAuthorRequest) {
         log.info("Service: Creating author...");
         Author author = authorMapper.toEntity(createAuthorRequest);
         return authorMapper.toResponse(authorRepository.save(author));
+    }
+
+    public List<AuthorResponse> getAll(){
+        List<AuthorResponse> authors = new ArrayList<>();
+        for(Author author : authorRepository.findAll()){
+            authors.add(authorMapper.toResponse(author));
+        }
+        return authors;
     }
 }
