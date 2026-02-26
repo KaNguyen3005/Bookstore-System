@@ -1,0 +1,2667 @@
+openapi: 3.0.3
+info:
+  title: KaTiLa Bookstore API
+  version: 1.0.0
+  description: >
+    REST API for KaTiLa online bookstore (catalog, auth, cart, orders, payments, admin, tracking, recommendations).
+    This OpenAPI spec is designed to be imported into Swagger UI / Swagger Editor for a visual API contract.
+servers:
+  - url: /api/v1
+tags:
+  - name: Auth
+  - name: Profile
+  - name: Catalog
+  - name: Reviews
+  - name: Cart
+  - name: Orders
+  - name: Payments
+  - name: Events
+  - name: Recommendations
+  - name: AdminAuth
+  - name: AdminCatalog
+  - name: AdminInventory
+  - name: AdminOrders
+  - name: AdminUsers
+  - name: AdminStats
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new customer account
+      operationId: authRegister
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            examples:
+              default:
+                value:
+                  email: "user@example.com"
+                  password: "P@ssw0rd123"
+                  fullName: "Nguyen Van A"
+                  phone: "0900000000"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Customer login
+      operationId: authLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            examples:
+              default:
+                value:
+                  email: "user@example.com"
+                  password: "P@ssw0rd123"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      operationId: authRefresh
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+            examples:
+              default:
+                value:
+                  refreshToken: "refresh.token.here"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout (revoke refresh token)
+      operationId: authLogout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequest"
+            examples:
+              default:
+                value:
+                  refreshToken: "refresh.token.here"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me:
+    get:
+      tags: [Profile]
+      summary: Get current user profile
+      operationId: meGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    patch:
+      tags: [Profile]
+      summary: Update current user profile
+      operationId: meUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+            examples:
+              default:
+                value:
+                  fullName: "Nguyen Van A"
+                  phone: "0900000000"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me/addresses:
+    get:
+      tags: [Profile]
+      summary: List addresses of current user
+      operationId: meListAddresses
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Profile]
+      summary: Create new address for current user
+      operationId: meCreateAddress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAddressRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me/addresses/{addressId}:
+    parameters:
+      - $ref: "#/components/parameters/AddressId"
+    patch:
+      tags: [Profile]
+      summary: Update address
+      operationId: meUpdateAddress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAddressRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Profile]
+      summary: Delete address
+      operationId: meDeleteAddress
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /books:
+    get:
+      tags: [Catalog]
+      summary: List books with search & filters
+      operationId: booksList
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/AuthorIdQuery"
+        - $ref: "#/components/parameters/CategoryIdQuery"
+        - $ref: "#/components/parameters/PublisherIdQuery"
+        - $ref: "#/components/parameters/MinPrice"
+        - $ref: "#/components/parameters/MaxPrice"
+        - $ref: "#/components/parameters/InStock"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookPageResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /books/{bookId}:
+    parameters:
+      - $ref: "#/components/parameters/BookId"
+    get:
+      tags: [Catalog]
+      summary: Get book detail
+      operationId: booksGet
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDetailResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /authors:
+    get:
+      tags: [Catalog]
+      summary: List authors
+      operationId: authorsList
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorPageResponse"
+
+  /categories:
+    get:
+      tags: [Catalog]
+      summary: List categories (tree)
+      operationId: categoriesList
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryTreeResponse"
+
+  /publishers:
+    get:
+      tags: [Catalog]
+      summary: List publishers
+      operationId: publishersList
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublisherPageResponse"
+
+  /books/{bookId}/reviews:
+    parameters:
+      - $ref: "#/components/parameters/BookId"
+    get:
+      tags: [Reviews]
+      summary: List reviews for a book
+      operationId: reviewsListByBook
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewPageResponse"
+    post:
+      tags: [Reviews]
+      summary: Create or update my review for a book
+      operationId: reviewsUpsertMyReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertReviewRequest"
+            examples:
+              default:
+                value:
+                  rating: 5
+                  comment: "Rất hay!"
+      responses:
+        "200":
+          description: OK (updated)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewResponse"
+        "201":
+          description: Created (new)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /me/cart:
+    get:
+      tags: [Cart]
+      summary: Get my active cart
+      operationId: cartGetMyCart
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me/cart/items:
+    post:
+      tags: [Cart]
+      summary: Add item to my cart
+      operationId: cartAddItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCartItemRequest"
+            examples:
+              default:
+                value:
+                  bookId: "b_123"
+                  quantity: 2
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /me/cart/items/{itemId}:
+    parameters:
+      - $ref: "#/components/parameters/CartItemId"
+    patch:
+      tags: [Cart]
+      summary: Update quantity of a cart item
+      operationId: cartUpdateItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCartItemRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Cart]
+      summary: Remove a cart item
+      operationId: cartRemoveItem
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /me/cart/clear:
+    delete:
+      tags: [Cart]
+      summary: Clear my cart
+      operationId: cartClear
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /orders:
+    post:
+      tags: [Orders]
+      summary: Create an order from my cart
+      operationId: ordersCreate
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+            examples:
+              online:
+                value:
+                  shippingAddressId: "addr_1"
+                  paymentMethod: "ONLINE"
+                  note: "Giao giờ hành chính"
+              cod:
+                value:
+                  shippingAddressId: "addr_1"
+                  paymentMethod: "COD"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /me/orders:
+    get:
+      tags: [Orders]
+      summary: List my orders
+      operationId: ordersListMine
+      parameters:
+        - $ref: "#/components/parameters/OrderStatusQuery"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderPageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /orders/{orderId}:
+    parameters:
+      - $ref: "#/components/parameters/OrderId"
+    get:
+      tags: [Orders]
+      summary: Get order detail (owner or admin)
+      operationId: ordersGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /orders/{orderId}/cancel:
+    parameters:
+      - $ref: "#/components/parameters/OrderId"
+    post:
+      tags: [Orders]
+      summary: Cancel my order (business rules apply)
+      operationId: ordersCancel
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelOrderRequest"
+            examples:
+              default:
+                value:
+                  reason: "Đặt nhầm"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /payments/checkout-session:
+    post:
+      tags: [Payments]
+      summary: Create payment checkout session for an order
+      operationId: paymentsCreateCheckoutSession
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCheckoutSessionRequest"
+            examples:
+              mock:
+                value:
+                  orderId: "o_1001"
+                  provider: "MOCK"
+                  returnUrl: "https://frontend/checkout/success"
+                  cancelUrl: "https://frontend/checkout/cancel"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutSessionResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /payments/{paymentId}:
+    parameters:
+      - $ref: "#/components/parameters/PaymentId"
+    get:
+      tags: [Payments]
+      summary: Get payment detail
+      operationId: paymentsGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /payments/{paymentId}/confirm:
+    parameters:
+      - $ref: "#/components/parameters/PaymentId"
+    post:
+      tags: [Payments]
+      summary: Confirm payment (optional - provider dependent; webhooks are primary)
+      operationId: paymentsConfirm
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmPaymentRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /payments/webhooks/{provider}:
+    parameters:
+      - $ref: "#/components/parameters/PaymentProvider"
+    post:
+      tags: [Payments]
+      summary: Payment provider webhook (no auth; verify signature inside)
+      operationId: paymentsWebhook
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentWebhookPayload"
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /events:
+    post:
+      tags: [Events]
+      summary: Track a single user event (view/add_to_cart/purchase/rating...)
+      operationId: eventsTrack
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrackEventRequest"
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /events/batch:
+    post:
+      tags: [Events]
+      summary: Track events in batch
+      operationId: eventsTrackBatch
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrackEventBatchRequest"
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /me/recommendations:
+    get:
+      tags: [Recommendations]
+      summary: Get personalized recommendations for current user
+      operationId: recommendationsMine
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 12
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendationListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /books/{bookId}/recommendations:
+    parameters:
+      - $ref: "#/components/parameters/BookId"
+    get:
+      tags: [Recommendations]
+      summary: Get similar-book recommendations (item-based)
+      operationId: recommendationsByBook
+      security: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 12
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendationListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # =========================
+  # Admin
+  # =========================
+
+  /admin/auth/login:
+    post:
+      tags: [AdminAuth]
+      summary: Admin login
+      operationId: adminLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /admin/books:
+    get:
+      tags: [AdminCatalog]
+      summary: Admin list books
+      operationId: adminBooksList
+      description: Requires ADMIN role.
+      parameters:
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookPageResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [AdminCatalog]
+      summary: Admin create book
+      operationId: adminBooksCreate
+      description: Requires ADMIN role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertBookRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDetailResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /admin/books/{bookId}:
+    parameters:
+      - $ref: "#/components/parameters/BookId"
+    get:
+      tags: [AdminCatalog]
+      summary: Admin get book detail
+      operationId: adminBooksGet
+      description: Requires ADMIN role.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDetailResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [AdminCatalog]
+      summary: Admin update book
+      operationId: adminBooksUpdate
+      description: Requires ADMIN role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertBookRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookDetailResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [AdminCatalog]
+      summary: Admin delete/disable book
+      operationId: adminBooksDelete
+      description: Requires ADMIN role. Prefer soft-delete (status=DISABLED).
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /admin/authors:
+    get:
+      tags: [AdminCatalog]
+      summary: Admin list authors
+      operationId: adminAuthorsList
+      description: Requires ADMIN role.
+      parameters:
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorPageResponse"
+    post:
+      tags: [AdminCatalog]
+      summary: Admin create author
+      operationId: adminAuthorsCreate
+      description: Requires ADMIN role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertAuthorRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorResponse"
+
+  /admin/authors/{authorId}:
+    parameters:
+      - $ref: "#/components/parameters/AuthorId"
+    get:
+      tags: [AdminCatalog]
+      summary: Admin get author
+      operationId: adminAuthorsGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorResponse"
+    patch:
+      tags: [AdminCatalog]
+      summary: Admin update author
+      operationId: adminAuthorsUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertAuthorRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorResponse"
+    delete:
+      tags: [AdminCatalog]
+      summary: Admin delete author
+      operationId: adminAuthorsDelete
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /admin/categories:
+    get:
+      tags: [AdminCatalog]
+      summary: Admin list categories
+      operationId: adminCategoriesList
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryTreeResponse"
+    post:
+      tags: [AdminCatalog]
+      summary: Admin create category
+      operationId: adminCategoriesCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertCategoryRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+
+  /admin/categories/{categoryId}:
+    parameters:
+      - $ref: "#/components/parameters/CategoryId"
+    patch:
+      tags: [AdminCatalog]
+      summary: Admin update category
+      operationId: adminCategoriesUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertCategoryRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+    delete:
+      tags: [AdminCatalog]
+      summary: Admin delete category
+      operationId: adminCategoriesDelete
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /admin/publishers:
+    get:
+      tags: [AdminCatalog]
+      summary: Admin list publishers
+      operationId: adminPublishersList
+      parameters:
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublisherPageResponse"
+    post:
+      tags: [AdminCatalog]
+      summary: Admin create publisher
+      operationId: adminPublishersCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertPublisherRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublisherResponse"
+
+  /admin/publishers/{publisherId}:
+    parameters:
+      - $ref: "#/components/parameters/PublisherId"
+    patch:
+      tags: [AdminCatalog]
+      summary: Admin update publisher
+      operationId: adminPublishersUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpsertPublisherRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublisherResponse"
+    delete:
+      tags: [AdminCatalog]
+      summary: Admin delete publisher
+      operationId: adminPublishersDelete
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /admin/inventory:
+    get:
+      tags: [AdminInventory]
+      summary: Admin list inventory
+      operationId: adminInventoryList
+      parameters:
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryPageResponse"
+
+  /admin/inventory/{bookId}:
+    parameters:
+      - $ref: "#/components/parameters/BookId"
+    patch:
+      tags: [AdminInventory]
+      summary: Admin update inventory for a book
+      operationId: adminInventoryUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInventoryRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItemResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /admin/orders:
+    get:
+      tags: [AdminOrders]
+      summary: Admin list orders
+      operationId: adminOrdersList
+      parameters:
+        - $ref: "#/components/parameters/OrderStatusQuery"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderPageResponse"
+
+  /admin/orders/{orderId}:
+    parameters:
+      - $ref: "#/components/parameters/OrderId"
+    patch:
+      tags: [AdminOrders]
+      summary: Admin update order status
+      operationId: adminOrdersUpdateStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateOrderStatusRequest"
+            examples:
+              ship:
+                value:
+                  status: "SHIPPING"
+                  note: "Đã bàn giao đơn vị vận chuyển"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /admin/users:
+    get:
+      tags: [AdminUsers]
+      summary: Admin list users
+      operationId: adminUsersList
+      parameters:
+        - $ref: "#/components/parameters/Q"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPageResponse"
+
+  /admin/users/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: [AdminUsers]
+      summary: Admin get user detail
+      operationId: adminUsersGet
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+    patch:
+      tags: [AdminUsers]
+      summary: Admin update user status (lock/unlock)
+      operationId: adminUsersUpdateStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateUserStatusRequest"
+            examples:
+              ban:
+                value:
+                  status: "BANNED"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+
+  /admin/stats/revenue:
+    get:
+      tags: [AdminStats]
+      summary: Admin revenue statistics
+      operationId: adminStatsRevenue
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-01-01"
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-01-31"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevenueStatsResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: Optional idempotency key to safely retry POST operations.
+      schema:
+        type: string
+        example: "c1b3f0c0-7b51-4aab-8e3c-9c7f2c3b4d5e"
+
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    Size:
+      name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+    Sort:
+      name: sort
+      in: query
+      required: false
+      description: "Format: field,asc|desc (e.g., createdAt,desc)"
+      schema:
+        type: string
+        example: "createdAt,desc"
+
+    Q:
+      name: q
+      in: query
+      required: false
+      schema:
+        type: string
+        example: "clean code"
+
+    InStock:
+      name: inStock
+      in: query
+      required: false
+      schema:
+        type: boolean
+        example: true
+
+    MinPrice:
+      name: minPrice
+      in: query
+      required: false
+      schema:
+        type: number
+        format: double
+        example: 50000
+    MaxPrice:
+      name: maxPrice
+      in: query
+      required: false
+      schema:
+        type: number
+        format: double
+        example: 200000
+
+    AuthorIdQuery:
+      name: authorId
+      in: query
+      required: false
+      schema:
+        type: string
+    CategoryIdQuery:
+      name: categoryId
+      in: query
+      required: false
+      schema:
+        type: string
+    PublisherIdQuery:
+      name: publisherId
+      in: query
+      required: false
+      schema:
+        type: string
+
+    OrderStatusQuery:
+      name: status
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/OrderStatus"
+
+    BookId:
+      name: bookId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "b_123"
+    AuthorId:
+      name: authorId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "a_1"
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "c_1"
+    PublisherId:
+      name: publisherId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "p_1"
+    AddressId:
+      name: addressId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "addr_1"
+    CartItemId:
+      name: itemId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "ci_1"
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "o_1001"
+    PaymentId:
+      name: paymentId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "pay_9001"
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "u_1"
+    PaymentProvider:
+      name: provider
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [MOCK, VNPAY, MOMO, ZALOPAY]
+      example: "MOCK"
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            default:
+              value:
+                error:
+                  code: "VALIDATION_ERROR"
+                  message: "Invalid request"
+                  details:
+                    - field: "email"
+                      reason: "INVALID_FORMAT"
+                  timestamp: "2026-01-19T09:00:00Z"
+                  traceId: "trace-123"
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            default:
+              value:
+                error:
+                  code: "UNAUTHORIZED"
+                  message: "Missing or invalid token"
+                  timestamp: "2026-01-19T09:00:00Z"
+                  traceId: "trace-123"
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            default:
+              value:
+                error:
+                  code: "FORBIDDEN"
+                  message: "You do not have permission"
+                  timestamp: "2026-01-19T09:00:00Z"
+                  traceId: "trace-123"
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            default:
+              value:
+                error:
+                  code: "NOT_FOUND"
+                  message: "Resource not found"
+                  timestamp: "2026-01-19T09:00:00Z"
+                  traceId: "trace-123"
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            default:
+              value:
+                error:
+                  code: "CONFLICT"
+                  message: "Resource conflict"
+                  timestamp: "2026-01-19T09:00:00Z"
+                  traceId: "trace-123"
+
+  schemas:
+    # ===== Enums =====
+    UserStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, BANNED]
+    BookStatus:
+      type: string
+      enum: [DRAFT, ACTIVE, OUT_OF_STOCK, DISABLED]
+    CartStatus:
+      type: string
+      enum: [ACTIVE, CHECKED_OUT, ABANDONED]
+    OrderStatus:
+      type: string
+      enum: [CREATED, CONFIRMED, PENDING_PAYMENT, PAID, PROCESSING, SHIPPING, DELIVERED, CANCELLED, REFUNDED, FAILED]
+    PaymentStatus:
+      type: string
+      enum: [INIT, PENDING, SUCCESS, FAILED, REFUNDED]
+    PaymentMethod:
+      type: string
+      enum: [COD, ONLINE]
+    PaymentProviderEnum:
+      type: string
+      enum: [MOCK, VNPAY, MOMO, ZALOPAY]
+    EventType:
+      type: string
+      enum: [VIEW, SEARCH_CLICK, ADD_TO_CART, REMOVE_FROM_CART, PURCHASE, RATING]
+
+    # ===== Common =====
+    OkResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            ok:
+              type: boolean
+              example: true
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    Meta:
+      type: object
+      properties:
+        requestId:
+          type: string
+          example: "req-abc-123"
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  reason:
+                    type: string
+            timestamp:
+              type: string
+              format: date-time
+            traceId:
+              type: string
+      required: [error]
+
+    Money:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 125000
+        currency:
+          type: string
+          example: "VND"
+      required: [amount, currency]
+
+    # ===== Auth =====
+    RegisterRequest:
+      type: object
+      required: [email, password, fullName]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        fullName:
+          type: string
+        phone:
+          type: string
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    LogoutRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    AuthTokenResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            tokenType:
+              type: string
+              example: "Bearer"
+            expiresIn:
+              type: integer
+              example: 3600
+            roles:
+              type: array
+              items:
+                type: string
+                example: "CUSTOMER"
+          required: [accessToken, refreshToken, tokenType]
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    # ===== User/Profile/Address =====
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+          example: "u_1"
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        phone:
+          type: string
+        status:
+          $ref: "#/components/schemas/UserStatus"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UserProfileResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/UserProfile"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+
+    Address:
+      type: object
+      properties:
+        addressId:
+          type: string
+          example: "addr_1"
+        receiverName:
+          type: string
+        receiverPhone:
+          type: string
+        line1:
+          type: string
+        line2:
+          type: string
+        ward:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+          example: "VN"
+        isDefault:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [addressId, receiverName, receiverPhone, line1, city, country]
+    CreateAddressRequest:
+      type: object
+      required: [receiverName, receiverPhone, line1, city]
+      properties:
+        receiverName:
+          type: string
+        receiverPhone:
+          type: string
+        line1:
+          type: string
+        line2:
+          type: string
+        ward:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+          default: "VN"
+        isDefault:
+          type: boolean
+          default: false
+    UpdateAddressRequest:
+      type: object
+      properties:
+        receiverName:
+          type: string
+        receiverPhone:
+          type: string
+        line1:
+          type: string
+        line2:
+          type: string
+        ward:
+          type: string
+        district:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        isDefault:
+          type: boolean
+    AddressResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Address"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    AddressListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    # ===== Catalog =====
+    Author:
+      type: object
+      properties:
+        authorId:
+          type: string
+          example: "a_1"
+        name:
+          type: string
+        bio:
+          type: string
+    AuthorResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Author"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    Publisher:
+      type: object
+      properties:
+        publisherId:
+          type: string
+          example: "p_1"
+        name:
+          type: string
+        description:
+          type: string
+    PublisherResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Publisher"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    Category:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          example: "c_1"
+        name:
+          type: string
+        parentId:
+          type: string
+          nullable: true
+    CategoryNode:
+      allOf:
+        - $ref: "#/components/schemas/Category"
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                $ref: "#/components/schemas/CategoryNode"
+    CategoryResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Category"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    CategoryTreeResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryNode"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    BookSummary:
+      type: object
+      properties:
+        bookId:
+          type: string
+          example: "b_123"
+        isbn:
+          type: string
+          nullable: true
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+          nullable: true
+        price:
+          type: number
+          format: double
+        discountPrice:
+          type: number
+          format: double
+          nullable: true
+        currency:
+          type: string
+          example: "VND"
+        avgRating:
+          type: number
+          format: double
+          example: 4.6
+        stock:
+          type: integer
+          example: 12
+        status:
+          $ref: "#/components/schemas/BookStatus"
+        authors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Author"
+        category:
+          $ref: "#/components/schemas/Category"
+        publisher:
+          $ref: "#/components/schemas/Publisher"
+      required: [bookId, title, price, currency]
+
+    BookDetail:
+      allOf:
+        - $ref: "#/components/schemas/BookSummary"
+        - type: object
+          properties:
+            description:
+              type: string
+              nullable: true
+            publicationDate:
+              type: string
+              format: date
+              nullable: true
+            language:
+              type: string
+              nullable: true
+            pageCount:
+              type: integer
+              nullable: true
+            coverImageUrl:
+              type: string
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    BookDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/BookDetail"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    BookPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/BookSummary"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    AuthorPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Author"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    PublisherPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Publisher"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    # ===== Reviews =====
+    Review:
+      type: object
+      properties:
+        reviewId:
+          type: string
+          example: "r_1"
+        userId:
+          type: string
+          example: "u_1"
+        bookId:
+          type: string
+          example: "b_123"
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [reviewId, userId, bookId, rating, createdAt]
+    UpsertReviewRequest:
+      type: object
+      required: [rating]
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+    ReviewResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Review"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    ReviewPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    # ===== Cart =====
+    CartItem:
+      type: object
+      properties:
+        itemId:
+          type: string
+          example: "ci_1"
+        bookId:
+          type: string
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          minimum: 1
+        unitPrice:
+          type: number
+          format: double
+        lineTotal:
+          type: number
+          format: double
+      required: [itemId, bookId, quantity, unitPrice, lineTotal]
+    Cart:
+      type: object
+      properties:
+        cartId:
+          type: string
+          example: "cart_1"
+        status:
+          $ref: "#/components/schemas/CartStatus"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        subtotal:
+          type: number
+          format: double
+        updatedAt:
+          type: string
+          format: date-time
+      required: [cartId, status, items, subtotal]
+    CartResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Cart"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    AddCartItemRequest:
+      type: object
+      required: [bookId, quantity]
+      properties:
+        bookId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+    UpdateCartItemRequest:
+      type: object
+      required: [quantity]
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+
+    # ===== Orders =====
+    OrderItem:
+      type: object
+      properties:
+        bookId:
+          type: string
+        title:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        unitPrice:
+          type: number
+          format: double
+        lineTotal:
+          type: number
+          format: double
+      required: [bookId, quantity, unitPrice, lineTotal]
+    OrderAmount:
+      type: object
+      properties:
+        subtotal:
+          type: number
+          format: double
+        shippingFee:
+          type: number
+          format: double
+        discount:
+          type: number
+          format: double
+        total:
+          type: number
+          format: double
+      required: [subtotal, shippingFee, discount, total]
+    ShippingSnapshot:
+      type: object
+      properties:
+        receiverName:
+          type: string
+        receiverPhone:
+          type: string
+        line1:
+          type: string
+        line2:
+          type: string
+          nullable: true
+        ward:
+          type: string
+          nullable: true
+        district:
+          type: string
+          nullable: true
+        city:
+          type: string
+        country:
+          type: string
+          default: "VN"
+      required: [receiverName, receiverPhone, line1, city, country]
+
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: string
+          example: "o_1001"
+        userId:
+          type: string
+          example: "u_1"
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        shipping:
+          $ref: "#/components/schemas/ShippingSnapshot"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        amount:
+          $ref: "#/components/schemas/OrderAmount"
+        note:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [orderId, status, items, amount, createdAt]
+
+    OrderResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Order"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    OrderPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    CreateOrderRequest:
+      type: object
+      required: [shippingAddressId, paymentMethod]
+      properties:
+        shippingAddressId:
+          type: string
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
+        note:
+          type: string
+
+    CancelOrderRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+
+    AdminUpdateOrderStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        note:
+          type: string
+
+    # ===== Payments =====
+    Payment:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          example: "pay_9001"
+        orderId:
+          type: string
+          example: "o_1001"
+        provider:
+          $ref: "#/components/schemas/PaymentProviderEnum"
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
+        amount:
+          type: number
+          format: double
+        providerTxnId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+      required: [paymentId, orderId, provider, status, amount, createdAt]
+    PaymentResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Payment"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    CreateCheckoutSessionRequest:
+      type: object
+      required: [orderId, provider, returnUrl, cancelUrl]
+      properties:
+        orderId:
+          type: string
+        provider:
+          $ref: "#/components/schemas/PaymentProviderEnum"
+        returnUrl:
+          type: string
+        cancelUrl:
+          type: string
+
+    CheckoutSession:
+      type: object
+      properties:
+        paymentId:
+          type: string
+        provider:
+          $ref: "#/components/schemas/PaymentProviderEnum"
+        redirectUrl:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+      required: [paymentId, provider, redirectUrl, expiresAt]
+    CheckoutSessionResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/CheckoutSession"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    ConfirmPaymentRequest:
+      type: object
+      properties:
+        providerTxnId:
+          type: string
+        raw:
+          type: object
+          additionalProperties: true
+
+    PaymentWebhookPayload:
+      type: object
+      description: Provider webhook payload (varies by provider). Verify signature and map to payment/order status.
+      properties:
+        provider:
+          $ref: "#/components/schemas/PaymentProviderEnum"
+        providerTxnId:
+          type: string
+        orderId:
+          type: string
+        paymentId:
+          type: string
+        status:
+          type: string
+        raw:
+          type: object
+          additionalProperties: true
+
+    # ===== Events =====
+    TrackEventRequest:
+      type: object
+      required: [type, createdAt]
+      properties:
+        userId:
+          type: string
+          nullable: true
+          description: Optional for guests.
+        sessionId:
+          type: string
+          nullable: true
+        type:
+          $ref: "#/components/schemas/EventType"
+        bookId:
+          type: string
+          nullable: true
+        weight:
+          type: number
+          format: double
+          default: 1.0
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+    TrackEventBatchRequest:
+      type: object
+      required: [events]
+      properties:
+        events:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/TrackEventRequest"
+
+    # ===== Recommendations =====
+    RecommendationItem:
+      type: object
+      properties:
+        book:
+          $ref: "#/components/schemas/BookSummary"
+        score:
+          type: number
+          format: double
+          example: 0.8732
+        modelVersion:
+          type: string
+          example: "v1"
+      required: [book, score]
+    RecommendationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecommendationItem"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    # ===== Admin Requests =====
+    AdminUpsertBookRequest:
+      type: object
+      required: [title, price, currency, status]
+      properties:
+        isbn:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        publisherId:
+          type: string
+        authorIds:
+          type: array
+          items:
+            type: string
+        categoryIds:
+          type: array
+          items:
+            type: string
+        publicationDate:
+          type: string
+          format: date
+        language:
+          type: string
+        pageCount:
+          type: integer
+        coverImageUrl:
+          type: string
+        price:
+          type: number
+          format: double
+        discountPrice:
+          type: number
+          format: double
+        currency:
+          type: string
+          example: "VND"
+        status:
+          $ref: "#/components/schemas/BookStatus"
+
+    AdminUpsertAuthorRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        bio:
+          type: string
+
+    AdminUpsertCategoryRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        parentId:
+          type: string
+          nullable: true
+
+    AdminUpsertPublisherRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+
+    InventoryItem:
+      type: object
+      properties:
+        bookId:
+          type: string
+        title:
+          type: string
+        quantityOnHand:
+          type: integer
+        quantityReserved:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+      required: [bookId, quantityOnHand, quantityReserved, updatedAt]
+    InventoryItemResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/InventoryItem"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    InventoryPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/InventoryItem"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+    UpdateInventoryRequest:
+      type: object
+      properties:
+        quantityOnHand:
+          type: integer
+          minimum: 0
+        quantityReserved:
+          type: integer
+          minimum: 0
+
+    AdminUpdateUserStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/UserStatus"
+
+    UserPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserProfile"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
+
+    RevenueStats:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        totalRevenue:
+          type: number
+          format: double
+        totalOrders:
+          type: integer
+        paidOrders:
+          type: integer
+        cancelledOrders:
+          type: integer
+        topBooks:
+          type: array
+          items:
+            type: object
+            properties:
+              bookId:
+                type: string
+              title:
+                type: string
+              quantitySold:
+                type: integer
+              revenue:
+                type: number
+                format: double
+      required: [from, to, totalRevenue, totalOrders]
+    RevenueStatsResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/RevenueStats"
+        meta:
+          $ref: "#/components/schemas/Meta"
+      required: [data]
