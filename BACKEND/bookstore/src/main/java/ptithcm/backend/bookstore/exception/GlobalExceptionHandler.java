@@ -15,9 +15,14 @@ import java.util.Objects;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-
+    // Khai báo tất cả attribute keys
     private static final String MIN_ATTRIBUTE = "min";
-
+    private static final String MAX_ATTRIBUTE = "max";
+    private static final String VALUE_ATTRIBUTE = "value";
+    private static final String INCLUSIVE_ATTRIBUTE = "inclusive";
+    private static final String INTEGER_ATTRIBUTE = "integer";
+    private static final String FRACTION_ATTRIBUTE = "fraction";
+    private static final String REGEXP_ATTRIBUTE = "regexp";
 
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(Exception exception) {
@@ -67,7 +72,7 @@ public class GlobalExceptionHandler {
 
             log.info(attributes.toString());
         } catch (IllegalArgumentException e) {
-
+            log.warn("Unknown error code key: {}", enumKey);
         }
 
         // Trả về apiResponse khi có lỗi và bên trong đã được map
@@ -85,7 +90,30 @@ public class GlobalExceptionHandler {
     }
 
     private String mapAttribute(String message, Map<String, Object> attributes) {
-        String minValue = attributes.get(MIN_ATTRIBUTE).toString();
-        return message.replace("{" + MIN_ATTRIBUTE + "}", minValue);
+        // Duyệt qua tất cả attribute và replace vào message
+        String result = message;
+
+        if (attributes.containsKey(MIN_ATTRIBUTE))
+            result = result.replace("{min}", attributes.get(MIN_ATTRIBUTE).toString());
+
+        if (attributes.containsKey(MAX_ATTRIBUTE))
+            result = result.replace("{max}", attributes.get(MAX_ATTRIBUTE).toString());
+
+        if (attributes.containsKey(VALUE_ATTRIBUTE))
+            result = result.replace("{value}", attributes.get(VALUE_ATTRIBUTE).toString());
+
+        if (attributes.containsKey(INCLUSIVE_ATTRIBUTE))
+            result = result.replace("{inclusive}", attributes.get(INCLUSIVE_ATTRIBUTE).toString());
+
+        if (attributes.containsKey(INTEGER_ATTRIBUTE))
+            result = result.replace("{integer}", attributes.get(INTEGER_ATTRIBUTE).toString());
+
+        if (attributes.containsKey(FRACTION_ATTRIBUTE))
+            result = result.replace("{fraction}", attributes.get(FRACTION_ATTRIBUTE).toString());
+
+        if (attributes.containsKey(REGEXP_ATTRIBUTE))
+            result = result.replace("{regexp}", attributes.get(REGEXP_ATTRIBUTE).toString());
+
+        return result;
     }
 }
