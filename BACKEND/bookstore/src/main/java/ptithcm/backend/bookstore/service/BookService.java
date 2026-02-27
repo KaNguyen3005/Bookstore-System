@@ -39,12 +39,14 @@ public class BookService {
     public BookResponse create(CreateBookRequest request) {
         // 1. Khởi tạo Entity từ Request
         Book book = bookMapper.toEntity(request);
-        log.error("Đã chạy xuống service");
+        log.info("Đã chạy xuống service tạo sách");
 
-        if(request.getCoverImgFile() == null){
-            log.error("File is null");
+        if (request.getCoverImgFile() == null || request.getCoverImgFile().isEmpty()) {
+            throw new AppException(ErrorCode.UPLOAD_FAILED);
         }
-        String ImageUrl = cloudinaryService.uploadFile(request.getCoverImgFile(), "books");
+
+        String imageUrl = cloudinaryService.uploadFile(request.getCoverImgFile(), "books");
+        book.setCoverImageUrl(imageUrl);
 
         // 3. Xử lý Authors (Kiểm tra tồn tại)
         List<Author> authors = authorRepository.findAllById(request.getAuthorIds());
