@@ -1,7 +1,8 @@
 server:
   port: 8080
   tomcat:
-    max-parameter-count : 1000
+    max-parameter-count: 1000
+    max-part-count: 100 #Tăng số lượng part tải lên
   servlet:
     context-path: /bookstore
 
@@ -15,7 +16,7 @@ spring:
       enabled: true
       location: /tmp/spring-uploads
       max-file-size: 50MB
-      max-request-size: 50MB
+      max-request-size: 100MB
   datasource:
     url: "jdbc:mysql://localhost:3307/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh"
     username: admin

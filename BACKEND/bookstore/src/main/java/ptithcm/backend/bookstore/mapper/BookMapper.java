@@ -15,6 +15,6 @@ public interface BookMapper {
 
     Book toEntity(CreateBookRequest createBookRequest);
 
-    @Mapping(target="coverImgUrl", ignore = true)
+    @Mapping(target = "coverImgUrl", source = "coverImageUrl")
     BookResponse toResponse(Book book);
 }
