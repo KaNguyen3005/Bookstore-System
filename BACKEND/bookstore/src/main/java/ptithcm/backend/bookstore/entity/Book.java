@@ -52,9 +52,8 @@ public class Book {
     String description;
     int pageCount;
     String coverType;
-    String coverImage;
+    String coverImageUrl = "https://res-console.cloudinary.com/duqhdj1ff/thumbnails/v1/image/upload/v1772180359/OWM0ZjVjODMtMGNhMi00ZGU1LThjNzUtYzI2ZDE3NzQ1NDQz/drilldown";
     int stockQuantity = 0;
-
     BigDecimal price; // Chọn kiểu nàm,y để giúp cho nhiều mệnh giá tiền
     float avgRating; //0 - 5
     int salePercent = 0; // Đơn vị %
