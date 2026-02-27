@@ -5,13 +5,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
-import ptithcm.backend.bookstore.entity.Author;
-import ptithcm.backend.bookstore.entity.Book;
-import ptithcm.backend.bookstore.entity.Categories;
+import ptithcm.backend.bookstore.entity.*;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.BookMapper;
@@ -38,39 +35,44 @@ public class BookService {
     @Transactional // Rất quan trọng: Đảm bảo nếu lưu DB lỗi thì không bị rác dữ liệu
     public BookResponse create(CreateBookRequest request) {
         // 1. Khởi tạo Entity từ Request
-        Book book = bookMapper.toEntity(request);
         log.info("Đã chạy xuống service tạo sách");
+        // 1. Validate Authors trước
+        List<Author> authors = authorRepository.findAllById(request.getAuthorIds());
+        if (authors.size() != request.getAuthorIds().size()) {
+            throw new AppException(ErrorCode.AUTHOR_NOT_FOUND);
+        }
 
+        // 2. Validate Supplier
+        Supplier supplier = supplierRepository.findById(request.getSupplierId())
+                .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_FOUND));
+
+        // 3. Validate Publisher
+        Publisher publisher = publisherRepository.findById(request.getPublisherId())
+                .orElseThrow(() -> new AppException(ErrorCode.PUBLISHER_NOT_FOUND));
+
+        // 4. Validate Categories
+        List<Categories> categories = categoriesRepository.findAllById(request.getCategoryIds());
+        if (categories.size() != request.getCategoryIds().size()) {
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+
+        // 5. Tất cả hợp lệ → mới upload ảnh
         if (request.getCoverImgFile() == null || request.getCoverImgFile().isEmpty()) {
             throw new AppException(ErrorCode.UPLOAD_FAILED);
         }
 
         String imageUrl = cloudinaryService.uploadFile(request.getCoverImgFile(), "books");
-        book.setCoverImageUrl(imageUrl);
 
-        // 3. Xử lý Authors (Kiểm tra tồn tại)
-        List<Author> authors = authorRepository.findAllById(request.getAuthorIds());
+        Book book = bookMapper.toEntity(request);
+        book.builder()
+                .authors(new HashSet<>(authors))
+                .supplier(supplier)
+                .publisher(publisher)
+                .categories(new HashSet<>(categories))
+                .coverImageUrl(imageUrl)
+                .build();
 
-        if (authors.size() != request.getAuthorIds().size()) {
-            throw new AppException(ErrorCode.AUTHOR_NOT_FOUND);
-        }
-        book.setAuthors(new HashSet<>(authors));
 
-        // 4. Xử lý Supplier & Publisher (Sử dụng Optional hợp lý)
-        book.setSupplier(supplierRepository.findById(request.getSupplierId())
-                .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_FOUND)));
-
-        book.setPublisher(publisherRepository.findById(request.getPublisherId())
-                .orElseThrow(() -> new AppException(ErrorCode.PUBLISHER_NOT_FOUND)));
-
-        // 5. Xử lý Categories
-        List<Categories> categories = categoriesRepository.findAllById(request.getCategoryIds());
-
-        if (categories.size() != request.getCategoryIds().size()) {
-            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
-        }
-
-        book.setCategories(new HashSet<>(categories));
 
         // 6. Lưu và trả về Response
         return bookMapper.toResponse(bookRepository.save(book));

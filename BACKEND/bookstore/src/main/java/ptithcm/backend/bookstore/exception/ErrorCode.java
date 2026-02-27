@@ -7,21 +7,51 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 public enum ErrorCode {
 
+    // ===== SYSTEM (9xxx) =====
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    USER_ALREADY_EXISTS(1001, "User existed", HttpStatus.BAD_REQUEST),
-    USERNAME_INVALID(1002, "Username must be at least {min} characters", HttpStatus.BAD_REQUEST),
-    PASSWORD_INVALID(1003, "Password must be at least {min} characters", HttpStatus.BAD_REQUEST),
-    INVALID_KEY(1004, "Invalid key", HttpStatus.BAD_REQUEST),
-    USER_NOT_FOUND(1005, "User not found", HttpStatus.NOT_FOUND),
-    UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
-    ACCESS_DENIED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
-    INVALID_DOB(1008, "Your age must at least {min}", HttpStatus.BAD_REQUEST),
-    AUTHOR_NOT_FOUND(1009, "Author not found", HttpStatus.NOT_FOUND),
-    SUPPLIER_NOT_FOUND(1010, "Supplier not found", HttpStatus.NOT_FOUND),
-    PUBLISHER_NOT_FOUND(1011, "Publisher not found", HttpStatus.NOT_FOUND),
-    CATEGORY_NOT_FOUND(1012, "Category not found", HttpStatus.NOT_FOUND),
-    UPLOAD_FAILED(1013, "Upload file failed", HttpStatus.BAD_REQUEST);
+    INVALID_KEY(9001, "Invalid key", HttpStatus.BAD_REQUEST),
+    VALIDATION_ERROR(9002, "Validation failed", HttpStatus.BAD_REQUEST),
 
+    // ===== AUTH (1xxx) =====
+    UNAUTHENTICATED(1001, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    ACCESS_DENIED(1002, "You do not have permission", HttpStatus.FORBIDDEN),
+
+    // ===== USER (2xxx) =====
+    USER_ALREADY_EXISTS(2001, "User already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
+    USERNAME_INVALID(2002, "Username must be at least {min} characters", HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(2003, "Password must be at least {min} characters", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND(2004, "User not found", HttpStatus.NOT_FOUND),
+    INVALID_DOB(2005, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+
+    // ===== BOOK (3xxx) =====
+    INVALID_TITLE(3001, "Title must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
+    INVALID_AUTHOR_IDS(3002, "Must have at least 1 author", HttpStatus.BAD_REQUEST),
+    INVALID_SUPPLIER_ID(3003, "Supplier is required", HttpStatus.BAD_REQUEST),
+    INVALID_PUBLISHER_ID(3004, "Publisher is required", HttpStatus.BAD_REQUEST),
+    INVALID_ISBN(3005,  "ISBN must match pattern {regexp}", HttpStatus.BAD_REQUEST),
+    INVALID_LANGUAGE(3006, "Language is required and max 50 characters", HttpStatus.BAD_REQUEST),
+    INVALID_DESCRIPTION(3007, "Description must not exceed 5000 characters", HttpStatus.BAD_REQUEST),
+    INVALID_PAGE_COUNT(3008, "Page count must be between {min} and {max}", HttpStatus.BAD_REQUEST),
+    INVALID_COVER_TYPE(3009, "Cover type is required", HttpStatus.BAD_REQUEST),
+    INVALID_STOCK_QUANTITY(3010, "Stock quantity must not be negative", HttpStatus.BAD_REQUEST),
+    INVALID_PRICE(3011, "Price must have max {integer} digits and {fraction} decimal places", HttpStatus.BAD_REQUEST),
+    INVALID_AVG_RATING(3012, "Rating must be between {value} and 5", HttpStatus.BAD_REQUEST),
+    INVALID_SALE_PERCENT(3013,  "Sale percent must be between {min} and {max}", HttpStatus.BAD_REQUEST),
+    INVALID_CATEGORY_IDS(3014, "Must have at least 1 category", HttpStatus.BAD_REQUEST),
+    // ===== PEOPLE (4xxx) =====
+    AUTHOR_NOT_FOUND(4001, "Author not found", HttpStatus.NOT_FOUND),
+
+    // ===== PARTNER (5xxx) =====
+    SUPPLIER_NOT_FOUND(5001, "Supplier not found", HttpStatus.NOT_FOUND),
+    PUBLISHER_NOT_FOUND(5002, "Publisher not found", HttpStatus.NOT_FOUND),
+
+    // ===== CATEGORY (6xxx) =====
+    CATEGORY_NOT_FOUND(6001, "Category not found", HttpStatus.NOT_FOUND),
+
+    // ===== FILE (7xxx) =====
+    UPLOAD_FAILED(7001, "Upload file failed", HttpStatus.INTERNAL_SERVER_ERROR), // nên là 500
+    FILE_SIZE_EXCEEDED(7002, "File size exceeded limit", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(7003, "Invalid file type", HttpStatus.BAD_REQUEST);
 
 
 
