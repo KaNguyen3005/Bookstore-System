@@ -1,9 +1,21 @@
 server:
   port: 8080
+  tomcat:
+    max-parameter-count : 1000
   servlet:
     context-path: /bookstore
 
+cloudinary:
+    cloud-name: "duqhdj1ff"
+    api-key: "346155614337958"
+    api-secret: "YezmWlvHW0dkAs6x4Lodf3jH1dQ"
 spring:
+  servlet: # Chuyển servlet vào bên dưới spring
+    multipart:
+      enabled: true
+      location: /tmp/spring-uploads
+      max-file-size: 50MB
+      max-request-size: 50MB
   datasource:
     url: "jdbc:mysql://localhost:3307/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh"
     username: admin
