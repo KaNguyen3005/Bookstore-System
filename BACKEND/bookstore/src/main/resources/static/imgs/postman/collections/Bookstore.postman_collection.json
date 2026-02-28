@@ -370,6 +370,18 @@
           "body": null
         }
       ]
+    },
+    {
+      "name": "add payment",
+      "id": "261a3433-1f7c-4f15-b5db-871889d0f603",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
     }
   ]
 }

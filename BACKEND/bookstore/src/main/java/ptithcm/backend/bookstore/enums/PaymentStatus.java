@@ -1,4 +1,3 @@
 package ptithcm.backend.bookstore.enums;
 
-public enum PaymentStatus {
-}
+public enum PaymentStatus { PENDING, SUCCESS, FAILED, CANCELLED }
