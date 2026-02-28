@@ -51,9 +51,30 @@ public enum ErrorCode {
     // ===== FILE (7xxx) =====
     UPLOAD_FAILED(7001, "Upload file failed", HttpStatus.INTERNAL_SERVER_ERROR), // nên là 500
     FILE_SIZE_EXCEEDED(7002, "File size exceeded limit", HttpStatus.BAD_REQUEST),
-    INVALID_FILE_TYPE(7003, "Invalid file type", HttpStatus.BAD_REQUEST);
+    INVALID_FILE_TYPE(7003, "Invalid file type", HttpStatus.BAD_REQUEST),
 
+    // ===== ORDER (8xxx) =====
+    ORDER_NOT_FOUND(8001, "Order not found", HttpStatus.NOT_FOUND),
+    ORDER_ALREADY_CANCELLED(8002, "Order already cancelled", HttpStatus.BAD_REQUEST),
+    ORDER_ALREADY_CONFIRMED(8003, "Order already confirmed", HttpStatus.BAD_REQUEST),
+    ORDER_ALREADY_COMPLETED(8004, "Order already completed", HttpStatus.BAD_REQUEST),
+    ORDER_CANNOT_CANCEL(8005, "Order cannot be cancelled at this stage", HttpStatus.BAD_REQUEST),
+    ORDER_ITEM_NOT_FOUND(8006, "Order item not found", HttpStatus.NOT_FOUND),
+    ORDER_IS_EMPTY(8007, "Order must have at least 1 item", HttpStatus.BAD_REQUEST),
 
+    // ===== PAYMENT (8x5x) =====
+    PAYMENT_NOT_FOUND(8501, "Payment not found", HttpStatus.NOT_FOUND),
+    PAYMENT_ALREADY_SUCCESS(8502, "Payment already success", HttpStatus.BAD_REQUEST),
+    PAYMENT_ALREADY_FAILED(8503, "Payment already failed", HttpStatus.BAD_REQUEST),
+    PAYMENT_CANCELLED(8504, "Payment has been cancelled", HttpStatus.BAD_REQUEST),
+    INVALID_SIGNATURE(8505, "Invalid payment signature", HttpStatus.BAD_REQUEST),
+    PAYMENT_AMOUNT_MISMATCH(8506, "Payment amount does not match order", HttpStatus.BAD_REQUEST),
+    PAYMENT_EXPIRED(8507, "Payment session has expired", HttpStatus.BAD_REQUEST),
+    PAYMENT_METHOD_NOT_SUPPORTED(8508, "Payment method not supported", HttpStatus.BAD_REQUEST),
+
+    // ===== STOCK (8x8x) =====
+    OUT_OF_STOCK(8801, "Book is out of stock", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK(8802, "Not enough stock available", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

@@ -29,3 +29,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+vnpay:
+  tmn-code: JUMI9R64         # Mã website tại VNPay
+  hash-secret: 8SKJLA3T66VOE18RUJP72I5XZV3LW7R0   # Chuỗi bí mật để ký
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/api/payment/vnpay/callback

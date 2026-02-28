@@ -36,11 +36,11 @@ public class Book {
     )
     Set<Author> authors = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.EAGER) // Tối ưu hiệu năng
+    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
     @JoinColumn(name = "supplier_id")  // Rõ ràng khóa ngoại
     Supplier supplier;
 
-    @ManyToOne(fetch = FetchType.EAGER) // Tối ưu hiệu năng
+    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
     @JoinColumn(name = "publisher_id") // Rõ ràng khóa ngoại
     Publisher publisher;
 
