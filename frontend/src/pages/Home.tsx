@@ -1,4 +1,6 @@
-function Home() {
+function Home()
+
+{
   return (
     <div>
       <h1> KATIIA BOOKSTORE </h1>
