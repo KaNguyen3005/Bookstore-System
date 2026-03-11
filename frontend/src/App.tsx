@@ -1,16 +1,12 @@
 import Test from "./pages/test.tsx";
-import Header from "./components/layout/Header";
-import Footer from "./components/layout/Footer";
+import Layout from "./components/layout/Layout";
+
 
 function App() {
   return (
-    <>
-      <Header />
-      <main>
-            <Test/>
-      </main>
-      <Footer />
-    </>
+    <Layout>
+      <Test/>
+    </Layout>
   );
 }
 
