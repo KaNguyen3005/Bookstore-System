@@ -1,0 +1,72 @@
+.footer{
+  width:100%;
+  background:#3c6670;
+  color:white;
+  font-size:12px;
+}
+
+/* feedback */
+.footer-feedback{
+  background:#7fa5a3;
+  padding:10px;
+  text-align:center;
+}
+
+.footer-feedback .link{
+  text-decoration:underline;
+  cursor:pointer;
+}
+
+/* back to top */
+.back-top{
+  background:black;
+  text-align:center;
+  padding:10px;
+  cursor:pointer;
+}
+
+/* main footer */
+.footer-main{
+  display:grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  max-width:1200px;
+  margin:auto;
+  gap:100px;
+  padding:1px 40px;
+}
+
+/* mỗi cột */
+.footer-col{
+  flex:1;
+}
+.footer-col h4{
+  margin-bottom:15px;
+}
+
+.footer-col p{
+  margin:6px 0;
+}
+
+/* logo */
+.logo{
+  font-size:30px;
+  font-weight:bold;
+}
+
+/* social */
+.social{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  font-size:24px;
+}
+
+
+/* bottom */
+.footer-bottom{
+  border-top:3px solid rgba(218,226,219,1);
+  margin-top:5px;
+  padding:px;
+  text-align:center;
+  font-size:11px;
+}
