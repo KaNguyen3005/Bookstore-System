@@ -1,0 +1,33 @@
+/* Spacing handled by .section in Home.css */
+
+.hot-search__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1a2a33;
+  margin-bottom: 20px;
+}
+
+.hot-search__grid,
+.hot-books-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+}
+
+/* Responsive: 6 / 4 / 2 books per row */
+@media (max-width: 1100px) {
+  .hot-search__grid,
+  .hot-books-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .hot-search__grid,
+  .hot-books-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
