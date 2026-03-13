@@ -1,11 +1,10 @@
-import Test from "./pages/test.tsx";
+import Home from "./pages/Home";
 import Layout from "./components/layout/Layout";
-
 
 function App() {
   return (
     <Layout>
-      <Test/>
+      <Home/>
     </Layout>
   );
 }
