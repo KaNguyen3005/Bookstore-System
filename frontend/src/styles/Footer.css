@@ -17,12 +17,24 @@
   cursor:pointer;
 }
 
+.link{
+color: white;
+  cursor:pointer;
+  text-decoration:underline;
+}
+
+.link:hover{
+  color: #2c6f7b;
+}
 /* back to top */
 .back-top{
   background:black;
   text-align:center;
   padding:10px;
   cursor:pointer;
+}
+.back-top:hover{
+  color: #3c6670;
 }
 
 /* main footer */

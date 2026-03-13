@@ -1,12 +1,8 @@
 .account-page{
   display:flex;
   padding:30px;
-   max-width:1200px;
+  max-width:1200px;
   margin:auto;
-}
-
-body{
-  background:rgba(255, 255, 255, 1);
 }
 
 /* SIDEBAR */
@@ -33,7 +29,7 @@ body{
   color:red;
 }
 
-.sidebar .active{
+.sidebar li.active{
   color:red;
   font-weight:bold;
 }
@@ -41,7 +37,7 @@ body{
 /* CONTENT */
 .content{
   flex:1;
-  background:#f2f2f2;
+  background:white;
   margin-left:50px;
   padding:25px;
   border-radius:12px;
@@ -61,6 +57,7 @@ body{
   height:90px;
   background:#4c89d9;
   border-radius:50%;
+  object-fit:cover;
 }
 
 /* FORM */
@@ -119,4 +116,5 @@ body{
   border:none;
   border-radius:20px;
   float:right;
+  cursor:pointer;
 }

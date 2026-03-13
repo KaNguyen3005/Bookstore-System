@@ -8,18 +8,35 @@ import { SiZalo } from "react-icons/si";
 import { AiFillTikTok } from "react-icons/ai";
 import { FaYoutube } from "react-icons/fa";
 
+import { Link } from "react-router-dom";
+
 const Footer: React.FC = () => {
+     const scrollToTop = () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      };
   return (
     <footer className="footer">
 
       {/* TOP MESSAGE */}
       <div className="footer-feedback">
         Nếu bạn có bất kỳ phản hồi nào về trang này, KaTiIa rất mong nhận được ý kiến đóng góp của bạn.
-        <span className="link"> Vui lòng gửi phản hồi của bạn tại đây.</span>
+       <a
+       href="https://forms.gle/FBgRFddiqnzb9aBb9"
+       target="_blank"
+       rel="noopener noreferrer"
+       className="link"
+       >
+       Vui lòng gửi phản hồi của bạn tại đây.
+       </a>
       </div>
 
       {/* BACK TO TOP */}
-      <div className="back-top">Trở lại đầu trang</div>
+      <div className="back-top" onClick={scrollToTop}>
+      Trở lại đầu trang
+      </div>
 
       {/* MAIN FOOTER */}
       <div className="footer-main">
