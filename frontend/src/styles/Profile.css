@@ -1,0 +1,122 @@
+.account-page{
+  display:flex;
+  padding:30px;
+   max-width:1200px;
+  margin:auto;
+}
+
+body{
+  background:rgba(255, 255, 255, 1);
+}
+
+/* SIDEBAR */
+
+.sidebar{
+  width:200px;
+}
+
+.sidebar ul{
+  list-style:none;
+  padding:0;
+}
+
+.sidebar li{
+  padding:10px 10px;
+  cursor:pointer;
+  color:#555;
+  border-radius:8px;
+  transition:0.2s;
+}
+
+.sidebar li:hover{
+  background:#f2f2f2;
+  color:red;
+}
+
+.sidebar .active{
+  color:red;
+  font-weight:bold;
+}
+
+/* CONTENT */
+.content{
+  flex:1;
+  background:#f2f2f2;
+  margin-left:50px;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* PROFILE */
+.profile-container{
+  display:flex;
+  gap:30px;
+  margin-top:25px;
+}
+
+/* AVATAR */
+.avatar{
+  width:90px;
+  height:90px;
+  background:#4c89d9;
+  border-radius:50%;
+}
+
+/* FORM */
+.form-row{
+  display:flex;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.form-row label{
+  width:130px;
+  color:#555;
+}
+
+.form-row input{
+  width:400px;
+  padding:6px;
+  border:1px solid #ddd;
+  border-radius:5px;
+}
+
+.form-row span{
+  margin-left:10px;
+  color:rgba(57, 96, 107, 1);
+  cursor:pointer;
+
+}
+
+/* RADIO */
+.radio{
+  display:flex;
+  align-items:center;
+  gap:40px;
+  width:400px;
+}
+
+.radio label{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+}
+
+
+/* MEMBER */
+.member{
+  margin-top:30px;
+}
+
+/* BUTTON */
+.save-btn{
+  margin-top:10px;
+  padding:8px 30px;
+  background:#2c5d63;
+  color:white;
+  border:none;
+  border-radius:20px;
+  float:right;
+}
