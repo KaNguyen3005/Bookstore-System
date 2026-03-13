@@ -8,7 +8,7 @@ interface HotSearchBooksProps {
 
 const HotSearchBooks = ({ books }: HotSearchBooksProps) => {
   return (
-    <div className="hot-search">
+    <div className="hot-search container">
       <h2 className="hot-search__title">HOT SEARCH BOOKS</h2>
       <div className="hot-search__grid hot-books-grid">
         {books.map((book) => (

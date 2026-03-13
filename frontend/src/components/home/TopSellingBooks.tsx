@@ -8,7 +8,7 @@ interface TopSellingBooksProps {
 
 const TopSellingBooks = ({ books }: TopSellingBooksProps) => {
   return (
-    <div className="top-selling">
+    <div className="top-selling container">
       <h2 className="top-selling__title">Top sách bán chạy</h2>
       <div className="top-selling__grid">
         {books.map((book) => (

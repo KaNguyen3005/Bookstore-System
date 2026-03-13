@@ -3,23 +3,20 @@ import "../../styles/home/ExploreCategories.css";
 
 const ExploreCategories = () => {
   return (
-    <div className="explore-categories">
-      <h2 className="explore-categories__title">Khám phá các danh mục hàng đầu</h2>
-      <div className="explore-categories__columns">
-        <ul className="explore-categories__list">
-          {CATEGORIES.map((cat) => (
-            <li key={cat.id}>
-              <a href={cat.href}>{cat.label}</a>
-            </li>
+    <div className="container">
+      <div className="explore-categories">
+        <h2 className="explore-categories__title">Khám phá các danh mục hàng đầu</h2>
+        <div className="explore-categories__grid">
+          {CATEGORIES.map((cat, idx) => (
+            <a key={cat.id} href={cat.href} className="explore-categories__item">
+              <span className="explore-categories__item-icon">
+                {idx === 0 ? "💖" : idx === 1 ? "🎈" : idx === 2 ? "🕵️" : idx === 3 ? "🚀" : "📖"}
+              </span>
+              <span className="explore-categories__item-label">{cat.label}</span>
+              <span className="explore-categories__item-arrow">→</span>
+            </a>
           ))}
-        </ul>
-        <ul className="explore-categories__list">
-          {CATEGORIES.map((cat) => (
-            <li key={cat.id}>
-              <a href={cat.href}>{cat.label}</a>
-            </li>
-          ))}
-        </ul>
+        </div>
       </div>
     </div>
   );
