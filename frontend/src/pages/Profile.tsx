@@ -1,96 +1,209 @@
+import { useState } from "react";
 import "../styles/Profile.css";
+import { userData } from "../Data/user";
+
+import { RxAvatar } from "react-icons/rx";
 
 export default function Profile() {
+
+  const [user, setUser] = useState(userData);
+  const [edit, setEdit] = useState(false);
+  const [active, setActive] = useState("profile");
+  const [avatar, setAvatar] = useState("");
+
+// xu ly hay doi input
+  const handleChange = (e:any) => {
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value
+    });
+  };
+
+//upload avatar
+  const handleAvatar = (e:any) => {
+    const file = e.target.files[0];
+    if(file){
+      setAvatar(URL.createObjectURL(file));
+    }
+  };
+
+// save thong tin
+  const handleSave = () => {
+    alert("Lưu thành công!");
+    setEdit(false);
+  };
+
   return (
+
     <div className="account-page">
 
-      {/* Sidebar */}
+      {/* SIDEBAR */}
+
       <div className="sidebar">
+
         <h3>Tài khoản của tôi</h3>
 
         <ul>
-          <li>Hồ sơ cá nhân</li>
-          <li>Đổi mật khẩu</li>
-          <li>Thông tin cá nhân</li>
-          <li>Thiết lập tài khoản</li>
-          <li>Kho Voucher</li>
-          <li>Hạng thành viên của tôi</li>
-          <li>Lịch sử tích điểm</li>
+
+          <li
+          className={active==="profile"?"active":""}
+          onClick={()=>setActive("profile")}
+          >
+          Hồ sơ cá nhân
+          </li>
+
+          <li
+          className={active==="password"?"active":""}
+          onClick={()=>setActive("password")}
+          >
+          Đổi mật khẩu
+          </li>
+
+          <li
+          className={active==="info"?"active":""}
+          onClick={()=>setActive("info")}
+          >
+          Thông tin cá nhân
+          </li>
+
+          <li
+          className={active==="setting"?"active":""}
+          onClick={()=>setActive("setting")}
+          >
+          Thiết lập tài khoản
+          </li>
+
+          <li
+          className={active==="voucher"?"active":""}
+          onClick={()=>setActive("voucher")}
+          >
+          Kho Voucher
+          </li>
+
+          <li
+          className={active==="member"?"active":""}
+          onClick={()=>setActive("member")}
+          >
+          Hạng thành viên của tôi
+          </li>
+
         </ul>
+
       </div>
 
-      {/* Main */}
+      {/* CONTENT */}
+
       <div className="content">
 
         <h2>Hồ sơ cá nhân</h2>
 
         <div className="profile-container">
 
-          {/* Avatar */}
+          {/* AVATAR */}
+
           <div className="avatar-section">
-            <div className="avatar"></div>
-            <p>User1234</p>
+
+            <img
+            src={avatar || "https://via.placeholder.com/120"}
+            className="avatar"
+            />
+
+            <input type="file" onChange={handleAvatar}/>
+
+            <p>{user.username}</p>
+
           </div>
 
-          {/* Form */}
-          <div className="form-section">
+          {/* FORM. edit ---> update state*/}
 
+          <div className="form-section">
             <div className="form-row">
               <label>Tên đăng nhập</label>
-              <input value="user1234@" />
-              <span>Sửa</span>
+              <input
+              name="username"
+              value={user.username}
+              readOnly
+              />
             </div>
 
             <div className="form-row">
               <label>Họ và tên</label>
-              <input value="Nguyễn Văn Test" />
-              <span>Sửa</span>
+              <input
+              name="fullname"
+              value={user.fullname}
+              onChange={handleChange}
+              readOnly={!edit}
+              />
             </div>
 
             <div className="form-row">
               <label>Số điện thoại</label>
-              <input value="0912345***" />
-              <span>Sửa</span>
+              <input
+              name="phone"
+              value={user.phone}
+              onChange={handleChange}
+              readOnly={!edit}
+              />
             </div>
 
             <div className="form-row">
               <label>Email</label>
-              <input value="testnguyenvan89@gmail.com" />
-              <span>Sửa</span>
-            </div>
-
-            <div className="form-row">
-              <label>Giới tính</label>
-              <div className="radio">
-                <label><input type="radio"/> Nam</label>
-                <label><input type="radio"/> Nữ</label>
-                <label><input type="radio"/> Khác</label>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <label>Ngày sinh</label>
-              <input value="**/**/2005" />
-              <span>Sửa</span>
+              <input
+              name="email"
+              value={user.email}
+              onChange={handleChange}
+              readOnly={!edit}
+              />
             </div>
 
             <div className="form-row">
               <label>Địa chỉ</label>
-              <input value="97 Man Thiện, P Tăng Nhơn Phú, TP Hồ Chí Minh" />
-              <span>Sửa</span>
+              <input
+              name="address"
+              value={user.address}
+              onChange={handleChange}
+              readOnly={!edit}
+              />
             </div>
 
           </div>
+
         </div>
+
+        {/* MEMBER */}
 
         <div className="member">
           <h3>Hạng thành viên</h3>
-          <p>Số điểm tích lũy: 500 điểm</p>
+          <p>Số điểm tích lũy: {user.point} điểm</p>
         </div>
 
-        <button className="save-btn">Lưu</button>
+        {/* BUTTON */}
+
+        <div style={{marginTop:"20px"}}>
+
+        <button
+        className="save-btn"
+        onClick={()=>setEdit(!edit)}
+        >
+        {edit ? "Hủy" : "Sửa"}
+        </button>
+
+        {edit && (
+
+        <button
+        className="save-btn"
+        style={{marginLeft:"10px"}}
+        onClick={handleSave}
+        >
+        Lưu
+        </button>
+
+        )}
+
+        </div>
 
       </div>
+
     </div>
   );
 }
