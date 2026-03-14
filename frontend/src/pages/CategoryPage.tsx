@@ -7,13 +7,10 @@ import ExploreCategories from '../components/home/ExploreCategories';
 
 import { mockCategoryBooks } from '../Data/mockCategoryBooks';
 import { TOP_SELLING_BOOKS } from '../Data/homeBooks';
-import '../styles/category/CategoryPage.css';
 
 const CategoryPage = () => {
   return (
     <div className="category-page">
-      <Header />
-
       <main className="category-page__main">
 
         {/* Sidebar + Book Grid */}
@@ -65,8 +62,6 @@ const CategoryPage = () => {
         <ExploreCategories />
 
       </main>
-
-      <Footer />
     </div>
   );
 };
