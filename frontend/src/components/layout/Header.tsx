@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/Header.css";
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoNotificationsOutline } from "react-icons/io5";
@@ -13,6 +14,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { FaHotjar } from "react-icons/fa";
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <header className="header">
 
@@ -26,7 +28,7 @@ const Header: React.FC = () => {
 
         {/* giao hang */}
         <div className="delivery">
-          <TbTruckDelivery size={20}/>
+          <TbTruckDelivery size={20} />
           <div>
             <p>Giao đến</p>
             <p>TP.Hồ Chí Minh</p>
@@ -67,8 +69,10 @@ const Header: React.FC = () => {
       {/* MENU */}
       <div className="header-menu">
 
-        <button><IoHomeOutline /> BOOKS</button>
-        <button><GiHamburgerMenu /> Xem tất cả</button>
+        <button onClick={() => navigate("/")}>
+          <IoHomeOutline /> BOOKS</button>
+        <button onClick={() => navigate("/category")}>
+          <GiHamburgerMenu /> Xem tất cả</button>
         <button><GoBook /> Ebook</button>
         <button>Mới & Thịnh hành</button>
         <button>Ưu đãi & Phần thưởng</button>
