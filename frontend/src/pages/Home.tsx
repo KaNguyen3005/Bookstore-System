@@ -3,7 +3,6 @@ import HotSearchBooks from "../components/home/HotSearchBooks";
 import TopSellingBooks from "../components/home/TopSellingBooks";
 import ExploreCategories from "../components/home/ExploreCategories";
 import { HOT_SEARCH_BOOKS, TOP_SELLING_BOOKS } from "../Data/homeBooks";
-import "../styles/home/Home.css";
 
 function Home() {
   return (
