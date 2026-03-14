@@ -2,6 +2,7 @@ Thư viện cần tải
 npm install axios
 npm install react icon
 npm install json-server
+npm install react-router-dom
 
 Lý thuyết:
 React → gọi API → backend → trả JSON → React hiển thị

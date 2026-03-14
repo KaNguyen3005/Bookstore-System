@@ -11,12 +11,11 @@ import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const Footer: React.FC = () => {
-     const scrollToTop = () => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
-      };
+
+    const scrollToTop = () => {
+      window.scrollTo(0,0);
+    };
+
   return (
     <footer className="footer">
 
