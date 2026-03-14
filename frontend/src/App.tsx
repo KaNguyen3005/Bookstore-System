@@ -1,12 +1,41 @@
-import Home from "./pages/Home";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Layout from "./components/layout/Layout";
-import Profile from "./pages/Profile.tsx"
+import Home from "./pages/Home";
+
+import Profile from "./pages/User/Profile";
+import ProfileContent from "./pages/User/ProfileContent";
+import ChangePassword from "./pages/User/ChangePassword";
+import PersonalInfor from "./pages/User/PersonalInfor";
+import Voucher from "./pages/User/Voucher";
+import MemberRank from "./pages/User/MemberRank";
 
 function App() {
+
   return (
-    <Layout>
-      <Home/>
-    </Layout>
+    <BrowserRouter>
+
+      <Routes>
+
+        <Route path="/" element={<Layout />}>
+
+          <Route index element={<Home />} />
+
+          <Route path="profile" element={<Profile />}>
+
+            <Route index element={<ProfileContent />} />
+            <Route path="password" element={<ChangePassword />} />
+            <Route path="info" element={<PersonalInfor />} />
+            <Route path="voucher" element={<Voucher />} />
+            <Route path="member" element={<MemberRank />} />
+
+          </Route>
+
+        </Route>
+
+      </Routes>
+
+    </BrowserRouter>
   );
 }
 
