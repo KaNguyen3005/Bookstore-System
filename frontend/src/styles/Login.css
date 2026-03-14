@@ -72,9 +72,15 @@
 }
 
 .register{
+    display:block;
     margin-top:20px;
     font-size:14px;
-    font-weight:bold;
+    font-weight:500;
+    color:rgba(57, 96, 107, 1);
+    text-decoration:none;
     cursor:pointer;
 }
 
+.register:hover{
+    text-decoration:underline;
+}

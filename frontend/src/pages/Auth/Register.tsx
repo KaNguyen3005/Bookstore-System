@@ -1,5 +1,7 @@
 import "../../styles/Register.css";
 
+import { Link } from "react-router-dom";
+
 const Register = () => {
   return (
     <div className="register-page">
@@ -57,9 +59,10 @@ const Register = () => {
         </form>
 
         <p className="ask-register">
-          Đã có tài khoản, <span>đăng nhập ngay</span>
+          Đã có tài khoản, <Link to="/login" className="login-link">
+            đăng nhập ngay
+          </Link>
         </p>
-
       </div>
 
     </div>

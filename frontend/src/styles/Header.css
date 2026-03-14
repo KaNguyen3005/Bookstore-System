@@ -55,7 +55,7 @@
 .action-item{
   display:flex;
   flex-direction:column;
-  align-items:center;
+  align-items:center    ;
   justify-content:center;
   text-align:center;
   font-size:13px;
@@ -83,6 +83,7 @@
 }
 
 .header-menu button{
+  cursor:pointer;
   border:none;
   padding:1px 5px;
   background:white;

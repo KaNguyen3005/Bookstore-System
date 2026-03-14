@@ -12,6 +12,7 @@ import Voucher from "./pages/User/Voucher";
 import MemberRank from "./pages/User/MemberRank";
 
 import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
 
 function App() {
   return (
@@ -19,12 +20,13 @@ function App() {
       <Routes>
 
         <Route path="/" element={<Layout />}>
+
           <Route index element={<Home />} />
 
-          {/* Category page */}
+          {/* Category */}
           <Route path="category" element={<CategoryPage />} />
 
-          {/* Profile routes */}
+          {/* Profile */}
           <Route path="profile" element={<Profile />}>
             <Route index element={<ProfileContent />} />
             <Route path="password" element={<ChangePassword />} />
@@ -32,8 +34,10 @@ function App() {
             <Route path="voucher" element={<Voucher />} />
             <Route path="member" element={<MemberRank />} />
           </Route>
-            <Route path ="login" element={<Login/>}>
-          </Route>
+
+          {/* Auth */}
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
 
         </Route>
 

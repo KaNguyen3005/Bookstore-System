@@ -1,6 +1,12 @@
 import "../../styles/Login.css";
+import { Link } from "react-router-dom";
 
 const Login =() => {
+
+      const scrollToTop = () => {
+        window.scrollTo(0, 0);
+      };
+
     return (
         <div className ="login-page">
             <div className ="login-container" >
@@ -24,7 +30,10 @@ const Login =() => {
                 </form>
 
                 <p className ="forgot ">Quên mật khẩu</p>
-                <p className ="register">Đăng ký tài khoản</p>
+
+                <Link to="/register" className="register" onClick={scrollToTop}>
+                  Đăng ký tài khoản
+                </Link>
             </div>
         </div>
         )

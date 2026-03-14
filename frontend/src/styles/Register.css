@@ -125,14 +125,17 @@
 .ask-register{
   margin-top:20px;
   font-size:14px;
+  display:flex;
+  justify-content:center;
+  gap:5px;
 }
 
-.ask-register span{
-  color:rgba(57,96,107,1);
-  font-weight:600;
+.login-link{
+  color:#2c6f7b;
+  text-decoration:none;
   cursor:pointer;
 }
 
-.ask-register span:hover{
+.login-link:hover{
   text-decoration:underline;
 }
