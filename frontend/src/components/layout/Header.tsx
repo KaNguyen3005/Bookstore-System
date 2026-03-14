@@ -1,10 +1,5 @@
 import React from "react";
-<<<<<<< HEAD
-import { useNavigate } from "react-router-dom";
-=======
-import { Link } from "react-router-dom";
-
->>>>>>> d29d671114d4fe799c4abdaf1744494acc199cf6
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/Header.css";
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoNotificationsOutline } from "react-icons/io5";
@@ -19,27 +14,22 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { FaHotjar } from "react-icons/fa";
 
 const Header: React.FC = () => {
-<<<<<<< HEAD
+
   const navigate = useNavigate();
-=======
 
-    const scrollToTop = () => {
-      window.scrollTo(0,0);
-    };
+  const scrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
 
->>>>>>> d29d671114d4fe799c4abdaf1744494acc199cf6
   return (
     <header className="header">
 
-      {/* TOP HEADER */}
       <div className="header-top">
 
-        {/* Logo */}
-        <Link to ="/" className="logo login-link">
+        <Link to="/" className="logo login-link">
           KATIIA
         </Link>
 
-        {/* giao hang */}
         <div className="delivery">
           <TbTruckDelivery size={20} />
           <div>
@@ -48,15 +38,10 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Search */}
         <div className="search">
-          <input
-            type="text"
-            placeholder="Tìm kiếm sách "
-          />
+          <input type="text" placeholder="Tìm kiếm sách" />
         </div>
 
-        {/* Actions */}
         <div className="actions">
 
           <div className="action-item">
@@ -78,23 +63,16 @@ const Header: React.FC = () => {
 
       </div>
 
+      <div className="header-menu">
 
-      {/* MENU */}
-      <div className="header-menu ">
-
-<<<<<<< HEAD
         <button onClick={() => navigate("/")}>
-          <IoHomeOutline /> BOOKS</button>
-        <button onClick={() => navigate("/category")}>
-          <GiHamburgerMenu /> Xem tất cả</button>
-=======
-        <button>
-            <Link to ="/" className= "login-link">
-                <IoHomeOutline /> BOOKS
-            </Link>
+          <IoHomeOutline /> BOOKS
         </button>
-        <button><GiHamburgerMenu /> Xem tất cả</button>
->>>>>>> d29d671114d4fe799c4abdaf1744494acc199cf6
+
+        <button onClick={() => navigate("/category")}>
+          <GiHamburgerMenu /> Xem tất cả
+        </button>
+
         <button><GoBook /> Ebook</button>
         <button>Mới & Thịnh hành</button>
         <button>Ưu đãi & Phần thưởng</button>
