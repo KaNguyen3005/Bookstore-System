@@ -1,12 +1,16 @@
 import Home from "./pages/Home";
+import CategoryPage from "./pages/CategoryPage";
 import Layout from "./components/layout/Layout";
-import Profile from "./pages/Profile.tsx"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
-    <Layout>
-      <Home/>
-    </Layout>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout><Home /></Layout>} />
+        <Route path="/category" element={<CategoryPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
