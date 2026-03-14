@@ -1,13 +1,13 @@
 @font-face {
   font-family: "SF Pro";
-  src: url("../assets/fonts/SF-Pro-Display-Regular.otf");
-  font-weight: 400;
+  src: url("/assets/fonts/SF-Pro-Display-Regular.ttf") format("truetype");
+  font-weight: normal;
 }
 
 @font-face {
   font-family: "SF Pro";
-  src: url("../assets/fonts/SF-Pro-Display-Bold.otf");
-  font-weight: 700;
+  src: url("/assets/fonts/SF-Pro-Display-Bold.ttf") format("truetype");
+  font-weight: bold;
 }
 
 body{

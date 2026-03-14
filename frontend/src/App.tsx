@@ -10,6 +10,8 @@ import PersonalInfor from "./pages/User/PersonalInfor";
 import Voucher from "./pages/User/Voucher";
 import MemberRank from "./pages/User/MemberRank";
 
+import Login from "./pages/Auth/Login";
+
 function App() {
 
   return (
@@ -29,6 +31,8 @@ function App() {
             <Route path="voucher" element={<Voucher />} />
             <Route path="member" element={<MemberRank />} />
 
+          </Route>
+            <Route path ="login" element={<Login/>}>
           </Route>
 
         </Route>
