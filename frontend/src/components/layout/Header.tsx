@@ -1,6 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/Header.css";
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoNotificationsOutline } from "react-icons/io5";
@@ -16,39 +15,33 @@ import { FaHotjar } from "react-icons/fa";
 
 const Header: React.FC = () => {
 
-    const scrollToTop = () => {
-      window.scrollTo(0,0);
-    };
+  const navigate = useNavigate();
+
+  const scrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
 
   return (
     <header className="header">
 
-      {/* TOP HEADER */}
       <div className="header-top">
 
-        {/* Logo */}
-        <Link to ="/" className="logo login-link">
+        <Link to="/" className="logo login-link">
           KATIIA
         </Link>
 
-        {/* giao hang */}
         <div className="delivery">
-          <TbTruckDelivery size={20}/>
+          <TbTruckDelivery size={20} />
           <div>
             <p>Giao đến</p>
             <p>TP.Hồ Chí Minh</p>
           </div>
         </div>
 
-        {/* Search */}
         <div className="search">
-          <input
-            type="text"
-            placeholder="Tìm kiếm sách "
-          />
+          <input type="text" placeholder="Tìm kiếm sách" />
         </div>
 
-        {/* Actions */}
         <div className="actions">
 
           <div className="action-item">
@@ -70,16 +63,16 @@ const Header: React.FC = () => {
 
       </div>
 
+      <div className="header-menu">
 
-      {/* MENU */}
-      <div className="header-menu ">
-
-        <button>
-            <Link to ="/" className= "login-link">
-                <IoHomeOutline /> BOOKS
-            </Link>
+        <button onClick={() => navigate("/")}>
+          <IoHomeOutline /> BOOKS
         </button>
-        <button><GiHamburgerMenu /> Xem tất cả</button>
+
+        <button onClick={() => navigate("/category")}>
+          <GiHamburgerMenu /> Xem tất cả
+        </button>
+
         <button><GoBook /> Ebook</button>
         <button>Mới & Thịnh hành</button>
         <button>Ưu đãi & Phần thưởng</button>
