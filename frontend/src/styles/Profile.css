@@ -37,7 +37,7 @@
 
 /* active */
 .sidebar a.active{
-  background:white;
+  background:white ;
   color:red;
   font-weight:bold;
 }

@@ -61,7 +61,7 @@ const Header: React.FC = () => {
             <p>Giỏ hàng</p>
           </div>
 
-          <Link to="/profile" className="action-item login-link" onClick={scrollToTop}>
+          <Link to="/login" className="action-item login-link" onClick={scrollToTop}>
             <FaRegUserCircle />
             <p>Đăng nhập</p>
           </Link>

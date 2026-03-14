@@ -1,0 +1,138 @@
+.register-page{
+  background:#f5f5f5;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* container */
+
+.register-container{
+  background:white;
+  width:700px;
+  padding:50px 40px;
+  border-radius:10px;
+  text-align:center;
+  box-shadow:0 10px 35px rgba(0,0,0,0.08);
+}
+
+/* logo */
+
+.logo{
+  font-size:52px;
+  color:rgba(57,96,107,1);
+  font-family:Urban Jungle;
+  letter-spacing:2px;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  font-size:16px;
+  margin:25px 0 40px;
+}
+
+/* form */
+
+.register-form{
+  display:flex;
+  flex-direction:column;
+}
+
+/* ten, ns, gt, sdt, mk */
+.register-form label{
+  width:60%;
+  margin:16px auto 8px;
+  text-align:left;
+  font-size:14px;
+  font-weight:500;
+}
+
+/* nhap+ chon*/
+.register-form input,
+.register-form select{
+  width:60%;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:14px;
+  box-sizing:border-box;
+  transition:0.2s;
+}
+
+
+
+/* layout chung cho các field */
+.name-row,
+.birth-row,
+.full{
+  width:60%;
+  margin:0 auto 16px;
+}
+
+/* họ tên + ns*/
+.name-row,
+.birth-row{
+  display:flex;
+  gap:12px;
+}
+
+.name-row input,
+.birth-row select{
+  flex:1;
+  min-width:0;
+}
+
+
+.note{
+  width:60%;
+  margin:10px auto;
+  text-align:left;
+  font-size:13px;
+  line-height:1.6;
+  color:#555;
+}
+
+.link{
+  color:rgba(57,96,107,1);
+  text-decoration:none;
+}
+
+.link:hover{
+  text-decoration:underline;
+}
+
+.register-form button{
+  width:60%;
+  padding:15px;
+  border:none;
+  border-radius:30px;
+  background:rgba(57,96,107,1);
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  margin:35px auto 0;
+  transition:0.2s;
+}
+
+.register-form button:hover{
+  background:#2f555c;
+  transform:translateY(-1px);
+}
+
+/* login link */
+
+.ask-register{
+  margin-top:20px;
+  font-size:14px;
+}
+
+.ask-register span{
+  color:rgba(57,96,107,1);
+  font-weight:600;
+  cursor:pointer;
+}
+
+.ask-register span:hover{
+  text-decoration:underline;
+}
