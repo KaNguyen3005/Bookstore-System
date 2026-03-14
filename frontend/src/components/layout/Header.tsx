@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 import "../../styles/Header.css";
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoNotificationsOutline } from "react-icons/io5";
@@ -13,6 +15,11 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { FaHotjar } from "react-icons/fa";
 
 const Header: React.FC = () => {
+
+    const scrollToTop = () => {
+      window.scrollTo(0,0);
+    };
+
   return (
     <header className="header">
 
@@ -20,9 +27,9 @@ const Header: React.FC = () => {
       <div className="header-top">
 
         {/* Logo */}
-        <div className="logo">
+        <Link to ="/" className="logo login-link">
           KATIIA
-        </div>
+        </Link>
 
         {/* giao hang */}
         <div className="delivery">
@@ -54,10 +61,10 @@ const Header: React.FC = () => {
             <p>Giỏ hàng</p>
           </div>
 
-          <div className="action-item">
+          <Link to="/profile" className="action-item login-link" onClick={scrollToTop}>
             <FaRegUserCircle />
             <p>Đăng nhập</p>
-          </div>
+          </Link>
 
         </div>
 
@@ -65,9 +72,13 @@ const Header: React.FC = () => {
 
 
       {/* MENU */}
-      <div className="header-menu">
+      <div className="header-menu ">
 
-        <button><IoHomeOutline /> BOOKS</button>
+        <button>
+            <Link to ="/" className= "login-link">
+                <IoHomeOutline /> BOOKS
+            </Link>
+        </button>
         <button><GiHamburgerMenu /> Xem tất cả</button>
         <button><GoBook /> Ebook</button>
         <button>Mới & Thịnh hành</button>
