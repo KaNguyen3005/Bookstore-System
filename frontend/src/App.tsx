@@ -1,14 +1,38 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
-import Layout from "./components/layout/Layout";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Profile from "./pages/User/Profile";
+import ProfileContent from "./pages/User/ProfileContent";
+import ChangePassword from "./pages/User/ChangePassword";
+import PersonalInfor from "./pages/User/PersonalInfor";
+import Voucher from "./pages/User/Voucher";
+import MemberRank from "./pages/User/MemberRank";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/category" element={<CategoryPage />} />
+
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+
+          {/* Category page */}
+          <Route path="category" element={<CategoryPage />} />
+
+          {/* Profile routes */}
+          <Route path="profile" element={<Profile />}>
+            <Route index element={<ProfileContent />} />
+            <Route path="password" element={<ChangePassword />} />
+            <Route path="info" element={<PersonalInfor />} />
+            <Route path="voucher" element={<Voucher />} />
+            <Route path="member" element={<MemberRank />} />
+          </Route>
+
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );
