@@ -1,18 +1,18 @@
 @font-face {
   font-family: "SF Pro";
-  src: url("/assets/fonts/SF-Pro-Display-Regular.ttf") format("truetype");
-  font-weight: normal;
+  src: url("/src/assets/fonts/SF-Pro-Display-Regular.otf") format("truetype");
+  font-weight: 400;
 }
 
 @font-face {
   font-family: "SF Pro";
-  src: url("/assets/fonts/SF-Pro-Display-Bold.ttf") format("truetype");
-  font-weight: bold;
+  src: url("/src/assets/fonts/SF-Pro-Display-Bold.otf") format("truetype");
+  font-weight: 700;
 }
 
 body{
   font-family: "SF Pro", sans-serif;
-  background: #f5f5f5;
+   background: #f5f5f5;
 }
 
 {/* truot len dau trang */}
