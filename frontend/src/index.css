@@ -1,21 +1,26 @@
 @font-face {
   font-family: "SF Pro";
-  src: url("/src/assets/fonts/SF-Pro-Display-Regular.otf") format("truetype");
+  src: url("./assets/fonts/SF-Pro-Display-Regular.otf") format("opentype");
   font-weight: 400;
 }
 
 @font-face {
   font-family: "SF Pro";
-  src: url("/src/assets/fonts/SF-Pro-Display-Bold.otf") format("truetype");
+  src: url("./assets/fonts/SF-Pro-Display-Bold.otf") format("opentype");
   font-weight: 700;
 }
 
-body{
-  font-family: "SF Pro", sans-serif;
-   background: #f5f5f5;
+@font-face {
+  font-family: "Urban Jungle";
+  src: url("./assets/fonts/UrbanJungle.otf") format("opentype");
 }
 
-{/* truot len dau trang */}
-html {
+
+body{
+  font-family: "SF Pro", sans-serif;
+  background: #f5f5f5;
+}
+/*truot len dau trang*/
+html{
   scroll-behavior: smooth;
 }
