@@ -4,6 +4,8 @@ import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
 
+import ProtectedRoute from "./pages/auth/ProtectedRoute";
+
 import Profile from "./pages/User/Profile";
 import ProfileContent from "./pages/User/ProfileContent";
 import ChangePassword from "./pages/User/ChangePassword";
@@ -13,6 +15,7 @@ import MemberRank from "./pages/User/MemberRank";
 
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
+import Otp from "./pages/Auth/Otp";
 
 function App() {
   return (
@@ -27,7 +30,14 @@ function App() {
           <Route path="category" element={<CategoryPage />} />
 
           {/* Profile */}
-          <Route path="profile" element={<Profile />}>
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<ProfileContent />} />
             <Route path="password" element={<ChangePassword />} />
             <Route path="info" element={<PersonalInfor />} />
@@ -38,6 +48,7 @@ function App() {
           {/* Auth */}
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="otp" element={<Otp />} />
 
         </Route>
 
