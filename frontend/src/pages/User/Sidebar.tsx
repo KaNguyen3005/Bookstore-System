@@ -1,6 +1,13 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Sidebar(){
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // xoá thông tin user
+    navigate("/"); // chuyển về trang login
+  };
 
   return(
 
@@ -39,6 +46,10 @@ export default function Sidebar(){
             Hạng thành viên
           </NavLink>
         </li>
+
+        <h3 className="logout" onClick={handleLogout}>
+          Đăng xuất
+        </h3>
 
       </ul>
 

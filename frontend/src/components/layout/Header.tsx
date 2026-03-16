@@ -16,6 +16,7 @@ import { FaHotjar } from "react-icons/fa";
 const Header: React.FC = () => {
 
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const scrollToTop = () => {
     window.scrollTo(0, 0);
@@ -54,10 +55,22 @@ const Header: React.FC = () => {
             <p>Giỏ hàng</p>
           </div>
 
+          {/*}<Link to="/login" className="action-item login-link" onClick={scrollToTop}>
+            <FaRegUserCircle />
+            <p>Đăng nhập</p>
+          </Link>*/}
+
+        {user ? (
+          <Link to="/profile" className="action-item login-link">
+            <FaRegUserCircle />
+            <p>{user.email}</p>
+          </Link>
+        ) : (
           <Link to="/login" className="action-item login-link" onClick={scrollToTop}>
             <FaRegUserCircle />
             <p>Đăng nhập</p>
           </Link>
+        )}
 
         </div>
 
