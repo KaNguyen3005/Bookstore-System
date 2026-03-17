@@ -1,23 +1,20 @@
 const users = [
   {
-    id: 1,
-    username: "nika",
-    fullname: "Nika Nguyen Pham",
-    email: "nika@gmail.com",
+    user_id: 1,
+    username: "nika1234@",
+    password: "123456",
+    first_name: "Nika",
+    last_name: "Nguyen Pham",
+    email: "nika123@gmail.com",
     phone: "0901234567",
-    password: "123456",
-    address: "97 Man Thiện, P Hiệp Phú, TP.Hồ Chí Minh",
-    point: 120
-  },
-  {
-    id: 2,
-    username: "minhtran",
-    fullname: "Trần Minh",
-    email: "minh@gmail.com",
-    phone: "0912345678",
-    password: "123456",
-    address: "Hà Nội",
-    point: 350
+    birth: "1/1/20005",
+    status: true,
+    gender: "female",
+    role_id: 1,
+    point: 120,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null
   }
 ];
 
