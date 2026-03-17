@@ -1,5 +1,6 @@
 import type { Order } from "../Data/orders";
 import { mockOrders } from "../Data/orders";
+import type { OrderStatus } from "../Data/orders";
 
 // 🔥 giả lập API (sau này thay bằng fetch/axios)
 export const getOrders = async (): Promise<Order[]> => {

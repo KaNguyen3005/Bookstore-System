@@ -1,60 +1,33 @@
-{/*import { useEffect, useState } from "react"
-   import { getBooks } from "../services/bookService"
-   import { Book } from "../types/Book"
+import type { Book } from "../types/Book";
+import { mockCategoryBooks } from "../Data/mockCategoryBooks";
 
-   function Home() {
+// ===== Mapper =====
+const mapBook = (item: any): Book => {
+  return {
+    book_id: item.book_id,
+    title: item.title,
+    price: item.price,
+    cover_image_url: item.cover_image_url,
+    avg_rating: item.avg_rating,
+    sale_percent: item.sale_percent,
+    author_name: item.author_name,
 
-     const [books, setBooks] = useState<Book[]>([])
+    // UI fields (fake)
+    oldPrice: item.oldPrice ?? (
+      item.sale_percent
+        ? item.price + (item.price * item.sale_percent) / 100
+        : undefined
+    ),
+    reviewCount: item.reviewCount ?? Math.floor(Math.random() * 5000),
+  };
+};
 
-     useEffect(() => {
-       getBooks().then((data) => {
-         setBooks(data)
-       })
-     }, [])
-
-     return (
-       <div>
-         <h2>Book List</h2>
-
-         {books.map(book => (
-           <div key={book.id}>
-             <p>{book.title}</p>
-             <p>{book.price}</p>
-           </div>
-         ))}
-       </div>
-     )
-   }
-
-   export default Home */}
-
-import { Book } from "../types/Book"
-
-const mockBooks: Book[] = [
-  {
-    id: 1,
-    title: "Clean Code",
-    price: 120000,
-    author: "Robert C. Martin"
-  },
-  {
-    id: 2,
-    title: "Atomic Habits",
-    price: 90000,
-    author: "James Clear"
-  },
-  {
-    id: 3,
-    title: "Deep Work",
-    price: 110000,
-    author: "Cal Newport"
-  }
-]
-
+// ===== Fake API =====
 export const getBooks = async (): Promise<Book[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(mockBooks)
-    }, 500) // giả lập gọi API
-  })
-}
+      const data = mockCategoryBooks.map(mapBook);
+      resolve(data);
+    }, 500);
+  });
+};

@@ -38,7 +38,7 @@ export const mockOrders: Order[] = [
     name: "Sách JavaScript nâng cao",
     price: 180000,
   },
-    {
+  {
     id: 3,
     status: "return",
     name: "Học chi quá là mệt",
