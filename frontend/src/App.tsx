@@ -11,6 +11,7 @@ import ProfileContent from "./pages/User/ProfileContent";
 import ChangePassword from "./pages/User/ChangePassword";
 import PersonalInfor from "./pages/User/PersonalInfor";
 import Order from "./pages/User/Order";
+import Address from "./pages/User/Address";
 import Voucher from "./pages/User/Voucher";
 import MemberRank from "./pages/User/MemberRank";
 
@@ -42,6 +43,7 @@ function App() {
             <Route index element={<ProfileContent />} />
             <Route path="password" element={<ChangePassword />} />
             <Route path="info" element={<PersonalInfor />} />
+            <Route path="address" element={<Address />} />
             <Route path="order" element={<Order />} />
             <Route path="voucher" element={<Voucher />} />
             <Route path="member" element={<MemberRank />} />
