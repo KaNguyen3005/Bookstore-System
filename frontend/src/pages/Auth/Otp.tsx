@@ -10,7 +10,7 @@ const OTP =() => {
     return (
         <div className ="otp-page">
             <div className ="otp-container" >
-                <h1 className ="logo"> KATIIA BOOKSTORE </h1>
+                <h1 className ="logo-otp"> KATIIA BOOKSTORE </h1>
                 <p className = "subtitle">Đăng ký tài khoản </p>
 
                 <form className ="otp-form">

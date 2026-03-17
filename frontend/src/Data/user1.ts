@@ -2,11 +2,11 @@ const users = [
   {
     id: 1,
     username: "nika",
-    fullname: "Nguyễn Văn A",
+    fullname: "Nika Nguyen Pham",
     email: "nika@gmail.com",
     phone: "0901234567",
     password: "123456",
-    address: "TP.HCM",
+    address: "97 Man Thiện, P Hiệp Phú, TP.Hồ Chí Minh",
     point: 120
   },
   {

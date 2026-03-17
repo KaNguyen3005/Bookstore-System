@@ -36,6 +36,12 @@ export default function Sidebar(){
         </li>
 
         <li>
+          <NavLink to="/profile/order">
+            Đơn mua
+          </NavLink>
+        </li>
+
+        <li>
           <NavLink to="/profile/voucher">
             Kho Voucher
           </NavLink>

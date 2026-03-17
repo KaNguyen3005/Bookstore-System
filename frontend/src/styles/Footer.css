@@ -60,9 +60,10 @@
 }
 
 /* logo */
-.logo{
+.logo-footer{
   font-size:30px;
   font-weight:bold;
+  font-family: Urban Jungle;
 }
 
 /* social */
