@@ -1,11 +1,17 @@
 export interface Book {
-  id: number;
+  book_id: number;
   title: string;
   price: number;
-  author?: string;
-  image?: string;
+  author_name?: string;
+  cover_image_url?: string;
   oldPrice?: number;
-  discount?: number;
-  rating?: number;
+  sale_percent?: number;
+  avg_rating?: number;
   reviewCount?: number;
+  description?: string;
+  publisher?: string;
+  publication_date?: string;
+  dimensions?: string;
+  cover_type?: string;
+  num_pages?: number;
 }

@@ -4,6 +4,7 @@
   font-size: 1.375rem;
   font-weight: 700;
   color: #1a2a33;
+  margin-top: 60px; /* Increased to fix overlap */
   margin-bottom: 24px;
 }
 

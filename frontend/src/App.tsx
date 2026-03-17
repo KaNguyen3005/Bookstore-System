@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
 import CategoryPage from "./pages/CategoryPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
-import ProtectedRoute from "./pages/auth/ProtectedRoute";
-
+import ProtectedRoute from "./pages/Auth/ProtectedRoute";
 import Profile from "./pages/User/Profile";
 import ProfileContent from "./pages/User/ProfileContent";
 import ChangePassword from "./pages/User/ChangePassword";
@@ -30,6 +30,7 @@ function App() {
 
           {/* Category */}
           <Route path="category" element={<CategoryPage />} />
+          <Route path="product/:id" element={<ProductDetailPage />} />
 
           {/* Profile */}
           <Route

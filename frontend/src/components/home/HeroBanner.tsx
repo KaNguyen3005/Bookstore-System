@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { Book } from "../../types/Book";
 import "../../styles/home/HeroBanner.css";
 
@@ -13,7 +14,7 @@ const HeroBanner = ({ books }: HeroBannerProps) => {
       <div className="hero-banner__inner container">
         <div className="hero-banner__images">
           {displayBooks.map((book) => (
-            <div key={book.book_id} className="hero-banner__cover">
+            <Link key={book.book_id} to={`/product/${book.book_id}`} className="hero-banner__cover">
               <img
                 src={
                   book.cover_image_url ||
@@ -21,7 +22,7 @@ const HeroBanner = ({ books }: HeroBannerProps) => {
                 }
                 alt={book.title}
               />
-            </div>
+            </Link>
           ))}
         </div>
       </div>
