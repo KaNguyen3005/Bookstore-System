@@ -36,6 +36,12 @@ export default function Sidebar(){
         </li>
 
         <li>
+          <NavLink to="/profile/address">
+            Địa chỉ giao hàng
+          </NavLink>
+        </li>
+
+        <li>
           <NavLink to="/profile/order">
             Đơn mua
           </NavLink>

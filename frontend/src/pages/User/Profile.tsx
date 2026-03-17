@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../../styles/Profile.css";
 import Sidebar from "./Sidebar";
+import { UserService } from "../../services/UserService";
 
 export default function Profile() {
 
@@ -9,20 +10,19 @@ export default function Profile() {
   const [edit,setEdit] = useState(false);
   const [avatar,setAvatar] = useState("");
 
-  useEffect(()=>{
 
-    const data = localStorage.getItem("user");
-
-    if(data){
-
-      const parsedUser = JSON.parse(data);
-
-      setUser(parsedUser);
-      setAvatar(parsedUser.avatar || "");
-
+useEffect(() => {
+  const fetchUser = async () => {
+    const data = await UserService.getUserById(1);
+    if (data) {
+      setUser(data);
+      setAvatar(data.avatar || "");
     }
+    setAvatar(data?.avatar || "");
+  };
 
-  },[]);
+  fetchUser();
+}, []);
 
   const handleAvatar = (e:any)=>{
 
@@ -60,15 +60,17 @@ export default function Profile() {
 
   };
 
-  const handleSave = ()=>{
+const handleSave = async () => {
 
-    localStorage.setItem("user",JSON.stringify(user));
+  const updated = await UserService.updateUser(user);
 
-    setEdit(false);
+  setUser(updated);
+  localStorage.setItem("user", JSON.stringify(updated));
 
-    alert("Đã lưu thông tin");
+  setEdit(false);
 
-  };
+  alert("Đã lưu thông tin");
+};
 
   return (
 
