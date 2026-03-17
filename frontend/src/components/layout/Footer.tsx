@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
 
         {/* LEFT */}
         <div className="footer-col logo-col">
-          <h1 className="logo">KATIIA</h1>
+          <h1 className="logo-footer">KATIIA</h1>
           <p>Nhà sách số 1 Việt Nam</p>
 
           <div className="contact">

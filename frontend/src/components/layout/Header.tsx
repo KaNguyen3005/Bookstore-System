@@ -27,7 +27,7 @@ const Header: React.FC = () => {
 
       <div className="header-top">
 
-        <Link to="/" className="logo login-link">
+        <Link to="/" className="logo-header">
           KATIIA
         </Link>
 
@@ -61,12 +61,12 @@ const Header: React.FC = () => {
           </Link>*/}
 
         {user ? (
-          <Link to="/profile" className="action-item login-link">
+          <Link to="/profile" className="action-item l-link">
             <FaRegUserCircle />
-            <p>{user.email}</p>
+            <p>{user.username}</p>
           </Link>
         ) : (
-          <Link to="/login" className="action-item login-link" onClick={scrollToTop}>
+          <Link to="/login" className="action-item l-link" onClick={scrollToTop}>
             <FaRegUserCircle />
             <p>Đăng nhập</p>
           </Link>

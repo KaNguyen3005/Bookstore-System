@@ -11,18 +11,21 @@
 .header-top{
   display:flex;
   align-items:center;
-  justify-content: space-between;
+  gap:20px; /* thêm cái này */
   height:60px;
   padding:0px 30px;
 }
 
-.logo{
-  font-size:26px;
+.logo-header {
+  font-size:50px;
   font-weight:bold;
-  font-family: Urban Jungle;
-  margin-right:15px;
-  padding:0;
+  font-family: "Urban Jungle", Arial, sans-serif;
+  color: #fff;
+  text-decoration: none;
+  -webkit-text-fill-color: #fff; /* 🔥 QUAN TRỌNG */
+  margin-right: 40px
 }
+
 
 .delivery{
   display:flex;
@@ -39,7 +42,8 @@
 }
 
 .search input{
-  width:500px;
+  width: 100%;
+  max-width: 500px;
   padding:8px 16px;
   border-radius:15px;
   border:none;
@@ -50,6 +54,7 @@
   display:flex;
   align-items: center;
   gap:30px;
+  white-space: nowrap;
 }
 
 .action-item{
@@ -67,19 +72,21 @@
   font-size:20px;
 }
 
-.login-link{
+.l-link{
   text-decoration: none;
-  color: inherit;
+  color: white;
   display:flex;
   flex-direction:column;
   align-items:center;
 }
+
 
 .header-menu{
   display:flex;
   gap:10px;
   padding:6px 30px;
   background:rgba(116, 169, 162, 1);
+  flex-wrap: wrap;
 }
 
 .header-menu button{
@@ -88,4 +95,9 @@
   padding:1px 5px;
   background:white;
   border-radius:4px;
+}
+
+.action-item,
+.l-link {
+  color: #fff;
 }
