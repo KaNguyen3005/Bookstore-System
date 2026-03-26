@@ -30,6 +30,10 @@ const Register = () => {
 
         <form className="register-form" onSubmit={handleRegister}>
 
+
+          <label>Tên đăng</label>
+          <input className="full" placeholder= "Tên đăng nhập" />
+
           <label>Tên</label>
           <div className="name-row">
             <input type="text" placeholder="Họ" />
@@ -75,11 +79,15 @@ const Register = () => {
             <option value="female">Nữ</option>
           </select>
 
-          <label>Số di động hoặc email</label>
-          <input className="full" placeholder="Số di động hoặc email" />
+
+          <label>Email</label>
+          <input className="full" placeholder= "Email" />
 
           <label>Mật khẩu</label>
           <input className="full" type="password" placeholder="Mật khẩu" />
+
+          <label>Xác nhận mật khẩu</label>
+          <input className="full" type="confirmPassword" placeholder="Xác nhận mật khẩu" />
 
           <button type="submit">Đăng ký tài khoản</button>
 

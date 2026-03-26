@@ -1,0 +1,102 @@
+/* CARD */
+.address-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  padding: 16px 18px;
+  transition: 0.1s;
+  position: relative;
+}
+
+.address-card input {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.address-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.address-card:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.default-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #e0edff;
+  color: #2563eb;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+
+.address-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* INFO */
+.address-info {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+
+/* chuc nang */
+.address-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+/*nút*/
+.address-btn {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+/*nút*/
+.btn-edit {
+  background: #4f8cff;
+  color: #fff;
+}
+
+.btn-save {
+  background: #4f8cff;
+  color: #fff;
+}
+
+.btn-cancel{
+  background: #f3f4f6;
+}
+
+.btn-delete {
+  background: #f3f4f6;
+}
+
+.btn-default {
+  background: transparent;
+  border: 1px solid #4f8cff;
+  color: #4f8cff;
+}
+
+.address-card select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}

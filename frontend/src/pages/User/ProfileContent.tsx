@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
@@ -27,32 +27,38 @@ export default function ProfileContent(){
     return <p>Loading...</p>
   }
 
+//avatar
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleClickAvatar = () => {
+      fileInputRef.current?.click();
+    };
 //sdt
-const maskPhoneVN = (phone: string) => {
-  if (!phone) return "";
+    const maskPhoneVN = (phone: string ="") => {
+      if (!phone) return "";
 
-  // bỏ khoảng trắng nếu có
-  const clean = phone.replace(/\s+/g, "");
+      // bỏ khoảng trắng nếu có
+      const clean = phone.replace(/\s+/g, "");
 
-  if (clean.length < 7) return phone; // tránh lỗi
+      if (clean.length < 7) return phone; // tránh lỗi
 
-  const first = clean.slice(0, 3);   // 090
-  const last = clean.slice(-3);      // 567
-  const middle = "*".repeat(clean.length - 6);
+      const first = clean.slice(0, 3);   // 090
+      const last = clean.slice(-3);      // 567
+      const middle = "*".repeat(clean.length - 6);
 
-  return `${first}${middle}${last}`;
-};
+      return `${first}${middle}${last}`;
+    };
 
 //ngay sinh
-const maskDate = (date: string) => {
-  if (!date) return "";
+    const maskDate = (date: string="") => {
+      if (!date) return "";
 
-  const parts = date.split("/"); // ["01","01","2006"]
+      const parts = date.split("/"); // ["01","01","2006"]
 
-  if (parts.length !== 3) return date;
+      if (parts.length !== 3) return date;
 
-  return `**/**/${parts[2]}`;
-};
+      return `**/**/${parts[2]}`;
+    };
 
   return(
 
@@ -62,18 +68,24 @@ const maskDate = (date: string) => {
 
       <div className="profile-container">
 
-        <div className="avatar-section">
+          <div className="avatar-section">
+              <div className="avatar-wrapper" onClick={handleClickAvatar}>
+                <img
+                  src={avatar || user.avatar || "/default-avatar.png"}
+                  className="avatar"
+                />
+              </div>
 
-          <img
-            src={avatar || user.avatar || "https://via.placeholder.com/120"}
-            className="avatar"
-          />
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleAvatar}
+                style={{ display: "none" }}
+              />
 
-          <input type="file" onChange={handleAvatar}/>
-
-          <p>{user.username}</p>
-
-        </div>
+              <p>{user.username}</p>
+            </div>
 
         <div className="form-section">
 
@@ -110,7 +122,7 @@ const maskDate = (date: string) => {
               />
 
               <span
-                onClick={() => setShowPhone(!showPhone)}
+                onClick={() => !edit && setShowPhone(!showPhone)}
                 style={{
                   position: "absolute",
                   right: "10px",
@@ -153,7 +165,7 @@ const maskDate = (date: string) => {
               />
 
               <span
-                onClick={() => setShowDob(!showDob)}
+                onClick={() => !edit && setShowDob(!showDob)}
                 style={{
                   position: "absolute",
                   right: "10px",

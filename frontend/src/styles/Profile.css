@@ -55,17 +55,35 @@
 /* PROFILE */
 .profile-container{
   display:flex;
-  gap:30px;
+  gap:200px;
   margin-top:25px;
 }
 
-/* AVATAR */
-.avatar{
-  width:90px;
-  height:90px;
-  background:#4c89d9;
-  border-radius:50%;
-  object-fit:cover;
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.avatar-section {
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+/*for ten dang nhap hien thi*/
+.avatar-section p {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis; /* testusername ...(neu dai qua) */
+  white-space: nowrap;
 }
 
 /* FORM */
