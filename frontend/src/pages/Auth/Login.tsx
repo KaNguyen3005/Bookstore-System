@@ -50,7 +50,7 @@ const Login =() => {
                 <form className ="login-form" onSubmit={handleLogin}>
                   <input
                     type="text"
-                    placeholder="Email hoặc số di động"
+                    placeholder="Email hoặc tên đăng nhập"
                     value={account}
                     onChange={(e) => setAccount(e.target.value)}
                   />

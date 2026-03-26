@@ -59,9 +59,11 @@ export default function Sidebar(){
           </NavLink>
         </li>
 
-        <h3 className="logout" onClick={handleLogout}>
-          Đăng xuất
-        </h3>
+        <li>
+            <NavLink to="/" className="logout" onClick={handleLogout} >
+             Đăng xuất
+            </NavLink>
+        </li>
 
       </ul>
 
