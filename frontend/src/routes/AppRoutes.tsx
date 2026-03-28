@@ -4,6 +4,7 @@ import Layout from "../components/layout/Layout";
 import Home from "../pages/Home";
 import CategoryPage from "../pages/CategoryPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
+import Cart from "../pages/Cart";
 
 import ProtectedRoute from "../pages/Auth/ProtectedRoute";
 import Profile from "../pages/User/Profile";
@@ -28,6 +29,7 @@ export default function AppRoutes() {
 
         <Route path="category" element={<CategoryPage />} />
         <Route path="product/:id" element={<ProductDetailPage />} />
+        <Route path="cart" element={<Cart />} />
 
         <Route
           path="profile"

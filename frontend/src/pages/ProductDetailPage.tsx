@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getBookById, getRelatedBooks } from "../services/bookService";
 import type { Book } from "../types/Book";
+import { useCart } from "../context/CartContext";
 import ProductCard from "../components/product/ProductCard";
 import ExploreCategories from "../components/home/ExploreCategories";
 import "../styles/ProductDetailPage.css";
@@ -15,6 +16,21 @@ const ProductDetailPage: React.FC = () => {
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    if (!book) return;
+    addToCart({
+      book_id: book.book_id,
+      title: book.title,
+      price: book.oldPrice || book.price,
+      sale_percent: book.sale_percent || 0,
+      cover_image_url: book.cover_image_url || `https://picsum.photos/seed/book${book.book_id}/400/600`,
+      quantity: quantity,
+      stock_quantity: 100, // mock stock
+      selected: true
+    });
+  };
 
   useEffect(() => {
     const fetchBookData = async () => {
@@ -86,7 +102,7 @@ const ProductDetailPage: React.FC = () => {
                 ))}
               </div>
               <div className="button-actions-horizontal">
-                <button className="outline-btn btn-flex">
+                <button className="outline-btn btn-flex" onClick={handleAddToCart}>
                   <FiShoppingCart /> Thêm vào giỏ hàng
                 </button>
                 <button className="primary-btn btn-flex">Mua ngay</button>
