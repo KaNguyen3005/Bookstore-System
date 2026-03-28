@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 import type { Book } from "../../types/Book";
 import "../../styles/home/ProductCard.css";
 
@@ -7,8 +8,25 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ book }: ProductCardProps) => {
+  const { addToCart } = useCart();
   const rating = book.avg_rating || 0;
   const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // prevent triggering other links if they exist around it
+    e.stopPropagation();
+
+    addToCart({
+      book_id: book.book_id,
+      title: book.title,
+      price: book.oldPrice || book.price,
+      sale_percent: book.sale_percent || 0,
+      cover_image_url: book.cover_image_url || `https://picsum.photos/seed/book${book.book_id}/200/280`,
+      quantity: 1,
+      stock_quantity: 100, // mock stock
+      selected: true
+    });
+  };
 
   return (
     <div className="product-card">
@@ -81,7 +99,7 @@ const ProductCard = ({ book }: ProductCardProps) => {
         </div>
       </Link>
 
-      <button className="product-card__btn">
+      <button className="product-card__btn" onClick={handleAddToCart}>
         <svg
           width="18"
           height="18"
