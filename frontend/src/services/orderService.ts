@@ -2,7 +2,7 @@ import type { Order } from "../Data/orders";
 import { mockOrders } from "../Data/orders";
 import type { OrderStatus } from "../Data/orders";
 
-// 🔥 giả lập API (sau này thay bằng fetch/axios)
+// giả lập API (sau này thay bằng fetch/axios)
 export const getOrders = async (): Promise<Order[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -11,7 +11,7 @@ export const getOrders = async (): Promise<Order[]> => {
   });
 };
 
-// 🔥 lọc theo status
+//lọc theo status
 export const getOrdersByStatus = async (
   status: OrderStatus
 ): Promise<Order[]> => {
