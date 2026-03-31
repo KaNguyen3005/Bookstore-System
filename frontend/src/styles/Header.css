@@ -1,5 +1,5 @@
 .header{
-  width:100%;
+  width max:100%;
   background:#2c6f7b;
   color:white;
   position: sticky;
@@ -22,7 +22,7 @@
   font-family: "Urban Jungle", Arial, sans-serif;
   color: #fff;
   text-decoration: none;
-  -webkit-text-fill-color: #fff; /* 🔥 QUAN TRỌNG */
+  -webkit-text-fill-color: #fff;
   margin-right: 40px
 }
 

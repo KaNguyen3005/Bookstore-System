@@ -30,7 +30,11 @@ const Login =() => {
         alert("Đăng nhập thành công");
 
         // chuyển trang home
+      if (user.role_id == 2) {
+        navigate("/admin", { replace: true });
+      } else {
         navigate("/", { replace: true });
+      }
 
       } else {
         alert("Sai tài khoản hoặc mật khẩu");
