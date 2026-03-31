@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
 public class CreateBookRequest {
     @NotBlank(message = "INVALID_TITLE")
     @Size(max = 255, message = "INVALID_TITLE")

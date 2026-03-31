@@ -16,7 +16,6 @@ import ptithcm.backend.bookstore.repository.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -51,7 +50,7 @@ public class BookService {
                 .orElseThrow(() -> new AppException(ErrorCode.PUBLISHER_NOT_FOUND));
 
         // 4. Validate Categories
-        List<Categories> categories = categoriesRepository.findAllById(request.getCategoryIds());
+        List<Category> categories = categoriesRepository.findAllById(request.getCategoryIds());
         if (categories.size() != request.getCategoryIds().size()) {
             throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
         }

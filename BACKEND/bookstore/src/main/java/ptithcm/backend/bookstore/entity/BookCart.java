@@ -1,16 +1,16 @@
 package ptithcm.backend.bookstore.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="publisher")
+@Table(name="book_cart")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -19,14 +19,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Publisher {
+public class BookCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    int publisherId;
+    BigInteger id;
 
-    @Column(unique = true)
-    String publisherName;
+    @ManyToOne
+    @JoinColumn(name = "book_id")
+    Book book;
+
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    Cart cart;
+    int quantity;
 
     @CreationTimestamp
     @Column(updatable = false)

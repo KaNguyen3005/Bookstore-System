@@ -1,4 +1,34 @@
 package ptithcm.backend.bookstore.entity;
 
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.math.BigInteger;
+
+@Entity
+@Table(name="address_id")
+//Do sử dụng lombok nên không sử dụng @Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Address {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int addressId;
+    @ManyToOne()
+    @JoinColumn(name = "user_id")
+    User user;
+    String province;
+    String district;
+    String ward;
+    String detailAddress;
+    String customerName;
+    String customerPhone;
+    boolean isDefault;
 }
