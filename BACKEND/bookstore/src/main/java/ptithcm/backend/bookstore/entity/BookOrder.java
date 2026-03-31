@@ -1,4 +1,4 @@
 package ptithcm.backend.bookstore.entity;
 
-public class ShipmentLog {
+public class BookOrder {
 }

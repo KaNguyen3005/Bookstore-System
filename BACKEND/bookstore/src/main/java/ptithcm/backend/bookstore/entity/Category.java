@@ -1,6 +1,5 @@
 package ptithcm.backend.bookstore.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,9 +7,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name="publisher")
+@Table(name="category")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -19,14 +19,23 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Publisher {
+
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    int publisherId;
+    int categoryId;
+    String categoryName;
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    Category parentCategory;
 
-    @Column(unique = true)
-    String publisherName;
+    @ManyToMany
+    @JoinTable(
+            name = "role_permission",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+    List<Book> books;
 
     @CreationTimestamp
     @Column(updatable = false)

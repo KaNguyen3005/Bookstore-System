@@ -4,6 +4,10 @@ package ptithcm.backend.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="supplier")
@@ -23,4 +27,12 @@ public class Supplier {
 
     @Column(unique = true)
     String supplierName;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

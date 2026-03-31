@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -57,6 +58,11 @@ public class Book {
     BigDecimal price; // Chọn kiểu nàm,y để giúp cho nhiều mệnh giá tiền
     float avgRating; //0 - 5
     int salePercent = 0; // Đơn vị %
-    @ManyToMany
-    Set<Categories> categories = new HashSet<>();
+
+    @ManyToMany(mappedBy = "books")
+    Set<Category> categories = new HashSet<>();
+    boolean isActive;
+
+    @OneToMany(mappedBy = "book")
+    List<BookCart> bookCarts;
 }

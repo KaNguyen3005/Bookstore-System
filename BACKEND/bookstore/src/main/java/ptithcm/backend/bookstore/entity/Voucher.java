@@ -9,6 +9,7 @@ import ptithcm.backend.bookstore.enums.VoucherType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="order")
@@ -53,6 +54,9 @@ public class Voucher {
 
     @Builder.Default
     Integer limitPerUser = 1;
+
+    @ManyToMany(mappedBy = "vouchers")
+    List<User> users;
 
     LocalDateTime startDate;
     LocalDateTime endDate;

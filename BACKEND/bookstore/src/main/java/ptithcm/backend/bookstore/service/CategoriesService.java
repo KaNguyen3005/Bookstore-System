@@ -8,9 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateCategoriesRequest;
 import ptithcm.backend.bookstore.dto.response.CategoriesResponse;
-import ptithcm.backend.bookstore.dto.response.SupplierResponse;
-import ptithcm.backend.bookstore.entity.Categories;
-import ptithcm.backend.bookstore.entity.Supplier;
+import ptithcm.backend.bookstore.entity.Category;
 import ptithcm.backend.bookstore.mapper.CategoriesMapper;
 import ptithcm.backend.bookstore.repository.CategoriesRepository;
 
@@ -27,13 +25,13 @@ public class CategoriesService {
     CategoriesMapper categoriesMapper;
 
     public CategoriesResponse create(CreateCategoriesRequest createCategoriesRequest){
-        Categories categories = categoriesMapper.toEntity(createCategoriesRequest);
-        return categoriesMapper.toResponse(categoriesRepository.save(categories));
+        Category category = categoriesMapper.toEntity(createCategoriesRequest);
+        return categoriesMapper.toResponse(categoriesRepository.save(category));
     }
 
     public List<CategoriesResponse> getAll(){
         List<CategoriesResponse> categories = new ArrayList<>();
-        for(Categories category : categoriesRepository.findAll()){
+        for(Category category : categoriesRepository.findAll()){
             categories.add(categoriesMapper.toResponse(category));
         }
         return categories;
