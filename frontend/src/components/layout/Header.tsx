@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 import "../../styles/Header.css";
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoNotificationsOutline } from "react-icons/io5";
@@ -16,6 +17,7 @@ import { FaHotjar } from "react-icons/fa";
 const Header: React.FC = () => {
 
   const navigate = useNavigate();
+  const { cartItems } = useCart();
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const scrollToTop = () => {
@@ -50,15 +52,16 @@ const Header: React.FC = () => {
             <p>Thông báo</p>
           </div>
 
-          <div className="action-item">
-            <FiShoppingCart />
+          <Link to="/cart" className="action-item l-link" onClick={scrollToTop}>
+            <div className="cart-icon-wrapper">
+              <FiShoppingCart size={24} />
+              {cartItems.length > 0 && (
+                <span className="cart-badge">{cartItems.length}</span>
+              )}
+            </div>
             <p>Giỏ hàng</p>
-          </div>
+          </Link>
 
-          {/*}<Link to="/login" className="action-item login-link" onClick={scrollToTop}>
-            <FaRegUserCircle />
-            <p>Đăng nhập</p>
-          </Link>*/}
 
         {user ? (
           <Link to="/profile" className="action-item l-link">
