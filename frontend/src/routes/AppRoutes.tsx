@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 
 import Layout from "../components/layout/Layout";
+import LayoutAdmin from "../components/layoutAdmin/LayoutAdmin";
+
 import Home from "../pages/Home";
 import CategoryPage from "../pages/CategoryPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
@@ -19,6 +21,10 @@ import MemberRank from "../pages/User/MemberRank";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import Otp from "../pages/Auth/Otp";
+
+
+
+import AdminHome from "../pages/Admin/AdminHome";
 
 export default function AppRoutes() {
   return (
@@ -53,6 +59,19 @@ export default function AppRoutes() {
         <Route path="otp" element={<Otp />} />
 
       </Route>
+
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <LayoutAdmin />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminHome />} />
+        </Route>
+
     </Routes>
   );
 }
