@@ -42,7 +42,7 @@ export default function Sidebar(){
         </li>
 
         <li>
-          <NavLink to="/profile/order">
+          <NavLink to="/profile/purchaseOrder">
             Đơn mua
           </NavLink>
         </li>
