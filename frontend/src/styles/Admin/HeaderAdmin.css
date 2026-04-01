@@ -22,22 +22,7 @@
   margin-right: auto;
 }
 
-.search-admin {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 400px;
-}
 
-.search-admin input {
-  width: 100%;
-  max-width: 400px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
-}
 
 .login-item {
   display: flex;

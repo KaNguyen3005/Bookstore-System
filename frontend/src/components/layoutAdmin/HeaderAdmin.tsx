@@ -8,10 +8,6 @@ const HeaderAdmin: React.FC =() => {
         <div className ="header-top-admin">
             <div className ="logo-header-admin">KATIIA MANAGEMENT </div>
 
-            <div className="search-admin">
-                <input type="text" placeholder="Tìm kiếm " />
-            </div>
-
             <div className ="login-item"><FaRegUserCircle /> Đăng nhập</div>
         </div>
     </div>
