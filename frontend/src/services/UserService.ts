@@ -10,10 +10,14 @@ export interface UserFE {
   point: number;
   avatar?: string;
   birth: string;
+  status: boolean;
+  gender:string;
 }
 
+{/*tao do tre gia cho api gia*/}
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
+{/*lay tu db --> fe map lai cho dung voi hien thi trong giao dien*/}
 const mapToFE = (u: any): UserFE => ({
   id: u.user_id,
   username: u.username,
@@ -21,9 +25,15 @@ const mapToFE = (u: any): UserFE => ({
   email: u.email,
   phone: u.phone,
   birth: u.birth,
-  point: u.point
+  point: u.point,
+  status: u.status,
+  firstname: u.first_name,
+  lastname: u.last_name,
+  gender: u.gender
 });
 
+
+{/*fe ---> db */}
 const mapToDB = (u: UserFE, old: any) => {
   const [first, ...rest] = u.fullname.split(" ");
 
@@ -45,16 +55,16 @@ export const UserService = {
 
   async getUserById(id: number): Promise<UserFE | null> {
     await delay(300);
-
+{/* lau user theo id */}
     const user = users.find(u => u.user_id === id);
     if (!user) return null;
-
+{/*tra ve fe*/}
     return mapToFE(user);
   },
 
   async updateUser(data: UserFE): Promise<UserFE> {
     await delay(300);
-
+{/*cap nhat usser tim, tra ve db, ghi lai */}
     const index = users.findIndex(u => u.user_id === data.id);
     if (index === -1) throw new Error("User not found");
 
@@ -62,6 +72,13 @@ export const UserService = {
     users[index] = updated;
 
     return mapToFE(updated);
-  }
+  },
+
+
+    async getAllUsers(): Promise<UserFE[]> {
+      await delay(300);
+{/*lay full user hien thi len bang*/}
+      return users.map(mapToFE);
+    }
 
 };

@@ -18,7 +18,7 @@ const users = [
   },
   {
     user_id: 2,
-    username: "adminTest",
+    username: "KadminTest",
     password: "123456",
     first_name: "Nika",
     last_name: "Nguyen Pham",
@@ -33,8 +33,75 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
+  {
+    user_id: 3,
+    username: "adminTesssssst",
+    password: "123456",
+    first_name: "Nika",
+    last_name: "Nguyen Pham",
+    email: "admin@gmail.com",
+    phone: "0901234567",
+    birth: "1/1/20005",
+    status: true,
+    gender: "female",
+    role_id: 1,
+    point: 120,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null
+  },
+  {
+    user_id: 4,
+    username: "adminTesssst",
+    password: "123456",
+    first_name: "Nika",
+    last_name: "Nguyen Pham",
+    email: "admin@gmail.com",
+    phone: "0901234567",
+    birth: "1/1/20005",
+    status: true,
+    gender: "female",
+    role_id: 1,
+    point: 120,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null
+  },
+  {
+    user_id: 5,
+    username: "adminTest1",
+    password: "123456",
+    first_name: "Nika",
+    last_name: "Nguyen Pham",
+    email: "admin@gmail.com",
+    phone: "0901234567",
+    birth: "1/1/20005",
+    status: true,
+    gender: "female",
+    role_id: 1,
+    point: 120,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null
+  },
+  {
+    user_id: 6,
+    username: "adminTesst",
+    password: "123456",
+    first_name: "Nika",
+    last_name: "Nguyen Pham",
+    email: "admin@gmail.com",
+    phone: "0901234567",
+    birth: "1/1/20005",
+    status: false,
+    gender: "Nữ",
+    role_id: 1,
+    point: 120,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null
+  },
 
 ];
-
 
 export default users;

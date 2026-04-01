@@ -11,6 +11,18 @@ const SidebarAdmin = () => {
 
                         <li>
                             <NavLink to ="..." className="card-name" >
+                                Dash Board
+                            </NavLink>
+                        </li>
+
+                        <li>
+                            <NavLink to ="..." className="card-name" >
+                                Quản lý đặt hàng
+                            </NavLink>
+                        </li>
+
+                        <li>
+                            <NavLink to ="..." className="card-name" >
                                 Quản lý đặt hàng
                             </NavLink>
                         </li>
