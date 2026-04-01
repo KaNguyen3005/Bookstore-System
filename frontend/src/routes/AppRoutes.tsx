@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
 import Layout from "../components/layout/Layout";
-import LayoutAdmin from "../components/layoutAdmin/LayoutAdmin";
 
 import Home from "../pages/Home";
 import CategoryPage from "../pages/CategoryPage";
@@ -21,6 +20,11 @@ import MemberRank from "../pages/User/MemberRank";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import Otp from "../pages/Auth/Otp";
+
+import LayoutAdmin from "../components/layoutAdmin/LayoutAdmin";
+import CustomerManagement from "../pages/Admin/CustomerManagement";
+import RoleManagement from "../pages/Admin/RoleManagement";
+import StatisticalReport  from "../pages/Admin/StatisticalReport ";
 
 
 
@@ -69,7 +73,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<AdminHome />} />
+              <Route element={<AdminHome />}>
+                <Route index element={<div>Dashboard Admin</div>} />
+                <Route path="customers" element={<CustomerManagement />} />
+                <Route path="role" element={<RoleManagement/>}/>
+                <Route path ="statistical_report" element ={<StatisticalReport />} />
+              </Route>
+
+
         </Route>
 
     </Routes>

@@ -1,0 +1,73 @@
+.account-pageAdmin {
+  width: 100%;
+  display: flex;
+  padding: 30px;
+  margin: auto;
+  background: white;
+  gap: 20px;
+}
+
+/*nôi dung */
+.content-admin {
+  flex: 1;
+  padding: 20px;
+  background: rgba(245, 245, 245, 1);
+  height: 100%;
+  overflow-y: auto;
+  border-radius: 15px;
+}
+
+/* sidebar*/
+.sidebar-admin {
+  width: 350px;
+  background: rgba(114, 169, 163, 1);
+  color: #222;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 15px;
+}
+
+/* MENU LIST */
+.menu-admin {
+  list-style: none;
+  padding: 0;
+}
+
+.card-name-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 👉 NavLink = card */
+.menu-admin li a.card-name {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  color: #222;
+
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  padding: 16px 18px;
+  transition: 0.3s;
+}
+
+/* hover */
+.menu-admin li a.card-name:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  background: #efeded;
+}
+
+.menu-admin li a.card-name.active {
+  background: white;
+  color: red;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.logo-admin {
+  text-align: left;
+  margin-bottom: 30px;
+}
