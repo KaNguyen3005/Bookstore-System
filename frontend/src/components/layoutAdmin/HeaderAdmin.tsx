@@ -1,5 +1,6 @@
 import React from "react";
 import "../../styles/Admin/HeaderAdmin.css";
+import { FaRegUserCircle } from "react-icons/fa";
 
 const HeaderAdmin: React.FC =() => {
   return (
@@ -10,6 +11,8 @@ const HeaderAdmin: React.FC =() => {
             <div className="search-admin">
                 <input type="text" placeholder="Tìm kiếm " />
             </div>
+
+            <div className ="login-item"><FaRegUserCircle /> Đăng nhập</div>
         </div>
     </div>
   );

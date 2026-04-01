@@ -1,85 +1,92 @@
-.footer{
-  width max:100%;
-  background:#3c6670;
-  color:white;
-  font-size:12px;
-}
-
-/* feedback */
-.footer-feedback{
-  background:#7fa5a3;
-  padding:10px;
-  text-align:center;
-}
-
-.footer-feedback .link{
-  text-decoration:underline;
-  cursor:pointer;
-}
-
-.link{
+.footer {
+  max-width: 100%;
+  background: #3c6670;
   color: white;
-  cursor:pointer;
-  text-decoration:underline;
+  font-size: 12px;
+  padding: 15px 0;
 }
 
-.link:hover{
-  color: #2c6f7b;
+
+.footer-feedback {
+  background: #7fa5a3;
+  padding: 10px;
+  text-align: center;
 }
-/* back to top */
-.back-top{
-  background:black;
-  text-align:center;
-  padding:10px;
-  cursor:pointer;
+
+
+.footer-feedback .link {
+  text-decoration: underline;
+  cursor: pointer;
 }
-.back-top:hover{
+
+.link {
+  color: white;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: #2c6f7b; /* Màu sắc hover hợp lý với theme */
+}
+
+
+.back-top {
+  background: black;
+  text-align: center;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+.back-top:hover {
   color: #3c6670;
 }
 
-/* main footer */
-.footer-main{
-  display:grid;
+
+.footer-main {
+  display: grid;
+
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
-  max-width:1200px;
-  margin:auto;
-  gap:100px;
-  padding:1px 40px;
-}
-
-/* mỗi cột */
-.footer-col{
-  flex:1;
-}
-.footer-col h4{
-  margin-bottom:15px;
-}
-
-.footer-col p{
-  margin:6px 0;
-}
-
-/* logo */
-.logo-footer{
-  font-size:30px;
-  font-weight:bold;
-  font-family: Urban Jungle;
-}
-
-/* social */
-.social{
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  font-size:24px;
+  max-width: 1200px;
+  margin: auto;
+  gap: 100px;
+  padding: 20px 40px;
 }
 
 
-/* bottom */
-.footer-bottom{
-  border-top:3px solid rgba(218,226,219,1);
-  margin-top:5px;
-  padding:px;
-  text-align:center;
-  font-size:11px;
+
+.footer-col h4 {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+
+.footer-col p {
+  margin: 6px 0;
+  line-height: 1.6;
+}
+
+.logo-footer {
+  font-size: 30px;
+  font-weight: bold;
+  font-family: "Urban Jungle", sans-serif;
+}
+
+
+.social {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  font-size: 24px;
+}
+
+.footer-bottom {
+  border-top: 2px solid rgba(218, 226, 219, 1);
+  margin-top: 10px;
+  padding: 15px 40px;
+  text-align: center;
+  font-size: 11px;
+  color:  rgba(218, 226, 219, 1);
 }
