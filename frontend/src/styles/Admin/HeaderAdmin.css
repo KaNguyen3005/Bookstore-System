@@ -14,6 +14,14 @@
   padding: 10px 20px;
 }
 
+.logo-header-admin {
+  font-size: 40px;
+  font-weight: bold;
+  font-family: "Urban Jungle", Arial, sans-serif;
+  color: #fff;
+  margin-right: auto;
+}
+
 .search-admin {
   position: absolute;
   left: 50%;
@@ -22,13 +30,6 @@
   max-width: 400px;
 }
 
-.logo-header-admin {
-  font-size: 40px;
-  font-weight: bold;
-  font-family: "Urban Jungle", Arial, sans-serif;
-  color: #fff;
-  margin-right: auto;
-}
 .search-admin input {
   width: 100%;
   max-width: 400px;
@@ -36,4 +37,20 @@
   border-radius: 20px;
   border: none;
   outline: none;
+}
+
+.login-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 10px 0;
+  gap: 6px;
+}
+
+.login-item svg{
+    font-size: 20px;
 }

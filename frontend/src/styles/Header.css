@@ -1,108 +1,145 @@
-.header{
-  width max:100%;
-  background:#2c6f7b;
-  color:white;
-  position: sticky;
-  top:0;
-  z-index:1000;
-
+:root {
+  --primary-color: #2c6f7b;
+  --secondary-color: #74a9a2;
+  --text-color-light: #fff;
+  --border-color-input: #ddd;
+  --focus-border-color: var(--primary-color);
+  --cart-badge-bg: #ff3b30;
+  --font-logo: "Urban Jungle", "Helvetica Neue", Helvetica, Arial, sans-serif; /* Font logo với các dự phòng mạnh mẽ hơn */
+  --font-body: Arial, sans-serif;
 }
 
-.header-top{
-  display:flex;
-  align-items:center;
-  gap:20px; /* thêm cái này */
-  height:60px;
-  padding:0px 30px;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  width: 100%;
+  background: #2c6f7b;;
+  color: var(--text-color-light);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* trên của Header */
+.header-top {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 70px;
+  gap: 20px;
 }
 
 .logo-header {
-  font-size:50px;
-  font-weight:bold;
-  font-family: "Urban Jungle", Arial, sans-serif;
-  color: #fff;
+  font-size: 32px;
+  font-family: var(--font-logo);
+  color: var(--text-color-light);
   text-decoration: none;
-  -webkit-text-fill-color: #fff;
-  margin-right: 40px
+  white-space: nowrap;
+  margin-right: 30px;
 }
 
 
-.delivery{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-size:14px;
-}
-
-.search{
-  flex:1;
+.delivery {
   display: flex;
-  justify-content:center;
-
-}
-
-.search input{
-  width: 100%;
-  max-width: 500px;
-  padding:8px 16px;
-  border-radius:15px;
-  border:none;
-  outline: none;
-}
-
-.actions{
-  display:flex;
   align-items: center;
-  gap:30px;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+}
+
+.search input {
+  width: 100%;
+  max-width: 480px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color-input);
+  outline: none;
+  font-size: 14px;
+}
+
+.search input:focus {
+  border-color: var(--focus-border-color);
+  box-shadow: 0 0 0 2px rgba(44, 111, 123, 0.2);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 48px;
+  font-size: 12px;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  color: var(--text-color-light);
+}
+
+.action-item svg {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+.action-item:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+
+.l-link {
+  text-decoration: none;
+  color: var(--text-color-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* menu dưới */
+.header-menu {
+  display: flex;
+  gap: 10px;
+  padding: 6px 30px;
+  background: var(--secondary-color);
+  flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Cải thiện cuộn trên iOS */
+}
+
+.header-menu button {
+  cursor: pointer;
+  border: none;
+  padding: 4px 10px;
+  background: var(--text-color-light);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  font-size: 14px;
   white-space: nowrap;
 }
 
-.action-item{
-  display:flex;
-  flex-direction:column;
-  align-items:center    ;
-  justify-content:center;
-  text-align:center;
-  font-size:13px;
-  cursor:pointer;
-  padding-top:15px;
-}
-
-.action-item svg{
-  font-size:20px;
-}
-
-.l-link{
-  text-decoration: none;
-  color: white;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+.header-menu button:hover {
+  background: #f1f1f1;
 }
 
 
-.header-menu{
-  display:flex;
-  gap:10px;
-  padding:6px 30px;
-  background:rgba(116, 169, 162, 1);
-  flex-wrap: wrap;
-}
-
-.header-menu button{
-  cursor:pointer;
-  border:none;
-  padding:1px 5px;
-  background:white;
-  border-radius:4px;
-}
-
-.action-item,
-.l-link {
-  color: #fff;
-}
-
-/* Cart Badge Styling */
 .cart-icon-wrapper {
   position: relative;
   display: flex;
@@ -112,10 +149,10 @@
 
 .cart-badge {
   position: absolute;
-  top: -8px;
-  right: -10px;
-  background-color: #ff3b30;
-  color: white;
+  top: -4px;
+  right: -4px;
+  background-color: var(--cart-badge-bg);
+  color: var(--text-color-light);
   font-size: 11px;
   font-weight: 700;
   height: 18px;
