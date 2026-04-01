@@ -3,7 +3,8 @@
   background: #3c6670;
   color: white;
   font-size: 12px;
-  padding: 15px 0;
+  padding: padding: 0 0 15px 0;
+
 }
 
 
@@ -11,6 +12,7 @@
   background: #7fa5a3;
   padding: 10px;
   text-align: center;
+
 }
 
 
@@ -90,3 +92,4 @@
   font-size: 11px;
   color:  rgba(218, 226, 219, 1);
 }
+

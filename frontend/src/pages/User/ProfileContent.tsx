@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
+import "../../styles/ProfileContent.css";
 
 export default function ProfileContent(){
 

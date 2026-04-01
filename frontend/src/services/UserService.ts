@@ -9,6 +9,7 @@ export interface UserFE {
   address?: string;
   point: number;
   avatar?: string;
+  birth: string;
 }
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
