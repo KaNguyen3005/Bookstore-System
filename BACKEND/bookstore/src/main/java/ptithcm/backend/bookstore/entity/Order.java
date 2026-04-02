@@ -9,7 +9,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import ptithcm.backend.bookstore.enums.OrderStatus;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="orders")
@@ -23,8 +25,9 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String orderId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
+    Long orderId;
 
     // VAT Rate (Ví dụ: 0.05)
     @Builder.Default
@@ -40,6 +43,9 @@ public class Order {
     Voucher voucher;
 
     BigDecimal totalAmount;
+
+    @OneToMany(mappedBy = "order")
+    List<BookOrder> bookOrders;
 
     @CreationTimestamp
     @Column(updatable = false)

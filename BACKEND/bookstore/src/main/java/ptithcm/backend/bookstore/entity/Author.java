@@ -9,7 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="author")
+@Table(name="authors")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -21,9 +21,9 @@ import java.time.LocalDateTime;
 
 public class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    int authorId;
+    Integer authorId;
 
     @Column(nullable = false, length = 200)
     String authorName;

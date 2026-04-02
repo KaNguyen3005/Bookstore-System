@@ -6,15 +6,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreatePublisherRequest;
-import ptithcm.backend.bookstore.dto.request.CreateSupplierRequest;
 import ptithcm.backend.bookstore.dto.response.PublisherResponse;
-import ptithcm.backend.bookstore.dto.response.SupplierResponse;
 import ptithcm.backend.bookstore.entity.Publisher;
-import ptithcm.backend.bookstore.entity.Supplier;
 import ptithcm.backend.bookstore.mapper.PublisherMapper;
-import ptithcm.backend.bookstore.mapper.SupplierMapper;
 import ptithcm.backend.bookstore.repository.PublisherRepository;
-import ptithcm.backend.bookstore.repository.SupplierRepository;
 
 import java.util.ArrayList;
 import java.util.List;

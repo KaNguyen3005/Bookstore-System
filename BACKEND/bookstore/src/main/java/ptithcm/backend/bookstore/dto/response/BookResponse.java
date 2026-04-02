@@ -2,10 +2,8 @@ package ptithcm.backend.bookstore.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.multipart.MultipartFile;
 import ptithcm.backend.bookstore.entity.Author;
 import ptithcm.backend.bookstore.entity.Publisher;
-import ptithcm.backend.bookstore.entity.Supplier;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -18,7 +16,6 @@ import java.util.Set;
 public class BookResponse {
     String title;
     Set<Author> authors = new HashSet<>();
-    Supplier supplier;
     Publisher publisher;
     String isbn;
     String language;

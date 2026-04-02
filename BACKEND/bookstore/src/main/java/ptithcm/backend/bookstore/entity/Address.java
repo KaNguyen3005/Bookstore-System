@@ -8,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigInteger;
 
 @Entity
-@Table(name="address_id")
+@Table(name="addresses")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -20,7 +20,7 @@ import java.math.BigInteger;
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int addressId;
+    Long addressId;
     @ManyToOne()
     @JoinColumn(name = "user_id")
     User user;

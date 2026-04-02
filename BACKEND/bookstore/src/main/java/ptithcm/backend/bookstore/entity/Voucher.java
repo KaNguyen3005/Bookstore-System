@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="order")
+@Table(name="vouchers")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -23,8 +23,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Voucher {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String voucherId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long voucherId;
 
     @Column(nullable = false, unique = true)
     String voucherCode;
