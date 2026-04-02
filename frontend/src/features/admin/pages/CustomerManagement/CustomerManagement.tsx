@@ -14,7 +14,7 @@ const [list, setList] = useState<UserFE[]>([]);
 
 useEffect(() => {
   const fetchUsers = async () => {
-    const data = await UserService.getAllUsers();
+    const data = await UserService.getUsersByRole(1);
     setList(data);
   };
 
@@ -23,13 +23,16 @@ useEffect(() => {
 
 const [keyword, setKeyword] = useState("");
 
+const keywordLower = keyword.toLowerCase();
+
 const filtered = list.filter(u =>
-  u.username.toLowerCase().includes(keyword.toLowerCase())
+  [u.username, u.fullname, u.email]
+    .some(field => field.toLowerCase().includes(keywordLower))
 );
+
 
 const [selectedUser, setSelectedUser] = useState<UserFE | null>(null);
   return(
-
     <div>
 
       <h2>THÔNG TIN KHÁCH HÀNG</h2>
@@ -66,28 +69,31 @@ const [selectedUser, setSelectedUser] = useState<UserFE | null>(null);
             </thead>
 
             <tbody>
-              {filtered.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.username}</td>
-                  <td>{user.fullname.split(" ")[0]}</td>
-                  <td>{user.fullname.split(" ").slice(1).join(" ")}</td>
-                  <td>{user.email}</td>
-                  <td className={user.status ? "active" : "inactive"}>
-                    {user.status ? "Hoạt động" : "Ngừng hoạt động"}
-                  </td>
-                  <td>
-                    <button className="btn edit">Sửa</button>
-                    <button className="btn delete">Xóa</button>
-                     <button
-                       className="btn view"
-                       onClick={() => setSelectedUser(user)}
-                     >
-                       Xem chi tiết
-                     </button>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((user) => {
+                  const parts = user.fullname.trim().split(" ");
+                  return(
+                        <tr key={user.id}>
+                          <td>{user.id}</td>
+                          <td>{user.username}</td>
+                            <td>{parts[0]}</td>
+                            <td>{parts.slice(1).join(" ")}</td>
+                          <td>{user.email}</td>
+                          <td className={user.status ? "active" : "inactive"}>
+                            {user.status ? "Hoạt động" : "Ngừng hoạt động"}
+                          </td>
+                          <td>
+                            <button className="btn edit">Sửa</button>
+                            <button className="btn delete">Xóa</button>
+                             <button
+                               className="btn view"
+                               onClick={() => setSelectedUser(user)}
+                             >
+                               Xem chi tiết
+                             </button>
+                          </td>
+                        </tr>
+                      );
+              })}
             </tbody>
 
           </table>

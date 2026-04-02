@@ -12,6 +12,7 @@ export interface UserFE {
   birth: string;
   status: boolean;
   gender:string;
+  role_id: number;
 }
 
 {/*tao do tre gia cho api gia*/}
@@ -29,7 +30,8 @@ const mapToFE = (u: any): UserFE => ({
   status: u.status,
   firstname: u.first_name,
   lastname: u.last_name,
-  gender: u.gender
+  gender: u.gender,
+  role_id: u.role_id
 });
 
 
@@ -74,11 +76,12 @@ export const UserService = {
     return mapToFE(updated);
   },
 
+async getUsersByRole(roleId: number): Promise<UserFE[]> {
+  await delay(300);
 
-    async getAllUsers(): Promise<UserFE[]> {
-      await delay(300);
-{/*lay full user hien thi len bang*/}
-      return users.map(mapToFE);
-    }
+  return users
+    .filter(u => u.role_id === roleId)
+    .map(mapToFE); // lay thong tin theo rolo , hàm gọi: const data = await UserService.getUsersByRole(1);
+}
 
 };
