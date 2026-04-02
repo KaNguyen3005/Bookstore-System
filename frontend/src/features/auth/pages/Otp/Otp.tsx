@@ -1,4 +1,4 @@
-import "../../styles/otp.css";
+import "./otp.css";
 import { Link } from "react-router-dom";
 
 const OTP =() => {

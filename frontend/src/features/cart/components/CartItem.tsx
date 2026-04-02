@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCart, type CartItemType } from '../../context/CartContext';
+import { useCart, type CartItemType } from '../context/CartContext';
 import { FaTrash } from 'react-icons/fa';
 
 interface CartItemProps {

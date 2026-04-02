@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import type { Book } from "../../types/Book";
-import "../../styles/home/HeroBanner.css";
+import type { Book } from "../../../product/types/Book";
+import "./HeroBanner.css";
 
 interface HeroBannerProps {
   books: Book[];

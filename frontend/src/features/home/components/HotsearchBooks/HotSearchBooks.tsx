@@ -1,6 +1,6 @@
-import type { Book } from "../../types/Book";
-import ProductCard from "../product/ProductCard";
-import "../../styles/home/HotSearchBooks.css";
+import type { Book } from "../../../product/types/Book";
+import ProductCard from "../../../cart/pages/ProductCard/ProductCard";
+import "./HotSearchBooks.css";
 
 interface HotSearchBooksProps {
   books: Book[];

@@ -1,34 +1,32 @@
 import { Routes, Route } from "react-router-dom";
 
-import Layout from "../components/layout/Layout";
+import Layout from "../layout/layoutUser/MainLayout/Layout";
 
-import Home from "../pages/Home";
-import CategoryPage from "../pages/CategoryPage";
-import ProductDetailPage from "../pages/ProductDetailPage";
-import Cart from "../pages/Cart";
+import Home from "../features/home/pages/Home/Home";
+import CategoryPage from "../features/category/pages/CategoryPage/CategoryPage";
+import ProductDetailPage from "../features/product/pages/ProductDetailPage/ProductDetailPage";
+import Cart from "../features/cart/pages/Cart/Cart";
 
-import ProtectedRoute from "../pages/Auth/ProtectedRoute";
-import Profile from "../pages/User/Profile";
-import ProfileContent from "../pages/User/ProfileContent";
-import ChangePassword from "../pages/User/ChangePassword";
-import PersonalInfor from "../pages/User/PersonalInfor";
-import PurchaseOrder from "../pages/User/PurchaseOrder";
-import Address from "../pages/User/Address";
-import Voucher from "../pages/User/Voucher";
-import MemberRank from "../pages/User/MemberRank";
+import ProtectedRoute from "../features/auth/routes/ProtectedRoute";
+import Profile from "../features/UserProfile/pages/ProfileUser/Profile";
+import ProfileContent from "../features/UserProfile/components/ProfileDetail/ProfileContent";
 
-import Login from "../pages/Auth/Login";
-import Register from "../pages/Auth/Register";
-import Otp from "../pages/Auth/Otp";
+import ChangePassword from "../features/UserProfile/components/ChangePassword/ChangePassword";
+import PersonalInfor from "../features/UserProfile/components/PersonalInfor/PersonalInfor";
+import PurchaseOrder from "../features/UserProfile/components/PurchaseOrder/PurchaseOrder";
+import Address from "../features/UserProfile/components/Address/Address";
+import Voucher from "../features/UserProfile/components/Voucher/Voucher";
+import MemberRank from "../features/UserProfile/components/MemberRank/MemberRank";
 
-import LayoutAdmin from "../components/layoutAdmin/LayoutAdmin";
-import CustomerManagement from "../pages/Admin/CustomerManagement";
-import RoleManagement from "../pages/Admin/RoleManagement";
-import StatisticalReport  from "../pages/Admin/StatisticalReport ";
+import Login from "../features/auth/pages/Login/Login";
+import Register from "../features/auth/pages/Register/Register";
+import Otp from "../features/auth/pages/Otp/Otp";
 
+import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
+import CustomerManagement from "../features/admin/pages/CustomerManagement/CustomerManagement";
 
 
-import AdminHome from "../pages/Admin/AdminHome";
+import AdminHome from "../features/admin/pages/AdminHome/AdminHome";
 
 export default function AppRoutes() {
   return (
@@ -76,8 +74,6 @@ export default function AppRoutes() {
               <Route element={<AdminHome />}>
                 <Route index element={<div>Dashboard Admin</div>} />
                 <Route path="customers" element={<CustomerManagement />} />
-                <Route path="role" element={<RoleManagement/>}/>
-                <Route path ="statistical_report" element ={<StatisticalReport />} />
               </Route>
 
 

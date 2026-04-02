@@ -1,12 +1,10 @@
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
-import FilterSidebar from '../components/category/FilterSidebar';
-import ProductCard from '../components/product/ProductCard';
-import TopSellingBooks from '../components/home/TopSellingBooks';
-import ExploreCategories from '../components/home/ExploreCategories';
+import FilterSidebar from '../../components/FilterSidebar';
+import ProductCard from '../../../cart/pages/ProductCard/ProductCard';
+import TopSellingBooks from '../../../home/components/TopSellingBooks/TopSellingBooks';
+import ExploreCategories from '../../../home/components/ExploreCategories/ExploreCategories';
 
-import { mockCategoryBooks } from '../Data/mockCategoryBooks';
-import { TOP_SELLING_BOOKS } from '../Data/homeBooks';
+import { mockCategoryBooks } from '../../../../data/mockCategoryBooks';
+import { TOP_SELLING_BOOKS } from '../../../../data/homeBooks';
 
 const CategoryPage = () => {
   return (

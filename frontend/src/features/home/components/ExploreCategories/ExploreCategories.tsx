@@ -1,5 +1,5 @@
-import { CATEGORIES } from "../../constants/categories";
-import "../../styles/home/ExploreCategories.css";
+import { CATEGORIES } from "../../../category/constants/categories";
+import "./ExploreCategories.css";
 
 const ExploreCategories = () => {
   return (

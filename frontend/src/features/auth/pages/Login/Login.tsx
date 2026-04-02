@@ -1,6 +1,6 @@
-import "../../styles/Login.css";
+import "./Login.css";
 
-import users from "../../Data/user1.ts";
+import users from "../../../../Data/user1.ts";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

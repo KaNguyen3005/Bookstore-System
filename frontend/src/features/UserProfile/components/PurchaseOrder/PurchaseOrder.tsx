@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getOrdersByStatus } from "../../services/orderService";
-import "../../styles/PurchaseOrder.css";
+import { getOrdersByStatus } from "../../../../services/orderService";
+import "./PurchaseOrder.css";
 
 export default function Orders() {
   const [active, setActive] = useState("pending");

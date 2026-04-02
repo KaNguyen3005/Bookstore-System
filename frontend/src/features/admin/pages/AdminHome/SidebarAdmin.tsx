@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 
-import "../../styles/Admin/AdminHome.css";
+import "./AdminHome.css";
 
 const SidebarAdmin = () => {
   return (
