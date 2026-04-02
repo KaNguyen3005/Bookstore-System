@@ -10,7 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="book_img")
+@Table(name="book_imgs")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookImg {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String bookImgId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Integer bookImgId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     Book book;

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="category")
+@Table(name="categories")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -23,7 +23,7 @@ import java.util.List;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int categoryId;
+    Long categoryId;
     String categoryName;
     @ManyToOne
     @JoinColumn(name = "parent_id")
@@ -31,7 +31,7 @@ public class Category {
 
     @ManyToMany
     @JoinTable(
-            name = "role_permission",
+            name = "book_category",
             joinColumns = @JoinColumn(name = "category_id"),
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )

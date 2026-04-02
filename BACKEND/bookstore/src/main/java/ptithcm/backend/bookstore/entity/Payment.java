@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import ptithcm.backend.bookstore.enums.PaymentMethod;
 import ptithcm.backend.bookstore.enums.PaymentStatus;
 
@@ -11,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payment")
+@Table(name = "payments")
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,8 +21,9 @@ import java.time.LocalDateTime;
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String paymentId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id")
+    Long paymentId;
 
     @OneToOne
     @JoinColumn(name = "order_id")
@@ -35,9 +37,12 @@ public class Payment {
 
     BigDecimal amount;
     String transactionId;  // Mã giao dịch từ VNPay trả về
-    String bankCode;       // Ngân hàng thanh toán
     LocalDateTime paidAt;
 
     @CreationTimestamp
+    @Column(updatable = false)
     LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
 }

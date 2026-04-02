@@ -6,7 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name="permission")
+@Table(name="permissions")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -19,7 +19,7 @@ public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    int permissionId;
+    Long permissionId;
     String permissionName;
     String description;
 }

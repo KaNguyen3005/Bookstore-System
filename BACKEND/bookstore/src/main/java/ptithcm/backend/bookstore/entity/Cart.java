@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="cart")
+@Table(name="carts")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -26,7 +26,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="cart_id")
     @EqualsAndHashCode.Include
-    BigInteger cart;
+    Long cart;
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     User user;

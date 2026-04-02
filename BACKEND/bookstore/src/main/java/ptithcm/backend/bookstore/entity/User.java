@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name="user")
-//Do sử dụng lombok nên không sử dụng @Data
+@Table(name = "users")
 @Getter
 @Setter
 @Builder
@@ -26,7 +25,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     @Column(name="user_id")
-    BigInteger userId;
+    Long userId;
     String username;
     String password;
     String name;
@@ -50,9 +49,15 @@ public class User {
     )
     List<Voucher> vouchers;
 
+    @OneToMany(mappedBy = "customer")
+    List<Review> reviews;
+
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "customer")
+    List<InteractEvent> interactEvents;
 
     @UpdateTimestamp
     LocalDateTime updatedAt;

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name="book")
+@Table(name="books")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -21,10 +21,10 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="book_id")
     @EqualsAndHashCode.Include
-    String bookId;
+    Integer bookId;
 
     @Column(nullable = false)
     String title;
@@ -37,11 +37,8 @@ public class Book {
     )
     Set<Author> authors = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
-    @JoinColumn(name = "supplier_id")  // Rõ ràng khóa ngoại
-    Supplier supplier;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
+    @ManyToOne
     @JoinColumn(name = "publisher_id") // Rõ ràng khóa ngoại
     Publisher publisher;
 
@@ -65,4 +62,13 @@ public class Book {
 
     @OneToMany(mappedBy = "book")
     List<BookCart> bookCarts;
+
+    @OneToMany(mappedBy = "book")
+    List<BookOrder> bookOrders;
+
+    @OneToMany(mappedBy = "book")
+    List<InteractEvent> interactEvents;
+
+    @OneToMany(mappedBy = "book")
+    List<Review> reviews;
 }

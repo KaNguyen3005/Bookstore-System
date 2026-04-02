@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public class BookCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    BigInteger id;
+    Long bookCartId;
 
     @ManyToOne
     @JoinColumn(name = "book_id")
