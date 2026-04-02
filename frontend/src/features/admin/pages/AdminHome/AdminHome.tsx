@@ -1,5 +1,5 @@
 import SidebarAdmin from "./SidebarAdmin";
-import "../../styles/Admin/AdminHome.css";
+import "./AdminHome.css";
 
 import { Outlet } from "react-router-dom";
 

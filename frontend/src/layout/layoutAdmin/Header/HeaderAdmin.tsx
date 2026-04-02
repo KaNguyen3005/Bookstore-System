@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/Admin/HeaderAdmin.css";
+import "./HeaderAdmin.css";
 import { FaRegUserCircle } from "react-icons/fa";
 
 const HeaderAdmin: React.FC =() => {

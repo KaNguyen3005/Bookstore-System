@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { AddressService } from "../../services/AddressService";
-import { LocationService } from "../../services/location.service";
-import "../../styles/ManagerAddress.css";
+import { AddressService } from "../../../../services/AddressService";
+import { LocationService } from "../../../../services/location.service";
+import "./ManagerAddress.css";
 
 export default function AddressPage() {
 

@@ -1,4 +1,4 @@
-import '../../styles/category/CategoryPage.css';
+import '../pages/CategoryPage/CategoryPage.css';
 
 const FilterSidebar = () => {
   return (

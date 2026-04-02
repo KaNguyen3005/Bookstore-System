@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getBookById, getRelatedBooks } from "../services/bookService";
-import type { Book } from "../types/Book";
-import { useCart } from "../context/CartContext";
-import ProductCard from "../components/product/ProductCard";
-import ExploreCategories from "../components/home/ExploreCategories";
-import "../styles/ProductDetailPage.css";
+import { getBookById, getRelatedBooks } from "../../../../services/bookService";
+import type { Book } from "../../types/Book";
+import { useCart } from "../../../cart/context/CartContext";
+import ProductCard from "../../../cart/pages/ProductCard/ProductCard";
+import ExploreCategories from "../../../home/components/ExploreCategories/ExploreCategories";
+import "./ProductDetailPage.css";
 import { FiShoppingCart, FiChevronRight } from "react-icons/fi";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { TbTruckDelivery } from "react-icons/tb";

@@ -1,9 +1,9 @@
 import React from 'react';
-import { useCart } from '../context/CartContext';
-import CartItem from '../components/cart/CartItem';
-import CartSummary from '../components/cart/CartSummary';
+import { useCart } from '../../context/CartContext';
+import CartItem from '../../components/CartItem';
+import CartSummary from '../../components/CartSummary';
 import { Link } from 'react-router-dom';
-import '../styles/cart/Cart.css';
+import './Cart.css';
 
 const Cart: React.FC = () => {
   const { cartItems, selectAll } = useCart();

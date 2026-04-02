@@ -1,5 +1,6 @@
 import React from "react";
-import "../../styles/Footer.css";
+import "./Footer.css";
+
 import { MdOutlineEmail } from "react-icons/md";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { FaFacebookSquare } from "react-icons/fa";

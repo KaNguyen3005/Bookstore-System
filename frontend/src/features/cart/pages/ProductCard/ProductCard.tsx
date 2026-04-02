@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import type { Book } from "../../types/Book";
-import "../../styles/home/ProductCard.css";
+import type { Book } from "../../../product/types/Book";
+import "./ProductCard.css";
 
 interface ProductCardProps {
   book: Book;

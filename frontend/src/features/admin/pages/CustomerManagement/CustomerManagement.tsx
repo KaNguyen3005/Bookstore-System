@@ -1,10 +1,10 @@
-import "../../styles/Admin/CustomerManagement.css";
-import { UserService } from "../../services/UserService";
+import "./CustomerManagement.css";
+import { UserService } from "../../../../services/UserService";
 import { useEffect, useState } from "react";
 
 import { IoMdSearch } from "react-icons/io";
 
-import UserDetail from "../../components/User/UserDetail";
+import UserDetail from "../../components/UserDetail";
 
 export default function CustomerManagement(){
 

@@ -1,9 +1,9 @@
 import { Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "../../styles/Profile.css";
+import "./Profile.Sidebar.css";
 import Sidebar from "./Sidebar";
-import { UserService } from "../../services/UserService";
-import { AddressService } from "../../services/AddressService";
+import { UserService } from "../../../../services/UserService";
+import { AddressService } from "../../../../services/AddressService";
 
 export default function Profile() {
 

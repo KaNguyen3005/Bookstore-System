@@ -1,7 +1,9 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
-import "../../styles/Header.css";
+import { useCart } from "../../../features/cart/context/CartContext";
+
+import "./Header.css";
+
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { FiShoppingCart } from "react-icons/fi";
