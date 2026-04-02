@@ -16,6 +16,7 @@ export default function UserDetail({ user, onClose }: Props) {
         <p><b>Email:</b> {user.email}</p>
         <p><b>Số điện thoại:</b> {user.phone}</p>
         <p><b>Giới tính:</b> {user.gender}</p>
+        <p><b>Điểm thành viên:</b> {user.point}</p>
         <p>
           <b>Trạng thái:</b>{" "}
           {user.status ? "Hoạt động" : "Ngừng hoạt động"}
