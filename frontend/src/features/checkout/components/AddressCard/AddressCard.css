@@ -1,0 +1,92 @@
+.address-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.address-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.address-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.address-card__change-btn {
+  background: transparent;
+  border: none;
+  color: #3182ce;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.address-card__change-btn:hover {
+  text-decoration: underline;
+  color: #2b6cb0;
+}
+
+.address-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.address-card__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #4a5568;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.address-card__icon {
+  color: #a0aec0;
+  font-size: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.address-card__name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.address-card__address {
+  word-break: break-word;
+}
+
+.address-card__empty {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.address-card__empty p {
+  color: #a0aec0;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.address-card__add-btn {
+  background: #ebf8ff;
+  color: #3182ce;
+  border: 1px dashed #3182ce;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.address-card__add-btn:hover {
+  background: #bee3f8;
+}

@@ -6,8 +6,8 @@ import Home from "../features/home/pages/Home/Home";
 import CategoryPage from "../features/category/pages/CategoryPage/CategoryPage";
 import ProductDetailPage from "../features/product/pages/ProductDetailPage/ProductDetailPage";
 import Cart from "../features/cart/pages/Cart/Cart";
-
 import ProtectedRoute from "../features/auth/routes/ProtectedRoute";
+import CheckoutPage from "../features/checkout/pages/CheckoutPage/CheckoutPage";
 import Profile from "../features/UserProfile/pages/ProfileUser/Profile";
 import ProfileContent from "../features/UserProfile/components/ProfileDetail/ProfileContent";
 
@@ -36,6 +36,14 @@ export default function AppRoutes() {
         <Route path="category" element={<CategoryPage />} />
         <Route path="product/:id" element={<ProductDetailPage />} />
         <Route path="cart" element={<Cart />} />
+        <Route
+          path="checkout"
+          element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="profile"
@@ -61,21 +69,21 @@ export default function AppRoutes() {
       </Route>
 
 
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute role="admin">
-              <LayoutAdmin />
-            </ProtectedRoute>
-          }
-        >
-              <Route element={<AdminHome />}>
-                <Route index element={<div>Dashboard Admin</div>} />
-                <Route path="customers" element={<CustomerManagement />} />
-              </Route>
-
-
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute role="admin">
+            <LayoutAdmin />
+          </ProtectedRoute>
+        }
+      >
+        <Route element={<AdminHome />}>
+          <Route index element={<div>Dashboard Admin</div>} />
+          <Route path="customers" element={<CustomerManagement />} />
         </Route>
+
+
+      </Route>
 
     </Routes>
   );

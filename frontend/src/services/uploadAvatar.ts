@@ -1,4 +1,4 @@
-static async uploadAvatar(formData: FormData) {
+export const uploadAvatar = async (formData: FormData) => {
   // chưa có API
   return new Promise((resolve) => {
     setTimeout(() => {

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 import type { Book } from "../../../product/types/Book";
+import { useRequireAuth } from "../../../auth/hooks/useRequireAuth";
 import "./ProductCard.css";
 
 interface ProductCardProps {
@@ -9,14 +10,15 @@ interface ProductCardProps {
 
 const ProductCard = ({ book }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const { handleAuthAction } = useRequireAuth();
   const rating = book.avg_rating || 0;
   const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); // prevent triggering other links if they exist around it
+    e.preventDefault(); 
     e.stopPropagation();
 
-    addToCart({
+    const item = {
       book_id: book.book_id,
       title: book.title,
       price: book.oldPrice || book.price,
@@ -25,7 +27,12 @@ const ProductCard = ({ book }: ProductCardProps) => {
       quantity: 1,
       stock_quantity: 100, // mock stock
       selected: true
-    });
+    };
+
+    handleAuthAction(() => {
+      addToCart(item);
+      alert("Đã thêm vào giỏ hàng");
+    }, { type: 'ADD_TO_CART', payload: item });
   };
 
   return (

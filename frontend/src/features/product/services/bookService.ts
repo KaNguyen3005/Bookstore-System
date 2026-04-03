@@ -1,6 +1,6 @@
 import type { Book } from "../types/Book";
-import { mockCategoryBooks } from "../Data/mockCategoryBooks";
-import { HOT_SEARCH_BOOKS, TOP_SELLING_BOOKS, FEATURED_BOOK } from "../Data/homeBooks";
+import { mockCategoryBooks } from "../../../data/mockCategoryBooks";
+import { HOT_SEARCH_BOOKS, TOP_SELLING_BOOKS, FEATURED_BOOK } from "../../../data/homeBooks";
 
 // Combine all sources for detail lookup
 const ALL_BOOKS = [
