@@ -9,9 +9,9 @@ const AdminHome = () => {
     <div className="account-pageAdmin">
         <SidebarAdmin/>
 
-      <div className="content-admin">
-        <Outlet />
-      </div>
+        <div className="content-admin">
+           <Outlet />
+        </div>
 
     </div>
   );

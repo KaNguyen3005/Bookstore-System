@@ -88,11 +88,6 @@ const SidebarAdmin = () => {
                             </NavLink>
                         </li>
 
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Cài đặt
-                            </NavLink>
-                        </li>
       </ul>
     </div>
   );

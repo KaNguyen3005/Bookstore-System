@@ -1,6 +1,5 @@
 import { Outlet } from "react-router-dom";
 import Header from "../Header/HeaderAdmin";
-import Footer from "../Footer/FooterAdmin";
 
 function LayoutAdmin() {
   return (
@@ -8,8 +7,6 @@ function LayoutAdmin() {
       <Header />
 
       <Outlet />
-
-      <Footer />
     </>
   );
 }

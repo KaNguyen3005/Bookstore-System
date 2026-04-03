@@ -80,11 +80,11 @@
 }
 
 .action-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   min-width: 48px;
   font-size: 12px;
   line-height: 1.1;
@@ -94,15 +94,14 @@
 }
 
 .action-item svg {
-  font-size: 20px;
+  font-size: 25px;
   margin-bottom: 2px;
 }
 
-.action-item:hover {
+.action-item:hover svg,
+.action-item:hover p {
   opacity: 0.8;
-  transform: translateY(-1px);
 }
-
 
 .l-link {
   text-decoration: none;
@@ -161,4 +160,16 @@
   justify-content: center;
   border-radius: 9px;
   padding: 0 4px;
+}
+
+.user-trigger-us {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.user-trigger-us svg {
+  font-size: 22px;
 }
