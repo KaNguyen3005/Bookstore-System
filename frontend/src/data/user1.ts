@@ -101,7 +101,7 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
- {
+  {
     user_id: 7,
     username: "1adminTesst",
     password: "123456",
@@ -118,7 +118,7 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
- {
+  {
     user_id: 8,
     username: "2adminTesst",
     password: "123456",
@@ -135,7 +135,7 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
- {
+  {
     user_id: 9,
     username: "3adminTesst",
     password: "123456",
@@ -152,7 +152,7 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
-{
+  {
     user_id: 10,
     username: "3adminTesst",
     password: "123456",
@@ -169,7 +169,7 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
-{
+  {
     user_id: 11,
     username: "1adminTesst",
     password: "123456",
@@ -186,7 +186,7 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
- {
+  {
     user_id: 12,
     username: "12adminTesst",
     password: "123456",
@@ -203,7 +203,7 @@ const users = [
     updatedAt: new Date(),
     deletedAt: null
   },
- {
+  {
     user_id: 13,
     username: "13adminTesst",
     password: "123456",

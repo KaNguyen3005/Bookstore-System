@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../../hooks/useCart";
+import { useCartActions } from "../../hooks/useCartActions";
 import type { Book } from "../../../product/types/Book";
-import { useRequireAuth } from "../../../auth/hooks/useRequireAuth";
 import "./ProductCard.css";
 
 interface ProductCardProps {
@@ -9,8 +8,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ book }: ProductCardProps) => {
-  const { addToCart } = useCart();
-  const { handleAuthAction } = useRequireAuth();
+  const { onAddToCart } = useCartActions();
   const rating = book.avg_rating || 0;
   const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
 
@@ -29,10 +27,7 @@ const ProductCard = ({ book }: ProductCardProps) => {
       selected: true
     };
 
-    handleAuthAction(() => {
-      addToCart(item);
-      alert("Đã thêm vào giỏ hàng");
-    }, { type: 'ADD_TO_CART', payload: item });
+    onAddToCart(item);
   };
 
   return (

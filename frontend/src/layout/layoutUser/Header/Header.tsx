@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../../features/cart/hooks/useCart";
+import { useAuth } from "../../../features/auth/hooks/useAuth";
 
 import "./Header.css";
 import DropdownUser from "../../../features/UserProfile/components/Dropdown/DropdownUser";
@@ -19,8 +20,8 @@ import { FaHotjar } from "react-icons/fa";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { cartItems } = useCart();
-  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -91,14 +92,16 @@ const Header: React.FC = () => {
                 onClick={() => setOpen(!open)}
               >
                 <FaRegUserCircle />
-                <p>{user.username}</p>
+                <p className="user-name-text">
+                  {user.username || 'Thành viên'}
+                </p>
               </div>
 
               {open && (
                 <DropdownUser
                   onLogout={() => {
                     scrollToTop();
-                    localStorage.removeItem("user");
+                    logout();
                     navigate("/");
                   }}
                   onProfile={() => {

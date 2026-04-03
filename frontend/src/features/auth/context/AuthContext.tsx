@@ -4,6 +4,7 @@ export interface User {
   id: number;
   email: string;
   phone: string;
+  username: string;
   fullname: string;
   role_id: number;
   // add other fields as needed

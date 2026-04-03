@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getBookById, getRelatedBooks } from "../../services/bookService";
 import type { Book } from "../../types/Book";
-import { useCart } from "../../../cart/hooks/useCart";
-import { useRequireAuth } from "../../../auth/hooks/useRequireAuth";
+import { useCartActions } from "../../../cart/hooks/useCartActions";
 import ProductCard from "../../../cart/pages/ProductCard/ProductCard";
 import ExploreCategories from "../../../home/components/ExploreCategories/ExploreCategories";
 import "./ProductDetailPage.css";
@@ -17,8 +16,9 @@ const ProductDetailPage: React.FC = () => {
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart();
-  const { handleAuthAction } = useRequireAuth();
+  const [isAdding, setIsAdding] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+  const { onAddToCart, onBuyNow } = useCartActions();
 
   const getCartItem = () => {
     if (!book) return null;
@@ -34,24 +34,27 @@ const ProductDetailPage: React.FC = () => {
     };
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const item = getCartItem();
     if (!item) return;
-
-    handleAuthAction(() => {
-      addToCart(item);
-      alert("Đã thêm vào giỏ hàng");
-    }, { type: 'ADD_TO_CART', payload: item });
+    
+    setIsAdding(true);
+    // Simulate minor delay for UX feedback
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onAddToCart(item);
+    setIsAdding(false);
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     const item = getCartItem();
     if (!item) return;
-
-    handleAuthAction(() => {
-      addToCart(item);
-      window.location.href = '/checkout';
-    }, { type: 'BUY_NOW', payload: item });
+    
+    setIsBuying(true);
+    // Buy Now transition is almost immediate or handled by redirect guards
+    onBuyNow(item);
+    // If it's a redirect, the component will unmount anyway. 
+    // If it's a login prompt, the state remains until redirect.
+    setTimeout(() => setIsBuying(false), 2000); 
   };
 
   useEffect(() => {
@@ -124,10 +127,20 @@ const ProductDetailPage: React.FC = () => {
                 ))}
               </div>
               <div className="button-actions-horizontal">
-                <button className="outline-btn btn-flex" onClick={handleAddToCart}>
-                  <FiShoppingCart /> Thêm vào giỏ hàng
+                <button 
+                  className={`outline-btn btn-flex ${isAdding ? 'loading' : ''}`} 
+                  onClick={handleAddToCart}
+                  disabled={isAdding || isBuying}
+                >
+                  <FiShoppingCart /> {isAdding ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
                 </button>
-                <button className="primary-btn btn-flex" onClick={handleBuyNow}>Mua ngay</button>
+                <button 
+                  className={`primary-btn btn-flex ${isBuying ? 'loading' : ''}`} 
+                  onClick={handleBuyNow}
+                  disabled={isAdding || isBuying}
+                >
+                  {isBuying ? 'Đang xử lý...' : 'Mua ngay'}
+                </button>
               </div>
               <div className="policy-list">
                 <p className="policy-title">Chính sách ưu đãi của Katiia</p>

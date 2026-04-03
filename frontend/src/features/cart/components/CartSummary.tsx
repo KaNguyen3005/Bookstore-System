@@ -6,12 +6,12 @@ import { useRequireAuth } from '../../auth/hooks/useRequireAuth';
 const CartSummary: React.FC = () => {
   const { calculateTotal, selectedItems } = useCart();
   const navigate = useNavigate();
-  const { handleAuthAction } = useRequireAuth();
+  const { handleProtectedAction } = useRequireAuth();
   const { subtotal, discount, total } = calculateTotal();
 
   const handleCheckout = () => {
     if (selectedItems.length > 0) {
-      handleAuthAction(() => {
+      handleProtectedAction(() => {
         navigate('/checkout');
       }, { type: 'CHECKOUT', payload: {} });
     }

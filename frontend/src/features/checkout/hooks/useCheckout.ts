@@ -19,6 +19,7 @@ import type {
   CheckoutTotals,
   CreateOrderResponse,
 } from '../types';
+import type { CartItemType } from '../../cart/context/CartContext';
 
 interface UseCheckoutReturn {
   // State
@@ -29,6 +30,7 @@ interface UseCheckoutReturn {
   voucherError: string | null;
   voucherSuccess: string | null;
   selectedAddress: CheckoutAddress | null;
+  selectedItems: CartItemType[];
   totals: CheckoutTotals;
   isSubmitting: boolean;
   isApplyingVoucher: boolean;
@@ -47,8 +49,11 @@ interface UseCheckoutReturn {
   canPlaceOrder: boolean;
 }
 
-export const useCheckout = (): UseCheckoutReturn => {
-  const { selectedItems, clearCart } = useCart();
+export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn => {
+  const { selectedItems: cartSelectedItems, clearCart } = useCart();
+
+  // If initialItems are provided (e.g. from Buy Now), use them. Otherwise use selectedItems from cart.
+  const selectedItems = useMemo(() => initialItems || cartSelectedItems, [initialItems, cartSelectedItems]);
 
   // ── State ────────────────────────────────────────────────────────────────────
   const [shippingMethod, setShippingMethod] =
@@ -132,7 +137,10 @@ export const useCheckout = (): UseCheckoutReturn => {
 
       const response = await createOrderService(payload);
       if (response && response.success) {
-        clearCart();
+        // Only clear cart if the order was placed from the general cart flow
+        if (!initialItems) {
+          clearCart();
+        }
         return response as CreateOrderResponse;
       }
       return null;
@@ -143,7 +151,7 @@ export const useCheckout = (): UseCheckoutReturn => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [paymentMethod, selectedAddress, totals.total, selectedItems, clearCart]);
+  }, [paymentMethod, selectedAddress, totals.total, selectedItems, clearCart, initialItems]);
 
   const canPlaceOrder =
     !!paymentMethod && !!selectedAddress && selectedItems.length > 0 && !isSubmitting;
@@ -156,6 +164,7 @@ export const useCheckout = (): UseCheckoutReturn => {
     voucherError,
     voucherSuccess,
     selectedAddress,
+    selectedItems,
     totals,
     isSubmitting,
     isApplyingVoucher,

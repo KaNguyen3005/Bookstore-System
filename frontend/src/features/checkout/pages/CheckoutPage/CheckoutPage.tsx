@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../../cart/hooks/useCart';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useCheckout } from '../../hooks/useCheckout';
 import { mockAddresses } from '../../../../data/address';
 
@@ -16,7 +15,11 @@ import './CheckoutPage.css';
 
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { selectedItems } = useCart();
+  const location = useLocation();
+  
+  // High-priority direct purchase item
+  const buyNowItem = location.state?.buyNowItem;
+  
   const {
     shippingMethod,
     paymentMethod,
@@ -25,6 +28,7 @@ const CheckoutPage: React.FC = () => {
     voucherError,
     voucherSuccess,
     selectedAddress,
+    selectedItems,
     totals,
     isSubmitting,
     isApplyingVoucher,
@@ -37,7 +41,7 @@ const CheckoutPage: React.FC = () => {
     setSelectedAddress,
     placeOrder,
     canPlaceOrder,
-  } = useCheckout();
+  } = useCheckout(buyNowItem ? [buyNowItem] : undefined);
 
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -50,7 +54,7 @@ const CheckoutPage: React.FC = () => {
     }
   }, [setSelectedAddress]);
 
-  // Redirect if cart is empty
+  // Redirect if checkout items are empty
   useEffect(() => {
     if (selectedItems.length === 0) {
       navigate('/cart');
