@@ -24,8 +24,6 @@ import Otp from "../features/auth/pages/Otp/Otp";
 
 import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
 import CustomerManagement from "../features/admin/pages/CustomerManagement/CustomerManagement";
-
-
 import AdminHome from "../features/admin/pages/AdminHome/AdminHome";
 
 export default function AppRoutes() {

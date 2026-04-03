@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../../features/cart/context/CartContext";
 
 import "./Header.css";
+import DropdownUser from "../../../features/UserProfile/components/Dropdown/DropdownUser";
 
 import { TbTruckDelivery } from "react-icons/tb";
 import { IoNotificationsOutline } from "react-icons/io5";
@@ -17,21 +18,35 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { FaHotjar } from "react-icons/fa";
 
 const Header: React.FC = () => {
-
   const navigate = useNavigate();
   const { cartItems } = useCart();
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // scroll top
   const scrollToTop = () => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // click outside đóng dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="header">
-
+      {/* TOP */}
       <div className="header-top">
-
-        <Link to="/" className="logo-header">
+        <Link to="/" className="logo-header" onClick={scrollToTop}>
           KATIIA
         </Link>
 
@@ -48,13 +63,17 @@ const Header: React.FC = () => {
         </div>
 
         <div className="actions">
-
           <div className="action-item">
             <IoNotificationsOutline />
             <p>Thông báo</p>
           </div>
 
-          <Link to="/cart" className="action-item l-link" onClick={scrollToTop}>
+          {/* CART */}
+          <Link
+            to="/cart"
+            className="action-item l-link"
+            onClick={scrollToTop}
+          >
             <div className="cart-icon-wrapper">
               <FiShoppingCart size={24} />
               {cartItems.length > 0 && (
@@ -64,25 +83,47 @@ const Header: React.FC = () => {
             <p>Giỏ hàng</p>
           </Link>
 
+          {/* USER */}
+          {user ? (
+            <div className="action-item user-menu" ref={menuRef}>
+              <div
+                className="user-trigger-us"
+                onClick={() => setOpen(!open)}
+              >
+                <FaRegUserCircle />
+                <p>{user.username}</p>
+              </div>
 
-        {user ? (
-          <Link to="/profile" className="action-item l-link">
-            <FaRegUserCircle />
-            <p>{user.username}</p>
-          </Link>
-        ) : (
-          <Link to="/login" className="action-item l-link" onClick={scrollToTop}>
-            <FaRegUserCircle />
-            <p>Đăng nhập</p>
-          </Link>
-        )}
-
+              {open && (
+                <DropdownUser
+                  onLogout={() => {
+                    scrollToTop();
+                    localStorage.removeItem("user");
+                    navigate("/");
+                  }}
+                  onProfile={() => {
+                    scrollToTop();
+                    navigate("/profile");
+                    setOpen(false);
+                  }}
+                />
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="action-item l-link"
+              onClick={scrollToTop}
+            >
+              <FaRegUserCircle />
+              <p>Đăng nhập</p>
+            </Link>
+          )}
         </div>
-
       </div>
 
+      {/* MENU */}
       <div className="header-menu">
-
         <button onClick={() => navigate("/")}>
           <IoHomeOutline /> BOOKS
         </button>
@@ -98,9 +139,7 @@ const Header: React.FC = () => {
         <button><MdCardMembership /> Thẻ thành viên</button>
         <button><TbBrandBlogger /> Cộng đồng</button>
         <button><RiUserCommunityLine /> Dịch vụ khách hàng</button>
-
       </div>
-
     </header>
   );
 };

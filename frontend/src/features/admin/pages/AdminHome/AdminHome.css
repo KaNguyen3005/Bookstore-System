@@ -1,21 +1,21 @@
 .account-pageAdmin {
-  width: 100%;
-  display: flex;
-  padding: 30px;
-  margin: auto;
-  background: white;
-  gap: 20px;
+   width: 100%;
+   display: flex;
+   gap: 20px;
+   height: 100vh;
+   padding: 30px;
+   box-sizing: border-box;
+   align-items: flex-start;
 }
 
-/*nôi dung */
 .content-admin {
   flex: 1;
   padding: 20px;
-  background: rgba(245, 245, 245, 1);
-  height: 100%;
+  background: white;
   overflow-y: auto;
   border-radius: 15px;
 }
+
 /* sidebar*/
 .sidebar-admin {
   width: 350px;
@@ -24,7 +24,7 @@
   padding: 20px;
   box-sizing: border-box;
   border-radius: 15px;
-  height: 100%;
+  height: fit-content;
 }
 
 /* MENU LIST */
@@ -39,7 +39,7 @@
   gap: 12px;
 }
 
-/* 👉 NavLink = card */
+/*NavLink = card */
 .menu-admin li a.card-name {
   display: block;
   width: 100%;
@@ -71,3 +71,4 @@
   text-align: left;
   margin-bottom: 30px;
 }
+
