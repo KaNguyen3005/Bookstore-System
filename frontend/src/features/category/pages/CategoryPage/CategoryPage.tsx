@@ -1,6 +1,6 @@
 import FilterSidebar from '../../components/FilterSidebar';
 import ProductCard from '../../../cart/pages/ProductCard/ProductCard';
-import TopSellingBooks from '../../../home/components/TopSellingBooks/TopSellingBooks';
+import TopSellingBooks from '../../../home/components/TopsellingBooks/TopSellingBooks';
 import ExploreCategories from '../../../home/components/ExploreCategories/ExploreCategories';
 
 import { mockCategoryBooks } from '../../../../data/mockCategoryBooks';

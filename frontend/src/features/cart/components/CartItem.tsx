@@ -1,5 +1,6 @@
 import React from 'react';
-import { useCart, type CartItemType } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
+import { type CartItemType } from '../context/CartContext';
 import { FaTrash } from 'react-icons/fa';
 
 interface CartItemProps {
@@ -44,13 +45,13 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
   return (
     <div className={`cart-item ${item.selected ? 'selected' : ''}`}>
       <div className="cart-item-checkbox">
-        <input 
-          type="checkbox" 
-          checked={item.selected} 
-          onChange={() => toggleSelect(item.book_id)} 
+        <input
+          type="checkbox"
+          checked={item.selected}
+          onChange={() => toggleSelect(item.book_id)}
         />
       </div>
-      
+
       <div className="cart-item-image">
         <img src={item.cover_image_url} alt={item.title} />
       </div>
@@ -60,7 +61,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <div className="cart-item-price-info">
           <span className="cart-item-current-price">{formatPrice(currentPrice)}</span>
           {item.sale_percent > 0 && (
-             <span className="cart-item-original-price">{formatPrice(item.price)}</span>
+            <span className="cart-item-original-price">{formatPrice(item.price)}</span>
           )}
         </div>
       </div>
@@ -68,9 +69,9 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       <div className="cart-item-quantity-wrapper">
         <div className="cart-item-quantity">
           <button onClick={handleDecrease} disabled={item.quantity <= 1}>-</button>
-          <input 
-            type="number" 
-            value={item.quantity} 
+          <input
+            type="number"
+            value={item.quantity}
             onChange={handleQuantityChange}
             min={1}
             max={item.stock_quantity}

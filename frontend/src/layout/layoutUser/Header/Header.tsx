@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../../../features/cart/context/CartContext";
+import { useCart } from "../../../features/cart/hooks/useCart";
 
 import "./Header.css";
 import DropdownUser from "../../../features/UserProfile/components/Dropdown/DropdownUser";

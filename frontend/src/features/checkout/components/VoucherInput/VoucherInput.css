@@ -1,0 +1,131 @@
+.voucher-input {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.voucher-input__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.voucher-input__icon {
+  color: #3182ce;
+  font-size: 18px;
+}
+
+.voucher-input__applied {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f0fff4;
+  border: 1px solid #c6f6d5;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.voucher-input__applied-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #2f855a;
+}
+
+.voucher-input__applied-code {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.voucher-input__applied-desc {
+  font-size: 14px;
+}
+
+.voucher-input__remove-btn {
+  background: transparent;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.voucher-input__row {
+  display: flex;
+  gap: 10px;
+}
+
+.voucher-input__field {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.voucher-input__field:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.voucher-input__field--error {
+  border-color: #e53e3e;
+}
+
+.voucher-input__apply-btn {
+  padding: 0 20px;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.voucher-input__apply-btn:hover:not(:disabled) {
+  background: #2b6cb0;
+}
+
+.voucher-input__apply-btn:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+}
+
+.voucher-input__error {
+  margin-top: 8px;
+  color: #e53e3e;
+  font-size: 13px;
+}
+
+.voucher-input__success {
+  margin-top: 8px;
+  color: #38a169;
+  font-size: 13px;
+}
+
+.voucher-input__browse-btn {
+  display: block;
+  width: 100%;
+  text-align: right;
+  background: transparent;
+  border: none;
+  color: #3182ce;
+  font-size: 13px;
+  margin-top: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.voucher-input__browse-btn:hover {
+  text-decoration: underline;
+}

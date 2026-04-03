@@ -1,19 +1,20 @@
+import { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import users from "../../../../data/user1";
 import "./Login.css";
 
-import users from "../../../../Data/user1.ts";
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-
-const Login =() => {
-
+const Login = () => {
     const navigate = useNavigate();
-        {/*test*/}
+    const location = useLocation();
+    const { login } = useAuth();
+    
     const [account, setAccount] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleLogin = (e) => {
+    const from = location.state?.from || "/";
+
+    const handleLogin = (e: React.FormEvent) => {
       e.preventDefault();
 
       const user = users.find(
@@ -23,19 +24,14 @@ const Login =() => {
       );
 
       if (user) {
-
-        // lưu user
-        localStorage.setItem("user", JSON.stringify(user));
-
+        login(user as any); // Type cast for demo purposes
         alert("Đăng nhập thành công");
 
-        // chuyển trang home
-      if (user.role_id == 2) {
-        navigate("/admin", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
-
+        if (user.role_id === 2) {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
       } else {
         alert("Sai tài khoản hoặc mật khẩu");
       }

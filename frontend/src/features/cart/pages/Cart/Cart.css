@@ -51,6 +51,8 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    position: static;
+    overflow: visible;
   }
   
   /* Header Table-like labels */
@@ -61,8 +63,7 @@
     box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
-    position: sticky;
-    top: 70px; /* Adjust according to fixed header if any */
+    position: static;
     z-index: 10;
   }
   
@@ -301,7 +302,8 @@
   .cart-summary-section {
     flex: 0 0 330px;
     position: sticky;
-    top: 70px;
+    top: 100px; /* tránh đè header */
+    align-self: start;
   }
   
   .cart-summary-card {

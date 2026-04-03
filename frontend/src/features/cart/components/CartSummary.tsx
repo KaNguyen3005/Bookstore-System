@@ -1,16 +1,19 @@
 import React from 'react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
+import { useRequireAuth } from '../../auth/hooks/useRequireAuth';
 
 const CartSummary: React.FC = () => {
   const { calculateTotal, selectedItems } = useCart();
   const navigate = useNavigate();
+  const { handleAuthAction } = useRequireAuth();
   const { subtotal, discount, total } = calculateTotal();
 
   const handleCheckout = () => {
     if (selectedItems.length > 0) {
-      // In a real app, this might navigate to a checkout page with state
-      navigate('/checkout');
+      handleAuthAction(() => {
+        navigate('/checkout');
+      }, { type: 'CHECKOUT', payload: {} });
     }
   };
 

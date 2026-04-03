@@ -1,6 +1,6 @@
-import type { Order } from "../Data/orders";
-import { mockOrders } from "../Data/orders";
-import type { OrderStatus } from "../Data/orders";
+import type { Order } from "../data/orders";
+import { mockOrders } from "../data/orders";
+import type { OrderStatus } from "../data/orders";
 
 // giả lập API (sau này thay bằng fetch/axios)
 export const getOrders = async (): Promise<Order[]> => {
@@ -17,4 +17,13 @@ export const getOrdersByStatus = async (
 ): Promise<Order[]> => {
   const orders = await getOrders();
   return orders.filter((o) => o.status === status);
+};
+
+export const createOrder = async (orderData: any): Promise<any> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Order created successfully:", orderData);
+      resolve({ success: true, message: "Mua hàng thành công", order_id: Date.now() });
+    }, 1000);
+  });
 };

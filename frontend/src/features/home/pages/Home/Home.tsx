@@ -1,8 +1,8 @@
 import HeroBanner from "../../components/HeroBanner/HeroBanner";
-import HotSearchBooks from "../../components/HotSearchBooks/HotSearchBooks";
-import TopSellingBooks from "../../components/TopSellingBooks/TopSellingBooks";
+import HotSearchBooks from "../../components/HotsearchBooks/HotSearchBooks";
+import TopSellingBooks from "../../components/TopsellingBooks/TopSellingBooks";
 import ExploreCategories from "../../components/ExploreCategories/ExploreCategories";
-import { HOT_SEARCH_BOOKS, TOP_SELLING_BOOKS } from "../../../../Data/homeBooks";
+import { HOT_SEARCH_BOOKS, TOP_SELLING_BOOKS } from "../../../../data/homeBooks";
 
 function Home() {
   return (

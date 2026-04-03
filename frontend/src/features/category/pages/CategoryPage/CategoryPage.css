@@ -66,11 +66,10 @@
 }
 
 /* Category Page Layout Styles */
-.category-page {
-  background-color: #f9fafb;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.checkout-page {
+  background-color: #f8f9fa;
+  padding: 40px 0;
+  font-family: 'Inter', sans-serif;
 }
 
 .category-page__main {
