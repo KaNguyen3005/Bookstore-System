@@ -171,5 +171,13 @@
 }
 
 .user-trigger-us svg {
-  font-size: 22px;
+  font-size: 25px;
+}
+
+.user-name-text {
+  font-weight: 600;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -24,8 +24,14 @@ const Login = () => {
       );
 
       if (user) {
-        login(user as any); // Type cast for demo purposes
-        alert("Đăng nhập thành công");
+        login({
+          id: user.user_id,
+          email: user.email,
+          phone: user.phone,
+          username: user.username,
+          fullname: `${user.first_name} ${user.last_name}`,
+          role_id: user.role_id,
+        }); 
 
         if (user.role_id === 2) {
           navigate("/admin", { replace: true });

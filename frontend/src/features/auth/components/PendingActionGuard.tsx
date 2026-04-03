@@ -15,20 +15,20 @@ export const PendingActionGuard: React.FC<{ children: React.ReactNode }> = ({ ch
       if (savedAction) {
         try {
           const action: PendingAction = JSON.parse(savedAction);
-          
+
           // Execute based on type
           if (action.type === 'ADD_TO_CART') {
             addToCart(action.payload);
             console.log('Post-login: Executed pending ADD_TO_CART');
           } else if (action.type === 'BUY_NOW') {
-            addToCart(action.payload);
-            navigate('/checkout');
+            // Do NOT add to general cart
+            navigate('/checkout', { state: { buyNowItem: action.payload } });
             console.log('Post-login: Executed pending BUY_NOW');
           } else if (action.type === 'CHECKOUT') {
             navigate('/checkout');
             console.log('Post-login: Executed pending CHECKOUT');
           }
-          
+
           // Clear after execution
           sessionStorage.removeItem('pendingAction');
         } catch (e) {

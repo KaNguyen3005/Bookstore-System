@@ -12,10 +12,12 @@ export const useRequireAuth = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleAuthAction = (action: () => void, pendingMetadata?: { type: string; payload: any }) => {
+  const handleProtectedAction = (action: () => void, pendingMetadata?: { type: string; payload: any }) => {
     if (isAuthenticated) {
       action();
     } else {
+      alert("Vui lòng đăng nhập để tiếp tục");
+      
       if (pendingMetadata) {
         const pendingAction: PendingAction = {
           ...pendingMetadata,
@@ -29,5 +31,5 @@ export const useRequireAuth = () => {
     }
   };
 
-  return { handleAuthAction };
+  return { handleProtectedAction };
 };
