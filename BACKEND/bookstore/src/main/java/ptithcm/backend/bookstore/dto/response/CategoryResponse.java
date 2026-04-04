@@ -8,8 +8,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthorResponse {
-    Integer authorId;
-    String authorName;
-    String alias;
+public class CategoryResponse {
+    Integer categoryId;
+    String categoryName;
 }

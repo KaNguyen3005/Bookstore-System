@@ -3,8 +3,11 @@ package ptithcm.backend.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -71,4 +74,12 @@ public class Book {
 
     @OneToMany(mappedBy = "book")
     List<Review> reviews;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

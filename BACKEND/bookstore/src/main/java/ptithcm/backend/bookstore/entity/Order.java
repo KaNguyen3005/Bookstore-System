@@ -39,7 +39,7 @@ public class Order {
     BigDecimal vatAmount;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(unique = true) // unique=true để đảm bảo tính 1-1 ở tầng DB
+    @JoinColumn(name = "voucher_id", unique = true) // unique=true để đảm bảo tính 1-1 ở tầng DB
     Voucher voucher;
 
     BigDecimal totalAmount;
@@ -47,11 +47,22 @@ public class Order {
     @OneToMany(mappedBy = "order")
     List<BookOrder> bookOrders;
 
+    @ManyToOne
+    @JoinColumn(name = "staff_id")
+    User staff;
+
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    User customer;
+
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
 
     OrderStatus status;
+
+
 
     @UpdateTimestamp
     LocalDateTime updatedAt;

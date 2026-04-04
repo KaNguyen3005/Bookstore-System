@@ -1,4 +1,5 @@
-package ptithcm.backend.bookstore.dto.response;
+package ptithcm.backend.bookstore.dto.request;
+
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoriesResponse {
-    String categoriesId;
-    String categoriesName;
+public class CreateCategoryRequest {
+    String categoryName;
+    Integer parentId;
 }
