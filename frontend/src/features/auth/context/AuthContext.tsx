@@ -7,7 +7,7 @@ import React, {
 } from "react";
 
 export interface User {
-  id: number;
+  user_id: number;
   email: string;
   phone: string;
   username: string;
@@ -29,10 +29,25 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
-  });
+    const [user, setUser] = useState<User | null>(() => {
+      try {
+        const saved = localStorage.getItem("user");
+        if (!saved) return null;
+
+        const parsed = JSON.parse(saved);
+
+        // validate tránh data sai (A -> B bug)
+        if (!parsed?.user_id || !parsed?.email) {
+          localStorage.removeItem("user");
+          return null;
+        }
+
+        return parsed;
+      } catch {
+        localStorage.removeItem("user");
+        return null;
+      }
+    });
 
   const isAuthenticated = !!user;
 
