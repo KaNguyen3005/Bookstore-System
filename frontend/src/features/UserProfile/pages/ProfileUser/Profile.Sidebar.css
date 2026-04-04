@@ -1,14 +1,19 @@
-.account-page{
-  display:flex;
-  padding:30px;
-  max-width:1200px;
-  margin:auto;
+.account-page {
+  display: flex;
+  padding: 30px;
+
+  height: 100vh;        /* 🔥 QUAN TRỌNG */
+  overflow: hidden;     /* 🔥 chặn scroll ngoài */
+  box-sizing: border-box;
 }
 
 /* SIDEBAR */
 
-.sidebar{
-  width:200px;
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+
+  height: 100vh;       /* 🔥 */
 }
 
 .sidebar ul{
@@ -43,12 +48,13 @@
 }
 
 /* CONTENT */
-.content{
-  flex:1;
-  background:white;
-  margin-left:50px;
-  padding:25px;
-  border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.05);
-}
+.content {
+  flex: 1;
+  background: white;
+  margin-left: 50px;
+  padding: 25px;
+  border-radius: 12px;
 
+  height: 100%;
+  box-sizing: border-box;
+}
