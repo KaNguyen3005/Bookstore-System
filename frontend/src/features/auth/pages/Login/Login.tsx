@@ -1,47 +1,39 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import users from "../../../../data/user1";
-import "./Login.css";
+import  "./Login.css";
+
+import { UserService } from "../../../../services/UserService";
 
 const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login } = useAuth();
+    const {login } = useAuth();
     
     const [account, setAccount] = useState("");
     const [password, setPassword] = useState("");
 
     const from = location.state?.from || "/";
 
-    const handleLogin = (e: React.FormEvent) => {
-      e.preventDefault();
 
-      const user = users.find(
-        (u) =>
-          (u.email === account || u.phone === account) &&
-          u.password === password
-      );
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-      if (user) {
-        login({
-          id: user.user_id,
-          email: user.email,
-          phone: user.phone,
-          username: user.username,
-          fullname: `${user.first_name} ${user.last_name}`,
-          role_id: user.role_id,
-        }); 
+  const user = await UserService.login(account, password);
 
-        if (user.role_id === 2) {
-          navigate("/admin", { replace: true });
-        } else {
-          navigate(from, { replace: true });
-        }
-      } else {
-        alert("Sai tài khoản hoặc mật khẩu");
-      }
-    };
+  if (!user) {
+    alert("Sai tài khoản hoặc mật khẩu");
+    return;
+  }
+
+  login(user); // đưa thẳng vào context
+
+  if (user.role_id === 2) {
+    navigate("/admin", { replace: true });
+  } else {
+    navigate(from, { replace: true });
+  }
+};
 
      const scrollToTop = () => {
          window.scrollTo(0, 0);

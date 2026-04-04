@@ -5,24 +5,30 @@ import Sidebar from "./Sidebar";
 import { UserService } from "../../../../services/UserService";
 import { AddressService } from "../../../../services/AddressService";
 
+import {useAuth} from "../../../auth/hooks/useAuth";
+
 export default function Profile() {
 
   const [user, setUser] = useState<any>(null);
   const [edit, setEdit] = useState(false);
   const [avatar, setAvatar] = useState("");
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const data = await UserService.getUserById(1);
+  const { user: authUser } = useAuth();
 
-      if (data) {
-        setUser(data);
-        setAvatar(data.avatar || "");
-      }
-    };
+     useEffect(() => {
+       if (!authUser?.user_id) return;
 
-    fetchUser();
-  }, []);
+       const fetchUser = async () => {
+         const data = await UserService.getUserById(authUser.user_id);
+
+         if (data) {
+           setUser(data);
+           setAvatar(data.avatar || "");
+         }
+       };
+
+       fetchUser();
+     }, [authUser]);
 
   const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,8 +93,6 @@ export default function Profile() {
 
       setUser(updated);
       setAvatar(updated.avatar);
-
-      localStorage.setItem("user", JSON.stringify(updated));
 
       setEdit(false);
       alert("Đã lưu thông tin");

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AddressService } from "../../../../services/AddressService";
 import { LocationService } from "../../../../services/location.service";
 import "./ManagerAddress.css";
+import { useAuth } from "../../../../features/auth/hooks/useAuth";
 
 export default function AddressPage() {
 
@@ -13,20 +14,25 @@ export default function AddressPage() {
   const [districts, setDistricts] = useState<any[]>([]);
   const [wards, setWards] = useState<any[]>([]);
 
+  const { user } = useAuth();
+
   useEffect(() => {
     LocationService.getProvinces().then(setProvinces);
   }, []);
 
-  const user_id = 1;
 
-  const fetchData = async () => {
-    const data = await AddressService.getAll(user_id);
-    setList(data);
-  };
+const fetchData = async () => {
+  if (!user?.user_id) return;
 
-  useEffect(() => {
+  const data = await AddressService.getAll(user.user_id);
+  setList(data);
+};
+
+useEffect(() => {
+  if (user?.user_id) {
     fetchData();
-  }, []);
+  }
+}, [user]);
 
   const handleSave = async (id: number) => {
     if (!form.customer_name || !form.customer_phone) {
