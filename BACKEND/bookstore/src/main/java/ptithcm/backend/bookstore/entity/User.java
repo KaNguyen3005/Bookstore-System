@@ -33,6 +33,7 @@ public class User {
     String phone;
     boolean status;
     String gender;
+    boolean isChangeAccount;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

@@ -55,6 +55,8 @@ public class Voucher {
     @Builder.Default
     Integer limitPerUser = 1;
 
+    Long minPoint;
+
     @ManyToMany(mappedBy = "vouchers")
     List<User> users;
 

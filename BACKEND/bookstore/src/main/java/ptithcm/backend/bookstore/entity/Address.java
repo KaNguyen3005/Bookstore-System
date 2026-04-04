@@ -4,8 +4,11 @@ package ptithcm.backend.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="addresses")
@@ -31,4 +34,12 @@ public class Address {
     String customerName;
     String customerPhone;
     boolean isDefault;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }
