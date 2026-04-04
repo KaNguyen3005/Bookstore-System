@@ -181,3 +181,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.header a {
+  text-decoration: none;
+  color: inherit;
+}
