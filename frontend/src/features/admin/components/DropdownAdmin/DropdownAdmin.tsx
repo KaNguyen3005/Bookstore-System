@@ -5,7 +5,7 @@ type Props = {
   onLogout: () => void;
 };
 
-const DropdownUser: React.FC<Props> = ({ onLogout }) => {
+const DropdownAdmin: React.FC<Props> = ({ onLogout }) => {
   return (
     <div className="dropdown-user">
       <div className="dropdown-item">Cài đặt</div>
@@ -18,4 +18,4 @@ const DropdownUser: React.FC<Props> = ({ onLogout }) => {
   );
 };
 
-export default DropdownUser;
+export default DropdownAdmin;

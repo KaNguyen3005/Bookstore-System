@@ -4,11 +4,6 @@ export default function Sidebar(){
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("user"); // xoá thông tin user
-    navigate("/"); // chuyển về trang login
-  };
-
   return(
 
     <div className="sidebar">
@@ -57,12 +52,6 @@ export default function Sidebar(){
           <NavLink to="/profile/member">
             Hạng thành viên
           </NavLink>
-        </li>
-
-        <li>
-            <NavLink to="/" className="logout" onClick={handleLogout} >
-             Đăng xuất
-            </NavLink>
         </li>
 
       </ul>

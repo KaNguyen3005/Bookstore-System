@@ -1,22 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./Header.css";
+
+import DropdownUser from "../../../features/UserProfile/components/Dropdown/DropdownUser";
 import { useCart } from "../../../features/cart/hooks/useCart";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
 
-import "./Header.css";
-import DropdownUser from "../../../features/UserProfile/components/Dropdown/DropdownUser";
-
-import { TbTruckDelivery } from "react-icons/tb";
-import { IoNotificationsOutline } from "react-icons/io5";
+import { FaRegUserCircle, FaHotjar } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
-import { FaRegUserCircle } from "react-icons/fa";
-import { TbBrandBlogger } from "react-icons/tb";
-import { IoHomeOutline } from "react-icons/io5";
-import { MdCardMembership } from "react-icons/md";
-import { RiUserCommunityLine } from "react-icons/ri";
-import { GoBook } from "react-icons/go";
+import { IoHomeOutline, IoNotificationsOutline } from "react-icons/io5";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { FaHotjar } from "react-icons/fa";
+import { GoBook } from "react-icons/go";
+import { MdCardMembership } from "react-icons/md";
+import { TbBrandBlogger, TbTruckDelivery } from "react-icons/tb";
+import { RiUserCommunityLine } from "react-icons/ri";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -26,12 +23,10 @@ const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // scroll top
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // click outside đóng dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -45,7 +40,6 @@ const Header: React.FC = () => {
 
   return (
     <header className="header">
-      {/* TOP */}
       <div className="header-top">
         <Link to="/" className="logo-header" onClick={scrollToTop}>
           KATIIA
@@ -69,32 +63,20 @@ const Header: React.FC = () => {
             <p>Thông báo</p>
           </div>
 
-          {/* CART */}
-          <Link
-            to="/cart"
-            className="action-item l-link"
-            onClick={scrollToTop}
-          >
-            <div className="cart-icon-wrapper">
-              <FiShoppingCart size={24} />
-              {cartItems.length > 0 && (
-                <span className="cart-badge">{cartItems.length}</span>
-              )}
-            </div>
+          <Link to="/cart" className="action-item">
+            <FiShoppingCart size={24} />
+            {cartItems.length > 0 && (
+              <span className="cart-badge">{cartItems.length}</span>
+            )}
             <p>Giỏ hàng</p>
           </Link>
 
           {/* USER */}
           {user ? (
             <div className="action-item user-menu" ref={menuRef}>
-              <div
-                className="user-trigger-us"
-                onClick={() => setOpen(!open)}
-              >
+              <div className="user-trigger-us" onClick={() => setOpen(!open)}>
                 <FaRegUserCircle />
-                <p className="user-name-text">
-                  {user.username || 'Thành viên'}
-                </p>
+                <p>{user.username}</p>
               </div>
 
               {open && (
@@ -102,22 +84,19 @@ const Header: React.FC = () => {
                   onLogout={() => {
                     scrollToTop();
                     logout();
+                    setOpen(false);
                     navigate("/");
                   }}
                   onProfile={() => {
                     scrollToTop();
-                    navigate("/profile");
                     setOpen(false);
+                    navigate("/profile");
                   }}
                 />
               )}
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="action-item l-link"
-              onClick={scrollToTop}
-            >
+            <Link to="/login" className="action-item">
               <FaRegUserCircle />
               <p>Đăng nhập</p>
             </Link>
@@ -125,23 +104,18 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* MENU */}
       <div className="header-menu">
         <button onClick={() => navigate("/")}>
           <IoHomeOutline /> BOOKS
         </button>
-
         <button onClick={() => navigate("/category")}>
           <GiHamburgerMenu /> Xem tất cả
         </button>
-
         <button><GoBook /> Ebook</button>
-        <button>Mới & Thịnh hành</button>
-        <button>Ưu đãi & Phần thưởng</button>
-        <button><FaHotjar /> Sản phẩm bán chạy</button>
-        <button><MdCardMembership /> Thẻ thành viên</button>
-        <button><TbBrandBlogger /> Cộng đồng</button>
-        <button><RiUserCommunityLine /> Dịch vụ khách hàng</button>
+        <button><FaHotjar /> Bán chạy</button>
+        <button><MdCardMembership /> Thành viên</button>
+        <button><TbBrandBlogger /> Blog</button>
+        <button><RiUserCommunityLine /> Cộng đồng</button>
       </div>
     </header>
   );
