@@ -59,7 +59,12 @@ public class Book {
     float avgRating; //0 - 5
     int salePercent = 0; // Đơn vị %
 
-    @ManyToMany(mappedBy = "books")
+    @ManyToMany
+    @JoinTable(
+            name = "book_category",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     Set<Category> categories = new HashSet<>();
     boolean isActive;
 
