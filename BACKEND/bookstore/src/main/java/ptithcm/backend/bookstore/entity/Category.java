@@ -29,12 +29,7 @@ public class Category {
     @JoinColumn(name = "parent_id")
     Category parentCategory;
 
-    @ManyToMany
-    @JoinTable(
-            name = "book_category",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
+    @ManyToMany(mappedBy = "categories")
     List<Book> books;
 
     @CreationTimestamp

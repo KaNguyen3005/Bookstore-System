@@ -7,6 +7,8 @@ import ptithcm.backend.bookstore.dto.request.CreatePublisherRequest;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
 import ptithcm.backend.bookstore.dto.response.PublisherResponse;
 import ptithcm.backend.bookstore.entity.Book;
+import ptithcm.backend.bookstore.entity.Category;
+import ptithcm.backend.bookstore.entity.Permission;
 import ptithcm.backend.bookstore.entity.Publisher;
 
 // componentModel = "spring" giúp @Autowired mapper này ở Service
@@ -17,4 +19,7 @@ public interface BookMapper {
 
     @Mapping(target = "coverImgUrl", source = "coverImageUrl")
     BookResponse toResponse(Book book);
+    default String map(Category category) {
+        return category.getCategoryName();
+    }
 }

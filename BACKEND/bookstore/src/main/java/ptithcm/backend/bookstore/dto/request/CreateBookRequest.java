@@ -11,24 +11,21 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-    @Data
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CreateBookRequest {
     @NotBlank(message = "INVALID_TITLE")
     @Size(max = 255, message = "INVALID_TITLE")
     String title;
 
     @NotEmpty(message = "INVALID_AUTHOR_IDS")
-    Set<String> authorIds = new HashSet<>();
-
-    @NotBlank(message = "INVALID_SUPPLIER_ID")
-    String supplierId;
+    Set<Integer> authorIds = new HashSet<>();
 
     @NotBlank(message = "INVALID_PUBLISHER_ID")
-    String publisherId;
+    Integer publisherId;
 
     @NotBlank(message = "INVALID_ISBN")
     @Pattern(regexp = "^(97[89])?\\d{9}(\\d|X)$", message = "INVALID_ISBN")
@@ -68,5 +65,5 @@ public class CreateBookRequest {
     Integer salePercent = 0;
 
     @NotEmpty(message = "INVALID_CATEGORY_IDS")
-    Set<String> categoryIds = new HashSet<>();
+    Set<Integer> categoryIds = new HashSet<>();
 }

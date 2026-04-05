@@ -20,12 +20,12 @@ public class BookResponse {
     String isbn;
     String language;
     String description;
-    int pageCount;
+    Integer pageCount;
     String coverType; // Loại bìa
     String coverImgUrl; // Chỉ trả về Url để load ra
-    int stockQuantity = 0;
+    Integer stockQuantity;
     BigDecimal price; // Chọn kiểu này để giúp cho nhiều mệnh giá tiền
-    float avgRating; //0 - 5
-    int salePercent = 0; // Đơn vị %
-    Set<String> categoryIds = new HashSet<>();
+    Float avgRating; //0 - 5
+    Integer salePercent; // Đơn vị %
+    Set<String> categories = new HashSet<>();
 }

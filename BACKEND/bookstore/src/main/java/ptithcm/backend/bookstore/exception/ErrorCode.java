@@ -38,6 +38,8 @@ public enum ErrorCode {
     INVALID_AVG_RATING(3012, "Rating must be between {value} and 5", HttpStatus.BAD_REQUEST),
     INVALID_SALE_PERCENT(3013,  "Sale percent must be between {min} and {max}", HttpStatus.BAD_REQUEST),
     INVALID_CATEGORY_IDS(3014, "Must have at least 1 category", HttpStatus.BAD_REQUEST),
+    BOOK_NOT_FOUND(3015, "Book not found", HttpStatus.NOT_FOUND),
+    BOOK_ALREADY_DELETED(3016, "Book already deleted", HttpStatus.BAD_REQUEST),
     // ===== PEOPLE (4xxx) =====
     AUTHOR_NOT_FOUND(4001, "Author not found", HttpStatus.NOT_FOUND),
 
@@ -49,7 +51,7 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(6001, "Category not found", HttpStatus.NOT_FOUND),
     // ===== ROLE (61xx) =====
     ROLE_NOT_FOUND(6101, "Role not found", HttpStatus.NOT_FOUND),
-    // ===== ROLE (62xx) =====
+    // ===== PERMISSION (62xx) =====
     PERMISSION_NOT_FOUND(6201, "Permission not found", HttpStatus.NOT_FOUND),
     // ===== FILE (7xxx) =====
     UPLOAD_FAILED(7001, "Upload file failed", HttpStatus.INTERNAL_SERVER_ERROR), // nên là 500

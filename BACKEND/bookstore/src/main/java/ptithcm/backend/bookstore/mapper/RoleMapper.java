@@ -13,6 +13,7 @@
     @Mapper(componentModel = "spring")
     public interface RoleMapper {
         Role toEntity(CreateRoleRequest request);
+
         RoleResponse toResponse(Role role);
         default String map(Permission permission) {
             return permission.getPermissionName();
