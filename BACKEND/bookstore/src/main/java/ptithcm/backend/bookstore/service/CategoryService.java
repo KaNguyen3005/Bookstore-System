@@ -7,7 +7,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateCategoryRequest;
+import ptithcm.backend.bookstore.dto.request.UpdateCategoryRequest;
 import ptithcm.backend.bookstore.dto.response.CategoryResponse;
+import ptithcm.backend.bookstore.entity.Author;
 import ptithcm.backend.bookstore.entity.Category;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
@@ -29,7 +31,7 @@ public class CategoryService {
     public CategoryResponse create(CreateCategoryRequest request){
         Category category = categoryMapper.toEntity(request);
 
-        if (request.getParentId() != null) {
+        if (request.getParentId() != -1) {
             Category parent = categoryRepository.findById(request.getParentId())
                     .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -53,5 +55,23 @@ public class CategoryService {
 
         categoryRepository.delete(category);
         return true;
+    }
+
+    public CategoryResponse update(Integer id, UpdateCategoryRequest request){
+        Category category  = categoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        if (request.getCategoryName() != null) {
+            category.setCategoryName(request.getCategoryName());
+        }
+
+        if (request.getParentId() != null) {
+            Category parent = categoryRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+            category.setParentCategory(parent);
+        }
+
+        return categoryMapper.toResponse(categoryRepository.save(category));
     }
 }

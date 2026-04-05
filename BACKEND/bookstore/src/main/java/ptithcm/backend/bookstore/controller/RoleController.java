@@ -7,12 +7,14 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateCategoryRequest;
-import ptithcm.backend.bookstore.dto.request.UpdateAuthorRequest;
+import ptithcm.backend.bookstore.dto.request.CreateRoleRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateCategoryRequest;
+import ptithcm.backend.bookstore.dto.request.UpdateRoleRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
-import ptithcm.backend.bookstore.dto.response.AuthorResponse;
 import ptithcm.backend.bookstore.dto.response.CategoryResponse;
+import ptithcm.backend.bookstore.dto.response.RoleResponse;
 import ptithcm.backend.bookstore.service.CategoryService;
+import ptithcm.backend.bookstore.service.RoleService;
 
 import java.util.List;
 
@@ -21,37 +23,37 @@ import java.util.List;
 @Slf4j
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("api/v1/categories")
-public class CategoryController {
+@RequestMapping("api/v1/roles")
+public class RoleController {
 
-    CategoryService categoryService;
+    RoleService roleService;
 
     @PostMapping()
-    ApiResponse<CategoryResponse> create(@RequestBody CreateCategoryRequest request){
-        ApiResponse<CategoryResponse> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(categoryService.create(request));
+    ApiResponse<RoleResponse> create(@RequestBody CreateRoleRequest request){
+        ApiResponse<RoleResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(roleService.create(request));
         return apiResponse;
     }
 
     @GetMapping()
-    ApiResponse<List<CategoryResponse>> getAll(){
-        return ApiResponse.<List<CategoryResponse>>builder().result(categoryService.getAll()).build();
+    ApiResponse<List<RoleResponse>> getAll(){
+        return ApiResponse.<List<RoleResponse>>builder().result(roleService.getAll()).build();
     }
 
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Integer id){
 
-        categoryService.delete(id);
+        roleService.delete(id);
         return ApiResponse.<Void>builder()
                 .message("Delete success")
                 .build();
     }
     
     @PatchMapping("/{id}")
-    ApiResponse<CategoryResponse> update(@PathVariable("id") Integer id, @RequestBody UpdateCategoryRequest request){
-        ApiResponse<CategoryResponse> apiResponse = new ApiResponse<>();
+    ApiResponse<RoleResponse> update(@PathVariable("id") Integer id, @RequestBody UpdateRoleRequest request){
+        ApiResponse<RoleResponse> apiResponse = new ApiResponse<>();
 
-        apiResponse.setResult(categoryService.update(id, request));
+        apiResponse.setResult(roleService.update(id, request));
 
         return apiResponse;
     }
