@@ -334,8 +334,59 @@
           "response": []
         },
         {
-          "name": "New Request",
+          "name": "get categories",
           "id": "2316da11-7dda-4351-8bbe-74cdf89d74bc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update category",
+          "id": "9f18612c-b519-4ac6-af6d-b82b56d49ce1",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryName\" : \"Văn học Việt Nam\",\r\n    \"parentId\" : null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/categories/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "categories",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d930a85b-7adc-4916-a221-7d7609d6b1c7"
+    },
+    {
+      "name": "Permission",
+      "item": [
+        {
+          "name": "get permissions",
+          "id": "92f91a5c-b822-4d7a-ac24-bd16f836389a",
           "request": {
             "method": "GET",
             "header": [],
@@ -346,7 +397,7 @@
           "response": []
         }
       ],
-      "id": "d930a85b-7adc-4916-a221-7d7609d6b1c7"
+      "id": "50892eeb-e557-4772-9055-96c059e684a2"
     },
     {
       "name": "add supplier",

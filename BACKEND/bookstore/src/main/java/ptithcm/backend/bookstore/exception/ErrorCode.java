@@ -45,9 +45,12 @@ public enum ErrorCode {
     SUPPLIER_NOT_FOUND(5001, "Supplier not found", HttpStatus.NOT_FOUND),
     PUBLISHER_NOT_FOUND(5002, "Publisher not found", HttpStatus.NOT_FOUND),
 
-    // ===== CATEGORY (6xxx) =====
+    // ===== CATEGORY (60xx) =====
     CATEGORY_NOT_FOUND(6001, "Category not found", HttpStatus.NOT_FOUND),
-
+    // ===== ROLE (61xx) =====
+    ROLE_NOT_FOUND(6101, "Role not found", HttpStatus.NOT_FOUND),
+    // ===== ROLE (62xx) =====
+    PERMISSION_NOT_FOUND(6201, "Permission not found", HttpStatus.NOT_FOUND),
     // ===== FILE (7xxx) =====
     UPLOAD_FAILED(7001, "Upload file failed", HttpStatus.INTERNAL_SERVER_ERROR), // nên là 500
     FILE_SIZE_EXCEEDED(7002, "File size exceeded limit", HttpStatus.BAD_REQUEST),
