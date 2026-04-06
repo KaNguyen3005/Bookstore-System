@@ -1,13 +1,14 @@
 /**
  * Checkout Service
  * All business logic lives here — NO logic in components.
- * TODO: Replace mock responses with real API calls (axios/fetch).
+ * Coordinates between UI state and API Layer.
  */
 
+import { voucherApi } from './voucherApi';
+import checkoutApi from './checkoutApi';
 import type { CartItemType } from '../../cart/context/CartContext';
 import type {
   CheckoutVoucher,
-  CreateOrderRequest,
   CreateOrderResponse,
   CalculateOrderResponse,
   ShippingMethodType,
@@ -57,46 +58,14 @@ export const calculateOrder = (
 
 /**
  * Validate & apply voucher code.
- * Returns voucher object if valid, throws error string if not.
- * TODO: Replace with real API call: POST /api/vouchers/validate
+ * Coordinates with voucherApi to fetch voucher data.
  */
 export const applyVoucher = async (
   code: string,
   subtotal: number
 ): Promise<CheckoutVoucher> => {
   try {
-    // Mock voucher database
-    const MOCK_VOUCHERS: CheckoutVoucher[] = [
-      {
-        voucher_id: 1,
-        code: 'GIAM10K',
-        discount_value: 10_000,
-        max_discount_amount: 10_000,
-        min_order_value: 100_000,
-      },
-      {
-        voucher_id: 2,
-        code: 'GIAM50K',
-        discount_value: 50_000,
-        max_discount_amount: 50_000,
-        min_order_value: 300_000,
-      },
-      {
-        voucher_id: 3,
-        code: 'FREESHIP',
-        discount_value: 30_000,
-        max_discount_amount: 30_000,
-        min_order_value: 50_000,
-      },
-    ];
-
-    const voucher = MOCK_VOUCHERS.find(
-      (v) => v.code === code.trim().toUpperCase()
-    );
-
-    if (!voucher) {
-      throw new Error('Mã giảm giá không tồn tại.');
-    }
+    const voucher = await voucherApi.validateVoucher(code);
 
     if (subtotal < voucher.min_order_value) {
       throw new Error(
@@ -104,7 +73,7 @@ export const applyVoucher = async (
       );
     }
 
-    return Promise.resolve(voucher);
+    return voucher;
   } catch (error) {
     throw error;
   }
@@ -114,29 +83,26 @@ export const applyVoucher = async (
 
 /**
  * Submit order to backend.
- * TODO: Replace mock with: POST /api/orders
+ * Maps UI request format and coordinates with checkoutApi.
  */
 export const createOrder = async (
-  payload: CreateOrderRequest
+  payload: any 
 ): Promise<CreateOrderResponse> => {
   try {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-
-    const mockResponse: CreateOrderResponse = {
-      order_id: Math.floor(Math.random() * 900_000) + 100_000,
-      total_amount:
-        payload.items.reduce(
-          (sum, item) => sum + item.unit_price * item.quantity,
-          0
-        ),
-      payment_url:
-        payload.payment_method !== 'COD'
-          ? `https://payment.example.com/pay?order=${Date.now()}`
-          : undefined,
+    // 1. Map to Backend Format:
+    const mappedPayload = {
+      source: 'WEBSITE',
+      addressId: payload.addressId,
+      items: payload.items.map((item: any) => ({
+        bookId: item.bookId || item.book_id,
+        quantity: item.quantity,
+      })),
+      paymentMethod: payload.paymentMethod || payload.payment_method,
+      voucherCode: payload.voucherCode || '',
     };
 
-    return mockResponse;
+    // 2. Call the API layer
+    return checkoutApi.createOrder(mappedPayload);
   } catch (error) {
     throw error;
   }

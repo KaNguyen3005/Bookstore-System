@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { AddressService } from "../../../../services/AddressService";
-import { LocationService } from "../../../../services/location.service";
+import { addressApi } from "../../../../services/addressApi";
 import "./ManagerAddress.css";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
 
@@ -17,14 +16,14 @@ export default function AddressPage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    LocationService.getProvinces().then(setProvinces);
+    addressApi.getProvinces().then(setProvinces);
   }, []);
 
 
 const fetchData = async () => {
   if (!user?.user_id) return;
 
-  const data = await AddressService.getAll(user.user_id);
+  const data = await addressApi.getAll(user.user_id);
   setList(data);
 };
 
@@ -40,7 +39,7 @@ useEffect(() => {
       return;
     }
 
-    await AddressService.update(id, form);
+    await addressApi.update(id, form);
 
     setEditingId(null);
     fetchData();
@@ -48,12 +47,12 @@ useEffect(() => {
 
   const handleDelete = async (id: number) => {
     if (!confirm("Xóa địa chỉ này?")) return;
-    await AddressService.remove(id);
+    await addressApi.remove(id);
     fetchData();
   };
 
   const handleDefault = async (id: number) => {
-    await AddressService.setDefault(id);
+    await addressApi.setDefault(id);
     fetchData();
   };
 
@@ -103,7 +102,7 @@ useEffect(() => {
                     });
 
                     if (province) {
-                      const data = await LocationService.getDistricts(province.code);
+                      const data = await addressApi.getDistricts(province.code);
                       setDistricts(data);
                       setWards([]);
                     }
@@ -130,7 +129,7 @@ useEffect(() => {
                     });
 
                     if (district) {
-                      const data = await LocationService.getWards(district.code);
+                      const data = await addressApi.getWards(district.code);
                       setWards(data);
                     }
                   }}
