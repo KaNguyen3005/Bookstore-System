@@ -61,9 +61,7 @@ export interface CreateOrderRequest {
 }
 
 export interface CreateOrderResponse {
-  order_id: number;
-  total_amount: number;
-  payment_url?: string;
+  orderId: number;
 }
 
 export interface CalculateOrderResponse {

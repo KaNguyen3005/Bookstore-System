@@ -1,5 +1,5 @@
-import type { Book } from "../../../product/types/Book";
-import ProductCard from "../../../cart/pages/ProductCard/ProductCard";
+import type { Book } from "../../../../product/types/Book";
+import ProductCard from "../../../product/components/ProductCard";
 import "./HotSearchBooks.css";
 
 interface HotSearchBooksProps {
@@ -12,7 +12,7 @@ const HotSearchBooks = ({ books }: HotSearchBooksProps) => {
       <h2 className="hot-search__title">HOT SEARCH BOOKS</h2>
       <div className="hot-search__grid hot-books-grid">
         {books.map((book) => (
-          <ProductCard key={book.id} book={book} />
+          <ProductCard key={book.book_id} book={book} />
         ))}
       </div>
     </div>

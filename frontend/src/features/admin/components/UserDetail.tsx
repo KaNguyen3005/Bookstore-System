@@ -1,3 +1,5 @@
+import { type UserFE } from "../../../services/userApi";
+
 type Props = {
   user: UserFE;
   onClose: () => void;

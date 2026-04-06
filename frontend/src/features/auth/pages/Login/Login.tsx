@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import  "./Login.css";
 
-import { UserService } from "../../../../services/UserService";
+import { authApi } from "../../../../services/authApi";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ const Login = () => {
 const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  const user = await UserService.login(account, password);
+  const user = await authApi.login({ account, password });
 
   if (!user) {
     alert("Sai tài khoản hoặc mật khẩu");

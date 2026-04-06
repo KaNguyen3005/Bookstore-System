@@ -1,5 +1,5 @@
 import "./CustomerManagement.css";
-import { UserService } from "../../../../services/UserService";
+import { userApi, type UserFE } from "../../../../services/userApi";
 import { useEffect, useState } from "react";
 
 import { IoMdSearch } from "react-icons/io";
@@ -14,7 +14,7 @@ const [list, setList] = useState<UserFE[]>([]);
 
 useEffect(() => {
   const fetchUsers = async () => {
-    const data = await UserService.getUsersByRole(1);
+    const data = await userApi.getUsersByRole(1);
     setList(data);
   };
 

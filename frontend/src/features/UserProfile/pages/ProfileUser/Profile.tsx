@@ -2,8 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Profile.Sidebar.css";
 import Sidebar from "./Sidebar";
-import { UserService } from "../../../../services/UserService";
-import { AddressService } from "../../../../services/AddressService";
+import { userApi } from "../../../../services/userApi";
 
 import {useAuth} from "../../../auth/hooks/useAuth";
 
@@ -19,7 +18,7 @@ export default function Profile() {
        if (!authUser?.user_id) return;
 
        const fetchUser = async () => {
-         const data = await UserService.getUserById(authUser.user_id);
+         const data = await userApi.getUserById(authUser.user_id);
 
          if (data) {
            setUser(data);
@@ -78,7 +77,7 @@ export default function Profile() {
         formData.append("file", user.avatarFile);
 
         // gọi API upload
-        const uploadRes = await UserService.uploadAvatar(formData);
+        const uploadRes = await userApi.uploadAvatar(formData);
 
         avatarUrl = uploadRes.url; // backend trả về url
       }
@@ -89,10 +88,10 @@ export default function Profile() {
         avatar: avatarUrl
       };
 
-      const updated = await UserService.updateUser(updatedUser);
+      const updated = await userApi.updateUser(updatedUser);
 
       setUser(updated);
-      setAvatar(updated.avatar);
+      if (updated.avatar) setAvatar(updated.avatar);
 
       setEdit(false);
       alert("Đã lưu thông tin");

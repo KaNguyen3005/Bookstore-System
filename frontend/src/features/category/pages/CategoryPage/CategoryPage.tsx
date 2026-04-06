@@ -1,5 +1,5 @@
 import FilterSidebar from '../../components/FilterSidebar';
-import ProductCard from '../../../cart/pages/ProductCard/ProductCard';
+import ProductCard from '../../../product/components/ProductCard';
 import TopSellingBooks from '../../../home/components/TopsellingBooks/TopSellingBooks';
 import ExploreCategories from '../../../home/components/ExploreCategories/ExploreCategories';
 
@@ -43,7 +43,7 @@ const CategoryPage = () => {
 
               <div className="category-page__grid">
                 {mockCategoryBooks.map((book) => (
-                  <ProductCard key={book.id} book={book} />
+                  <ProductCard key={book.book_id} book={book} />
                 ))}
               </div>
             </section>

@@ -1,4 +1,4 @@
-import type { Book } from "../types/Book";
+import type { Book } from "../features/product/types/Book";
 
 const placeholderImage = (id: number, w = 200, h = 280) =>
   `https://picsum.photos/seed/book${id}/${w}/${h}`;

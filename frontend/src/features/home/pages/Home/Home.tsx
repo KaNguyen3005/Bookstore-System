@@ -1,20 +1,33 @@
+import { useEffect, useState } from "react";
 import HeroBanner from "../../components/HeroBanner/HeroBanner";
 import HotSearchBooks from "../../components/HotsearchBooks/HotSearchBooks";
 import TopSellingBooks from "../../components/TopsellingBooks/TopSellingBooks";
 import ExploreCategories from "../../components/ExploreCategories/ExploreCategories";
-import { HOT_SEARCH_BOOKS, TOP_SELLING_BOOKS } from "../../../../data/homeBooks";
+import { bookApi } from "../../../../services/bookApi";
 
 function Home() {
+  const [homeData, setHomeData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      const data = await bookApi.getHomeData();
+      setHomeData(data);
+    };
+    fetchHomeData();
+  }, []);
+
+  if (!homeData) return null;
+
   return (
     <div className="home-page">
       <div className="section">
-        <HeroBanner books={TOP_SELLING_BOOKS} />
+        <HeroBanner books={homeData.topSellingBooks} />
       </div>
       <div className="section">
-        <HotSearchBooks books={HOT_SEARCH_BOOKS} />
+        <HotSearchBooks books={homeData.hotSearchBooks} />
       </div>
       <div className="section">
-        <TopSellingBooks books={TOP_SELLING_BOOKS} />
+        <TopSellingBooks books={homeData.topSellingBooks} />
       </div>
       <div className="section">
         <ExploreCategories />

@@ -9,8 +9,9 @@ import { useCart } from '../../cart/hooks/useCart';
 import {
   calculateOrder,
   applyVoucher as applyVoucherService,
+  createOrder as createOrderService,
 } from '../services/checkoutService';
-import { createOrder as createOrderService } from '../../../services/orderService';
+// import { orderApi } from '../../../services/orderApi'; // Using checkoutService instead
 import type {
   ShippingMethodType,
   PaymentMethodId,
@@ -121,27 +122,27 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
     setOrderError(null);
 
     try {
-      const user = JSON.parse(localStorage.getItem('user') || 'null');
-
+      // Map UI state to the new Backend format:
+      // { source: string, addressId: number, items: [{ bookId: number, quantity: number }], paymentMethod: string, voucherCode: string }
       const payload = {
-        customer_id: user?.id ?? 1,
+        addressId: selectedAddress.address_id,
         items: selectedItems.map((item) => ({
-          book_id: item.book_id,
+          bookId: item.book_id,
           quantity: item.quantity,
-          unit_price: item.price * (1 - item.sale_percent / 100),
         })),
-        total_amount: totals.total,
-        shipping_address: `${selectedAddress.detail_address}, ${selectedAddress.ward}, ${selectedAddress.district}, ${selectedAddress.province}`,
-        payment_method: paymentMethod,
+        paymentMethod: paymentMethod,
+        voucherCode: voucher?.code || '',
       };
 
       const response = await createOrderService(payload);
-      if (response && response.success) {
+
+      // Backend returns { orderId } on success.
+      if (response && response.orderId) {
         // Only clear cart if the order was placed from the general cart flow
         if (!initialItems) {
           clearCart();
         }
-        return response as CreateOrderResponse;
+        return response;
       }
       return null;
     } catch (err) {
@@ -151,7 +152,7 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
     } finally {
       setIsSubmitting(false);
     }
-  }, [paymentMethod, selectedAddress, totals.total, selectedItems, clearCart, initialItems]);
+  }, [paymentMethod, selectedAddress, selectedItems, voucher, clearCart, initialItems]);
 
   const canPlaceOrder =
     !!paymentMethod && !!selectedAddress && selectedItems.length > 0 && !isSubmitting;

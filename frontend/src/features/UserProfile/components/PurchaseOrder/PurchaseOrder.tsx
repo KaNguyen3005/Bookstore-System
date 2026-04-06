@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { getOrdersByStatus } from "../../../../services/PurchaseOrderService";
+import { getOrdersByStatus } from "../../../../services/orderApi";
 import "./PurchaseOrder.css";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
-import type { Order, OrderStatus } from "../../../../data/orders";
+import type { Order, OrderStatus } from "../../../../data/purchaseOrder";
 
 export default function Orders() {
   const { user } = useAuth();

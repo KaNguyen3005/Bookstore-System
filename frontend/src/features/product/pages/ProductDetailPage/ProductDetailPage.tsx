@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getBookById, getRelatedBooks } from "../../services/bookService";
+import { bookApi } from "../../../../services/bookApi";
 import type { Book } from "../../types/Book";
 import { useCartActions } from "../../../cart/hooks/useCartActions";
-import ProductCard from "../../../cart/pages/ProductCard/ProductCard";
+import ProductCard from "../../components/ProductCard";
 import ExploreCategories from "../../../home/components/ExploreCategories/ExploreCategories";
 import "./ProductDetailPage.css";
 import { FiShoppingCart, FiChevronRight } from "react-icons/fi";
@@ -37,7 +37,7 @@ const ProductDetailPage: React.FC = () => {
   const handleAddToCart = async () => {
     const item = getCartItem();
     if (!item) return;
-    
+
     setIsAdding(true);
     // Simulate minor delay for UX feedback
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -48,13 +48,13 @@ const ProductDetailPage: React.FC = () => {
   const handleBuyNow = async () => {
     const item = getCartItem();
     if (!item) return;
-    
+
     setIsBuying(true);
     // Buy Now transition is almost immediate or handled by redirect guards
     onBuyNow(item);
     // If it's a redirect, the component will unmount anyway. 
     // If it's a login prompt, the state remains until redirect.
-    setTimeout(() => setIsBuying(false), 2000); 
+    setTimeout(() => setIsBuying(false), 2000);
   };
 
   useEffect(() => {
@@ -63,8 +63,8 @@ const ProductDetailPage: React.FC = () => {
       setLoading(true);
       const bookId = parseInt(id);
       const [bookData, relatedData] = await Promise.all([
-        getBookById(bookId),
-        getRelatedBooks(bookId),
+        bookApi.getBookById(bookId),
+        bookApi.getRelatedBooks(bookId),
       ]);
       setBook(bookData);
       setRelatedBooks(relatedData);
@@ -127,15 +127,15 @@ const ProductDetailPage: React.FC = () => {
                 ))}
               </div>
               <div className="button-actions-horizontal">
-                <button 
-                  className={`outline-btn btn-flex ${isAdding ? 'loading' : ''}`} 
+                <button
+                  className={`outline-btn btn-flex ${isAdding ? 'loading' : ''}`}
                   onClick={handleAddToCart}
                   disabled={isAdding || isBuying}
                 >
                   <FiShoppingCart /> {isAdding ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
                 </button>
-                <button 
-                  className={`primary-btn btn-flex ${isBuying ? 'loading' : ''}`} 
+                <button
+                  className={`primary-btn btn-flex ${isBuying ? 'loading' : ''}`}
                   onClick={handleBuyNow}
                   disabled={isAdding || isBuying}
                 >
