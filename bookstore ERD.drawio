@@ -514,13 +514,13 @@
         <mxCell id="RE83OJbdoWo4vKmBLs5b-202" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;" value="publisher_name" vertex="1">
           <mxGeometry height="40" width="100" x="1820" y="1060" as="geometry" />
         </mxCell>
-        <mxCell id="RE83OJbdoWo4vKmBLs5b-203" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;" value="publisher_id" vertex="1">
+        <mxCell id="RE83OJbdoWo4vKmBLs5b-203" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=4" value="publisher_id" vertex="1">
           <mxGeometry height="40" width="100" x="1820" y="1110" as="geometry" />
         </mxCell>
         <mxCell id="RE83OJbdoWo4vKmBLs5b-204" edge="1" parent="1" source="RE83OJbdoWo4vKmBLs5b-192" style="edgeStyle=none;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=17;fontColor=default;labelBackgroundColor=default;resizable=0;endArrow=none;endFill=0;" target="RE83OJbdoWo4vKmBLs5b-192">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="RE83OJbdoWo4vKmBLs5b-208" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;" value="book_img_id" vertex="1">
+        <mxCell id="RE83OJbdoWo4vKmBLs5b-208" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=4" value="book_img_id" vertex="1">
           <mxGeometry height="40" width="100" x="1820" y="1165" as="geometry" />
         </mxCell>
         <mxCell id="RE83OJbdoWo4vKmBLs5b-209" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;" value="img_url" vertex="1">
@@ -574,7 +574,7 @@
         <mxCell id="RE83OJbdoWo4vKmBLs5b-222" parent="1" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;align=center;fontSize=22;fontStyle=1" value="CATEGORY" vertex="1">
           <mxGeometry height="50" width="140" x="370" y="1270" as="geometry" />
         </mxCell>
-        <mxCell id="RE83OJbdoWo4vKmBLs5b-223" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=0" value="category_id" vertex="1">
+        <mxCell id="RE83OJbdoWo4vKmBLs5b-223" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=4" value="category_id" vertex="1">
           <mxGeometry height="40" width="100" x="340" y="1370" as="geometry" />
         </mxCell>
         <mxCell id="RE83OJbdoWo4vKmBLs5b-225" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=0" value="name" vertex="1">
