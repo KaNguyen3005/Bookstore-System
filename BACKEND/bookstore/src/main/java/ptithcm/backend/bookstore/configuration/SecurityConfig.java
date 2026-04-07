@@ -22,6 +22,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable()) // Tắt CSRF để gọi POST/PUT được
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/users/me").authenticated()
+                        .requestMatchers("/api/v1/addresses").authenticated()
                         .anyRequest().permitAll()); // Cho phép tất cả
         // Cấu hình application hoạt động như một OAuth2 Resource Server
         // Tức là server sẽ:
