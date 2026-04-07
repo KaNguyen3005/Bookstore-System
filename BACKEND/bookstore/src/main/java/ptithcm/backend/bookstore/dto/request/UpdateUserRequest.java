@@ -1,0 +1,23 @@
+package ptithcm.backend.bookstore.dto.request;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class UpdateUserRequest {
+    String username;
+    String password;
+    String name;
+    String email;
+    String phone;
+    Boolean status;
+    String gender;
+    Boolean isChangeAccount;
+    Integer roleId;
+    Long point;
+    String dob;
+}

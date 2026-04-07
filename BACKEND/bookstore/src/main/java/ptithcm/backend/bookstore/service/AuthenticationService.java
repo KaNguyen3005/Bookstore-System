@@ -96,6 +96,7 @@ public class AuthenticationService {
                 .findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -112,7 +113,7 @@ public class AuthenticationService {
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
 
                 // Subject (sub): định danh chính của token, thường là username hoặc userId
-                .subject(user.getUsername())
+                .subject(user.getUserId().toString())
 
                 // Issuer (iss): đơn vị phát hành token
                 .issuer("kaakaa.com")

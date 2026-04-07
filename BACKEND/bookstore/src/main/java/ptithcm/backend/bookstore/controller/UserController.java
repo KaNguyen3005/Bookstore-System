@@ -1,0 +1,71 @@
+package ptithcm.backend.bookstore.controller;
+
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import ptithcm.backend.bookstore.dto.request.*;
+import ptithcm.backend.bookstore.dto.response.ApiResponse;
+import ptithcm.backend.bookstore.dto.response.RoleResponse;
+import ptithcm.backend.bookstore.dto.response.UserResponse;
+import ptithcm.backend.bookstore.service.UserService;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@Slf4j
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequestMapping("api/v1/users")
+public class UserController {
+
+    UserService userService;
+
+
+    @PostMapping()
+    ApiResponse<UserResponse> create(@RequestBody CreateUserRequest request){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.create(request));
+        return apiResponse;
+    }
+
+    @GetMapping()
+    ApiResponse<List<UserResponse>> getAll(){
+        return ApiResponse.<List<UserResponse>>builder().result(userService.getAll()).build();
+    }
+
+    @PatchMapping("/{id}")
+    ApiResponse<UserResponse> update(@PathVariable("id") Long id, @RequestBody UpdateUserRequest request){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+
+        apiResponse.setResult(userService.update(id, request));
+
+        return apiResponse;
+    }
+
+    @DeleteMapping("/{id}")
+    ApiResponse<Void> delete(@PathVariable("id") Long id){
+
+        userService.delete(id);
+        return ApiResponse.<Void>builder()
+                .message("Delete success")
+                .build();
+    }
+
+    @PutMapping("/{id}/status")
+    ApiResponse<Void> changeStatusAccount(@PathVariable("id") Long id, @RequestBody ChangeStatusAccountRequest request){
+        ApiResponse<Void> apiResponse = new ApiResponse<>();
+        userService.changeStatusAccount(id, request);
+        return apiResponse;
+    }
+
+    @PostMapping("/me")
+    ApiResponse<UserResponse> getMyInfo(){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.getMyInfo());
+        return apiResponse;
+    }
+}

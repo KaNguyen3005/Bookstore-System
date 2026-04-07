@@ -20,7 +20,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()) // Tắt CSRF để gọi POST/PUT được
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // Cho phép tất cả
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/users/me").authenticated()
+                        .anyRequest().permitAll()); // Cho phép tất cả
         // Cấu hình application hoạt động như một OAuth2 Resource Server
         // Tức là server sẽ:
         // - Nhận JWT từ client
