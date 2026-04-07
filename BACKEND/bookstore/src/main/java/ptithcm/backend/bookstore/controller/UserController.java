@@ -68,4 +68,11 @@ public class UserController {
         apiResponse.setResult(userService.getMyInfo());
         return apiResponse;
     }
+
+    @PatchMapping("/me")
+    ApiResponse<UserResponse> updateMyInfo(@RequestBody UpdateMyInfoRequest request){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.updateMyInfo(request));
+        return apiResponse;
+    }
 }
