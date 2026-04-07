@@ -195,24 +195,25 @@ export default function ProfileContent(){
 
       <div style={{marginTop:"20px"}}>
 
+    <div className="btn-group">
+
+      <button
+        className="cancel-btn"
+        onClick={() => setEdit(!edit)}
+      >
+        {edit ? "Hủy" : "Sửa"}
+      </button>
+
+      {edit && (
         <button
           className="save-btn"
-          onClick={()=>setEdit(!edit)}
+          onClick={handleSave}
         >
-          {edit ? "Hủy" : "Sửa"}
+          Lưu
         </button>
+      )}
 
-        {edit && (
-
-          <button
-            className="save-btn"
-            style={{marginLeft:"10px"}}
-            onClick={handleSave}
-          >
-            Lưu
-          </button>
-
-        )}
+    </div>
 
       </div>
 

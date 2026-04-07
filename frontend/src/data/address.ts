@@ -59,8 +59,8 @@ export const mockAddresses: Address[] = [
   {
     address_id: 4,
     user_id: 5,
-    province: "TP.HCM",
-    district: "Quận 1",
+    province: "Ha Noi",
+    district: "Quan Dong Da",
     ward: "Bến Nghé",
     detail_address: "123 Lê Lợi",
     customer_name: "Nguyễn Văn A",
