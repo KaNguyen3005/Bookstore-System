@@ -1,0 +1,17 @@
+.box{
+    width: 100%;
+    background: red;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+}
+
+.card{
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 15px;
+      padding: 16px 18px;
+      transition: 0.1s;
+      position: relative;
+      margin-top: 20px;
+}

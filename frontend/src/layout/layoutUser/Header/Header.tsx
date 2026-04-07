@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
+import { addressApi } from "../../../services/addressApi";
+import type {Address } from "../../../data/address";
+
 import DropdownUser from "../../../features/UserProfile/components/Dropdown/DropdownUser";
 import { useCart } from "../../../features/cart/hooks/useCart";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
@@ -38,6 +41,18 @@ const Header: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+const [address, setAddress] = useState<Address | null>(null);
+useEffect(() => {
+  if (user) {
+    addressApi.getAll(user.user_id).then((list) => {
+      if (list.length > 0) {
+        const defaultAddr = list.find((a) => a.is_default);
+        setAddress(defaultAddr || list[0]);
+      }
+    });
+  }
+}, [user]);
+
   return (
     <header className="header">
       <div className="header-top">
@@ -49,7 +64,11 @@ const Header: React.FC = () => {
           <TbTruckDelivery size={20} />
           <div>
             <p>Giao đến</p>
-            <p>TP.Hồ Chí Minh</p>
+            <p>
+              {address
+                ? `${address.district}, ${address.province}`
+                : "Chưa có địa chỉ"}
+            </p>
           </div>
         </div>
 

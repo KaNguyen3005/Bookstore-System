@@ -24,6 +24,8 @@ import Otp from "../features/auth/pages/Otp/Otp";
 
 import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
 import CustomerManagement from "../features/admin/pages/CustomerManagement/CustomerManagement";
+import StatisticalReportManagement from "../features/admin/pages/StatisticalReportManagement/StatisticalReportManagement";
+
 import AdminHome from "../features/admin/pages/AdminHome/AdminHome";
 
 export default function AppRoutes() {
@@ -80,6 +82,7 @@ export default function AppRoutes() {
         <Route element={<AdminHome />}>
           <Route index element={<div>Dashboard Admin</div>} />
           <Route path="customers" element={<CustomerManagement />} />
+          <Route path="statistical_report" element={<StatisticalReportManagement/>} />
         </Route>
 
 
