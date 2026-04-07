@@ -8,13 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
-import ptithcm.backend.bookstore.dto.request.UpdateAuthorRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
-import ptithcm.backend.bookstore.dto.response.AuthorResponse;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
 import ptithcm.backend.bookstore.service.BookService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -38,6 +37,18 @@ public class BookController {
     public ApiResponse<List<BookResponse>> getAll(){
         ApiResponse<List<BookResponse>> apiResponse = new ApiResponse<>();
         apiResponse.setResult(bookService.getAll());
+        return apiResponse;
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<List<BookResponse>> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer category,
+            @RequestParam(required = false) BigDecimal min_price,
+            @RequestParam(required = false) BigDecimal max_price,
+            @RequestParam(required = false) String sort) {
+        ApiResponse<List<BookResponse>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(bookService.searchBooks(keyword, category, min_price, max_price, sort));
         return apiResponse;
     }
 

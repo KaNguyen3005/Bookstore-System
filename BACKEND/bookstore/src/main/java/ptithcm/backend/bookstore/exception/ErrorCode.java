@@ -46,6 +46,9 @@ public enum ErrorCode {
     // ===== PEOPLE (4xxx) =====
     AUTHOR_NOT_FOUND(4001, "Author not found", HttpStatus.NOT_FOUND),
 
+    // ===== ADDRESS (4.5xxx) =====
+    ADDRESS_NOT_FOUND(4101, "Address not found", HttpStatus.NOT_FOUND),
+
     // ===== PARTNER (5xxx) =====
     SUPPLIER_NOT_FOUND(5001, "Supplier not found", HttpStatus.NOT_FOUND),
     PUBLISHER_NOT_FOUND(5002, "Publisher not found", HttpStatus.NOT_FOUND),
@@ -60,6 +63,10 @@ public enum ErrorCode {
     UPLOAD_FAILED(7001, "Upload file failed", HttpStatus.INTERNAL_SERVER_ERROR), // nên là 500
     FILE_SIZE_EXCEEDED(7002, "File size exceeded limit", HttpStatus.BAD_REQUEST),
     INVALID_FILE_TYPE(7003, "Invalid file type", HttpStatus.BAD_REQUEST),
+
+    // ===== VOUCHER (7.5xxx) =====
+    VOUCHER_NOT_FOUND(7101, "Voucher not found", HttpStatus.NOT_FOUND),
+    VOUCHER_ALREADY_EXISTS(7102, "Voucher code already exists", HttpStatus.CONFLICT),
 
     // ===== ORDER (8xxx) =====
     ORDER_NOT_FOUND(8001, "Order not found", HttpStatus.NOT_FOUND),
