@@ -64,7 +64,7 @@ const [selectedUser, setSelectedUser] = useState<UserFE | null>(null);
                 <th>Tên</th>
                 <th>Email</th>
                 <th>Trạng thái</th>
-                <th>Hành động</th>
+                <th>Quản lý</th>
               </tr>
             </thead>
 
