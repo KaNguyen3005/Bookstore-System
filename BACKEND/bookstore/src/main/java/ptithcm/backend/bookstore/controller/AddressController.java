@@ -7,13 +7,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateAddressRequest;
-import ptithcm.backend.bookstore.dto.request.CreateAuthorRequest;
-import ptithcm.backend.bookstore.dto.request.UpdateAuthorRequest;
+import ptithcm.backend.bookstore.dto.request.UpdateAddressRequest;
 import ptithcm.backend.bookstore.dto.response.AddressResponse;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
-import ptithcm.backend.bookstore.dto.response.AuthorResponse;
 import ptithcm.backend.bookstore.service.AddressService;
-import ptithcm.backend.bookstore.service.AuthorService;
 
 import java.util.List;
 
@@ -39,24 +36,24 @@ public class AddressController {
     ApiResponse<List<AddressResponse>> getAll(){
         return ApiResponse.<List<AddressResponse>>builder().result(addressService.getAll()).build();
     }
-//
-//    @PatchMapping("/{id}")
-//    ApiResponse<AuthorResponse> update(@PathVariable("id") Integer id,@RequestBody UpdateAuthorRequest request){
-//        ApiResponse<AuthorResponse> apiResponse = new ApiResponse<>();
-//
-//        apiResponse.setResult(authorService.update(id, request));
-//
-//        return apiResponse;
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    ApiResponse<Void> delete(@PathVariable("id") Integer id){
-//        authorService.delete(id);
-//
-//        return ApiResponse.<Void>builder()
-//            .message("Delete success")
-//            .build();
-//    }
+
+    @PatchMapping("/{id}")
+    ApiResponse<AddressResponse> update(@PathVariable("id") Long id,@RequestBody UpdateAddressRequest request){
+        ApiResponse<AddressResponse> apiResponse = new ApiResponse<>();
+
+        apiResponse.setResult(addressService.update(id, request));
+
+        return apiResponse;
+    }
+
+    @DeleteMapping("/{id}")
+    ApiResponse<Void> delete(@PathVariable("id") Long id){
+        addressService.delete(id);
+
+        return ApiResponse.<Void>builder()
+            .message("Delete success")
+            .build();
+    }
 
 
 }

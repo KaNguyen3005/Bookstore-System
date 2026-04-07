@@ -16,6 +16,7 @@ import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.BookMapper;
 import ptithcm.backend.bookstore.repository.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -92,6 +93,20 @@ public class BookService {
             books.add(bookMapper.toResponse(book));
         }
         return books;
+    }
+
+    public List<BookResponse> searchBooks(String keyword, Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice, String sort) {
+        // Validate sort parameter
+        if (sort != null && !sort.equalsIgnoreCase("asc")
+                && !sort.equalsIgnoreCase("desc")) {
+            sort = null; // Default to no specific sort
+        }
+
+        List<Book> books = bookRepository.searchBooks(keyword, categoryId, minPrice, maxPrice, sort);
+
+        return books.stream()
+                .map(bookMapper::toResponse)
+                .collect(java.util.stream.Collectors.toList());
     }
     public BookResponse get(Integer id) {
         Book book = bookRepository.findById(id)

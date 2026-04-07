@@ -17,6 +17,7 @@ import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.VoucherMapper;
 import ptithcm.backend.bookstore.repository.VoucherRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -128,7 +129,7 @@ public class VoucherService {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_NOT_FOUND));
 
-        voucherRepository.deleteById(id);
+        voucher.setDeletedAt(LocalDateTime.now());
     }
 }
 
