@@ -35,10 +35,10 @@ public class AddressController {
         return apiResponse;
     }
 
-//    @GetMapping()
-//    ApiResponse<List<AuthorResponse>> getAll(){
-//        return ApiResponse.<List<AuthorResponse>>builder().result(authorService.getAll()).build();
-//    }
+    @GetMapping()
+    ApiResponse<List<AddressResponse>> getAll(){
+        return ApiResponse.<List<AddressResponse>>builder().result(addressService.getAll()).build();
+    }
 //
 //    @PatchMapping("/{id}")
 //    ApiResponse<AuthorResponse> update(@PathVariable("id") Integer id,@RequestBody UpdateAuthorRequest request){
