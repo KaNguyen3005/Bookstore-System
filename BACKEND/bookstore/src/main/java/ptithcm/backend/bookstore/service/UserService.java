@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.ChangeStatusAccountRequest;
 import ptithcm.backend.bookstore.dto.request.CreateUserRequest;
+import ptithcm.backend.bookstore.dto.request.UpdateMyInfoRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateUserRequest;
 import ptithcm.backend.bookstore.dto.response.CategoryResponse;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
@@ -151,8 +152,6 @@ public class UserService {
         // Lấy thông tin User hiện tại từ bộ nhớ của Spring Security
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        log.error(authentication.toString());
-
         // Thường là username hoặc UserDetails object
         Long userId = Long.parseLong(authentication.getName());
 
@@ -161,5 +160,44 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         return userMapper.toResponse(user);
+    }
+
+    @Transactional
+    public UserResponse updateMyInfo(UpdateMyInfoRequest request) {
+        // Lấy thông tin User hiện tại từ bộ nhớ của Spring Security
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Thường là username hoặc UserDetails object
+        Long userId = Long.parseLong(authentication.getName());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        if (request.getName() != null && !request.getName().isBlank()) {
+            user.setName(request.getName());
+        }
+
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            if (userRepository.existsByPhoneAndUserIdNot(request.getPhone(), userId)) {
+                throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
+            }
+            user.setPhone(request.getPhone());
+        }
+
+        if (request.getGender() != null && !request.getGender().isBlank()) {
+            user.setGender(request.getGender());
+        }
+
+        if (request.getDob() != null) {
+            LocalDateTime dob = LocalDateTime.parse(request.getDob());
+            user.setDob(dob);
+        }
+
+        User savedUser = userRepository.save(user);
+        return userMapper.toResponse(savedUser);
     }
 }
