@@ -22,6 +22,9 @@ public enum ErrorCode {
     PASSWORD_INVALID(2003, "Password must be at least {min} characters", HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(2004, "User not found", HttpStatus.NOT_FOUND),
     INVALID_DOB(2005, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    EMAIL_ALREADY_EXISTS(2006, "Email already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
+    PHONE_ALREADY_EXISTS(2007, "Phone already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
+    USER_ALREADY_DELETED(2008, "User already deleted", HttpStatus.BAD_REQUEST),
 
     // ===== BOOK (3xxx) =====
     INVALID_TITLE(3001, "Title must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
