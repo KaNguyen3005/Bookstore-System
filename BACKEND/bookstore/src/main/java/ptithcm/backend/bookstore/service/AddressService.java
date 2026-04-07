@@ -9,8 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateAddressRequest;
 import ptithcm.backend.bookstore.dto.response.AddressResponse;
+import ptithcm.backend.bookstore.dto.response.AuthorResponse;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.entity.Address;
+import ptithcm.backend.bookstore.entity.Author;
 import ptithcm.backend.bookstore.entity.User;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
@@ -18,13 +20,16 @@ import ptithcm.backend.bookstore.mapper.AddressMapper;
 import ptithcm.backend.bookstore.repository.AddressRepository;
 import ptithcm.backend.bookstore.repository.UserRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Slf4j
 public class AddressService {
-    private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
+    UserRepository userRepository;
+    AddressRepository addressRepository;
     UserService userService;
     AddressMapper addressMapper;
 
@@ -48,5 +53,19 @@ public class AddressService {
 
 
         return addressMapper.toResponse(addressRepository.save(address));
+    }
+
+    public List<AddressResponse> getAll(){
+        UserResponse userResponse = userService.getMyInfo();
+
+        User user = userRepository.findById(userResponse.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        List<AddressResponse> addresses = new ArrayList<>();
+        for(Address address : addressRepository.findByUser_userId(user.getUserId())){
+            addresses.add(addressMapper.toResponse(address));
+        }
+        return addresses;
+
     }
 }
