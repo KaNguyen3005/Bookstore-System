@@ -1,0 +1,44 @@
+.search-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.search-item:hover {
+  background: #f5f5f5;
+}
+
+.search-item img {
+  width: 50px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.search-info {
+  flex: 1;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.category-list {
+  margin: 4px 0;
+}
+
+.category-tag {
+  background: #eee;
+  padding: 2px 6px;
+  margin-right: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.price {
+  color: red;
+  font-weight: bold;
+}

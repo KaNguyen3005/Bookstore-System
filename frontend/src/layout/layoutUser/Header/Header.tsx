@@ -18,6 +18,10 @@ import { MdCardMembership } from "react-icons/md";
 import { TbBrandBlogger, TbTruckDelivery } from "react-icons/tb";
 import { RiUserCommunityLine } from "react-icons/ri";
 
+
+import {searchApi } from "../../../services/searchApi";
+import SearchItem from "../../../features/Search/components/SearchItem/SearchItem";
+
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -53,6 +57,55 @@ useEffect(() => {
   }
 }, [user]);
 
+const [keyword, setKeyword] = useState("");
+const [results, setResults] = useState<any[]>([]);
+const searchRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  if (!keyword.trim()) {
+    setResults([]);
+    return;
+  }
+
+  const delay = setTimeout(() => {
+    searchApi.searchBooks(keyword).then((res) => {
+      setResults(res.slice(0, 5)); // giới hạn 5 item giống Shopee
+    });
+  }, 300);
+
+  return () => clearTimeout(delay);
+}, [keyword]);
+
+useEffect(() => {
+  const handleClickOutside = (e: MouseEvent) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(e.target as Node)
+    ) {
+      setOpen(false);
+    }
+
+    if (
+      searchRef.current &&
+      !searchRef.current.contains(e.target as Node)
+    ) {
+      setResults([]);
+    }
+  };
+
+
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () =>
+    document.removeEventListener("mousedown", handleClickOutside);
+}, []);
+
+const handleSearch = () => {
+  if (!keyword.trim()) return;
+  navigate(`/search?q=${keyword}`);
+  setResults([]);
+};
+
   return (
     <header className="header">
       <div className="header-top">
@@ -72,8 +125,24 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="search">
-          <input type="text" placeholder="Tìm kiếm sách" />
+        <div className="search" ref={searchRef}>
+          <input
+            type="text"
+            placeholder="Tìm kiếm sách"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+          />
+
+          {results.length > 0 && (
+            <div className="search-dropdown">
+              {results.map((book) => (
+                <SearchItem key={book.book_id} book={book} />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="actions">

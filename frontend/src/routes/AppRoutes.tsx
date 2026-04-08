@@ -25,6 +25,7 @@ import Otp from "../features/auth/pages/Otp/Otp";
 import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
 import CustomerManagement from "../features/admin/pages/CustomerManagement/CustomerManagement";
 import StatisticalReportManagement from "../features/admin/pages/StatisticalReportManagement/StatisticalReportManagement";
+import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
 
 import AdminHome from "../features/admin/pages/AdminHome/AdminHome";
 
@@ -38,6 +39,7 @@ export default function AppRoutes() {
         <Route path="category" element={<CategoryPage />} />
         <Route path="product/:id" element={<ProductDetailPage />} />
         <Route path="cart" element={<Cart />} />
+        <Route path="search" element={<SearchPage />} />
         <Route
           path="checkout"
           element={

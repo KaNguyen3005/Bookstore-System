@@ -186,3 +186,47 @@
   text-decoration: none;
   color: inherit;
 }
+
+
+.search {
+  position: relative;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+/* item */
+.search-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  color: black;
+}
+
+.search-item:hover {
+  background: #f5f5f5;
+}
+
+.search-item img {
+  width: 40px;
+  height: 50px;
+  object-fit: cover;
+}
+
+/* category */
+.category-tag {
+  font-size: 11px;
+  background: #eee;
+  padding: 2px 6px;
+  margin-right: 4px;
+  border-radius: 6px;
+}
