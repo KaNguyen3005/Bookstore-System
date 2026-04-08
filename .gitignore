@@ -1,0 +1,35 @@
+# Maven
+/backend/bookstore/target/
+/bookstore/.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+/bookstore/.idea/
+/bookstore/.env/
+*.iws
+*.iml
+*.ipr
+
+# Application configuration files
+**src/main/resources/application*.yaml
+!**src/main/resources/application-dev.example.yaml
+
+
+# Eclipse/STS
+/bookstore/.apt_generated
+/bookstore/.classpath
+/bookstore/.factorypath
+/bookstore/.project
+/bookstore/.settings/
+/bookstore/.springBeans
+/bookstore/.sts4-cache/
+
+# NetBeans
+/bookstore/nbproject/private/
+/bookstore/nbbuild/
+/bookstore/dist/
+/bookstore/nbdist/
+/bookstore/.nb-gradle/
+/bookstore/build/
+
+# VS Code
+/bookstore/.vscode/
