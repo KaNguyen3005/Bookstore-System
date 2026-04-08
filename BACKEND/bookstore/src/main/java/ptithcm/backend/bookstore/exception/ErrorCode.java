@@ -48,6 +48,8 @@ public enum ErrorCode {
 
     // ===== ADDRESS (4.5xxx) =====
     ADDRESS_NOT_FOUND(4101, "Address not found", HttpStatus.NOT_FOUND),
+    CART_NOT_FOUND(4102, "Cart not found", HttpStatus.NOT_FOUND),
+    CART_ITEM_NOT_FOUND(4103, "Cart item not found", HttpStatus.NOT_FOUND),
 
     // ===== PARTNER (5xxx) =====
     SUPPLIER_NOT_FOUND(5001, "Supplier not found", HttpStatus.NOT_FOUND),
