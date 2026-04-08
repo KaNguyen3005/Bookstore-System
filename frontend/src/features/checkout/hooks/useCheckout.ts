@@ -140,7 +140,7 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
       if (response && response.orderId) {
         // Only clear cart if the order was placed from the general cart flow
         if (!initialItems) {
-          removePurchasedItems(selectedItems.map(item => item.book_id));
+          await removePurchasedItems(selectedItems.map(item => item.book_id));
         }
         return response;
       }

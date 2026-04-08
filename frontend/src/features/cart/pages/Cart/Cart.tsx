@@ -6,13 +6,22 @@ import { Link } from 'react-router-dom';
 import './Cart.css';
 
 const Cart: React.FC = () => {
-  const { cartItems, selectAll } = useCart();
+  const { cartItems, selectAll, isLoading } = useCart();
 
   const isAllSelected = cartItems.length > 0 && cartItems.every(item => item.selected);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     selectAll(e.target.checked);
   };
+
+  if (isLoading) {
+    return (
+      <div className="cart-empty-state">
+        <div className="loader" style={{margin: '0 auto', marginBottom: '20px'}}></div>
+        <h2>Đang tải giỏ hàng...</h2>
+      </div>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (
