@@ -1,8 +1,15 @@
 package ptithcm.backend.bookstore.dto.request;
 
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrderItemRequest {
-    String bookId;
+    Integer bookId;
     int quantity;
-    Long price;       // giá tại thời điểm mua
     String note;      // ghi chú
 }
