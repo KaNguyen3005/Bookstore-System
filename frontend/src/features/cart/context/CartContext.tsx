@@ -24,41 +24,26 @@ interface CartContextType {
   selectAll: (isSelected: boolean) => void;
   calculateTotal: () => { subtotal: number; discount: number; total: number };
   clearCart: () => void;
-  removePurchasedItems: (bookIds: number[]) => void;
+  removePurchasedItems: (bookIds: number[]) => Promise<void>;
+  isLoading: boolean;
 }
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const initialCartState: CartItemType[] = [
-  {
-    book_id: 1,
-    title: "The Great Gatsby",
-    price: 150000,
-    sale_percent: 10,
-    cover_image_url: "https://picsum.photos/seed/book1/200/280",
-    quantity: 1,
-    stock_quantity: 10,
-    selected: true,
-  },
-  {
-    book_id: 2,
-    title: "1984 by George Orwell",
-    price: 120000,
-    sale_percent: 20,
-    cover_image_url: "https://picsum.photos/seed/book2/200/280",
-    quantity: 2,
-    stock_quantity: 5,
-    selected: false,
-  }
-];
+const initialCartState: CartItemType[] = [];
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
   const [cartItems, setCartItems] = useState<CartItemType[]>(() => {
     try {
-      const saved = localStorage.getItem('cart');
-      if (saved) {
-        return JSON.parse(saved);
+      const u = localStorage.getItem("user");
+      if (u) {
+        const parsedUser = JSON.parse(u);
+        const saved = localStorage.getItem(`cart_${parsedUser.user_id}`);
+        if (saved) {
+          return JSON.parse(saved);
+        }
       }
     } catch (e) {
       console.error("Failed to load cart from local storage", e);
@@ -67,13 +52,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+    if (user?.user_id) {
+      localStorage.setItem(`cart_${user.user_id}`, JSON.stringify(cartItems));
+    }
+  }, [cartItems, user]);
 
-  // Sync cart with server when login/logout
   useEffect(() => {
     const syncCart = async () => {
-      if (isAuthenticated) {
+      setIsLoading(true);
+      if (isAuthenticated && user?.user_id) {
         try {
           const serverCart = await cartApi.getCart();
           setCartItems(serverCart);
@@ -81,13 +68,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.error("Failed to fetch cart from server:", error);
         }
       } else {
-        // Clear UI only when logout
+        // Clear UI and set to [] for unauthenticated users / after logout
         setCartItems([]);
       }
+      setIsLoading(false);
     };
 
     syncCart();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   const selectedItems = cartItems.filter((item) => item.selected);
 
@@ -180,7 +168,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCartItems([]);
   };
 
-  const removePurchasedItems = (bookIds: number[]) => {
+  const removePurchasedItems = async (bookIds: number[]) => {
+    if (isAuthenticated) {
+      try {
+        // Send a DELETE request for each item to sync with DB
+        await Promise.all(bookIds.map((id) => cartApi.removeCartItem(id)));
+      } catch (error) {
+        console.error("Failed to remove purchased cart items from server:", error);
+      }
+    }
     setCartItems((prev) => prev.filter((item) => !bookIds.includes(item.book_id)));
   };
 
@@ -197,6 +193,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         calculateTotal,
         clearCart,
         removePurchasedItems,
+        isLoading,
       }}
     >
       {children}

@@ -16,35 +16,41 @@ export interface CartItemType {
   selected: boolean;
 }
 
-// Initial mock data
-let mockCart: CartItemType[] = [
-  {
-    book_id: 1,
-    title: "The Great Gatsby",
-    price: 150000,
-    sale_percent: 10,
-    cover_image_url: "https://picsum.photos/seed/book1/200/280",
-    quantity: 1,
-    stock_quantity: 10,
-    selected: true,
-  },
-  {
-    book_id: 2,
-    title: "1984 by George Orwell",
-    price: 120000,
-    sale_percent: 20,
-    cover_image_url: "https://picsum.photos/seed/book2/200/280",
-    quantity: 2,
-    stock_quantity: 5,
-    selected: false,
-  },
-];
+const getUserId = () => {
+  try {
+    const u = localStorage.getItem("user");
+    if (u) return JSON.parse(u).user_id;
+  } catch (e) {
+    console.error("Failed to parse user from localStorage", e);
+  }
+  return null;
+};
+
+const getMockCart = (): CartItemType[] => {
+  const userId = getUserId();
+  if (!userId) return []; // Guest does not have persistent mock storage
+
+  try {
+    const saved = localStorage.getItem(`mock_cart_${userId}`);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.error("Failed to parse mock_cart from localStorage", e);
+  }
+  return [];
+};
+
+const saveMockCart = (cart: CartItemType[]) => {
+  const userId = getUserId();
+  if (userId) {
+    localStorage.setItem(`mock_cart_${userId}`, JSON.stringify(cart));
+  }
+};
 
 export const cartApi = {
   getCart: async (): Promise<CartItemType[]> => {
     if (IS_MOCK) {
       await delay(500);
-      return mockCart;
+      return getMockCart();
     }
     return axiosClient.get("/cart");
   },
@@ -52,13 +58,15 @@ export const cartApi = {
   addToCart: async (item: CartItemType): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
-      const existing = mockCart.find((i) => i.book_id === item.book_id);
+      const cart = getMockCart();
+      const existing = cart.find((i) => i.book_id === item.book_id);
       if (existing) {
         existing.quantity += item.quantity;
       } else {
-        mockCart.push({ ...item, selected: true });
+        cart.push({ ...item, selected: true });
       }
-      return { message: "Added to cart", cart: mockCart };
+      saveMockCart(cart);
+      return { message: "Added to cart", cart };
     }
     return axiosClient.post("/cart", item);
   },
@@ -66,10 +74,11 @@ export const cartApi = {
   updateCartItem: async (book_id: number, quantity: number): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
-      mockCart = mockCart.map((item) =>
+      const cart = getMockCart().map((item) =>
         item.book_id === book_id ? { ...item, quantity: Math.max(1, quantity) } : item
       );
-      return { message: "Updated quantity", cart: mockCart };
+      saveMockCart(cart);
+      return { message: "Updated quantity", cart };
     }
     return axiosClient.put(`/cart/${book_id}`, { quantity });
   },
@@ -77,8 +86,9 @@ export const cartApi = {
   removeCartItem: async (book_id: number): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
-      mockCart = mockCart.filter((item) => item.book_id !== book_id);
-      return { message: "Removed from cart", cart: mockCart };
+      const cart = getMockCart().filter((item) => item.book_id !== book_id);
+      saveMockCart(cart);
+      return { message: "Removed from cart", cart };
     }
     return axiosClient.delete(`/cart/${book_id}`);
   },
@@ -86,7 +96,7 @@ export const cartApi = {
   clearCart: async (): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
-      mockCart = [];
+      saveMockCart([]);
       return { message: "Cleared cart" };
     }
     return axiosClient.delete("/cart");
