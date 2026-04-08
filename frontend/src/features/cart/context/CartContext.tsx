@@ -1,4 +1,6 @@
 import React, { createContext, useState, useEffect, type ReactNode } from 'react';
+import { useAuth } from '../../auth/hooks/useAuth';
+import { cartApi } from '../services/cartApi';
 
 export interface CartItemType {
   cart_id?: number;
@@ -22,6 +24,7 @@ interface CartContextType {
   selectAll: (isSelected: boolean) => void;
   calculateTotal: () => { subtotal: number; discount: number; total: number };
   clearCart: () => void;
+  removePurchasedItems: (bookIds: number[]) => void;
 }
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -50,6 +53,7 @@ const initialCartState: CartItemType[] = [
 ];
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState<CartItemType[]>(() => {
     try {
       const saved = localStorage.getItem('cart');
@@ -66,9 +70,38 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
+  // Sync cart with server when login/logout
+  useEffect(() => {
+    const syncCart = async () => {
+      if (isAuthenticated) {
+        try {
+          const serverCart = await cartApi.getCart();
+          setCartItems(serverCart);
+        } catch (error) {
+          console.error("Failed to fetch cart from server:", error);
+        }
+      } else {
+        // Clear UI only when logout
+        setCartItems([]);
+      }
+    };
+
+    syncCart();
+  }, [isAuthenticated]);
+
   const selectedItems = cartItems.filter((item) => item.selected);
 
-  const addToCart = (newItem: CartItemType) => {
+  const addToCart = async (newItem: CartItemType) => {
+    // 1. Update Server first if logged in
+    if (isAuthenticated) {
+      try {
+        await cartApi.addToCart(newItem);
+      } catch (error) {
+        console.error("Failed to add to server cart:", error);
+      }
+    }
+
+    // 2. Update Local State
     setCartItems((prev) => {
       const existing = prev.find((item) => item.book_id === newItem.book_id);
       if (existing) {
@@ -82,15 +115,33 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
-  const updateQuantity = (book_id: number, quantity: number) => {
+  const updateQuantity = async (book_id: number, quantity: number) => {
+    const newQuantity = Math.max(1, quantity);
+
+    if (isAuthenticated) {
+      try {
+        await cartApi.updateCartItem(book_id, newQuantity);
+      } catch (error) {
+        console.error("Failed to update cart item on server:", error);
+      }
+    }
+
     setCartItems((prev) =>
       prev.map((item) =>
-        item.book_id === book_id ? { ...item, quantity: Math.max(1, quantity) } : item
+        item.book_id === book_id ? { ...item, quantity: newQuantity } : item
       )
     );
   };
 
-  const removeItem = (book_id: number) => {
+  const removeItem = async (book_id: number) => {
+    if (isAuthenticated) {
+      try {
+        await cartApi.removeCartItem(book_id);
+      } catch (error) {
+        console.error("Failed to remove cart item from server:", error);
+      }
+    }
+
     setCartItems((prev) => prev.filter((item) => item.book_id !== book_id));
   };
 
@@ -129,6 +180,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCartItems([]);
   };
 
+  const removePurchasedItems = (bookIds: number[]) => {
+    setCartItems((prev) => prev.filter((item) => !bookIds.includes(item.book_id)));
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -141,6 +196,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         selectAll,
         calculateTotal,
         clearCart,
+        removePurchasedItems,
       }}
     >
       {children}

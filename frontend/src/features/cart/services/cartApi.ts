@@ -41,7 +41,7 @@ let mockCart: CartItemType[] = [
 ];
 
 export const cartApi = {
-  getCart: async () => {
+  getCart: async (): Promise<CartItemType[]> => {
     if (IS_MOCK) {
       await delay(500);
       return mockCart;
@@ -49,7 +49,7 @@ export const cartApi = {
     return axiosClient.get("/cart");
   },
 
-  addToCart: async (item: CartItemType) => {
+  addToCart: async (item: CartItemType): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
       const existing = mockCart.find((i) => i.book_id === item.book_id);
@@ -63,7 +63,7 @@ export const cartApi = {
     return axiosClient.post("/cart", item);
   },
 
-  updateCartItem: async (book_id: number, quantity: number) => {
+  updateCartItem: async (book_id: number, quantity: number): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
       mockCart = mockCart.map((item) =>
@@ -74,7 +74,7 @@ export const cartApi = {
     return axiosClient.put(`/cart/${book_id}`, { quantity });
   },
 
-  removeCartItem: async (book_id: number) => {
+  removeCartItem: async (book_id: number): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
       mockCart = mockCart.filter((item) => item.book_id !== book_id);
@@ -83,7 +83,7 @@ export const cartApi = {
     return axiosClient.delete(`/cart/${book_id}`);
   },
 
-  clearCart: async () => {
+  clearCart: async (): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
       mockCart = [];

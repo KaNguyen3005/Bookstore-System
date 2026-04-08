@@ -44,7 +44,7 @@ const CheckoutPage: React.FC = () => {
   } = useCheckout(buyNowItem ? [buyNowItem] : undefined);
 
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [orderSuccessData, setOrderSuccessData] = useState<{orderId: number|string, total: number} | null>(null);
 
   // Auto-select default address on mount
   useEffect(() => {
@@ -56,27 +56,30 @@ const CheckoutPage: React.FC = () => {
 
   // Redirect if checkout items are empty
   useEffect(() => {
-    if (selectedItems.length === 0) {
+    if (selectedItems.length === 0 && !orderSuccessData) {
       navigate('/cart');
     }
-  }, [selectedItems, navigate]);
+  }, [selectedItems, navigate, orderSuccessData]);
 
   const handlePlaceOrder = async () => {
     const result = await placeOrder();
     if (result) {
-      setOrderSuccess(true);
-      setTimeout(() => navigate('/'), 3000);
+      setOrderSuccessData({ orderId: result.orderId, total: totals.total });
+      setTimeout(() => navigate('/'), 4000);
     }
   };
 
-  if (orderSuccess) {
+  if (orderSuccessData) {
     return (
       <div className="checkout-success">
         <div className="checkout-success__content">
           <div className="checkout-success__icon">✓</div>
           <h2 className="checkout-success__title">Đặt hàng thành công!</h2>
           <p className="checkout-success__msg">
-            Cảm ơn bạn đã mua hàng tại KATIIA. Đơn hàng của bạn đang được xử lý.
+            Cảm ơn bạn đã mua hàng tại KATIIA. Đơn hàng <strong>#{orderSuccessData.orderId}</strong> của bạn đang được xử lý.
+          </p>
+          <p className="checkout-success__msg">
+            Tổng thanh toán: <strong>{orderSuccessData.total.toLocaleString("vi-VN")} đ</strong>
           </p>
           <p className="checkout-success__redirect">Đang chuyển về trang chủ...</p>
         </div>
