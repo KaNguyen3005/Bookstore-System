@@ -51,7 +51,7 @@ interface UseCheckoutReturn {
 }
 
 export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn => {
-  const { selectedItems: cartSelectedItems, clearCart } = useCart();
+  const { selectedItems: cartSelectedItems, removePurchasedItems } = useCart();
 
   // If initialItems are provided (e.g. from Buy Now), use them. Otherwise use selectedItems from cart.
   const selectedItems = useMemo(() => initialItems || cartSelectedItems, [initialItems, cartSelectedItems]);
@@ -140,7 +140,7 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
       if (response && response.orderId) {
         // Only clear cart if the order was placed from the general cart flow
         if (!initialItems) {
-          clearCart();
+          removePurchasedItems(selectedItems.map(item => item.book_id));
         }
         return response;
       }
@@ -152,7 +152,7 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
     } finally {
       setIsSubmitting(false);
     }
-  }, [paymentMethod, selectedAddress, selectedItems, voucher, clearCart, initialItems]);
+  }, [paymentMethod, selectedAddress, selectedItems, voucher, removePurchasedItems, initialItems]);
 
   const canPlaceOrder =
     !!paymentMethod && !!selectedAddress && selectedItems.length > 0 && !isSubmitting;
