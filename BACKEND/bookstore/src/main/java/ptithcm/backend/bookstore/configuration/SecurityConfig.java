@@ -23,6 +23,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/users/me").authenticated()
                         .requestMatchers("/api/v1/addresses").authenticated()
+                        .requestMatchers("/api/v1/orders").authenticated()
                         .anyRequest().permitAll()); // Cho phép tất cả
         // Cấu hình application hoạt động như một OAuth2 Resource Server
         // Tức là server sẽ:

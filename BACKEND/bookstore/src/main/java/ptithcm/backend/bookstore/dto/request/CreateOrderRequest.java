@@ -12,9 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CreateOrderRequest {
-    String source;
     Long addressId;
-    List<OrderItemRequest> orderItemRequests;
+        List<OrderItemRequest> items;
     String paymentMethod;
     String voucherCode;
 }
