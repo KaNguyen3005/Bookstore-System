@@ -26,7 +26,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="cart_id")
     @EqualsAndHashCode.Include
-    Long cart;
+    Long cartId;
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     User user;
