@@ -51,13 +51,14 @@ public class VNPayUtil {
             params.put("vnp_BankCode", bankCode);
         }
         // Tạo chuỗi hash
-        String queryString = params.entrySet().stream()
-                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.US_ASCII))
-                .collect(Collectors.joining("&"));
+        String queryString = buildQueryString(params);
 
         String secureHash = hmacSHA512(config.getHashSecret(), queryString);
 
-        return config.getUrl() + "?" + queryString + "&vnp_SecureHash=" + secureHash;
+        return config.getUrl()
+                + "?" + queryString
+                + "&vnp_SecureHashType=HmacSHA512"
+                + "&vnp_SecureHash=" + secureHash;
     }
 
     // Xác thực callback từ VNPay
@@ -88,6 +89,17 @@ public class VNPayUtil {
 
     private String getIpAddress(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
-        return (ip == null || ip.isEmpty()) ? request.getRemoteAddr() : ip.split(",")[0];
+        if (ip != null && !ip.isEmpty()) {
+            return ip.split(",")[0].trim();
+        }
+        ip = request.getRemoteAddr();
+        return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : ip;
+    }
+
+    private String buildQueryString(Map<String, String> params) {
+        return params.entrySet().stream()
+                .filter(e -> e.getValue() != null && !e.getValue().isEmpty())
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.US_ASCII))
+                .collect(Collectors.joining("&"));
     }
 }

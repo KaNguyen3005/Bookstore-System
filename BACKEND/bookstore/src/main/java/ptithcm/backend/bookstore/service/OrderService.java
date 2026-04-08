@@ -120,7 +120,7 @@ public class OrderService {
                     .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_NOT_FOUND));
 
             // Validate voucher
-            if (!voucher.getIsActive()) {
+            if (Boolean.FALSE.equals(voucher.getIsActive())) {
                 throw new AppException(ErrorCode.VALIDATION_ERROR);
             }
 
@@ -175,7 +175,7 @@ public class OrderService {
                         .quantity(item.getQuantity())
                         .order(order)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         order.setBookOrders(bookOrders);
 
@@ -217,7 +217,7 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        OrderStatus newStatus = OrderStatus.valueOf(request.getStatus().toUpperCase());
+        OrderStatus newStatus = request.getStatus();
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
         return orderMapper.toResponse(updatedOrder);
@@ -228,5 +228,49 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         return orderMapper.toResponse(order);
+    }
+
+    @Transactional
+    public void cancelOrder(Integer id) {
+        // 1. Lấy thông tin user hiện tại
+        UserResponse userResponse = userService.getMyInfo();
+        User customer = userRepository.findById(userResponse.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // 2. Tìm đơn hàng
+        Order order = orderRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        // 3. Kiểm tra quyền sở hữu đơn hàng
+        if (!order.getCustomer().getUserId().equals(customer.getUserId())) {
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 4. Kiểm tra trạng thái đơn hàng có thể hủy không
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.CONFIRMED) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_CANCEL);
+        }
+
+        // 5. Cập nhật trạng thái đơn hàng thành CANCELLED
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepository.save(order);
+
+        // 6. Cập nhật trạng thái payment nếu có
+        Payment payment = paymentRepository.findByOrder_OrderId(order.getOrderId());
+        if (payment != null) {
+            payment.setStatus(PaymentStatus.CANCELLED);
+            payment.setUpdatedAt(LocalDateTime.now());
+            paymentRepository.save(payment);
+        }
+
+        // 7. Hoàn lại voucher nếu đã sử dụng
+        if (order.getVoucher() != null) {
+            Voucher voucher = order.getVoucher();
+            voucher.setUsedCount(voucher.getUsedCount() - 1);
+            voucherRepository.save(voucher);
+        }
+
+        log.info("Order cancelled successfully - OrderId: {}, CustomerId: {}", order.getOrderId(), customer.getUserId());
     }
 }
