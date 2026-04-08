@@ -2,8 +2,13 @@ HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
-**/src/main/**/resources/application.yaml
-**/src/main/**/resources/application-dev.yaml
+
+# Application Configuration Files (Contains sensitive data)
+src/main/resources/application.yaml
+src/main/resources/application-dev.yaml
+src/main/resources/application-prod.yaml
+src/main/resources/application-test.yaml
+
 !**/src/test/**/target/
 
 ### STS ###
