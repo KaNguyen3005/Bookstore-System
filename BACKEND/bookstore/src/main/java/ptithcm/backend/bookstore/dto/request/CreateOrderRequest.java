@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 public class CreateOrderRequest {
     Long addressId;
-        List<OrderItemRequest> items;
+    List<OrderItemRequest> items;
     String paymentMethod;
     String voucherCode;
 }

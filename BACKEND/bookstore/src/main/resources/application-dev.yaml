@@ -31,10 +31,10 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 vnpay:
-  tmn-code: JUMI9R64         # Mã website tại VNPay
-  hash-secret: 8SKJLA3T66VOE18RUJP72I5XZV3LW7R0   # Chuỗi bí mật để ký
-  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: http://localhost:8080/api/payment/vnpay/callback
+  tmn-code: "F4VJN4XW"         # Mã website tại VNPay
+  hash-secret: "GH961WQ2EHQ3COP1TJ93K0F0OJGBIUIM"   # Chuỗi bí mật để ký
+  url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+  return-url: "http://localhost:8080/bookstore/api/v1/payments/callback"
 jwt:
   signerKey: "da71bbd42f53166b283fae318f1ab668822d1980543618f423d4b6d63ce9d5fb"
   valid-duration: 3600 # in second

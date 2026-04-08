@@ -38,8 +38,8 @@ public class Order {
     @Column(precision = 12, scale = 2)
     BigDecimal vatAmount;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "voucher_id", unique = true) // unique=true để đảm bảo tính 1-1 ở tầng DB
+    @ManyToOne
+    @JoinColumn(name = "voucher_id")
     Voucher voucher;
 
     BigDecimal totalAmount;

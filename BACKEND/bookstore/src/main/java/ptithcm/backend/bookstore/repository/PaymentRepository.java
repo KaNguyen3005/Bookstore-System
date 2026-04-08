@@ -6,4 +6,5 @@ import ptithcm.backend.bookstore.entity.Payment;
 
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
+    Payment findByOrder_OrderId(Long orderId);
 }

@@ -7,12 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ptithcm.backend.bookstore.dto.request.CreateAuthorRequest;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
-import ptithcm.backend.bookstore.dto.request.UpdateAuthorRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
-import ptithcm.backend.bookstore.dto.response.AuthorResponse;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
 import ptithcm.backend.bookstore.service.OrderService;
 
@@ -56,14 +53,14 @@ public class OrderController {
 
         return apiResponse;
     }
-//
-//    @DeleteMapping("/{id}")
-//    ApiResponse<Void> delete(@PathVariable("id") Integer id){
-//        authorService.delete(id);
-//
-//        return ApiResponse.<Void>builder()
-//                .message("Delete success")
-//                .build();
-//    }
+
+    @PostMapping("/{id}/cancel")
+    ApiResponse<Void> cancelOrder(@PathVariable("id") Integer id){
+        orderService.cancelOrder(id);
+
+        return ApiResponse.<Void>builder()
+                .message("Delete success")
+                .build();
+    }
 
 }

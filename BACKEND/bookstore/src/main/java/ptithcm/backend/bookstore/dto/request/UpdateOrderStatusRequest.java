@@ -10,5 +10,5 @@ import ptithcm.backend.bookstore.enums.OrderStatus;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateOrderStatusRequest {
-    String status;
+    OrderStatus status;
 }
