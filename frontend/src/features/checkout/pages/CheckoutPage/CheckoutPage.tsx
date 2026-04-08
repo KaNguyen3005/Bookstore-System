@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../../auth/hooks/useAuth';
+import { addressApi } from '../../../../services/addressApi';
+import type { CheckoutAddress } from '../../types';
 import { useCheckout } from '../../hooks/useCheckout';
-import { mockAddresses } from '../../../../data/address';
 
 import CheckoutCartItem from '../../components/CheckoutCartItem/CheckoutCartItem';
 import ShippingMethod from '../../components/ShippingMethod/ShippingMethod';
@@ -16,10 +18,12 @@ import './CheckoutPage.css';
 const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // High-priority direct purchase item
   const buyNowItem = location.state?.buyNowItem;
-  
+  const { user } = useAuth();
+  const [addresses, setAddresses] = useState<CheckoutAddress[]>([]);
+
   const {
     shippingMethod,
     paymentMethod,
@@ -44,15 +48,28 @@ const CheckoutPage: React.FC = () => {
   } = useCheckout(buyNowItem ? [buyNowItem] : undefined);
 
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [orderSuccessData, setOrderSuccessData] = useState<{orderId: number|string, total: number} | null>(null);
+  const [orderSuccessData, setOrderSuccessData] = useState<{ orderId: number | string, total: number } | null>(null);
 
-  // Auto-select default address on mount
+  // Fetch addresses and auto-select default on mount
   useEffect(() => {
-    const defaultAddr = mockAddresses.find((a) => a.is_default && !a.deletedAt);
-    if (defaultAddr) {
-      setSelectedAddress(defaultAddr);
-    }
-  }, [setSelectedAddress]);
+    const fetchAddresses = async () => {
+      if (user?.user_id) {
+        try {
+          const list = await addressApi.getAll(user.user_id);
+          setAddresses(list);
+          const defaultAddr = list.find((a: any) => a.is_default);
+          if (defaultAddr) {
+            setSelectedAddress(defaultAddr);
+          } else if (list.length > 0) {
+            setSelectedAddress(list[0]);
+          }
+        } catch (error) {
+          console.error("Failed to fetch address list:", error);
+        }
+      }
+    };
+    fetchAddresses();
+  }, [user, setSelectedAddress]);
 
   // Redirect if checkout items are empty
   useEffect(() => {
@@ -100,7 +117,7 @@ const CheckoutPage: React.FC = () => {
             <section className="checkout-section" aria-label="Kiểm tra đơn hàng">
               <h2 className="checkout-section__title">Kiểm tra đơn hàng</h2>
               <div className="checkout-items__list">
-                {selectedItems.map((item) => (
+                {selectedItems.map((item: any) => (
                   <CheckoutCartItem key={item.book_id} item={item} />
                 ))}
               </div>
@@ -188,9 +205,9 @@ const CheckoutPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Address Selection Modal */}
       <AddressModal
         isOpen={isAddressModalOpen}
+        addresses={addresses}
         currentAddress={selectedAddress}
         onSelect={setSelectedAddress}
         onClose={() => setIsAddressModalOpen(false)}
