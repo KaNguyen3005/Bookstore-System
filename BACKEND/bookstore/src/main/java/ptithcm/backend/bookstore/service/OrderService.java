@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.OrderItemRequest;
+import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.entity.*;
@@ -32,10 +33,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
-    private final PaymentRepository paymentRepository;
-    private final BookRepository bookRepository;
-    private final VoucherRepository voucherRepository;
-    private final AddressRepository addressRepository;
+    PaymentRepository paymentRepository;
+    BookRepository bookRepository;
+    VoucherRepository voucherRepository;
+    AddressRepository addressRepository;
     OrderRepository orderRepository;
     UserRepository userRepository;
 
@@ -210,5 +211,22 @@ public class OrderService {
                  savedOrder.getOrderId(), customer.getUserId(), totalAmount);
 
         return orderMapper.toResponse(savedOrder);
+    }
+
+    public OrderResponse update(Long id, UpdateOrderStatusRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        OrderStatus newStatus = OrderStatus.valueOf(request.getStatus().toUpperCase());
+        order.setStatus(newStatus);
+        Order updatedOrder = orderRepository.save(order);
+        return orderMapper.toResponse(updatedOrder);
+    }
+
+    public OrderResponse getById(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        return orderMapper.toResponse(order);
     }
 }

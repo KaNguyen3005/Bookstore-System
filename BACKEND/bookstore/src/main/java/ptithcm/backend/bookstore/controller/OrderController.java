@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateAuthorRequest;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateAuthorRequest;
+import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.dto.response.AuthorResponse;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
@@ -38,14 +39,23 @@ public class OrderController {
         return ApiResponse.<List<OrderResponse>>builder().result(orderService.getAll()).build();
     }
 
-//    @PatchMapping("/{id}")
-//    ApiResponse<AuthorResponse> update(@PathVariable("id") Integer id,@RequestBody UpdateAuthorRequest request){
-//        ApiResponse<AuthorResponse> apiResponse = new ApiResponse<>();
-//
-//        apiResponse.setResult(authorService.update(id, request));
-//
-//        return apiResponse;
-//    }
+    @GetMapping("{id}")
+    ApiResponse<OrderResponse> getById(@PathVariable("id") Long id){
+        ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
+
+        apiResponse.setResult(orderService.getById(id));
+
+        return apiResponse;
+    }
+
+    @PatchMapping("/{id}")
+    ApiResponse<OrderResponse> updateOrderStatus(@PathVariable("id") Long id,@RequestBody UpdateOrderStatusRequest request){
+        ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
+
+        apiResponse.setResult(orderService.update(id, request));
+
+        return apiResponse;
+    }
 //
 //    @DeleteMapping("/{id}")
 //    ApiResponse<Void> delete(@PathVariable("id") Integer id){
