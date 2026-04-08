@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { mockAddresses } from '../../../../data/address';
+
 import type { CheckoutAddress } from '../../types';
 import { FiX, FiCheck } from 'react-icons/fi';
 import './AddressModal.css';
 
 interface AddressModalProps {
   isOpen: boolean;
+  addresses: CheckoutAddress[];
   currentAddress: CheckoutAddress | null;
   onSelect: (address: CheckoutAddress) => void;
   onClose: () => void;
@@ -13,6 +14,7 @@ interface AddressModalProps {
 
 const AddressModal: React.FC<AddressModalProps> = ({
   isOpen,
+  addresses,
   currentAddress,
   onSelect,
   onClose,
@@ -63,7 +65,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
         </div>
 
         <div className="addr-modal__list">
-          {mockAddresses.filter(a => !a.deletedAt).map((addr) => {
+          {addresses.map((addr) => {
             const isChosen = selected?.address_id === addr.address_id;
             return (
               <button
