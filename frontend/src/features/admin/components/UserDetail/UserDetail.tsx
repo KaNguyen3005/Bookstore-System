@@ -1,4 +1,4 @@
-import { type UserFE } from "../../../services/userApi";
+import { type UserFE } from "../../../../services/userApi";
 
 type Props = {
   user: UserFE;
