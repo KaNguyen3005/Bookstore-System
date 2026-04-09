@@ -32,33 +32,33 @@ export default function AuthorManagement() {
         <p>{total}</p>
       </div>
 
-              <div className="table-wrapper">
+      <div className="table-wrapper">
 
-                <h2>Danh sách</h2>
+        <h2>Danh sách</h2>
 
-                <table className="customer-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Tên tác giả</th>
-                      <th>Bí danh</th>
-                      <th>Quản lý</th>
-                    </tr>
-                  </thead>
+        <table className="customer-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên tác giả</th>
+              <th>Bí danh</th>
+              <th>Quản lý</th>
+            </tr>
+          </thead>
 
-                  <tbody>
-                      <td>1</td>
-                      <td>Nguyễn Khánh Huyền</td>
-                      <td>Nika</td>
-                      <td>
-                        <button className="btn edit">Sửa</button>
-                        <button className="btn delete">Xóa</button>
-                        <button className="btn view">Xem chi tiết</button>
-                      </td>
-                  </tbody>
+          <tbody>
+            <td>1</td>
+            <td>Nguyễn Khánh Huyền</td>
+            <td>Nika</td>
+            <td>
+              <button className="btn edit">Sửa</button>
+              <button className="btn delete">Xóa</button>
+              <button className="btn view">Xem chi tiết</button>
+            </td>
+          </tbody>
 
-                </table>
-              </div>
+        </table>
+      </div>
 
 
     </div>

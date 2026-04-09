@@ -38,7 +38,7 @@ export const authApi = {
       }
       throw new Error("Invalid credentials");
     }
-    return axiosClient.post("/auth/login", data);
+    return axiosClient.post("/auth/token", data);
   },
 
   register: async (data: any) => {

@@ -3,7 +3,7 @@
   background: #3c6670;
   color: white;
   font-size: 12px;
-  padding: padding: 0 0 15px 0;
+  padding: 0 0 15px 0;
 
 }
 
@@ -28,7 +28,8 @@
 }
 
 .link:hover {
-  color: #2c6f7b; /* Màu sắc hover hợp lý với theme */
+  color: #2c6f7b;
+  /* Màu sắc hover hợp lý với theme */
 }
 
 
@@ -90,6 +91,5 @@
   padding: 15px 40px;
   text-align: center;
   font-size: 11px;
-  color:  rgba(218, 226, 219, 1);
+  color: rgba(218, 226, 219, 1);
 }
-
