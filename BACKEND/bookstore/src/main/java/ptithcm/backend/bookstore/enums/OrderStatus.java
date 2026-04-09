@@ -9,5 +9,6 @@ public enum OrderStatus {
     COMPLETED,      // Hoàn thành (sau khi khách xác nhận nhận hàng)
     CANCELLED,      // Đã hủy
     REFUNDING,      // Đang hoàn tiền
-    REFUNDED        // Đã hoàn tiền
+    REFUNDED,        // Đã hoàn tiền
+    PAYMENT_FAILED   // Thanh toán thất bại
 }
