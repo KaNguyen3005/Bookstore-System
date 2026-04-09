@@ -1,7 +1,8 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { searchApi } from "../../../../services/searchApi";
-import type { Book } from "../../../../features/product/types/Book";
+import type { Book } from "../../../product/types/Book";
+import ProductCard from "../../../product/components/ProductCard";
 import "./SearchPage.css";
 
 export default function SearchPage() {
@@ -23,6 +24,7 @@ export default function SearchPage() {
     });
   }, [keyword]);
 
+
   return (
     <div className="search-page">
       <h2>
@@ -35,21 +37,9 @@ export default function SearchPage() {
         <p className="empty">Không tìm thấy sách</p>
       ) : (
         <div className="search-grid">
-          {books.map((book) => {
-            const finalPrice = book.price;
-
-            return (
-              <div key={book.book_id} className="book-card">
-                <img src={book.cover_image_url} />
-
-                <p className="title">{book.title}</p>
-
-                <p className="price">
-                  {finalPrice.toLocaleString("vi-VN")}đ
-                </p>
-              </div>
-            );
-          })}
+          {books.map((book) => (
+            <ProductCard key={book.book_id} book={book} />
+          ))}
         </div>
       )}
     </div>
