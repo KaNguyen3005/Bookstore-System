@@ -4,6 +4,7 @@ import HotSearchBooks from "../../components/HotsearchBooks/HotSearchBooks";
 import TopSellingBooks from "../../components/TopsellingBooks/TopSellingBooks";
 import ExploreCategories from "../../components/ExploreCategories/ExploreCategories";
 import { bookApi } from "../../../../services/bookApi";
+import Banner from "../../components/Banner/Banner";
 
 function Home() {
   const [homeData, setHomeData] = useState<any>(null);
@@ -23,7 +24,7 @@ function Home() {
       <div className="container">
 
         <div className="section">
-          <HeroBanner books={homeData.topSellingBooks} />
+          <Banner />
         </div>
 
         <div className="section">
