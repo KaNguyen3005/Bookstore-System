@@ -30,6 +30,7 @@ import AuthorManagement from "../features/admin/pages/AuthorManagement/AuthorMan
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
 
 import AdminHome from "../features/admin/pages/AdminHome/AdminHome";
+import Dashboard from "../features/admin/pages/DashBoardManagement/Dashboard";
 
 export default function AppRoutes() {
   return (
@@ -84,10 +85,10 @@ export default function AppRoutes() {
         }
       >
         <Route element={<AdminHome />}>
-          <Route index element={<div>Dashboard Admin</div>} />
+          <Route index element={<Dashboard />} />
           <Route path="customers" element={<CustomerManagement />} />
-          <Route path="statistical_report" element={<StatisticalReportManagement/>} />
-          <Route path="author" element={<AuthorManagement/>} />
+          <Route path="statistical_report" element={<StatisticalReportManagement />} />
+          <Route path="author" element={<AuthorManagement />} />
         </Route>
 
 

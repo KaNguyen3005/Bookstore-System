@@ -1,0 +1,52 @@
+.revenue-chart {
+  background-color: white;
+  padding: 24px;
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-width: 0;
+  /* Ensures it respects Grid column width */
+}
+
+
+.revenue-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.revenue-chart-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.revenue-chart-filters {
+  display: flex;
+  gap: 8px;
+  background-color: #f3f4f6;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.revenue-filter-btn {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.revenue-filter-btn.active {
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+}
+
+.revenue-chart-container {
+  width: 100%;
+  height: 300px;
+}

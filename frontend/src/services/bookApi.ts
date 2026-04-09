@@ -1,9 +1,9 @@
 import axiosClient from "./axiosClient";
-import { 
-  MOCK_ALL_BOOKS, 
-  getHotSearchBooks, 
-  getTopSellingBooks, 
-  getFeaturedBook 
+import {
+  MOCK_ALL_BOOKS,
+  getHotSearchBooks,
+  getTopSellingBooks,
+  getFeaturedBook
 } from "../data/books";
 import type { Book } from "../features/product/types/Book";
 
@@ -56,6 +56,13 @@ export const bookApi = {
         featuredBook: getFeaturedBook(),
       };
     }
-    return axiosClient.get("/home/books");
+    return axiosClient.get("/books");
+  },
+  getTopSellingBooks: async (limit?: number): Promise<Book[]> => {
+    if (IS_MOCK) {
+      await delay(500);
+      return getTopSellingBooks(limit);
+    }
+    return axiosClient.get("/books/top-selling", { params: { limit } });
   },
 };

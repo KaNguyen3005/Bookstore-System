@@ -1,96 +1,61 @@
-import { NavLink, useNavigate } from "react-router-dom";
-
+import { NavLink } from "react-router-dom";
+import { 
+  LayoutDashboard, 
+  BookOpen, 
+  ShoppingBag, 
+  Users, 
+  Ticket, 
+  BarChart2, 
+  ChevronRight,
+  LogOut 
+} from "lucide-react";
 import "./AdminHome.css";
 
 const SidebarAdmin = () => {
+  const menuItems = [
+    { name: "Dashboard", path: "/admin", icon: LayoutDashboard, hasChevron: false },
+    { name: "Quản lý sản phẩm", path: "/admin/products", icon: BookOpen, hasChevron: true },
+    { name: "Quản lý đơn hàng", path: "/admin/orders", icon: ShoppingBag, hasChevron: true },
+    { name: "Quản lý khách hàng", path: "/admin/customers", icon: Users, hasChevron: true },
+    { name: "Quản lý voucher", path: "/admin/vouchers", icon: Ticket, hasChevron: true },
+    { name: "Báo cáo", path: "/admin/statistical_report", icon: BarChart2, hasChevron: true },
+  ];
+
   return (
     <div className="sidebar-admin">
-      <h2 className="logo-admin">ADMIN</h2>
+      <div className="logo-section">
+        <h2 className="logo-admin">KATIIA</h2>
+        <span className="admin-badge">Quản trị Admin</span>
+      </div>
 
-      <ul className="menu-admin card-name-list">
+      <nav className="menu-admin">
+        <ul className="card-name-list">
+          {menuItems.map((item) => (
+            <li key={item.path}>
+              <NavLink 
+                to={item.path} 
+                className="card-name" 
+                end={item.path === "/admin"}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
+                  <item.icon size={20} className="menu-icon" />
+                  <span>{item.name}</span>
+                </div>
+                {item.hasChevron && <ChevronRight size={16} className="chevron-icon" opacity={0.5} />}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Dash Board
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Quản lý đặt hàng
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Quản lý đặt hàng
-                            </NavLink>
-                        </li>
-
-                        <li className="card-name">
-                            <NavLink to ="..." className="card-name" >
-                                Quản lý đơn hàng
-                            </NavLink>
-
-                        </li>
-
-                        <li>
-                            <NavLink to="customers" className="card-name">
-                                Quản lý khách hàng
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="role" className="card-name" >
-                                Quản lý vai trò & Phân quyền
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Quản lý sản phẩm
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Quản lý danh mục
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="author" className="card-name" >
-                                Quản lý tác giả
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Quản lý nhà sản xuất
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Quản lý mã giảm giá
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="statistical_report" className="card-name" >
-                                Báo cáo & Thống kê
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to ="..." className="card-name" >
-                                Nhật ký hệ thống
-                            </NavLink>
-                        </li>
-
-      </ul>
+      <div className="logout-section">
+        <button className="logout-btn">
+          <LogOut size={20} />
+          <span>Đăng xuất</span>
+        </button>
+      </div>
     </div>
   );
 };
 
-export default SidebarAdmin;
+export default SidebarAdmin;
