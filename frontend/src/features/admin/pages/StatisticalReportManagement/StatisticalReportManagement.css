@@ -1,6 +1,8 @@
 .report-container {
   padding: 20px;
   background: white;
+  border-radius: 15px;
+  margin-top: 20px;
 }
 
 .filter-date {

@@ -24,8 +24,10 @@ const mapToFE = (u: any): UserFE => ({
 
 export const authApi = {
   login: async (data: any): Promise<UserFE> => {
+
     if (IS_MOCK) {
       await delay(500);
+
       const user = users.find(
         (u) =>
           (u.email === data.account ||
@@ -33,12 +35,35 @@ export const authApi = {
             u.username === data.account) &&
           u.password === data.password
       );
-      if (user) {
-        return mapToFE(user);
+
+      if (!user) {
+        throw new Error("Invalid credentials");
       }
-      throw new Error("Invalid credentials");
+
+      // fake token
+      const fakeToken = "mock-token-123";
+      localStorage.setItem("access_token", fakeToken);
+
+      return mapToFE(user);
     }
-    return axiosClient.post("/auth/token", data);
+
+
+    // 1. login lấy token
+    const res: any = await axiosClient.post("/auth/token", data);
+
+    const token = res?.token;
+    if (!token) {
+      throw new Error("Token not found");
+    }
+
+    // 2. lưu token
+    localStorage.setItem("access_token", token);
+
+    // 3. gọi API lấy user
+    const userRes: any = await axiosClient.get("/users/me");
+
+    // 4. map về FE
+    return mapToFE(userRes);
   },
 
   register: async (data: any) => {
@@ -50,10 +75,13 @@ export const authApi = {
   },
 
   logout: async () => {
+    localStorage.removeItem("access_token");
+
     if (IS_MOCK) {
       await delay(500);
       return { message: "Logout success" };
     }
+
     return axiosClient.post("/auth/logout");
   },
 };
