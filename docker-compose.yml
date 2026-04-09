@@ -4,7 +4,7 @@ services:
     container_name: mysql-dev
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: appdb
+      MYSQL_DATABASE: db_bookstore
       MYSQL_USER: app
       MYSQL_PASSWORD: app
       TZ: Asia/Ho_Chi_Minh
@@ -12,20 +12,29 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   backend:
-    build:
-      context: ./backend/bookstore
+    image: morex3/bookstore-backend:latest
     container_name: backend-dev
     ports:
       - "8080:8080"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/appdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
       SPRING_DATASOURCE_USERNAME: app
       SPRING_DATASOURCE_PASSWORD: app
 
 volumes:
   mysql_data:
+
+#docker build -t kanguyen3005/bookstore-backend:latest ./backend/bookstore
+#docker push kanguyen3005/bookstore-backend:latest
