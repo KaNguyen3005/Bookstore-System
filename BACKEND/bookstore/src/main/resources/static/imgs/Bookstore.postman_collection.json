@@ -1,0 +1,1614 @@
+{
+  "info": {
+    "_postman_id": "a7ac3c87-e410-4271-a125-8022ef9746c7",
+    "name": "Bookstore",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40304018",
+    "_collection_link": "https://go.postman.co/collection/40304018-a7ac3c87-e410-4271-a125-8022ef9746c7?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Role",
+      "item": [
+        {
+          "name": "delete role",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"roleName\":\"USER\",\r\n    \"permissionIds\":[\r\n        1\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/roles/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "roles",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create role",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"roleName\":\"USER\",\r\n    \"permissionIds\":[\r\n        1\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/roles",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "roles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update role",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"roleName\":\"ADMIN\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/roles/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "roles",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get roles",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"roleName\":\"USER\",\r\n    \"permissionIds\":[\r\n        1\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/roles",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "roles"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Book",
+      "item": [
+        {
+          "name": "add book",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Machine Learning\",\r\n    \"authorIds\": [\r\n        \"04dfd140-c45a-4e97-b482-f56e3e7f91bf\"\r\n    ],\r\n    \"supplierId\" : \"5f65fade-44b7-4a05-ba10-c2ea5e15978f\",\r\n    \"publisherId\" : \"4abb6011-aabf-4675-be0f-57f636959802\",\r\n    \"isbn\" : \"example 1\",\r\n    \"language\" : \"Tiếng Việt\",\r\n    \"description\" : \"Đây là một cuốn sách mẫu\",\r\n    \"pageCount\" : 200,\r\n    \"coverType\" : \"Bìa cứng\",\r\n    \"coverImg\" : null,\r\n    \"stockQuantity\" : 100,\r\n    \"price\" : 100000,\r\n    \"avgRating\" : 5,\r\n    \"salePercent\" : 10,\r\n    \"categoriesIds\" : [\r\n        \"ed781ef8-ebaf-4fc8-a6e1-8f467b484b30\"\r\n    ]\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/books",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "books"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Valid",
+              "originalRequest": {
+                "method": "GET",
+                "header": []
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
+          "name": "get books",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Machine Learning\",\r\n    \"authorIds\": [\r\n        \"04dfd140-c45a-4e97-b482-f56e3e7f91bf\"\r\n    ],\r\n    \"supplierId\" : \"5f65fade-44b7-4a05-ba10-c2ea5e15978f\",\r\n    \"publisherId\" : \"4abb6011-aabf-4675-be0f-57f636959802\",\r\n    \"isbn\" : \"example 1\",\r\n    \"language\" : \"Tiếng Việt\",\r\n    \"description\" : \"Đây là một cuốn sách mẫu\",\r\n    \"pageCount\" : 200,\r\n    \"coverType\" : \"Bìa cứng\",\r\n    \"coverImg\" : null,\r\n    \"stockQuantity\" : 100,\r\n    \"price\" : 100000,\r\n    \"avgRating\" : 5,\r\n    \"salePercent\" : 10,\r\n    \"categoriesIds\" : [\r\n        \"ed781ef8-ebaf-4fc8-a6e1-8f467b484b30\"\r\n    ]\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/books",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "books"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Valid",
+              "originalRequest": {
+                "method": "GET",
+                "header": []
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
+          "name": "delete book",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Machine Learning\",\r\n    \"authorIds\": [\r\n        \"04dfd140-c45a-4e97-b482-f56e3e7f91bf\"\r\n    ],\r\n    \"supplierId\" : \"5f65fade-44b7-4a05-ba10-c2ea5e15978f\",\r\n    \"publisherId\" : \"4abb6011-aabf-4675-be0f-57f636959802\",\r\n    \"isbn\" : \"example 1\",\r\n    \"language\" : \"Tiếng Việt\",\r\n    \"description\" : \"Đây là một cuốn sách mẫu\",\r\n    \"pageCount\" : 200,\r\n    \"coverType\" : \"Bìa cứng\",\r\n    \"coverImg\" : null,\r\n    \"stockQuantity\" : 100,\r\n    \"price\" : 100000,\r\n    \"avgRating\" : 5,\r\n    \"salePercent\" : 10,\r\n    \"categoriesIds\" : [\r\n        \"ed781ef8-ebaf-4fc8-a6e1-8f467b484b30\"\r\n    ]\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/books",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "books"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Valid",
+              "originalRequest": {
+                "method": "GET",
+                "header": []
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
+          "name": "patch book",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avgRating",
+                  "value": "4",
+                  "type": "text",
+                  "uuid": "17688e9d-b3b4-4271-bade-53673d81037b"
+                },
+                {
+                  "key": "title",
+                  "value": "Book's morex3",
+                  "type": "text",
+                  "uuid": "e80a51c8-afe4-4763-8c91-f2832fe24ec2"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/books/5",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "books",
+                "5"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Valid",
+              "originalRequest": {
+                "method": "GET",
+                "header": []
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
+          "name": "get book",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Machine Learning\",\r\n    \"authorIds\": [\r\n        \"04dfd140-c45a-4e97-b482-f56e3e7f91bf\"\r\n    ],\r\n    \"supplierId\" : \"5f65fade-44b7-4a05-ba10-c2ea5e15978f\",\r\n    \"publisherId\" : \"4abb6011-aabf-4675-be0f-57f636959802\",\r\n    \"isbn\" : \"example 1\",\r\n    \"language\" : \"Tiếng Việt\",\r\n    \"description\" : \"Đây là một cuốn sách mẫu\",\r\n    \"pageCount\" : 200,\r\n    \"coverType\" : \"Bìa cứng\",\r\n    \"coverImg\" : null,\r\n    \"stockQuantity\" : 100,\r\n    \"price\" : 100000,\r\n    \"avgRating\" : 5,\r\n    \"salePercent\" : 10,\r\n    \"categoriesIds\" : [\r\n        \"ed781ef8-ebaf-4fc8-a6e1-8f467b484b30\"\r\n    ]\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/books",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "books"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Valid",
+              "originalRequest": {
+                "method": "GET",
+                "header": []
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
+          "name": "search book",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Machine Learning\",\r\n    \"authorIds\": [\r\n        \"04dfd140-c45a-4e97-b482-f56e3e7f91bf\"\r\n    ],\r\n    \"supplierId\" : \"5f65fade-44b7-4a05-ba10-c2ea5e15978f\",\r\n    \"publisherId\" : \"4abb6011-aabf-4675-be0f-57f636959802\",\r\n    \"isbn\" : \"example 1\",\r\n    \"language\" : \"Tiếng Việt\",\r\n    \"description\" : \"Đây là một cuốn sách mẫu\",\r\n    \"pageCount\" : 200,\r\n    \"coverType\" : \"Bìa cứng\",\r\n    \"coverImg\" : null,\r\n    \"stockQuantity\" : 100,\r\n    \"price\" : 100000,\r\n    \"avgRating\" : 5,\r\n    \"salePercent\" : 10,\r\n    \"categoriesIds\" : [\r\n        \"ed781ef8-ebaf-4fc8-a6e1-8f467b484b30\"\r\n    ]\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/books/search?keyword=morex3&min_price=0&max_price=1000000&sort=asc",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "books",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "morex3"
+                },
+                {
+                  "key": "min_price",
+                  "value": "0"
+                },
+                {
+                  "key": "max_price",
+                  "value": "1000000"
+                },
+                {
+                  "key": "sort",
+                  "value": "asc"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Valid",
+              "originalRequest": {
+                "method": "GET",
+                "header": []
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "create user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"n23dccn164@student.ptithcm.edu.vn\",\r\n    \"password\": \"123456\",\r\n    \"username\": \"morex34\",\r\n    \"name\": \"Bu Ba Ka\",\r\n    \"gender\": \"MALE\",\r\n    \"dob\": \"2005-01-01T00:00:00\",\r\n    \"roleId\" : 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get my info",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU1NjkxMCwiaWF0IjoxNzc1NTUzMzEwLCJqdGkiOiJlZWRlNjZjZi0yYWUyLTQ0YmEtYTE0My03NzllMTNjY2QxMjgiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.DnANfhfzBFxSFIoy72EvmH9bILen4W1lrNWu9VTwUPGqVFozP3cj2nD0MnDQNa-Zzyl0W0KZVMBzPUoRq2mR4w",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/users/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update my info",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU1NjkxMCwiaWF0IjoxNzc1NTUzMzEwLCJqdGkiOiJlZWRlNjZjZi0yYWUyLTQ0YmEtYTE0My03NzllMTNjY2QxMjgiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.DnANfhfzBFxSFIoy72EvmH9bILen4W1lrNWu9VTwUPGqVFozP3cj2nD0MnDQNa-Zzyl0W0KZVMBzPUoRq2mR4w",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"BuBaKa\",\r\n    \"phone\": \"0833835098\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/users/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change status account",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/users/3/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "users",
+                "3",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get users",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"n23dccn164@student.ptithcm.edu.vn\",\r\n    \"password\": \"123456\",\r\n    \"username\": \"morex3\",\r\n    \"name\": \"Bu Ba Ka\",\r\n    \"gender\": \"MALE\",\r\n    \"dob\": \"2005-01-01T00:00:00\",\r\n    \"roleId\" : 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"n23dccn164@student.ptithcm.edu.vn\",\r\n    \"password\": \"123456\",\r\n    \"username\": \"morex3\",\r\n    \"name\": \"Bu Ba Ka\",\r\n    \"gender\": \"MALE\",\r\n    \"dob\": \"2005-01-01T00:00:00\",\r\n    \"roleId\" : 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/users/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "users",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update user",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"n23dccn164@student.ptithcm.edu.vn\",\r\n    \"password\": \"1234567\",\r\n    \"username\": \"morex3\",\r\n    \"name\": \"Bu Ba Ka\",\r\n    \"gender\": \"FEMALE\",\r\n    \"dob\": \"2005-01-01T00:00:00\",\r\n    \"phone\": \"0914997062\",\r\n    \"roleId\" : 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/users/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "users",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"sonnguyen\",\r\n    \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/auth/token",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "auth",
+                "token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "introspect",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTcyMjEwNCwiaWF0IjoxNzc1NzE4NTA0LCJqdGkiOiIzMWRiMTNhOC1iNjM3LTQzNmUtYWNmYS1mNjQ5ODEzYzE3NzgiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.eXmLk9cxaWTV_XMFP5xKVDL-wxu3HKVBZfFCAcJT1nCYmC9bqPjPI_eBBA_HOPmDYRbrNlbtEX95JNY7GsG4Iw\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/auth/introspect",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "auth",
+                "introspect"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Address",
+      "item": [
+        {
+          "name": "create address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU1OTI1NSwiaWF0IjoxNzc1NTU1NjU1LCJqdGkiOiIwNDk3NDNlYi03ODUwLTRiOWQtYTk0YS00NjFhYWYxNTA0OTQiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.cxEjHgjEwNbCk-uvKmtrC4Icc2LSZwycYM-gGA3CPBH_231mU-GIFcmCKBa8ihGLmieJKIYoqJlfSvkljNtrYQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"province\": \"Hồ Chí Minh\",\r\n  \"district\": \"Quận 1\",\r\n  \"ward\": \"Phường Bến Nghé\",\r\n  \"detailAddress\": \"123 Nguyễn Huệ\",\r\n  \"customerName\": \"Nguyễn Văn A\",\r\n  \"customerPhone\": \"0901234567\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/addresses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get addresses",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NTI1OSwiaWF0IjoxNzc1NTcxNjU5LCJqdGkiOiIzZTUyYjY3NS03NTZjLTQ5ZDAtOTk4OC1hOTRkZjgwNTZiNWYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.-z-1gcfHqYZBdh8KhIMJL8RA-sgNoioFjgEECAGv1Thzxm7EMEE2GuIJ4KrpRmlOkuvtIL-PMfBwikhOyIoYGQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"province\": \"Hồ Chí Minh\",\r\n  \"district\": \"Quận 1\",\r\n  \"ward\": \"Phường Bến Nghé\",\r\n  \"detailAddress\": \"123 Nguyễn Huệ\",\r\n  \"customerName\": \"Nguyễn Văn A\",\r\n  \"customerPhone\": \"0901234567\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/addresses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "patch address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NTI1OSwiaWF0IjoxNzc1NTcxNjU5LCJqdGkiOiIzZTUyYjY3NS03NTZjLTQ5ZDAtOTk4OC1hOTRkZjgwNTZiNWYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.-z-1gcfHqYZBdh8KhIMJL8RA-sgNoioFjgEECAGv1Thzxm7EMEE2GuIJ4KrpRmlOkuvtIL-PMfBwikhOyIoYGQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"customerName\": \"Nguyễn Văn B\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/addresses/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "addresses",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete address",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NTI1OSwiaWF0IjoxNzc1NTcxNjU5LCJqdGkiOiIzZTUyYjY3NS03NTZjLTQ5ZDAtOTk4OC1hOTRkZjgwNTZiNWYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.-z-1gcfHqYZBdh8KhIMJL8RA-sgNoioFjgEECAGv1Thzxm7EMEE2GuIJ4KrpRmlOkuvtIL-PMfBwikhOyIoYGQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"customerName\": \"Nguyễn Văn B\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/addresses/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "addresses",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Voucher",
+      "item": [
+        {
+          "name": "add voucher",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NjQxNiwiaWF0IjoxNzc1NTcyODE2LCJqdGkiOiI5ZjI2NDQyNS04MzUyLTRlNzktYjE1Ni04MjYxZmI0MTg2YjYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.Y1cHK_0AV_vocEZZLba_zlBT_HXS4-HKylIaQhjF0dZ3uhGAOWiy4znP_jo-f3e-Sl6T_DM0lSf-v16QMd7NVg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"voucherCode\": \"SUMMER2024\",\r\n  \"title\": \"Summer Sale\",\r\n  \"description\": \"20% discount for summer\",\r\n  \"type\": \"PERCENTAGE\",\r\n  \"discountValue\": 20,\r\n  \"maxDiscountAmount\": 100000,\r\n  \"minOrderValue\": 500000,\r\n  \"totalLimit\": 100,\r\n  \"limitPerUser\": 1,\r\n  \"minPoint\": 0,\r\n  \"startDate\": \"2024-06-01T00:00:00\",\r\n  \"endDate\": \"2024-08-31T23:59:59\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/vouchers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "vouchers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all vouchers",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMSIsImV4cCI6MTc3NTU4MDE5NiwiaWF0IjoxNzc1NTc2NTk2LCJqdGkiOiIwOTZiNDQzMy0xYmVmLTQ4NmUtOGQ2OC03NzU2ODYwNjA2MGMiLCJzY29wZSI6IlJPTEVfQURNSU4gVVNFUl9SRUFEIFVTRVJfV1JJVEUgQk9PS19SRUFEIEJPT0tfV1JJVEUgT1JERVJfUkVBRCBPUkRFUl9XUklURSBWT1VDSEVSX01BTkFHRSBSRVZJRVdfTU9ERVJBVEUifQ.27HqcdWg-7TxK9ZWKxXoQzOOTz7bgnytW588_MDZzoe3nmwkKVHjZs-Mc9_TewD5SaCGhKiVRap1hkqMfOXmGQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"voucherCode\": \"SUMMER2024\",\r\n  \"title\": \"Summer Sale\",\r\n  \"description\": \"20% discount for summer\",\r\n  \"type\": \"PERCENTAGE\",\r\n  \"discountValue\": 20,\r\n  \"maxDiscountAmount\": 100000,\r\n  \"minOrderValue\": 500000,\r\n  \"totalLimit\": 100,\r\n  \"limitPerUser\": 1,\r\n  \"minPoint\": 0,\r\n  \"startDate\": \"2024-06-01T00:00:00\",\r\n  \"endDate\": \"2024-08-31T23:59:59\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/vouchers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "vouchers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "patch voucher",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NjQxNiwiaWF0IjoxNzc1NTcyODE2LCJqdGkiOiI5ZjI2NDQyNS04MzUyLTRlNzktYjE1Ni04MjYxZmI0MTg2YjYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.Y1cHK_0AV_vocEZZLba_zlBT_HXS4-HKylIaQhjF0dZ3uhGAOWiy4znP_jo-f3e-Sl6T_DM0lSf-v16QMd7NVg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"voucherCode\": \"SUMMER2024\",\r\n  \"title\": \"Summer Sale\",\r\n  \"description\": \"20% discount for summer\",\r\n  \"type\": \"PERCENTAGE\",\r\n  \"discountValue\": 20,\r\n  \"maxDiscountAmount\": 100000,\r\n  \"minOrderValue\": 100000,\r\n  \"totalLimit\": 100,\r\n  \"limitPerUser\": 1,\r\n  \"minPoint\": 0,\r\n  \"startDate\": \"2024-06-01T00:00:00\",\r\n  \"endDate\": \"2024-08-31T23:59:59\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/vouchers/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "vouchers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete voucher",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NjQxNiwiaWF0IjoxNzc1NTcyODE2LCJqdGkiOiI5ZjI2NDQyNS04MzUyLTRlNzktYjE1Ni04MjYxZmI0MTg2YjYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.Y1cHK_0AV_vocEZZLba_zlBT_HXS4-HKylIaQhjF0dZ3uhGAOWiy4znP_jo-f3e-Sl6T_DM0lSf-v16QMd7NVg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"voucherCode\": \"SUMMER2024\",\r\n  \"title\": \"Summer Sale\",\r\n  \"description\": \"20% discount for summer\",\r\n  \"type\": \"PERCENTAGE\",\r\n  \"discountValue\": 20,\r\n  \"maxDiscountAmount\": 100000,\r\n  \"minOrderValue\": 100000,\r\n  \"totalLimit\": 100,\r\n  \"limitPerUser\": 1,\r\n  \"minPoint\": 0,\r\n  \"startDate\": \"2024-06-01T00:00:00\",\r\n  \"endDate\": \"2024-08-31T23:59:59\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/vouchers/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "vouchers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get voucher by id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NjQxNiwiaWF0IjoxNzc1NTcyODE2LCJqdGkiOiI5ZjI2NDQyNS04MzUyLTRlNzktYjE1Ni04MjYxZmI0MTg2YjYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.Y1cHK_0AV_vocEZZLba_zlBT_HXS4-HKylIaQhjF0dZ3uhGAOWiy4znP_jo-f3e-Sl6T_DM0lSf-v16QMd7NVg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"voucherCode\": \"SUMMER2024\",\r\n  \"title\": \"Summer Sale\",\r\n  \"description\": \"20% discount for summer\",\r\n  \"type\": \"PERCENTAGE\",\r\n  \"discountValue\": 20,\r\n  \"maxDiscountAmount\": 100000,\r\n  \"minOrderValue\": 100000,\r\n  \"totalLimit\": 100,\r\n  \"limitPerUser\": 1,\r\n  \"minPoint\": 0,\r\n  \"startDate\": \"2024-06-01T00:00:00\",\r\n  \"endDate\": \"2024-08-31T23:59:59\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/vouchers/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "vouchers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get voucher by voucher code",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiNCIsImV4cCI6MTc3NTU3NjQxNiwiaWF0IjoxNzc1NTcyODE2LCJqdGkiOiI5ZjI2NDQyNS04MzUyLTRlNzktYjE1Ni04MjYxZmI0MTg2YjYiLCJzY29wZSI6IlJPTEVfQURNSU4gdXBkYXRlIn0.Y1cHK_0AV_vocEZZLba_zlBT_HXS4-HKylIaQhjF0dZ3uhGAOWiy4znP_jo-f3e-Sl6T_DM0lSf-v16QMd7NVg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"voucherCode\": \"SUMMER2024\",\r\n  \"title\": \"Summer Sale\",\r\n  \"description\": \"20% discount for summer\",\r\n  \"type\": \"PERCENTAGE\",\r\n  \"discountValue\": 20,\r\n  \"maxDiscountAmount\": 100000,\r\n  \"minOrderValue\": 100000,\r\n  \"totalLimit\": 100,\r\n  \"limitPerUser\": 1,\r\n  \"minPoint\": 0,\r\n  \"startDate\": \"2024-06-01T00:00:00\",\r\n  \"endDate\": \"2024-08-31T23:59:59\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/vouchers/code/SUMMER2024",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "vouchers",
+                "code",
+                "SUMMER2024"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get voucher active",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/vouchers/active",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "vouchers",
+                "active"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "get cart items",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTYxMzI4NSwiaWF0IjoxNzc1NjA5Njg1LCJqdGkiOiJkNzljN2JkNS1lZTU2LTQ4MzEtODk4MC1jMmIxNWFjNzU5NzciLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.Nb1YoiImacoidx0YnvReDMuLp5UQoLmtsZYf-NL0DX_WB55Dv5MGHsocJNMVSiz3kxSqc54o6VRxiqIOdNPU8w",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"n23dccn164@student.ptithcm.edu.vn\",\r\n    \"password\": \"123456\",\r\n    \"username\": \"morex3\",\r\n    \"name\": \"Bu Ba Ka\",\r\n    \"gender\": \"MALE\",\r\n    \"dob\": \"2005-01-01T00:00:00\",\r\n    \"roleId\" : 2\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/cart/items",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "cart",
+                "items"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "get orders",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTYyMjUwNCwiaWF0IjoxNzc1NjE4OTA0LCJqdGkiOiI5Yjc3YTEyMC1jZGI4LTRlNTUtYWVlZS0yMmJiYzk2MzY1YzAiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.InSPxVl-QSKvjmBfvT_n_KV2SZ7aC0LDuQ25nzJNCB4z8HFEWCmKoptS4OiHE7d5SS_Al4AndbahuGQkXC_bjQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTcyMjEwNCwiaWF0IjoxNzc1NzE4NTA0LCJqdGkiOiIzMWRiMTNhOC1iNjM3LTQzNmUtYWNmYS1mNjQ5ODEzYzE3NzgiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.eXmLk9cxaWTV_XMFP5xKVDL-wxu3HKVBZfFCAcJT1nCYmC9bqPjPI_eBBA_HOPmDYRbrNlbtEX95JNY7GsG4Iw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"addressId\": 1,\r\n    \"items\": [\r\n        {\r\n            \"bookId\": 2,\r\n            \"quantity\": 2\r\n        }\r\n    ],\r\n    \"paymentMethod\": \"VNPAY\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTY2MjQ0NiwiaWF0IjoxNzc1NjU4ODQ2LCJqdGkiOiJiODg1ZWFjYS0zYzRiLTRlOTEtYTJhYi0wZGJiNmRkNjg3NjIiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.Hre8uhm2C_bvXqkK4F8ASngv49aDcT4XwdfO0uhGQZtk9O8pv27o1chUSWSucOlBkwCApYvfUNq4QquwJRVKvQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"PENDING\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/orders/6",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "orders",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTY2MjQ0NiwiaWF0IjoxNzc1NjU4ODQ2LCJqdGkiOiJiODg1ZWFjYS0zYzRiLTRlOTEtYTJhYi0wZGJiNmRkNjg3NjIiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.Hre8uhm2C_bvXqkK4F8ASngv49aDcT4XwdfO0uhGQZtk9O8pv27o1chUSWSucOlBkwCApYvfUNq4QquwJRVKvQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"COMPLETED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/orders/6",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "orders",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "cancel order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTY2MjQ0NiwiaWF0IjoxNzc1NjU4ODQ2LCJqdGkiOiJiODg1ZWFjYS0zYzRiLTRlOTEtYTJhYi0wZGJiNmRkNjg3NjIiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.Hre8uhm2C_bvXqkK4F8ASngv49aDcT4XwdfO0uhGQZtk9O8pv27o1chUSWSucOlBkwCApYvfUNq4QquwJRVKvQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"COMPLETED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/orders/6/cancel",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "orders",
+                "6",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "item": [
+        {
+          "name": "create payment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTcyMjEwNCwiaWF0IjoxNzc1NzE4NTA0LCJqdGkiOiIzMWRiMTNhOC1iNjM3LTQzNmUtYWNmYS1mNjQ5ODEzYzE3NzgiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.eXmLk9cxaWTV_XMFP5xKVDL-wxu3HKVBZfFCAcJT1nCYmC9bqPjPI_eBBA_HOPmDYRbrNlbtEX95JNY7GsG4Iw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"orderId\": 21,\r\n  \"paymentMethod\": \"VNPAY\",\r\n  \"bankCode\": \"NCB\",\r\n  \"language\": \"vn\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/payments/checkout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "payments",
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Send Email",
+      "item": [
+        {
+          "name": "send otp to email",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTcyMTQxMywiaWF0IjoxNzc1NzE3ODEzLCJqdGkiOiI2YTBhMDQwNy0wMzczLTQ1M2QtOWVhZS00NWJiZGYyM2QwMzQiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.4e4bwzw1YsVeQJGR7FxBNg5uL9rXdVg4yoELBSrsJPf1AjYkPpVFu7T_bWEayPHSzw1FK4Z-v7-ppdWESw19AQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"ngkhanhhuyen67@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/otp/send",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "otp",
+                "send"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify otp",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMyIsImV4cCI6MTc3NTcxNTc3MCwiaWF0IjoxNzc1NzEyMTcwLCJqdGkiOiI1OWNjZjFjYS0zZWM2LTRiNmUtODU0ZC1mMDViYWYxNGRkOTEiLCJzY29wZSI6IlJPTEVfQ1VTVE9NRVIgQk9PS19SRUFEIE9SREVSX1JFQUQifQ.fw_qbtM85lekJOillUVgkhaYGcwzKfEdFTNyw1Ytejo-Hi482yhkpX5w40mWcveD-JM1CGHX4mfXuuk9iVi4ZQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"n23dccn164@student.ptithcm.edu.vn\",\r\n  \"otp\": \"338259\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/otp/verify",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "otp",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
