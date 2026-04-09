@@ -1,24 +1,23 @@
 import axiosClient from "./axiosClient";
-import { mockCategoryBooks } from "../data/mockCategoryBooks";
-import { HOT_SEARCH_BOOKS, TOP_SELLING_BOOKS, FEATURED_BOOK } from "../data/homeBooks";
+import { 
+  MOCK_ALL_BOOKS, 
+  getHotSearchBooks, 
+  getTopSellingBooks, 
+  getFeaturedBook 
+} from "../data/books";
 import type { Book } from "../features/product/types/Book";
 
 const IS_MOCK = true;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const ALL_BOOKS: Book[] = [
-  ...mockCategoryBooks,
-  ...HOT_SEARCH_BOOKS,
-  ...TOP_SELLING_BOOKS,
-  FEATURED_BOOK,
-];
+const ALL_BOOKS: Book[] = MOCK_ALL_BOOKS;
 
 export const bookApi = {
   getBooks: async (params?: any): Promise<Book[]> => {
     if (IS_MOCK) {
       await delay(500);
-      return mockCategoryBooks;
+      return MOCK_ALL_BOOKS;
     }
     return axiosClient.get("/books", { params });
   },
@@ -36,7 +35,7 @@ export const bookApi = {
   getRelatedBooks: async (bookId: number): Promise<Book[]> => {
     if (IS_MOCK) {
       await delay(500);
-      return mockCategoryBooks
+      return MOCK_ALL_BOOKS
         .filter((b) => b.book_id !== bookId)
         .sort(() => 0.5 - Math.random())
         .slice(0, 15);
@@ -52,9 +51,9 @@ export const bookApi = {
     if (IS_MOCK) {
       await delay(500);
       return {
-        hotSearchBooks: HOT_SEARCH_BOOKS,
-        topSellingBooks: TOP_SELLING_BOOKS,
-        featuredBook: FEATURED_BOOK,
+        hotSearchBooks: getHotSearchBooks(),
+        topSellingBooks: getTopSellingBooks(),
+        featuredBook: getFeaturedBook(),
       };
     }
     return axiosClient.get("/home/books");

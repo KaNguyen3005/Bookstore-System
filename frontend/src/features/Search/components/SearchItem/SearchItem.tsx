@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import type { Book } from "../../../../data/book";
+import type { Book } from "../../../../features/product/types/Book";
 import "./SearchItem.css";
 
 export default function SearchItem({ book }: { book: Book }) {
   const navigate = useNavigate();
 
-  const finalPrice =
-    book.price - (book.price * book.sale_percent) / 100;
+  const finalPrice = book.price;
 
   return (
     <div
@@ -19,7 +18,7 @@ export default function SearchItem({ book }: { book: Book }) {
         <p className="title">{book.title}</p>
 
         <div className="category-list">
-          {book.categories.map((c) => (
+          {book.categories?.map((c) => (
             <span key={c.category_id} className="category-tag">
               {c.name}
             </span>

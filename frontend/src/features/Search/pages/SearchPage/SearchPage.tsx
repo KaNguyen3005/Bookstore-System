@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { searchApi } from "../../../../services/searchApi";
-import type { Book } from "../../../../data/book";
+import type { Book } from "../../../../features/product/types/Book";
 import "./SearchPage.css";
 
 export default function SearchPage() {
@@ -36,8 +36,7 @@ export default function SearchPage() {
       ) : (
         <div className="search-grid">
           {books.map((book) => {
-            const finalPrice =
-              book.price - (book.price * book.sale_percent) / 100;
+            const finalPrice = book.price;
 
             return (
               <div key={book.book_id} className="book-card">
