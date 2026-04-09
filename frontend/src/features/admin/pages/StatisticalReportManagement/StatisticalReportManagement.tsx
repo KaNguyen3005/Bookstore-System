@@ -11,7 +11,7 @@ import {
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-// 👇 import component bạn đã tách
+
 import BigCard from "./BigCard";
 import SmallCard from "./SmallCard";
 import FilterBar from "./FilterBar";
@@ -81,8 +81,25 @@ export default function StatisticalReport() {
     { name: "Thứ 5", value: 410 },
     { name: "Thứ 6", value: 510 },
     { name: "Thứ 7", value: 570 },
-    { name: "CN", value: 350 },
+    { name: "Chủ nhật", value: 350 },
   ];
+
+const chartDataRevenue =[
+    { name: "Thứ 2", value: 830000324 },
+    { name: "Thứ 3", value: 630334224 },
+    { name: "Thứ 4", value: 760753456 },
+    { name: "Thứ 5", value: 410000123 },
+    { name: "Thứ 6", value: 610764234 },
+    { name: "Thứ 7", value: 570435245 },
+    { name: "Chủ nhật", value: 950424242 },
+    ];
+
+const chartDataCityRevenue=[
+    { name: "Tp HCM", value: 130000324 },
+    { name: "Ha Noi", value: 99134353},
+    { name: "Da Nang", value: 78123245},
+    {name: "Ha Tinh", value: 71435525},
+    ];
 
   const handleExportExcel = () => {
     const data = topBooks.map((item) => ({
@@ -170,7 +187,7 @@ export default function StatisticalReport() {
           </table>
         </div>
 
-        {/* ===== CHART DOANH THU ===== */}
+
         <div className="chart-container">
           <h3>Biểu đồ doanh thu</h3>
 
@@ -187,7 +204,7 @@ export default function StatisticalReport() {
           />
 
           <div className="chart-box">
-            <BarChart width={1000} height={300} data={chartData}>
+            <BarChart width={950} height={400} data={chartDataRevenue}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
@@ -197,7 +214,7 @@ export default function StatisticalReport() {
           </div>
         </div>
 
-        {/* ===== CHART KHÁC ===== */}
+
         <div className="chart-container">
           <h3>Biểu đồ đơn hàng</h3>
 
@@ -213,10 +230,42 @@ export default function StatisticalReport() {
           />
 
           <div className="chart-box">
-            <BarChart width={1000} height={300} data={chartData}>
+            <BarChart width={950} height={400} data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
               <Bar dataKey="value" fill="#2c6f7b" />
             </BarChart>
           </div>
+
+        <div className="chart-container">
+          <h3>Top doanh thu theo tỉnh</h3>
+
+          <FilterBar
+            filters={filters}
+            active={active}
+            fromDate={fromDate}
+            toDate={toDate}
+            onQuickFilter={handleQuickFilter}
+            onFromDateChange={setFromDate}
+            onToDateChange={setToDate}
+            onFilter={handleFilter}
+            onExport={handleExportExcel}
+          />
+
+          <div className="chart-box">
+            <BarChart width={950} height={400} data={chartDataCityRevenue}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#2c6f7b" />
+            </BarChart>
+          </div>
+        </div>
+
+
         </div>
       </div>
     </div>

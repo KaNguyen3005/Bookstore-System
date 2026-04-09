@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { IoMdSearch } from "react-icons/io";
 
-import UserDetail from "../../components/UserDetail";
+import UserDetail from "../../components/UserDetail/UserDetail";
 
 export default function CustomerManagement(){
 
@@ -35,9 +35,9 @@ const [selectedUser, setSelectedUser] = useState<UserFE | null>(null);
   return(
     <div>
 
-      <h2>THÔNG TIN KHÁCH HÀNG</h2>
+      <h2>QUẢN LÝ THÔNG TIN KHÁCH HÀNG</h2>
         <div className="card-sum">
-          <h3 className="title-card">Tổng số tài khoản</h3>
+          <h3>Tổng số tài khoản</h3>
           <p>{list.length}</p>
         </div>
 

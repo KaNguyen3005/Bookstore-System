@@ -59,7 +59,7 @@ const SidebarAdmin = () => {
                         </li>
 
                         <li>
-                            <NavLink to ="..." className="card-name" >
+                            <NavLink to ="author" className="card-name" >
                                 Quản lý tác giả
                             </NavLink>
                         </li>
