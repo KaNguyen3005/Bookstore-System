@@ -3,8 +3,7 @@ import ProductCard from '../../../product/components/ProductCard';
 import TopSellingBooks from '../../../home/components/TopsellingBooks/TopSellingBooks';
 import ExploreCategories from '../../../home/components/ExploreCategories/ExploreCategories';
 
-import { mockCategoryBooks } from '../../../../data/mockCategoryBooks';
-import { TOP_SELLING_BOOKS } from '../../../../data/homeBooks';
+import { MOCK_ALL_BOOKS, getTopSellingBooks } from '../../../../data/books';
 
 const CategoryPage = () => {
   return (
@@ -42,7 +41,7 @@ const CategoryPage = () => {
               </div>
 
               <div className="category-page__grid">
-                {mockCategoryBooks.map((book) => (
+                {MOCK_ALL_BOOKS.map((book) => (
                   <ProductCard key={book.book_id} book={book} />
                 ))}
               </div>
@@ -53,7 +52,7 @@ const CategoryPage = () => {
 
         {/* Section 2: Top Selling Books (FULL WIDTH) */}
         <div className="category-page__bestsellers">
-          <TopSellingBooks books={TOP_SELLING_BOOKS} />
+          <TopSellingBooks books={getTopSellingBooks(4)} />
         </div>
 
         {/* Section 3: Explore Categories */}
