@@ -2,31 +2,42 @@ import { useNavigate } from "react-router-dom";
 import type { Book } from "../../../../features/product/types/Book";
 import "./SearchItem.css";
 
-export default function SearchItem({ book }: { book: Book }) {
+export default function SearchItem({
+  book,
+  onSelect,
+}: {
+  book: Book;
+  onSelect?: () => void;
+}) {
   const navigate = useNavigate();
 
-  const finalPrice = book.price;
+  const handleClick = () => {
+    onSelect?.();
+    navigate(`/product/${book.book_id}`);
+  };
 
   return (
-    <div
-      className="search-item"
-      onClick={() => navigate(`/book/${book.book_id}`)}
-    >
-      <img src={book.cover_image_url} alt={book.title} />
+    <div className="search-item" onClick={handleClick}>
+      <img
+        src={
+          book.cover_image_url ||
+          `https://picsum.photos/seed/book${book.book_id}/60/80`
+        }
+        alt={book.title}
+        className="search-item__img"
+      />
 
-      <div className="search-info">
-        <p className="title">{book.title}</p>
+      <div className="search-item__info">
+        <p className="search-item__title">{book.title}</p>
 
-        <div className="category-list">
-          {book.categories?.map((c) => (
-            <span key={c.category_id} className="category-tag">
-              {c.name}
-            </span>
-          ))}
-        </div>
+        {book.categories?.length > 0 && (
+          <p className="search-item__category">
+            {book.categories.map((c) => c.name).join(", ")}
+          </p>
+        )}
 
-        <p className="price">
-          {finalPrice.toLocaleString("vi-VN")}đ
+        <p className="search-item__price">
+          {book.price.toLocaleString("vi-VN")}đ
         </p>
       </div>
     </div>

@@ -13,7 +13,7 @@ const ProductCard = ({ book }: ProductCardProps) => {
   const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     e.stopPropagation();
 
     const item = {
