@@ -2,19 +2,24 @@ import axiosClient from "./axiosClient";
 import users from "../data/user1";
 import { type UserFE } from "./userApi";
 
-const IS_MOCK = true;
+const IS_MOCK = false;
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
+// ================= CLEAN INPUT =================
+const clean = (value: any) => value?.toString().trim();
+
+// ================= MAP USER =================
 const mapToFE = (u: any): UserFE => ({
   id: u.user_id,
   user_id: u.user_id,
-  username: u.username,
-  fullname: `${u.first_name || ""} ${u.last_name || ""}`.trim(),
-  firstname: u.first_name,
-  lastname: u.last_name,
-  email: u.email,
-  phone: u.phone,
+  username: clean(u.username),
+  fullname: `${clean(u.first_name)} ${clean(u.last_name)}`.trim(),
+  firstname: clean(u.first_name),
+  lastname: clean(u.last_name),
+  email: clean(u.email),
+  phone: clean(u.phone),
   birth: u.birth,
   point: u.point,
   status: u.status,
@@ -22,48 +27,70 @@ const mapToFE = (u: any): UserFE => ({
   role_id: u.role_id,
 });
 
+// ================= API =================
 export const authApi = {
   login: async (data: any): Promise<UserFE> => {
+    try {
+      // ================= MOCK =================
+      if (IS_MOCK) {
+        await delay(500);
 
-    if (IS_MOCK) {
-      await delay(500);
+        const account = clean(data.account);
+        const password = clean(data.password);
 
-      const user = users.find(
-        (u) =>
-          (u.email === data.account ||
-            u.phone === data.account ||
-            u.username === data.account) &&
-          u.password === data.password
-      );
+        const user = users.find(
+          (u) =>
+            (u.email === account ||
+              u.phone === account ||
+              u.username === account) &&
+            u.password === password
+        );
 
-      if (!user) {
-        throw new Error("Invalid credentials");
+        if (!user) {
+          throw new Error("Invalid credentials");
+        }
+
+        const fakeToken = "mock-token-123";
+        localStorage.setItem("access_token", fakeToken);
+
+        return mapToFE(user);
       }
 
-      // fake token
-      const fakeToken = "mock-token-123";
-      localStorage.setItem("access_token", fakeToken);
+      // ================= LOGIN API =================
+      const res: any = await axiosClient.post("/auth/token", {
+        username: clean(data.account),
+        password: clean(data.password),
+      });
 
-      return mapToFE(user);
+      console.log("LOGIN RESPONSE:", res);
+
+      // ================= EXTRACT TOKEN =================
+      const token =
+        res?.data?.result?.token ||
+        res?.result?.token ||
+        res?.accessToken ||
+        res?.data?.token ||
+        res?.data?.accessToken;
+
+      if (!token) {
+        throw new Error("Token not found in response");
+      }
+
+      localStorage.setItem("access_token", token);
+
+      // ================= GET USER =================
+      const userRes: any = await axiosClient.post("/users/me");
+
+      console.log("USER RESPONSE:", userRes);
+
+      return mapToFE(userRes);
+    } catch (error: any) {
+      console.error("LOGIN ERROR:", error?.response || error);
+
+      throw new Error(
+        error?.response?.data?.message || "Login failed"
+      );
     }
-
-
-    // 1. login lấy token
-    const res: any = await axiosClient.post("/auth/token", data);
-
-    const token = res?.token;
-    if (!token) {
-      throw new Error("Token not found");
-    }
-
-    // 2. lưu token
-    localStorage.setItem("access_token", token);
-
-    // 3. gọi API lấy user
-    const userRes: any = await axiosClient.get("/users/me");
-
-    // 4. map về FE
-    return mapToFE(userRes);
   },
 
   register: async (data: any) => {
@@ -71,14 +98,20 @@ export const authApi = {
       await delay(500);
       return { message: "Register success" };
     }
-    return axiosClient.post("/auth/register", data);
+
+    return axiosClient.post("/auth/register", {
+      ...data,
+      username: clean(data.username),
+      email: clean(data.email),
+      phone: clean(data.phone),
+    });
   },
 
   logout: async () => {
     localStorage.removeItem("access_token");
 
     if (IS_MOCK) {
-      await delay(500);
+      await delay(300);
       return { message: "Logout success" };
     }
 
