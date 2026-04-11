@@ -1,10 +1,12 @@
 package ptithcm.backend.bookstore.controller;
 
+import com.cloudinary.Api;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
@@ -43,15 +45,18 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<BookResponse>> search(
+    public ApiResponse<Page<BookResponse>> searchBooks(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Integer category,
-            @RequestParam(required = false) BigDecimal min_price,
-            @RequestParam(required = false) BigDecimal max_price,
-            @RequestParam(required = false) String sort) {
-        ApiResponse<List<BookResponse>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(bookService.searchBooks(keyword, category, min_price, max_price, sort));
-        return apiResponse;
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ApiResponse.<Page<BookResponse>>builder()
+                .result(bookService.searchBooks(keyword, categoryId, minPrice, maxPrice, sort, page, size))
+                .build();
     }
 
     @GetMapping("/{id}")

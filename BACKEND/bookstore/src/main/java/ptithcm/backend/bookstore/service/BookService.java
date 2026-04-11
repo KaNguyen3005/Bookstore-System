@@ -5,6 +5,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
@@ -74,6 +78,7 @@ public class BookService {
             book.setPublisher(publisher);
             book.setCategories(new HashSet<>(categories));
             book.setCoverImageUrl(imageUrl);
+            book.setPublicIdCoverImage(publicId);
 
             Book savedBook = bookRepository.save(book);
             return bookMapper.toResponse(savedBook);
@@ -98,18 +103,26 @@ public class BookService {
         return books;
     }
 
-    public List<BookResponse> searchBooks(String keyword, Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice, String sort) {
-        // Validate sort parameter
+    //TODO: Code cần hiểu
+    public Page<BookResponse> searchBooks(String keyword,
+                                          Integer categoryId,
+                                          BigDecimal minPrice,
+                                          BigDecimal maxPrice,
+                                          String sort,
+                                          int page,
+                                          int size) {
         if (sort != null && !sort.equalsIgnoreCase("asc")
                 && !sort.equalsIgnoreCase("desc")) {
-            sort = null; // Default to no specific sort
+            sort = null;
         }
 
-        List<Book> books = bookRepository.searchBooks(keyword, categoryId, minPrice, maxPrice, sort);
+        Pageable pageable = PageRequest.of(page, size);
 
-        return books.stream()
-                .map(bookMapper::toResponse)
-                .collect(java.util.stream.Collectors.toList());
+        Page<Book> books = bookRepository.searchBooks(
+                keyword, categoryId, minPrice, maxPrice, sort, pageable
+        );
+
+        return books.map(bookMapper::toResponse);
     }
     public BookResponse get(Integer id) {
         Book book = bookRepository.findById(id)

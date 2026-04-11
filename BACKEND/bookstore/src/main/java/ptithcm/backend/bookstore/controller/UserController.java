@@ -8,10 +8,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.*;
-import ptithcm.backend.bookstore.dto.response.ApiResponse;
-import ptithcm.backend.bookstore.dto.response.ReviewResponse;
-import ptithcm.backend.bookstore.dto.response.RoleResponse;
-import ptithcm.backend.bookstore.dto.response.UserResponse;
+import ptithcm.backend.bookstore.dto.response.*;
+import ptithcm.backend.bookstore.service.CloudinaryService;
 import ptithcm.backend.bookstore.service.UserService;
 
 import java.util.List;
@@ -25,6 +23,8 @@ import java.util.List;
 public class UserController {
 
     UserService userService;
+    CloudinaryService cloudinaryService;
+
 
 
     @PostMapping()
@@ -74,7 +74,9 @@ public class UserController {
     @PatchMapping("/me")
     ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UpdateMyInfoRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        userService.updateMyInfo(request);
         apiResponse.setResult(userService.updateMyInfo(request));
+
         return apiResponse;
     }
 

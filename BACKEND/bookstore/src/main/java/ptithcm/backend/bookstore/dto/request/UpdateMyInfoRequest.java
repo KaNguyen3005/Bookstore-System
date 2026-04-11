@@ -1,9 +1,11 @@
 package ptithcm.backend.bookstore.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -31,4 +33,11 @@ public class UpdateMyInfoRequest {
             message = "INVALID_DOB"
     )
     String dob;
+
+    @NotBlank(message = "INVALID_USERNAME")
+    @Size(min = 3, max = 255, message = "INVALID_USERNAME")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "INVALID_USERNAME")
+    String username;
+
+    MultipartFile avatar;
 }

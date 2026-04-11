@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.*;
 import ptithcm.backend.bookstore.dto.response.CategoryResponse;
 import ptithcm.backend.bookstore.dto.response.ReviewResponse;
+import ptithcm.backend.bookstore.dto.response.UploadResult;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.entity.*;
 import ptithcm.backend.bookstore.exception.AppException;
@@ -33,12 +34,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    private final ReviewRepository reviewRepository;
-    private final BookRepository bookRepository;
+    ReviewRepository reviewRepository;
+    BookRepository bookRepository;
     RoleRepository roleRepository;
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    CloudinaryService cloudinaryService;
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
 
@@ -57,6 +59,7 @@ public class UserService {
         List<UserResponse> users = new ArrayList<>();
         for(User user : userRepository.findAll()){
             log.error(user.getUserId().toString());
+            if(user.getDeletedAt() != null) continue;
             users.add(userMapper.toResponse(user));
         }
         return users;
@@ -105,7 +108,7 @@ public class UserService {
         }
 
         if (request.getIsChangeAccount() != null) {
-            user.setChangeAccount(request.getIsChangeAccount());
+            user.setIsChangeAccount(request.getIsChangeAccount());
         }
 
         if (request.getPoint() != null) {
@@ -151,6 +154,13 @@ public class UserService {
         // Lấy thông tin User hiện tại từ bộ nhớ của Spring Security
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+
         // Thường là username hoặc UserDetails object
         Long userId = Long.parseLong(authentication.getName());
 
@@ -163,41 +173,96 @@ public class UserService {
 
     @Transactional
     public UserResponse updateMyInfo(UpdateMyInfoRequest request) {
-        // Lấy thông tin User hiện tại từ bộ nhớ của Spring Security
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // Thường là username hoặc UserDetails object
-        Long userId = Long.parseLong(authentication.getName());
+        UserResponse userResponse = getMyInfo();
+        Long userId = userResponse.getUserId();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
+        String oldAvatarPublicId = user.getPublicIdAvatar();
+        String newAvatarPublicId = null;
 
-        if (request.getName() != null && !request.getName().isBlank()) {
-            user.setName(request.getName());
-        }
-
-        if (request.getPhone() != null && !request.getPhone().isBlank()) {
-            if (userRepository.existsByPhoneAndUserIdNot(request.getPhone(), userId)) {
-                throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
+        try {
+            if (request.getPassword() != null && !request.getPassword().isBlank()) {
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
             }
-            user.setPhone(request.getPhone());
-        }
 
-        if (request.getGender() != null && !request.getGender().isBlank()) {
-            user.setGender(request.getGender());
-        }
+            if (request.getName() != null && !request.getName().isBlank()) {
+                user.setName(request.getName());
+            }
 
-        if (request.getDob() != null) {
-            LocalDateTime dob = LocalDateTime.parse(request.getDob());
-            user.setDob(dob);
-        }
+            if (request.getPhone() != null && !request.getPhone().isBlank()) {
+                if (userRepository.existsByPhoneAndUserIdNot(request.getPhone(), userId)) {
+                    throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
+                }
+                user.setPhone(request.getPhone());
+            }
 
-        User savedUser = userRepository.save(user);
-        return userMapper.toResponse(savedUser);
+            if (request.getGender() != null && !request.getGender().isBlank()) {
+                user.setGender(request.getGender());
+            }
+
+            if (request.getDob() != null && !request.getDob().isBlank()) {
+                LocalDateTime dob = LocalDateTime.parse(request.getDob());
+                user.setDob(dob);
+            }
+
+            if(request.getUsername() != null && !request.getUsername().isBlank()) {
+
+                if (userRepository.existsByUsernameAndUserIdNot(request.getUsername(), userId)) {
+                    throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
+                }
+                if(user.getIsChangeAccount()) {
+                    throw new AppException(ErrorCode.USERNAME_CHANGE_LIMITED);
+                }
+                user.setUsername(request.getUsername());
+                user.setIsChangeAccount(true);
+            }
+
+            if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
+                UploadResult uploadResult = cloudinaryService.uploadFile(request.getAvatar(), "avatars");
+                newAvatarPublicId = uploadResult.getPublicId();
+
+                user.setAvatarUrl(uploadResult.getUrl());
+                user.setPublicIdAvatar(uploadResult.getPublicId());
+            }
+
+            User savedUser = userRepository.save(user);
+
+            if (newAvatarPublicId != null
+                    && oldAvatarPublicId != null
+                    && !oldAvatarPublicId.isBlank()) {
+                try {
+                    cloudinaryService.deleteFile(oldAvatarPublicId);
+                } catch (Exception e) {
+                    log.warn("Không thể xóa avatar cũ: {}", oldAvatarPublicId, e);
+                }
+            }
+
+            return userMapper.toResponse(savedUser);
+
+        } catch (AppException e) {
+            if (newAvatarPublicId != null) {
+                try {
+                    cloudinaryService.deleteFile(newAvatarPublicId);
+                } catch (Exception ex) {
+                    log.warn("Không thể xóa avatar mới sau khi update thất bại", ex);
+                }
+            }
+            throw e;
+        } catch (Exception e) {
+            log.error("Lỗi khi cập nhật thông tin người dùng: {}", e.getMessage(), e);
+
+            if (newAvatarPublicId != null) {
+                try {
+                    cloudinaryService.deleteFile(newAvatarPublicId);
+                } catch (Exception ex) {
+                    log.warn("Không thể xóa avatar mới sau khi update thất bại", ex);
+                }
+            }
+
+            throw new AppException(ErrorCode.UPDATE_USER_FAILED);
+        }
     }
 
     public ReviewResponse createReview(CreateReviewRequest request) {
@@ -232,5 +297,10 @@ public class UserService {
                 .comment(review.getContent())
                 .createdAt(review.getCreatedAt())
                 .build();
+    }
+
+    public UploadResult uploadAvatar(UploadAvatarRequest request) {
+        UploadResult uploadResult = cloudinaryService.uploadFile(request.getAvatar(), "avatars");
+        return uploadResult;
     }
 }

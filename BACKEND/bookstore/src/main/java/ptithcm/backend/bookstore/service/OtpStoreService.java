@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ptithcm.backend.bookstore.exception.AppException;
+import ptithcm.backend.bookstore.exception.ErrorCode;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -24,21 +26,25 @@ public class OtpStoreService {
         return expiryTime; // Trả về thời gian hết hạn
     }
 
-    public boolean verifyOtp(String email, String otp) {
+    public Boolean verifyOtp(String email, String otp) {
         OtpData data = otpStorage.get(email);
 
-        if (data == null) return false;
+        if (data == null) {
+            throw new AppException(ErrorCode.OTP_NOT_FOUND);
+        }
+
         if (LocalDateTime.now().isAfter(data.expiredAt())) {
             otpStorage.remove(email);
-            return false;
+            throw new AppException(ErrorCode.OTP_EXPIRED);
         }
 
-        boolean matched = data.otp().equals(otp);
-        if (matched) {
-            otpStorage.remove(email);
+        if (!data.otp().equals(otp)) {
+            throw new AppException(ErrorCode.OTP_INVALID);
         }
 
-        return matched;
+        // đúng OTP → xóa
+        otpStorage.remove(email);
+        return true;
     }
 
     public record OtpData(String otp, LocalDateTime expiredAt) {}
