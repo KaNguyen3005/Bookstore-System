@@ -15,6 +15,7 @@ import ptithcm.backend.bookstore.dto.response.IntrospectResponse;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.service.AuthenticationService;
 import ptithcm.backend.bookstore.service.GoogleAuthService;
+import ptithcm.backend.bookstore.service.OtpService;
 
 import java.text.ParseException;
 
@@ -25,7 +26,7 @@ import java.text.ParseException;
 public class AuthenticationController {
     AuthenticationService authenticationService;
     GoogleAuthService googleAuthService;
-
+    OtpService otpService;
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) throws ParseException, JOSEException {
         var result = authenticationService.authenticate(request);
@@ -73,4 +74,26 @@ public class AuthenticationController {
                 .result(authenticationService.register(request))
                 .build();
     }
+
+    @PostMapping("/reset-password/init")
+    public ApiResponse<Boolean> isExistingEmail(@RequestBody ResetPasswordRequest request) {
+        return ApiResponse.<Boolean>builder()
+                .result(authenticationService.isExistingEmail(request.getEmail()))
+                .build();
+    }
+
+    @PostMapping("/reset-password/verify")
+    public ApiResponse<Boolean> verifyOtp(@RequestBody ResetPasswordRequest request) {
+        return ApiResponse.<Boolean>builder()
+                .result(otpService.verifyOtp(request.getEmail(), request.getOtp()))
+                .build();
+    }
+
+    @PostMapping("/reset-password/complete")
+    public ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authenticationService.resetPassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Password reset successful")
+                .build();
+        }
 }

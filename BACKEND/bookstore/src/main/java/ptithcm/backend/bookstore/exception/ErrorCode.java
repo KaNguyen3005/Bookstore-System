@@ -31,6 +31,8 @@ public enum ErrorCode {
     INVALID_NAME(2012, "Name must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
     INVALID_GENDER(2013, "Gender must be MALE or FEMALE or OTHER", HttpStatus.BAD_REQUEST),
     INVALID_ACCOUNT_STATUS(2014, "Account status not null", HttpStatus.BAD_REQUEST),
+    UPDATE_USER_FAILED(2015, "Update user failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    USERNAME_CHANGE_LIMITED(2016, "Username can only be changed once", HttpStatus.BAD_REQUEST),
     // ===== BOOK (3xxx) =====
     INVALID_TITLE(3001, "Title must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
     INVALID_AUTHOR_IDS(3002, "Must have at least 1 author", HttpStatus.BAD_REQUEST),
@@ -110,8 +112,11 @@ public enum ErrorCode {
     INSUFFICIENT_STOCK(8802, "Not enough stock available", HttpStatus.BAD_REQUEST),
     INVALID_RATING(8803, "Rating must be between {min} and {max}", HttpStatus.BAD_REQUEST),
     // ===== CART (9xxx) =====
-    INVALID_QUANTITY(9001, "Quantity must be between {min} and {max}", HttpStatus.BAD_REQUEST);
-
+    INVALID_QUANTITY(9001, "Quantity must be between {min} and {max}", HttpStatus.BAD_REQUEST),
+    // ===== OTP (91xx) =====
+    OTP_NOT_FOUND(9101, "OTP not found", HttpStatus.NOT_FOUND),
+    OTP_EXPIRED(9102, "OTP has expired", HttpStatus.BAD_REQUEST),
+    OTP_INVALID(9103, "Invalid OTP", HttpStatus.BAD_REQUEST);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;

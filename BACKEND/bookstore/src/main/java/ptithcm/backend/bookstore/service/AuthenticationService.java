@@ -111,7 +111,7 @@ public class AuthenticationService {
         Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         LocalDateTime expiresAt = LocalDateTime.ofInstant(expiryTime.toInstant(), java.time.ZoneId.systemDefault());
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).expiresAt(expiresAt).build();
+        return AuthenticationResponse.builder().token(token).authenticated(true).expiredAt(expiresAt).build();
     }
 
     public String generateToken(User user) {
@@ -312,13 +312,23 @@ public class AuthenticationService {
         LocalDateTime expiredTime = otpService.sendOtp(request.getEmail());
         return AuthenticationResponse.builder()
                 .authenticated(true)
-                .expiresAt(expiredTime)
+                .expiredAt(expiredTime)
                 .build();
+    }
+
+    public Boolean isExistingEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     public UserResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
-        otpService.verifyOtp(request.getEmail(), request.getOtp());
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 

@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigInteger;
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,15 +31,20 @@ public class User {
     String name;
     String email;
     String phone;
-    boolean status;
+    Boolean status;
     String gender;
-    boolean isChangeAccount;
+    Boolean isChangeAccount;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
     Role role;
 
-    long point;
+    @Column(nullable = false)
+    String tier = "BRONZE"; // Bronze, Silver, Gold
+
+    @Column(nullable = false)
+    Long point = 0L;
+
     LocalDateTime dob;
 
     @ManyToMany()
@@ -56,14 +61,30 @@ public class User {
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
-
+    String avatarUrl;
     String authProvider;   // LOCAL, GOOGLE
     String providerId;     // Google sub
     Boolean emailVerified;
     @OneToMany(mappedBy = "customer")
     List<InteractEvent> interactEvents;
-
+    String publicIdAvatar;
     @UpdateTimestamp
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) {
+            status = true; // Mặc định là active
+        }
+        if(point == null) {
+            point = 0L; // Mặc định điểm là 0
+        }
+        if(tier == null) {
+            tier = "BRONZE"; // Mặc định là hạng Bronze
+        }
+        if (isChangeAccount == null) {
+            isChangeAccount = false; // Mặc định chưa đổi tài khoản
+        }
+    }
 }

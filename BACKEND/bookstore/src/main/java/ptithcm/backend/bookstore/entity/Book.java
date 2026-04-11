@@ -71,7 +71,7 @@ public class Book {
     Integer length;
     Integer height;
     Double weight;
-
+    String publicIdCoverImage;
     @OneToMany(mappedBy = "book")
     List<BookCart> bookCarts;
 

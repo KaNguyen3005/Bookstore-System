@@ -14,5 +14,5 @@ import java.time.LocalDateTime;
 public class AuthenticationResponse {
     String token;
     boolean authenticated;
-    LocalDateTime expiresAt;
+    LocalDateTime expiredAt;
 }

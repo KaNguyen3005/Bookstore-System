@@ -3,6 +3,7 @@ package ptithcm.backend.bookstore.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.mapping.Set;
+import ptithcm.backend.bookstore.enums.Tier;
 
 import java.time.LocalDateTime;
 
@@ -19,4 +20,7 @@ public class UserResponse {
     String phone;
     String dob;
     String role;
+    String avatarUrl;
+    String tier;
+    Long point;
 }
