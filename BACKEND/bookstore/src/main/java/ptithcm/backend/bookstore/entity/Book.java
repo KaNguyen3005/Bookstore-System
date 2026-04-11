@@ -67,6 +67,10 @@ public class Book {
     )
     Set<Category> categories = new HashSet<>();
     boolean isActive;
+    Integer width;
+    Integer length;
+    Integer height;
+    Double weight;
 
     @OneToMany(mappedBy = "book")
     List<BookCart> bookCarts;

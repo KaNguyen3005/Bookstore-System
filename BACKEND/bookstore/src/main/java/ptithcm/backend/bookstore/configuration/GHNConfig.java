@@ -5,11 +5,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "vnpay")
+@ConfigurationProperties(prefix = "ghn")
 @Data
-public class VNPayConfig {
-    String tmnCode;
-    String hashSecret;
-    String url;
-    String returnUrl;
+public class GHNConfig {
+    String token;
+    String shopId;
+    String clientId;
+    String webhookUrl;
 }

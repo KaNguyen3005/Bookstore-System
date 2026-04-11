@@ -4,6 +4,7 @@ package ptithcm.backend.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ptithcm.backend.bookstore.enums.ShippingStatus;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class Shipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shipment_id")
-    Long shipment_id;
+    Long shipmentId;
 
     @OneToOne
     @JoinColumn(name = "order_id")
@@ -27,7 +28,7 @@ public class Shipment {
 
     String trackingNumber;
     String carrierName;
-    int status;
+    ShippingStatus status;
     LocalDateTime estimatedDeliveryDate;
     LocalDateTime actualDeliveryDate;
 
@@ -38,4 +39,8 @@ public class Shipment {
     String customerName;
     String customerPhone;
 
+    Integer weight;
+    Integer length;
+    Integer width;
+    Integer height;
 }
