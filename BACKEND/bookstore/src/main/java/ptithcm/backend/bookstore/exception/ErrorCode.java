@@ -18,14 +18,19 @@ public enum ErrorCode {
 
     // ===== USER (2xxx) =====
     USER_ALREADY_EXISTS(2001, "User already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
-    USERNAME_INVALID(2002, "Username must be at least {min} characters", HttpStatus.BAD_REQUEST),
+    INVALID_USERNAME(2002, "Username must be at least {min} characters", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(2003, "Password must be at least {min} characters", HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(2004, "User not found", HttpStatus.NOT_FOUND),
-    INVALID_DOB(2005, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    INVALID_DOB(2005, "Your age must be {regexp}", HttpStatus.BAD_REQUEST),
     EMAIL_ALREADY_EXISTS(2006, "Email already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
     PHONE_ALREADY_EXISTS(2007, "Phone already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
     USER_ALREADY_DELETED(2008, "User already deleted", HttpStatus.BAD_REQUEST),
-
+    INVALID_EMAIL(2009, "Invalid email format", HttpStatus.BAD_REQUEST),
+    INVALID_PHONE(2010, "Invalid phone number format", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD(2011, "Password must be at least {min} characters and contain at least one uppercase letter, one lowercase letter, one digit, and one special character", HttpStatus.BAD_REQUEST),
+    INVALID_NAME(2012, "Name must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
+    INVALID_GENDER(2013, "Gender must be MALE or FEMALE or OTHER", HttpStatus.BAD_REQUEST),
+    INVALID_ACCOUNT_STATUS(2014, "Account status not null", HttpStatus.BAD_REQUEST),
     // ===== BOOK (3xxx) =====
     INVALID_TITLE(3001, "Title must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
     INVALID_AUTHOR_IDS(3002, "Must have at least 1 author", HttpStatus.BAD_REQUEST),
@@ -43,20 +48,26 @@ public enum ErrorCode {
     INVALID_CATEGORY_IDS(3014, "Must have at least 1 category", HttpStatus.BAD_REQUEST),
     BOOK_NOT_FOUND(3015, "Book not found", HttpStatus.NOT_FOUND),
     BOOK_ALREADY_DELETED(3016, "Book already deleted", HttpStatus.BAD_REQUEST),
+    INVALID_COMMENT(3017, "Comment must not exceed {max} characters", HttpStatus.BAD_REQUEST),
     // ===== PEOPLE (4xxx) =====
     AUTHOR_NOT_FOUND(4001, "Author not found", HttpStatus.NOT_FOUND),
 
-    // ===== ADDRESS (4.5xxx) =====
+    // ===== ADDRESS (41xx) =====
     ADDRESS_NOT_FOUND(4101, "Address not found", HttpStatus.NOT_FOUND),
     CART_NOT_FOUND(4102, "Cart not found", HttpStatus.NOT_FOUND),
     CART_ITEM_NOT_FOUND(4103, "Cart item not found", HttpStatus.NOT_FOUND),
-
+    INVALID_PROVINCE(4104, "Invalid province", HttpStatus.BAD_REQUEST),
+    INVALID_DISTRICT(4105, "Invalid district", HttpStatus.BAD_REQUEST),
+    INVALID_WARD(4106, "Invalid ward", HttpStatus.BAD_REQUEST),
+    INVALID_DETAIL_ADDRESS(4107, "Invalid detail address", HttpStatus.BAD_REQUEST),
     // ===== PARTNER (5xxx) =====
     SUPPLIER_NOT_FOUND(5001, "Supplier not found", HttpStatus.NOT_FOUND),
     PUBLISHER_NOT_FOUND(5002, "Publisher not found", HttpStatus.NOT_FOUND),
 
     // ===== CATEGORY (60xx) =====
     CATEGORY_NOT_FOUND(6001, "Category not found", HttpStatus.NOT_FOUND),
+    INVALID_CATEGORY_NAME(6002, "Category name must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
+    INVALID_PARENT_ID(6003, "Parent category not found", HttpStatus.BAD_REQUEST),
     // ===== ROLE (61xx) =====
     ROLE_NOT_FOUND(6101, "Role not found", HttpStatus.NOT_FOUND),
     // ===== PERMISSION (62xx) =====
@@ -69,7 +80,8 @@ public enum ErrorCode {
     // ===== VOUCHER (7.5xxx) =====
     VOUCHER_NOT_FOUND(7101, "Voucher not found", HttpStatus.NOT_FOUND),
     VOUCHER_ALREADY_EXISTS(7102, "Voucher code already exists", HttpStatus.CONFLICT),
-
+    INVALID_VOUCHER_CODE(7103, "Voucher code must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
+    INVALID_NOTE(7104, "Note must not exceed {max} characters", HttpStatus.BAD_REQUEST),
     // ===== ORDER (8xxx) =====
     ORDER_NOT_FOUND(8001, "Order not found", HttpStatus.NOT_FOUND),
     ORDER_ALREADY_CANCELLED(8002, "Order already cancelled", HttpStatus.BAD_REQUEST),
@@ -88,13 +100,17 @@ public enum ErrorCode {
     PAYMENT_AMOUNT_MISMATCH(8506, "Payment amount does not match order", HttpStatus.BAD_REQUEST),
     PAYMENT_EXPIRED(8507, "Payment session has expired", HttpStatus.BAD_REQUEST),
     PAYMENT_METHOD_NOT_SUPPORTED(8508, "Payment method not supported", HttpStatus.BAD_REQUEST),
+    INVALID_PAYMENT_METHOD(8509, "Invalid payment method", HttpStatus.BAD_REQUEST),
     // ===== SHIPMENT (86xx) =====
     SHIPMENT_NOT_FOUND(8601, "Shipment not found", HttpStatus.NOT_FOUND),
     GHN_CREATE_ORDER_FAILED(8602, "Failed to create shipping order with GHN", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_ORDER_STATUS(8603, "Order status does not allow shipment creation", HttpStatus.BAD_REQUEST),
     // ===== STOCK (8x8x) =====
     OUT_OF_STOCK(8801, "Book is out of stock", HttpStatus.BAD_REQUEST),
-    INSUFFICIENT_STOCK(8802, "Not enough stock available", HttpStatus.BAD_REQUEST);
+    INSUFFICIENT_STOCK(8802, "Not enough stock available", HttpStatus.BAD_REQUEST),
+    INVALID_RATING(8803, "Rating must be between {min} and {max}", HttpStatus.BAD_REQUEST),
+    // ===== CART (9xxx) =====
+    INVALID_QUANTITY(9001, "Quantity must be between {min} and {max}", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

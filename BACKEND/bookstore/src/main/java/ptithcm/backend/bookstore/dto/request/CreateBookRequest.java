@@ -17,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class CreateBookRequest {
+
     @NotBlank(message = "INVALID_TITLE")
     @Size(max = 255, message = "INVALID_TITLE")
     String title;
@@ -24,8 +25,7 @@ public class CreateBookRequest {
     @NotEmpty(message = "INVALID_AUTHOR_IDS")
     Set<Integer> authorIds = new HashSet<>();
 
-    @NotBlank(message = "INVALID_PUBLISHER_ID")
-    Integer publisherId;
+    Integer publisherId; // bỏ validate ID theo rule mới
 
     @NotBlank(message = "INVALID_ISBN")
     @Pattern(regexp = "^(97[89])?\\d{9}(\\d|X)$", message = "INVALID_ISBN")

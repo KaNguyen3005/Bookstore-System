@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.utils.OtpUtil;
 
+import java.time.LocalDateTime;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -16,10 +18,17 @@ public class OtpService {
     EmailService emailService;
     OtpStoreService otpStoreService;
 
-    public void sendOtp(String email) {
+    public LocalDateTime sendOtp(String email) {
         String otp = OtpUtil.generateOtp();
-        otpStoreService.saveOtp(email, otp);
+
+        // Lưu và nhận lại thời gian hết hạn
+        LocalDateTime expiryTime = otpStoreService.saveOtp(email, otp);
+
+        // Gửi email (vẫn tiếp tục xử lý)
         emailService.sendOtpEmail(email, otp);
+
+        // Trả về thời gian kết thúc cho Controller hoặc Service lớp trên
+        return expiryTime;
     }
 
     public boolean verifyOtp(String email, String otp) {

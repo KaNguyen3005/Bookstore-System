@@ -3,18 +3,12 @@ package ptithcm.backend.bookstore.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SignUpRequest {
-    String email;
-    String username;
-    String password;
-    String firstName;
-    String lastName;
-    LocalDateTime dob;
+public class GoogleLoginRequest {
+    String idToken;
 }

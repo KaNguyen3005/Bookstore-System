@@ -1,5 +1,8 @@
 package ptithcm.backend.bookstore.dto.request;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,6 +13,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 public class OrderItemRequest {
     Integer bookId;
+
+    @Min(value = 1, message = "INVALID_QUANTITY")
+    @Max(value = 999, message = "INVALID_QUANTITY")
     int quantity;
-    String note;      // ghi chú
+
+    @Size(max = 255, message = "INVALID_NOTE")
+    String note; // ghi chú
 }

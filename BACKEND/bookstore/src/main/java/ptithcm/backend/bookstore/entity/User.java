@@ -57,6 +57,9 @@ public class User {
     @Column(updatable = false)
     LocalDateTime createdAt;
 
+    String authProvider;   // LOCAL, GOOGLE
+    String providerId;     // Google sub
+    Boolean emailVerified;
     @OneToMany(mappedBy = "customer")
     List<InteractEvent> interactEvents;
 

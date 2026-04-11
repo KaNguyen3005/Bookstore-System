@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,9 +12,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CheckoutSessionRequest {
     Long orderId;
-    String paymentMethod; // VNPAY, MOMO, ZALOPAY, COD
-    String bankCode; // Mã ngân hàng (tùy chọn)
-    String language; // Ngôn ngữ (VN, EN)
-    String returnUrl; // URL trở về sau thanh toán
-    String cancelUrl; // URL khi hủy
+    @NotBlank(message = "INVALID_PAYMENT_METHOD")
+    @Pattern(regexp = "VNPAY|COD", message = "INVALID_PAYMENT_METHOD")
+    String paymentMethod; // VNPAY, COD
 }

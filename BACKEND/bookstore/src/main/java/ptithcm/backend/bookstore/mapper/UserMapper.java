@@ -4,6 +4,7 @@
     import org.mapstruct.Mapping;
     import ptithcm.backend.bookstore.dto.request.CreateAuthorRequest;
     import ptithcm.backend.bookstore.dto.request.CreateUserRequest;
+    import ptithcm.backend.bookstore.dto.request.RegisterRequest;
     import ptithcm.backend.bookstore.dto.response.AuthorResponse;
     import ptithcm.backend.bookstore.dto.response.UserResponse;
     import ptithcm.backend.bookstore.entity.Author;
@@ -15,7 +16,7 @@
     @Mapper(componentModel = "spring")
     public interface UserMapper {
         User toEntity(CreateUserRequest request);
-
+        User toEntity(RegisterRequest request);
         @Mapping(source = "userId", target="userId")
         UserResponse toResponse(User user);
         default String map(Role role) {
