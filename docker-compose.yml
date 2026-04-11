@@ -36,5 +36,5 @@ services:
 volumes:
   mysql_data:
 
-#docker build -t kanguyen3005/bookstore-backend:latest ./backend/bookstore
-#docker push kanguyen3005/bookstore-backend:latest
+#docker build -t morex3/bookstore-backend:latest ./backend/bookstore
+#docker push morex3/bookstore-backend:latest

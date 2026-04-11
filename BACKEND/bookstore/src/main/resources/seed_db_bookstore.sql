@@ -222,8 +222,7 @@ VALUES
 INSERT INTO `shipments`
 (`shipment_id`, `order_id`, `carrier_name`, `tracking_number`, `customer_name`, `customer_phone`, `detail_address`, `ward`, `district`, `province`, `estimated_delivery_date`, `actual_delivery_date`, `status`)
 VALUES
-(1, 1, 'Giao Hàng Nhanh', 'GHN000001', 'Nguyễn Văn Sơn', '0901000003', '12 Nguyễn Huệ', 'Bến Nghé', 'Quận 1', 'TP. Hồ Chí Minh', '2026-04-10 18:00:00', '2026-04-09 15:20:00', 2),
-(2, 2, 'Giao Hàng Tiết Kiệm', 'GHTK000002', 'Trần Lan Anh', '0901000004', '45 Võ Thị Sáu', 'Thống Nhất', 'Biên Hòa', 'Đồng Nai', '2026-04-11 18:00:00', NULL, 1);
+(2, 2, 'Giao Hàng Tiết Kiệm', 'LHQAQ9', 'Trần Lan Anh', '0901000004', '45 Võ Thị Sáu', 'Thống Nhất', 'Biên Hòa', 'Đồng Nai', '2026-04-11 18:00:00', NULL, 1);
 
 -- =====================================================
 -- 8. REVIEW + INTERACT EVENT + TOKEN

@@ -63,4 +63,8 @@ public class OrderController {
                 .build();
     }
 
+    @PutMapping("/{orderId}/approve")
+    public OrderResponse approveOrder(@PathVariable Long orderId) {
+        return orderService.approveOrder(orderId);
+    }
 }

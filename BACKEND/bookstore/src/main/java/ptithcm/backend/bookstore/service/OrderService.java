@@ -6,16 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ptithcm.backend.bookstore.configuration.GHNConfig;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.OrderItemRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
+import ptithcm.backend.bookstore.dto.response.RevenueResponse;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.entity.*;
-import ptithcm.backend.bookstore.enums.OrderStatus;
-import ptithcm.backend.bookstore.enums.PaymentMethod;
-import ptithcm.backend.bookstore.enums.PaymentStatus;
-import ptithcm.backend.bookstore.enums.VoucherType;
+import ptithcm.backend.bookstore.enums.*;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.OrderMapper;
@@ -23,6 +22,7 @@ import ptithcm.backend.bookstore.repository.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -33,19 +33,42 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
+    private final ShipmentRepository shipmentRepository;
     PaymentRepository paymentRepository;
     BookRepository bookRepository;
     VoucherRepository voucherRepository;
     AddressRepository addressRepository;
     OrderRepository orderRepository;
     UserRepository userRepository;
-
     UserService userService;
     OrderMapper orderMapper;
-    
+    GHNService ghnService;
     public List<OrderResponse> getAll() {
-        return orderRepository.findAll().stream()
-                .map(orderMapper::toResponse)
+
+        List<Order> orders = orderRepository.findAll();
+
+        List<Long> orderIds = orders.stream()
+                .map(Order::getOrderId)
+                .toList();
+
+        Map<Long, Shipment> shipmentMap = shipmentRepository.findByOrderIds(orderIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        s -> s.getOrder().getOrderId(),
+                        s -> s
+                ));
+
+        return orders.stream()
+                .map(order -> {
+                    OrderResponse response = orderMapper.toResponse(order);
+
+                    Shipment shipment = shipmentMap.get(order.getOrderId());
+                    if (shipment != null) {
+                        response.setShippingStatus(shipment.getStatus());
+                    }
+
+                    return response;
+                })
                 .toList();
     }
 
@@ -181,6 +204,19 @@ public class OrderService {
 
         // 15. Lưu order
         Order savedOrder = orderRepository.save(order);
+        // 15.1 Tạo shipment nội bộ
+        Shipment shipment = Shipment.builder()
+                .order(savedOrder)
+                .customerName(customer.getName())
+                .customerPhone(customer.getPhone())
+                .detailAddress(address.getDetailAddress())
+                .ward(address.getWard())
+                .district(address.getDistrict())
+                .province(address.getProvince())
+                .status(ShippingStatus.PENDING)
+                .build();
+
+        shipmentRepository.save(shipment);
 
         // 16. Cập nhật voucher nếu được sử dụng
         if (voucher != null) {
@@ -231,6 +267,31 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponse approveOrder(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        Shipment shipment = shipmentRepository.findByOrder_OrderId(order.getOrderId())
+                .orElseThrow(() -> new AppException(ErrorCode.SHIPMENT_NOT_FOUND));
+
+        String ghnOrderCode = ghnService.createShippingOrder(order);
+
+        shipment.setTrackingNumber(ghnOrderCode);
+        shipment.setStatus(ShippingStatus.READY_TO_SHIP);
+
+        order.setStatus(OrderStatus.CONFIRMED);
+
+        shipmentRepository.save(shipment);
+        orderRepository.save(order);
+
+        return orderMapper.toResponse(order);
+    }
+    @Transactional
     public void cancelOrder(Integer id) {
         // 1. Lấy thông tin user hiện tại
         UserResponse userResponse = userService.getMyInfo();
@@ -272,5 +333,25 @@ public class OrderService {
         }
 
         log.info("Order cancelled successfully - OrderId: {}, CustomerId: {}", order.getOrderId(), customer.getUserId());
+    }
+
+    public List<RevenueResponse> getRevenue(LocalDate from, LocalDate to, String groupBy) {
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(23, 59, 59);
+
+        String normalized = groupBy == null ? "day" : groupBy.trim().toLowerCase();
+
+        List<Object[]> rows = switch (normalized) {
+            case "month" -> orderRepository.getRevenueByMonth(fromDateTime, toDateTime, OrderStatus.COMPLETED.ordinal());
+            case "year" -> orderRepository.getRevenueByYear(fromDateTime, toDateTime, OrderStatus.COMPLETED.ordinal());
+            default -> orderRepository.getRevenueByDay(fromDateTime, toDateTime, OrderStatus.COMPLETED.ordinal());
+        };
+
+        return rows.stream()
+                .map(row -> new RevenueResponse(
+                        row[0].toString(),
+                        (BigDecimal) row[1]
+                ))
+                .toList();
     }
 }

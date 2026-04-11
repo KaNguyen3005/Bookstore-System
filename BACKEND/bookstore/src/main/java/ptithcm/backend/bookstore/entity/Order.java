@@ -51,7 +51,6 @@ public class Order {
     @JoinColumn(name = "staff_id")
     User staff;
 
-
     @ManyToOne
     @JoinColumn(name = "customer_id")
     User customer;
@@ -60,9 +59,8 @@ public class Order {
     @Column(updatable = false)
     LocalDateTime createdAt;
 
+    @Enumerated
     OrderStatus status;
-
-
 
     @UpdateTimestamp
     LocalDateTime updatedAt;

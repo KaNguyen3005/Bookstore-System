@@ -79,7 +79,7 @@ public enum ErrorCode {
     ORDER_ITEM_NOT_FOUND(8006, "Order item not found", HttpStatus.NOT_FOUND),
     ORDER_IS_EMPTY(8007, "Order must have at least 1 item", HttpStatus.BAD_REQUEST),
 
-    // ===== PAYMENT (8x5x) =====
+    // ===== PAYMENT (85xx) =====
     PAYMENT_NOT_FOUND(8501, "Payment not found", HttpStatus.NOT_FOUND),
     PAYMENT_ALREADY_SUCCESS(8502, "Payment already success", HttpStatus.BAD_REQUEST),
     PAYMENT_ALREADY_FAILED(8503, "Payment already failed", HttpStatus.BAD_REQUEST),
@@ -88,7 +88,10 @@ public enum ErrorCode {
     PAYMENT_AMOUNT_MISMATCH(8506, "Payment amount does not match order", HttpStatus.BAD_REQUEST),
     PAYMENT_EXPIRED(8507, "Payment session has expired", HttpStatus.BAD_REQUEST),
     PAYMENT_METHOD_NOT_SUPPORTED(8508, "Payment method not supported", HttpStatus.BAD_REQUEST),
-
+    // ===== SHIPMENT (86xx) =====
+    SHIPMENT_NOT_FOUND(8601, "Shipment not found", HttpStatus.NOT_FOUND),
+    GHN_CREATE_ORDER_FAILED(8602, "Failed to create shipping order with GHN", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_ORDER_STATUS(8603, "Order status does not allow shipment creation", HttpStatus.BAD_REQUEST),
     // ===== STOCK (8x8x) =====
     OUT_OF_STOCK(8801, "Book is out of stock", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_STOCK(8802, "Not enough stock available", HttpStatus.BAD_REQUEST);
