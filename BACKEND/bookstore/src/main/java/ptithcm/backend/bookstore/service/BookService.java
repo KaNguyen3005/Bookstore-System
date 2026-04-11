@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
+import ptithcm.backend.bookstore.dto.response.ReviewResponse;
 import ptithcm.backend.bookstore.dto.response.UploadResult;
 import ptithcm.backend.bookstore.entity.*;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.BookMapper;
+import ptithcm.backend.bookstore.mapper.ReviewMapper;
 import ptithcm.backend.bookstore.repository.*;
 
 import java.math.BigDecimal;
@@ -35,6 +37,7 @@ public class BookService {
     BookRepository bookRepository;
     BookMapper bookMapper;
     CloudinaryService cloudinaryService;
+    ReviewMapper reviewMapper;
 
     @Transactional
     public BookResponse create(CreateBookRequest request) {
@@ -227,5 +230,16 @@ public class BookService {
         book.setUpdatedAt(LocalDateTime.now());
 
         return bookMapper.toResponse(book);
+    }
+
+    public List<ReviewResponse> getAllReview(Integer bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
+
+        List<ReviewResponse> reviews = new ArrayList<>();
+        for (Review review : book.getReviews()) {
+            reviews.add(reviewMapper.toResponse(review));
+        }
+        return reviews;
     }
 }

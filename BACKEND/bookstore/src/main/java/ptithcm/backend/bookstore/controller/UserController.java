@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.*;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
+import ptithcm.backend.bookstore.dto.response.ReviewResponse;
 import ptithcm.backend.bookstore.dto.response.RoleResponse;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.service.UserService;
@@ -73,6 +74,13 @@ public class UserController {
     ApiResponse<UserResponse> updateMyInfo(@RequestBody UpdateMyInfoRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.updateMyInfo(request));
+        return apiResponse;
+    }
+
+    @PostMapping("/reviews")
+    ApiResponse<ReviewResponse> createReview(@RequestBody CreateReviewRequest request){
+        ApiResponse<ReviewResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.createReview(request));
         return apiResponse;
     }
 }
