@@ -33,7 +33,7 @@ public class Review {
     User customer;
 
     String content;
-    int rating;
+    Integer rating;
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;

@@ -11,6 +11,8 @@ import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
+import ptithcm.backend.bookstore.dto.response.ReviewResponse;
+import ptithcm.backend.bookstore.entity.Review;
 import ptithcm.backend.bookstore.service.BookService;
 
 import java.math.BigDecimal;
@@ -21,7 +23,7 @@ import java.util.List;
 @Slf4j
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("api/books")
+@RequestMapping("api/v1/books")
 public class BookController {
     BookService bookService;
 
@@ -74,6 +76,13 @@ public class BookController {
 
         apiResponse.setResult(bookService.update(id, request));
 
+        return apiResponse;
+    }
+
+    @GetMapping("{id}/reviews")
+    ApiResponse<List<ReviewResponse>> getAllReview(@PathVariable("id") Integer id) {
+        ApiResponse<List<ReviewResponse>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(bookService.getAllReview(id));
         return apiResponse;
     }
 }
