@@ -45,7 +45,7 @@ public class UserService {
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Role role = roleRepository.findById(request.getRoleId())
+        Role role = roleRepository.findByRoleName(request.getRoleName())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         user.setRole(role);

@@ -16,5 +16,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class ChangeStatusAccountRequest {
-   Boolean status;
+    @NotNull(message = "INVALID_ACCOUNT_STATUS")
+    Boolean status;
 }

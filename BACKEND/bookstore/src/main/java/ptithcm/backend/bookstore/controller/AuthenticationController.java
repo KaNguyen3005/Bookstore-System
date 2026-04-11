@@ -8,14 +8,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ptithcm.backend.bookstore.dto.request.AuthenticationRequest;
-import ptithcm.backend.bookstore.dto.request.IntrospectRequest;
-import ptithcm.backend.bookstore.dto.request.LogoutRequest;
-import ptithcm.backend.bookstore.dto.request.RefreshRequest;
+import ptithcm.backend.bookstore.dto.request.*;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.dto.response.AuthenticationResponse;
 import ptithcm.backend.bookstore.dto.response.IntrospectResponse;
+import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.service.AuthenticationService;
+import ptithcm.backend.bookstore.service.GoogleAuthService;
 
 import java.text.ParseException;
 
@@ -25,9 +24,10 @@ import java.text.ParseException;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
     AuthenticationService authenticationService;
+    GoogleAuthService googleAuthService;
 
-    @PostMapping("/token")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    @PostMapping("/login")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) throws ParseException, JOSEException {
         var result = authenticationService.authenticate(request);
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
@@ -50,5 +50,27 @@ public class AuthenticationController {
             throws ParseException, JOSEException {
         var result = authenticationService.refreshToken(request);
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+    }
+
+    @PostMapping("/google")
+    public ApiResponse<AuthenticationResponse> loginWithGoogle(@RequestBody GoogleLoginRequest request) {
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(googleAuthService.loginWithGoogle(request))
+                .build();
+    }
+
+    @PostMapping("/register/init")
+    public ApiResponse<AuthenticationResponse> validateUserInfo(@RequestBody RegisterRequest request) {
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(authenticationService.validateUserInfo(request))
+                .build();
+    }
+
+
+    @PostMapping("/register/complete")
+    public ApiResponse<UserResponse> register(@RequestBody RegisterRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(authenticationService.register(request))
+                .build();
     }
 }

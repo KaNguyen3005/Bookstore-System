@@ -18,8 +18,10 @@ public class OtpStoreService {
 
     private final Map<String, OtpData> otpStorage = new ConcurrentHashMap<>();
 
-    public void saveOtp(String email, String otp) {
-        otpStorage.put(email, new OtpData(otp, LocalDateTime.now().plusMinutes(5)));
+    public LocalDateTime saveOtp(String email, String otp) {
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
+        otpStorage.put(email, new OtpData(otp, expiryTime));
+        return expiryTime; // Trả về thời gian hết hạn
     }
 
     public boolean verifyOtp(String email, String otp) {

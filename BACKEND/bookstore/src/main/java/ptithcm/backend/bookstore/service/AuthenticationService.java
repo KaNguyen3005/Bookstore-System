@@ -15,22 +15,23 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import ptithcm.backend.bookstore.dto.request.AuthenticationRequest;
-import ptithcm.backend.bookstore.dto.request.IntrospectRequest;
-import ptithcm.backend.bookstore.dto.request.LogoutRequest;
-import ptithcm.backend.bookstore.dto.request.RefreshRequest;
+import ptithcm.backend.bookstore.dto.request.*;
 import ptithcm.backend.bookstore.dto.response.AuthenticationResponse;
 import ptithcm.backend.bookstore.dto.response.IntrospectResponse;
+import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.entity.InvalidatedToken;
 import ptithcm.backend.bookstore.entity.Role;
 import ptithcm.backend.bookstore.entity.User;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
+import ptithcm.backend.bookstore.mapper.UserMapper;
 import ptithcm.backend.bookstore.repository.InvalidatedTokenRepository;
+import ptithcm.backend.bookstore.repository.RoleRepository;
 import ptithcm.backend.bookstore.repository.UserRepository;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
@@ -41,10 +42,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
+    private final RoleRepository roleRepository;
 
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
-
+    UserMapper userMapper;
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    OtpService otpService;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
@@ -91,7 +95,7 @@ public class AuthenticationService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) throws ParseException, JOSEException {
         User user = userRepository
                 .findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -102,11 +106,15 @@ public class AuthenticationService {
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         var token = generateToken(user);
+        SignedJWT signedJWT = verifyToken(token, false);
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        LocalDateTime expiresAt = LocalDateTime.ofInstant(expiryTime.toInstant(), java.time.ZoneId.systemDefault());
+
+        return AuthenticationResponse.builder().token(token).authenticated(true).expiresAt(expiresAt).build();
     }
 
-    private String generateToken(User user) {
+    public String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         // Khởi tạo đối tượng JWTClaimsSet bằng Builder pattern
@@ -298,5 +306,27 @@ public class AuthenticationService {
 
         // Trả về response chứa token mới và trạng thái authenticated = true
         return AuthenticationResponse.builder().token(token).authenticated(true).build();
+    }
+
+    public AuthenticationResponse validateUserInfo(RegisterRequest request) {
+        LocalDateTime expiredTime = otpService.sendOtp(request.getEmail());
+        return AuthenticationResponse.builder()
+                .authenticated(true)
+                .expiresAt(expiredTime)
+                .build();
+    }
+
+    public UserResponse register(RegisterRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
+        otpService.verifyOtp(request.getEmail(), request.getOtp());
+        User user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        Role role = roleRepository.findByRoleName(ptithcm.backend.bookstore.enums.Role.CUSTOMER.name())
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+        user.setRole(role);
+
+        return userMapper.toResponse(userRepository.save(user));
     }
 }

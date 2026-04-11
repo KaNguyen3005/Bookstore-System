@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class UserController {
 
 
     @PostMapping()
-    ApiResponse<UserResponse> create(@RequestBody CreateUserRequest request){
+    ApiResponse<UserResponse> create(@RequestBody @Valid CreateUserRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.create(request));
         return apiResponse;
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    ApiResponse<UserResponse> update(@PathVariable("id") Long id, @RequestBody UpdateUserRequest request){
+    ApiResponse<UserResponse> update(@PathVariable("id") Long id, @RequestBody @Valid UpdateUserRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(userService.update(id, request));
@@ -57,7 +58,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/status")
-    ApiResponse<Void> changeStatusAccount(@PathVariable("id") Long id, @RequestBody ChangeStatusAccountRequest request){
+    ApiResponse<Void> changeStatusAccount(@PathVariable("id") Long id, @RequestBody @Valid ChangeStatusAccountRequest request){
         ApiResponse<Void> apiResponse = new ApiResponse<>();
         userService.changeStatusAccount(id, request);
         return apiResponse;
@@ -71,14 +72,14 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    ApiResponse<UserResponse> updateMyInfo(@RequestBody UpdateMyInfoRequest request){
+    ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UpdateMyInfoRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.updateMyInfo(request));
         return apiResponse;
     }
 
     @PostMapping("/reviews")
-    ApiResponse<ReviewResponse> createReview(@RequestBody CreateReviewRequest request){
+    ApiResponse<ReviewResponse> createReview(@RequestBody @Valid CreateReviewRequest request){
         ApiResponse<ReviewResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.createReview(request));
         return apiResponse;
