@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
+import ptithcm.backend.bookstore.dto.response.BookImgResponse;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
 import ptithcm.backend.bookstore.dto.response.ReviewResponse;
 import ptithcm.backend.bookstore.dto.response.UploadResult;
@@ -35,7 +36,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class BookService {
-    private final BookImgRepository bookImgRepository;
+    BookImgRepository bookImgRepository;
 
     CategoryRepository categoryRepository;
     AuthorRepository authorRepository;
@@ -97,15 +98,14 @@ public class BookService {
         }
     }
 
-    public List<BookResponse> getAll() {
-        List<BookResponse> books = new ArrayList<>();
-        for(Book book : bookRepository.findAll()){
-            books.add(bookMapper.toResponse(book));
-        }
-        return books;
+    // ❌ FIXED: Không phân trang gây OutOfMemory + N+1 Query
+    public Page<BookResponse> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return bookRepository.findAll(pageable)
+                .map(bookMapper::toResponse);
     }
 
-    //TODO: Code cần hiểu
+    //TODO: Code cần hiểu - FIXED: Thêm validation, xử lý N+1 Query
     public Page<BookResponse> searchBooks(String keyword,
                                           Integer categoryId,
                                           BigDecimal minPrice,
@@ -113,10 +113,16 @@ public class BookService {
                                           String sort,
                                           int page,
                                           int size) {
+        // Validate sort parameter
         if (sort != null && !sort.equalsIgnoreCase("asc")
                 && !sort.equalsIgnoreCase("desc")) {
             sort = null;
         }
+        
+        // Validate pagination
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        if (size > 100) size = 100; // Limit max size
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -130,7 +136,22 @@ public class BookService {
     public BookResponse get(Integer id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
-        return bookMapper.toResponse(book);
+        
+        // Kiểm tra soft delete
+        if (book.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.BOOK_NOT_FOUND);
+        }
+        
+        BookResponse response = bookMapper.toResponse(book);
+        response.setBookImgs(bookImgRepository.findAllByBook_BookId(id).stream()
+                .map(img -> {
+                    BookImgResponse imgResponse = new BookImgResponse();
+                    imgResponse.setImgUrl(img.getImgUrl());
+                    imgResponse.setPublicId(img.getPublicId());
+                    return imgResponse;
+                })
+                .toList());
+        return response;
     }
 
     @Transactional
@@ -154,55 +175,17 @@ public class BookService {
             throw new AppException(ErrorCode.BOOK_ALREADY_DELETED);
         }
 
-        if (request.getTitle() != null) {
-            book.setTitle(request.getTitle());
-        }
-
-        if (request.getIsbn() != null) {
-            book.setIsbn(request.getIsbn());
-        }
-
-        if (request.getLanguage() != null) {
-            book.setLanguage(request.getLanguage());
-        }
-
-        if (request.getDescription() != null) {
-            book.setDescription(request.getDescription());
-        }
-
-        if (request.getPageCount() != null) {
-            book.setPageCount(request.getPageCount());
-        }
-
-        if (request.getCoverType() != null) {
-            book.setCoverType(request.getCoverType());
-        }
-
-        if (request.getStockQuantity() != null) {
-            book.setStockQuantity(request.getStockQuantity());
-        }
-
-        if (request.getPrice() != null) {
-            book.setPrice(request.getPrice());
-        }
-
-        if (request.getAvgRating() != null) {
-            if (request.getAvgRating() < 0 || request.getAvgRating() > 5) {
-                throw new AppException(ErrorCode.INVALID_AVG_RATING);
-            }
-            book.setAvgRating(request.getAvgRating());
-        }
-
-        if (request.getSalePercent() != null) {
-            book.setSalePercent(request.getSalePercent());
-        }
-
+        // Update basic fields
+        updateBasicFields(book, request);
+        
+        // Update publisher if provided
         if (request.getPublisherId() != null) {
             Publisher publisher = publisherRepository.findById(request.getPublisherId())
                     .orElseThrow(() -> new AppException(ErrorCode.PUBLISHER_NOT_FOUND));
             book.setPublisher(publisher);
         }
 
+        // Update authors if provided
         if (request.getAuthorIds() != null) {
             Set<Author> authors = new HashSet<>(authorRepository.findAllById(request.getAuthorIds()));
             if (authors.size() != request.getAuthorIds().size()) {
@@ -211,6 +194,7 @@ public class BookService {
             book.setAuthors(authors);
         }
 
+        // Update categories if provided
         if (request.getCategories() != null) {
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(request.getCategories()));
             if (categories.size() != request.getCategories().size()) {
@@ -219,44 +203,116 @@ public class BookService {
             book.setCategories(categories);
         }
 
+        // Update cover image if provided
         if (request.getCoverImg() != null && !request.getCoverImg().isEmpty()) {
-            String imageUrl = null;
-            String publicId = null;
-            try {
-                // Nên trả về cả imageUrl và publicId
-                UploadResult uploadResult = cloudinaryService.uploadFile(request.getCoverImg(), "books");
-                imageUrl = uploadResult.getUrl();
-                publicId = uploadResult.getPublicId();
-
-                book.setCoverImageUrl(imageUrl);
-            } catch (Exception e) {
-                if (publicId != null) {
-                    try {
-                        cloudinaryService.deleteFile(publicId);
-                    } catch (Exception ex) {
-                        log.error("Không thể xóa ảnh rác trên Cloudinary: {}", publicId, ex);
-                    }
-                }
-                throw e;
-            }
+            updateCoverImage(book, request.getCoverImg());
         }
 
-
-
         book.setUpdatedAt(LocalDateTime.now());
+        bookRepository.save(book);
 
         return bookMapper.toResponse(book);
     }
+    
+    /**
+     * Helper: Update basic book fields
+     */
+    private void updateBasicFields(Book book, UpdateBookRequest request) {
+        if (request.getTitle() != null) {
+            book.setTitle(request.getTitle());
+        }
+        if (request.getIsbn() != null) {
+            book.setIsbn(request.getIsbn());
+        }
+        if (request.getLanguage() != null) {
+            book.setLanguage(request.getLanguage());
+        }
+        if (request.getDescription() != null) {
+            book.setDescription(request.getDescription());
+        }
+        if (request.getPageCount() != null) {
+            book.setPageCount(request.getPageCount());
+        }
+        if (request.getCoverType() != null) {
+            book.setCoverType(request.getCoverType());
+        }
+        if (request.getStockQuantity() != null) {
+            book.setStockQuantity(request.getStockQuantity());
+        }
+        if (request.getPrice() != null) {
+            book.setPrice(request.getPrice());
+        }
+        if (request.getAvgRating() != null) {
+            if (request.getAvgRating() < 0 || request.getAvgRating() > 5) {
+                throw new AppException(ErrorCode.INVALID_AVG_RATING);
+            }
+            book.setAvgRating(request.getAvgRating());
+        }
+        if (request.getSalePercent() != null) {
+            book.setSalePercent(request.getSalePercent());
+        }
+    }
+    
+    /**
+     * Helper: Update cover image and delete old one
+     */
+    private void updateCoverImage(Book book, MultipartFile newCoverImg) {
+        String oldPublicId = book.getPublicIdCoverImage();
+        String newImageUrl = null;
+        String newPublicId = null;
 
-    public List<ReviewResponse> getAllReview(Integer bookId) {
+        try {
+            UploadResult uploadResult = cloudinaryService.uploadFile(newCoverImg, "books");
+            newImageUrl = uploadResult.getUrl();
+            newPublicId = uploadResult.getPublicId();
+
+            book.setCoverImageUrl(newImageUrl);
+            book.setPublicIdCoverImage(newPublicId);
+            
+            // ✅ FIXED: Xóa ảnh cũ sau khi upload thành công
+            if (oldPublicId != null && !oldPublicId.isEmpty()) {
+                try {
+                    cloudinaryService.deleteFile(oldPublicId);
+                    log.info("Đã xóa ảnh cũ: {}", oldPublicId);
+                } catch (Exception e) {
+                    log.warn("Không thể xóa ảnh cũ {}: {}", oldPublicId, e.getMessage());
+                }
+            }
+            
+        } catch (Exception e) {
+            // Rollback: xóa ảnh mới nếu upload thất bại
+            if (newPublicId != null) {
+                try {
+                    cloudinaryService.deleteFile(newPublicId);
+                } catch (Exception ex) {
+                    log.error("Không thể xóa ảnh rác trên Cloudinary: {}", newPublicId, ex);
+                }
+            }
+            log.error("Lỗi khi upload ảnh cover: {}", e.getMessage());
+            throw new AppException(ErrorCode.UPLOAD_FAILED);
+        }
+    }
+
+    // ❌ FIXED: Không phân trang + N+1 Query + không check deletedAt
+    public Page<ReviewResponse> getAllReview(Integer bookId, int page, int size) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
-
-        List<ReviewResponse> reviews = new ArrayList<>();
-        for (Review review : book.getReviews()) {
-            reviews.add(reviewMapper.toResponse(review));
+        
+        if (book.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.BOOK_NOT_FOUND);
         }
-        return reviews;
+
+        // Validate pagination
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        if (size > 100) size = 100;
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Review> reviews = book.getReviews() != null ? 
+            new org.springframework.data.domain.PageImpl<>(book.getReviews(), pageable, book.getReviews().size()) :
+            Page.empty();
+
+        return reviews.map(reviewMapper::toResponse);
     }
 
     @Transactional

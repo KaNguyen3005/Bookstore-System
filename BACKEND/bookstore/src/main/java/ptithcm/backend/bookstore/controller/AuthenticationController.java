@@ -1,6 +1,7 @@
 package ptithcm.backend.bookstore.controller;
 
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,7 +29,7 @@ public class AuthenticationController {
     GoogleAuthService googleAuthService;
     OtpService otpService;
     @PostMapping("/login")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) throws ParseException, JOSEException {
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody @Valid AuthenticationRequest request) throws ParseException, JOSEException {
         var result = authenticationService.authenticate(request);
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
@@ -61,7 +62,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register/init")
-    public ApiResponse<AuthenticationResponse> validateUserInfo(@RequestBody RegisterRequest request) {
+    public ApiResponse<AuthenticationResponse> validateUserInfo(@RequestBody @Valid RegisterRequest request) {
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(authenticationService.validateUserInfo(request))
                 .build();
@@ -69,28 +70,28 @@ public class AuthenticationController {
 
 
     @PostMapping("/register/complete")
-    public ApiResponse<UserResponse> register(@RequestBody RegisterRequest request) {
+    public ApiResponse<UserResponse> register(@RequestBody @Valid RegisterRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(authenticationService.register(request))
                 .build();
     }
 
     @PostMapping("/reset-password/init")
-    public ApiResponse<Boolean> isExistingEmail(@RequestBody ResetPasswordRequest request) {
+    public ApiResponse<Boolean> isExistingEmail(@RequestBody @Valid ResetPasswordRequest request) {
         return ApiResponse.<Boolean>builder()
                 .result(authenticationService.isExistingEmail(request.getEmail()))
                 .build();
     }
 
     @PostMapping("/reset-password/verify")
-    public ApiResponse<Boolean> verifyOtp(@RequestBody ResetPasswordRequest request) {
+    public ApiResponse<Boolean> verifyOtp(@RequestBody @Valid ResetPasswordRequest request) {
         return ApiResponse.<Boolean>builder()
                 .result(otpService.verifyOtp(request.getEmail(), request.getOtp()))
                 .build();
     }
 
     @PostMapping("/reset-password/complete")
-    public ApiResponse<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public ApiResponse<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         authenticationService.resetPassword(request);
         return ApiResponse.<Void>builder()
                 .message("Password reset successful")

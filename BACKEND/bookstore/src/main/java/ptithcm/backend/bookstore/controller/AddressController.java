@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class AddressController {
     AddressService addressService;
     GHNService ghnAddressService;
     @PostMapping()
-    ApiResponse<AddressResponse> create(@RequestBody CreateAddressRequest request){
+    ApiResponse<AddressResponse> create(@RequestBody @Valid CreateAddressRequest request){
         ApiResponse<AddressResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(addressService.create(request));
@@ -40,7 +41,7 @@ public class AddressController {
     }
 
     @PatchMapping("/{id}")
-    ApiResponse<AddressResponse> update(@PathVariable("id") Long id,@RequestBody UpdateAddressRequest request){
+    ApiResponse<AddressResponse> update(@PathVariable("id") Long id,@RequestBody @Valid UpdateAddressRequest request){
         ApiResponse<AddressResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(addressService.update(id, request));

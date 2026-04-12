@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class OtpController {
     OtpService otpService;
 
     @PostMapping("/send")
-    public ApiResponse<Void> sendOtp(@RequestBody SendOtpRequest request) {
+    public ApiResponse<Void> sendOtp(@RequestBody @Valid SendOtpRequest request) {
         otpService.sendOtp(request.getEmail());
         return ApiResponse.<Void>builder()
                 .message("OTP đã được gửi đến email của bạn")
@@ -32,7 +33,7 @@ public class OtpController {
     }
 
     @PostMapping("/verify")
-    public ApiResponse<Void> verifyOtp(@RequestBody VerifyOtpRequest request) {
+    public ApiResponse<Void> verifyOtp(@RequestBody @Valid VerifyOtpRequest request) {
         boolean valid = otpService.verifyOtp(request.getEmail(), request.getOtp());
 
         if (valid) {

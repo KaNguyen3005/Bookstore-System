@@ -30,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class RoleService {
-    private final PermissionRepository permissionRepository;
+    PermissionRepository permissionRepository;
     RoleRepository roleRepository;
 
     RoleMapper roleMapper;

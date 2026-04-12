@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +24,7 @@ public class VoucherController {
     VoucherService voucherService;
 
     @PostMapping()
-    ApiResponse<VoucherResponse> create(@RequestBody CreateVoucherRequest request){
+    ApiResponse<VoucherResponse> create(@RequestBody @Valid CreateVoucherRequest request){
         return ApiResponse.<VoucherResponse>builder()
                 .result(voucherService.create(request))
                 .build();

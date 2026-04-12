@@ -1,6 +1,7 @@
 package ptithcm.backend.bookstore.controller;
 
 import com.cloudinary.Api;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -46,9 +47,12 @@ public class BookController {
         bookService.uploadImages(id, files);
     }
     @GetMapping()
-    public ApiResponse<List<BookResponse>> getAll(){
-        ApiResponse<List<BookResponse>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(bookService.getAll());
+    public ApiResponse<Page<BookResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        ApiResponse<Page<BookResponse>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(bookService.getAll(page, size));
         return apiResponse;
     }
 
@@ -84,7 +88,7 @@ public class BookController {
     }
 
     @PatchMapping(path="/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    ApiResponse<BookResponse> update(@PathVariable("id") Integer id, @ModelAttribute UpdateBookRequest request){
+    ApiResponse<BookResponse> update(@PathVariable("id") Integer id, @ModelAttribute @Valid UpdateBookRequest request){
         ApiResponse<BookResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(bookService.update(id, request));
@@ -93,9 +97,13 @@ public class BookController {
     }
 
     @GetMapping("{id}/reviews")
-    ApiResponse<List<ReviewResponse>> getAllReview(@PathVariable("id") Integer id) {
-        ApiResponse<List<ReviewResponse>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(bookService.getAllReview(id));
+    ApiResponse<Page<ReviewResponse>> getAllReview(
+            @PathVariable("id") Integer id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        ApiResponse<Page<ReviewResponse>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(bookService.getAllReview(id, page, size));
         return apiResponse;
     }
 }

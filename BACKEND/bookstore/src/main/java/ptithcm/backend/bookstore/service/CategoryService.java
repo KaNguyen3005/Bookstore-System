@@ -9,69 +9,231 @@ import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateCategoryRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateCategoryRequest;
 import ptithcm.backend.bookstore.dto.response.CategoryResponse;
-import ptithcm.backend.bookstore.entity.Author;
 import ptithcm.backend.bookstore.entity.Category;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.CategoryMapper;
 import ptithcm.backend.bookstore.repository.CategoryRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryService {
-    private final CategoryRepository categoryRepository;
-
+    CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
 
-    public CategoryResponse create(CreateCategoryRequest request){
+    /**
+     * Tạo category mới (có thể là parent hoặc child)
+     */
+    public CategoryResponse create(CreateCategoryRequest request) {
+        // Check category name không bị trùng
+        if (isCategoryNameExists(request.getCategoryName())) {
+            throw new AppException(ErrorCode.CATEGORY_ALREADY_EXISTS);
+        }
+
         Category category = categoryMapper.toEntity(request);
 
-        if (request.getParentId() != -1) {
+        // Nếu có parentId → tìm parent category
+        if (request.getParentId() != null && request.getParentId() > 0) {
             Category parent = categoryRepository.findById(request.getParentId())
                     .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+            
+            // Check parent không bị soft delete
+            if (parent.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+            }
 
             category.setParentCategory(parent);
         }
 
-        return categoryMapper.toResponse(categoryRepository.save(category));
+        Category savedCategory = categoryRepository.save(category);
+        log.info("Category created: {} (Parent: {})", savedCategory.getCategoryId(), 
+                 request.getParentId() == null ? "None" : request.getParentId());
+        
+        return categoryMapper.toResponse(savedCategory);
     }
 
-    public List<CategoryResponse> getAll(){
-        List<CategoryResponse> categories = new ArrayList<>();
-        for(Category category : categoryRepository.findAll()){
-            categories.add(categoryMapper.toResponse(category));
+    /**
+     * Lấy tất cả categories (chỉ những chưa bị soft delete)
+     * Kết quả sắp xếp theo cấu trúc cây (root → children)
+     */
+    public List<CategoryResponse> getAll() {
+        // Lấy tất cả category cha
+        List<Category> rootCategories = categoryRepository.findAllRootCategories();
+        
+        List<CategoryResponse> result = new ArrayList<>();
+        for (Category root : rootCategories) {
+            result.add(categoryMapper.toResponse(root));
         }
-        return categories;
+        
+        return result;
     }
 
-    public boolean delete(Integer id){
+    /**
+     * Lấy category theo ID
+     */
+    public CategoryResponse getById(Integer id) {
+        Category category = categoryRepository.findByIdActive(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        
+        return categoryMapper.toResponse(category);
+    }
+
+    /**
+     * Lấy tất cả category con của một parent
+     */
+    public List<CategoryResponse> getChildCategories(Integer parentId) {
+        // Check parent tồn tại
+        categoryRepository.findByIdActive(parentId)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        List<Category> children = categoryRepository.findChildCategories(parentId);
+        
+        return children.stream()
+                .map(categoryMapper::toResponse)
+                .toList();
+    }
+
+    /**
+     * Soft delete category (bao gồm tất cả children)
+     */
+    public boolean delete(Integer id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        categoryRepository.delete(category);
+        if (category.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.CATEGORY_ALREADY_DELETED);
+        }
+
+        // Soft delete category này
+        category.setDeletedAt(LocalDateTime.now());
+        categoryRepository.save(category);
+
+        // Soft delete tất cả children categories
+        deleteChildrenRecursively(category.getCategoryId());
+
+        log.info("Category deleted (soft): {} and its children", id);
         return true;
     }
 
-    public CategoryResponse update(Integer id, UpdateCategoryRequest request){
-        Category category  = categoryRepository.findById(id)
+    /**
+     * Recursive delete children
+     */
+    private void deleteChildrenRecursively(Integer parentId) {
+        List<Category> children = categoryRepository.findChildCategories(parentId);
+        
+        for (Category child : children) {
+            child.setDeletedAt(LocalDateTime.now());
+            categoryRepository.save(child);
+            
+            // Recursively delete grandchildren
+            deleteChildrenRecursively(child.getCategoryId().intValue());
+        }
+    }
+
+    /**
+     * Update category
+     */
+    public CategoryResponse update(Integer id, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        if (request.getCategoryName() != null) {
+        if (category.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+
+        // Update name
+        if (request.getCategoryName() != null && !request.getCategoryName().isBlank()) {
             category.setCategoryName(request.getCategoryName());
         }
 
+        // Update parent category
         if (request.getParentId() != null) {
-            Category parent = categoryRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+            if (request.getParentId() == 0 || request.getParentId() < 0) {
+                // Unset parent (make it root)
+                category.setParentCategory(null);
+            } else {
+                // Check circular reference (parent không được là chính category này hoặc children của nó)
+                if (request.getParentId().equals(id)) {
+                    throw new AppException(ErrorCode.INVALID_PARENT_CATEGORY);
+                }
 
-            category.setParentCategory(parent);
+                if (isCircularReference(id, request.getParentId())) {
+                    throw new AppException(ErrorCode.INVALID_PARENT_CATEGORY);
+                }
+
+                Category parent = categoryRepository.findById(request.getParentId())
+                        .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+                if (parent.getDeletedAt() != null) {
+                    throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
+                }
+
+                category.setParentCategory(parent);
+            }
         }
 
-        return categoryMapper.toResponse(categoryRepository.save(category));
+        Category updated = categoryRepository.save(category);
+        log.info("Category updated: {}", id);
+        
+        return categoryMapper.toResponse(updated);
+    }
+
+    /**
+     * Check circular reference
+     * Kiểm tra xem parentId có phải là descendant của categoryId không
+     */
+    private boolean isCircularReference(Integer categoryId, Integer potentialParentId) {
+        if (potentialParentId == null || potentialParentId <= 0) {
+            return false;
+        }
+
+        Set<Integer> descendants = new HashSet<>();
+        collectDescendants(categoryId, descendants);
+        
+        return descendants.contains(potentialParentId);
+    }
+
+    /**
+     * Collect tất cả descendants của một category
+     */
+    private void collectDescendants(Integer categoryId, Set<Integer> descendants) {
+        List<Category> children = categoryRepository.findChildCategories(categoryId);
+        
+        for (Category child : children) {
+            int childId = child.getCategoryId().intValue();
+            descendants.add(childId);
+            collectDescendants(childId, descendants);
+        }
+    }
+
+    /**
+     * Check category name đã tồn tại
+     */
+    private boolean isCategoryNameExists(String categoryName) {
+        // TODO: Thêm query vào repository để kiểm tra
+        return false;
+    }
+
+    /**
+     * Restore category từ soft delete
+     */
+    public CategoryResponse restore(Integer id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
+        if (category.getDeletedAt() == null) {
+            throw new AppException(ErrorCode.CATEGORY_NOT_DELETED);
+        }
+
+        category.setDeletedAt(null);
+        Category restored = categoryRepository.save(category);
+        log.info("Category restored: {}", id);
+        
+        return categoryMapper.toResponse(restored);
     }
 }

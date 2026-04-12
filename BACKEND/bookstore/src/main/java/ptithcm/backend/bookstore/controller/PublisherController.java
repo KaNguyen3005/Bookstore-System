@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class PublisherController {
     PublisherService publisherService;
 
     @PostMapping()
-    ApiResponse<PublisherResponse> create(@RequestBody CreatePublisherRequest request){
+    ApiResponse<PublisherResponse> create(@RequestBody @Valid CreatePublisherRequest request){
         ApiResponse<PublisherResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(publisherService.create(request));
         return apiResponse;
@@ -37,7 +38,7 @@ public class PublisherController {
     }
 
     @PatchMapping("/{id}")
-    ApiResponse<PublisherResponse> update(@PathVariable Integer id,@RequestBody UpdatePublisherRequest request){
+    ApiResponse<PublisherResponse> update(@PathVariable Integer id,@RequestBody @Valid UpdatePublisherRequest request){
         ApiResponse<PublisherResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(publisherService.update(id, request));
         return apiResponse;

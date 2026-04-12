@@ -3,6 +3,7 @@ package ptithcm.backend.bookstore.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ptithcm.backend.bookstore.entity.Author;
+import ptithcm.backend.bookstore.entity.BookImg;
 import ptithcm.backend.bookstore.entity.Publisher;
 
 import java.math.BigDecimal;
@@ -30,4 +31,5 @@ public class BookResponse {
     Integer salePercent; // Đơn vị %
     Set<String> categories = new HashSet<>();
     List<ReviewResponse> reviews;
+    List<BookImgResponse> bookImgs;
 }

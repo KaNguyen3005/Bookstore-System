@@ -14,6 +14,9 @@ import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
 import ptithcm.backend.bookstore.dto.response.RevenueResponse;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
+import ptithcm.backend.bookstore.dto.response.TopSellingBookResponse;
+import ptithcm.backend.bookstore.dto.response.OrderStatusStatisticResponse;
+import ptithcm.backend.bookstore.dto.response.DashboardSummaryResponse;
 import ptithcm.backend.bookstore.entity.*;
 import ptithcm.backend.bookstore.enums.*;
 import ptithcm.backend.bookstore.exception.AppException;
@@ -168,8 +171,11 @@ public class OrderService {
 
         shipment.setTrackingNumber(ghnOrderCode);
         shipment.setStatus(ShippingStatus.READY_TO_SHIP);
-
+        UserResponse staffResponse = userService.getMyInfo();
+        User staff = userRepository.findById(staffResponse.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         order.setStatus(OrderStatus.CONFIRMED);
+        order.setStaff(staff);
 
         shipmentRepository.save(shipment);
         orderRepository.save(order);
@@ -562,5 +568,187 @@ public class OrderService {
 
         userRepository.save(user);
         orderRepository.save(order);
+    }
+
+    /**
+     * Lấy danh sách sách bán chạy nhất trong khoảng thời gian
+     * @param from Ngày bắt đầu
+     * @param to Ngày kết thúc
+     * @param limit Số lượng sách cần lấy (ví dụ: 10, 20, ...)
+     * @return Danh sách sách bán chạy nhất cùng số lượng bán
+     */
+    public List<RevenueResponse> getTopSellingBooks(LocalDate from, LocalDate to, int limit) {
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(23, 59, 59);
+
+        List<Object[]> rows = orderRepository.getTopSellingBooks(
+                fromDateTime, 
+                toDateTime, 
+                OrderStatus.COMPLETED.ordinal(), 
+                limit
+        );
+
+        return rows.stream()
+                .map(row -> new RevenueResponse(
+                        row[0].toString(),
+                        (BigDecimal) row[2]  // totalQuantitySold
+                ))
+                .toList();
+    }
+
+    /**
+     * Lấy sách bán chạy nhất (top 1) trong khoảng thời gian
+     * @param from Ngày bắt đầu
+     * @param to Ngày kết thúc
+     * @return Sách bán chạy nhất hoặc null nếu không có
+     */
+    public TopSellingBookResponse getTopSellingBook(LocalDate from, LocalDate to) {
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(23, 59, 59);
+
+        List<Object[]> rows = orderRepository.getTopSellingBook(
+                fromDateTime, 
+                toDateTime, 
+                OrderStatus.COMPLETED.ordinal()
+        );
+
+        if (rows.isEmpty()) {
+            return null;
+        }
+
+        Object[] row = rows.get(0);
+        return TopSellingBookResponse.builder()
+                .bookId(((Number) row[0]).intValue())
+                .title(row[1].toString())
+                .totalQuantitySold(((Number) row[2]).longValue())
+                .rank(1L)
+                .build();
+    }
+
+    /**
+     * Lấy danh sách sách bán chạy nhất với ranking
+     * @param from Ngày bắt đầu
+     * @param to Ngày kết thúc
+     * @param limit Số lượng sách cần lấy
+     * @return Danh sách sách với ranking
+     */
+    public List<TopSellingBookResponse> getTopSellingBooksWithRank(LocalDate from, LocalDate to, int limit) {
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(23, 59, 59);
+
+        List<Object[]> rows = orderRepository.getTopSellingBooks(
+                fromDateTime, 
+                toDateTime, 
+                OrderStatus.COMPLETED.ordinal(), 
+                limit
+        );
+
+        return rows.stream()
+                .map(row -> TopSellingBookResponse.builder()
+                        .bookId(((Number) row[0]).intValue())
+                        .title(row[1].toString())
+                        .totalQuantitySold(((Number) row[2]).longValue())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Thống kê số lượng đơn hàng theo trạng thái
+     * @return Danh sách đơn hàng grouped by status
+     */
+    public List<OrderStatusStatisticResponse> getOrderStatusStatistics() {
+        List<Object[]> rows = orderRepository.getOrderStatusStatistics();
+        
+        return rows.stream()
+                .map(row -> {
+                    Integer statusOrdinal = ((Number) row[0]).intValue();
+                    Long count = ((Number) row[1]).longValue();
+                    
+                    // Convert status ordinal to enum name
+                    OrderStatus status = OrderStatus.values()[statusOrdinal];
+                    
+                    return OrderStatusStatisticResponse.builder()
+                            .status(status.name().toLowerCase())
+                            .count(count)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy dashboard summary với tất cả thống kê
+     */
+    public DashboardSummaryResponse getDashboardSummary() {
+        // Get order statistics
+        List<OrderStatusStatisticResponse> orderStats = getOrderStatusStatistics();
+        
+        // Calculate totals
+        Long totalOrders = orderRepository.countTotalOrders();
+        
+        Long pendingOrders = orderRepository.countByStatus(OrderStatus.PENDING.ordinal());
+        Long confirmedOrders = orderRepository.countByStatus(OrderStatus.CONFIRMED.ordinal());
+        Long shippingOrders = orderRepository.countByStatus(OrderStatus.SHIPPING.ordinal());
+        Long completedOrders = orderRepository.countByStatus(OrderStatus.COMPLETED.ordinal());
+        Long cancelledOrders = orderRepository.countByStatus(OrderStatus.CANCELLED.ordinal());
+        
+        // Calculate revenue for today
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59);
+        
+        List<Object[]> dailyRevenue = orderRepository.getRevenueByDay(
+                startOfDay, 
+                endOfDay, 
+                OrderStatus.COMPLETED.ordinal()
+        );
+        
+        BigDecimal totalRevenueToday = dailyRevenue.isEmpty() ? 
+                BigDecimal.ZERO : 
+                (BigDecimal) dailyRevenue.get(0)[1];
+        
+        // Calculate revenue for this month
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
+        
+        List<Object[]> monthlyRevenue = orderRepository.getRevenueByMonth(
+                startOfMonth, 
+                endOfMonth, 
+                OrderStatus.COMPLETED.ordinal()
+        );
+        
+        BigDecimal totalRevenueMonth = BigDecimal.ZERO;
+        for (Object[] row : monthlyRevenue) {
+            BigDecimal revenue = (BigDecimal) row[1];
+            totalRevenueMonth = totalRevenueMonth.add(revenue != null ? revenue : BigDecimal.ZERO);
+        }
+        
+        // Calculate total revenue all time
+        LocalDateTime startOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        LocalDateTime endOfYear = LocalDate.now().withDayOfYear(LocalDate.now().lengthOfYear()).atTime(23, 59, 59);
+        
+        List<Object[]> yearlyRevenue = orderRepository.getRevenueByYear(
+                startOfYear, 
+                endOfYear, 
+                OrderStatus.COMPLETED.ordinal()
+        );
+        
+        BigDecimal totalRevenueYear = BigDecimal.ZERO;
+        for (Object[] row : yearlyRevenue) {
+            BigDecimal revenue = (BigDecimal) row[1];
+            totalRevenueYear = totalRevenueYear.add(revenue != null ? revenue : BigDecimal.ZERO);
+        }
+        
+        // Build response
+        return DashboardSummaryResponse.builder()
+                .totalOrders(totalOrders)
+                .pendingOrders(pendingOrders)
+                .confirmedOrders(confirmedOrders)
+                .shippingOrders(shippingOrders)
+                .completedOrders(completedOrders)
+                .cancelledOrders(cancelledOrders)
+                .totalRevenue(totalRevenueYear)
+                .monthlyRevenue(totalRevenueMonth)
+                .dailyRevenue(totalRevenueToday)
+                .ordersByStatus(orderStats)
+                .build();
     }
 }

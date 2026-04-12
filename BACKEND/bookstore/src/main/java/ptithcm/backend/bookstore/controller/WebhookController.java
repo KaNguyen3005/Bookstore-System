@@ -1,4 +1,5 @@
 package ptithcm.backend.bookstore.controller;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +22,7 @@ public class WebhookController {
     WebhookService webhookService;
 
     @PostMapping("/ghn")
-    ApiResponse<Void> handleGHNWebhook(@RequestBody Map<String, Object> payload) {
+    ApiResponse<Void> handleGHNWebhook(@RequestBody @Valid Map<String, Object> payload) {
         log.info("GHN webhook payload: {}", payload);
 
         webhookService.handleGHNWebhook(payload);
