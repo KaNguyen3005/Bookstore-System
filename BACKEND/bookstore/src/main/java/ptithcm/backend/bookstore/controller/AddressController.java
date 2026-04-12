@@ -11,8 +11,10 @@ import ptithcm.backend.bookstore.dto.request.UpdateAddressRequest;
 import ptithcm.backend.bookstore.dto.response.AddressResponse;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.service.AddressService;
+import ptithcm.backend.bookstore.service.GHNService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ import java.util.List;
 public class AddressController {
 
     AddressService addressService;
-
+    GHNService ghnAddressService;
     @PostMapping()
     ApiResponse<AddressResponse> create(@RequestBody CreateAddressRequest request){
         ApiResponse<AddressResponse> apiResponse = new ApiResponse<>();
@@ -55,5 +57,18 @@ public class AddressController {
             .build();
     }
 
+    @GetMapping("/provinces")
+    public ApiResponse<List<Map<String, Object>>> getProvinces() {
+        return ApiResponse.<List<Map<String,Object>>>builder().result(ghnAddressService.getProvinces()).build();
+    }
 
+    @GetMapping("/districts/{provinceId}")
+    public ApiResponse<List<Map<String, Object>>> getDistricts(@PathVariable Integer provinceId) {
+        return ApiResponse.<List<Map<String,Object>>>builder().result(ghnAddressService.getDistricts(provinceId)).build();
+    }
+
+    @GetMapping("/wards/{districtId}")
+    public ApiResponse<List<Map<String, Object>>> getWards(@PathVariable Integer districtId) {
+        return ApiResponse.<List<Map<String,Object>>>builder().result(ghnAddressService.getWards(districtId)).build();
+    }
 }

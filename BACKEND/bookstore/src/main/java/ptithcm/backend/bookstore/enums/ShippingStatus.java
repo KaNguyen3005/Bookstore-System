@@ -1,7 +1,6 @@
 package ptithcm.backend.bookstore.enums;
 
 public enum ShippingStatus {
-    WAITING_PICKUP, // Đơn hàng đang chờ lấy hàng
     PICKING_UP,     // Đơn hàng đang được lấy hàng
     READY_TO_SHIP,  // Đơn hàng đã sẵn sàng để giao
     DELIVERED,      // Đơn hàng đã được giao thành công

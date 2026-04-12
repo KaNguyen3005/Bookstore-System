@@ -38,6 +38,9 @@ public class Order {
     @Column(precision = 12, scale = 2)
     BigDecimal vatAmount;
 
+    // Tier Rate (Ví dụ: 0.10 cho 10% giảm giá)
+    BigDecimal tierRate;
+
     @ManyToOne
     @JoinColumn(name = "voucher_id")
     Voucher voucher;
@@ -51,6 +54,15 @@ public class Order {
     @JoinColumn(name = "staff_id")
     User staff;
 
+    @Column(name = "reward_points_awarded")
+    Boolean rewardPointApplied = false;
+
+
+
+    LocalDateTime deliveredAt;
+
+    LocalDateTime rewardEligibleAt;
+
     @ManyToOne
     @JoinColumn(name = "customer_id")
     User customer;
@@ -61,6 +73,7 @@ public class Order {
 
     @Enumerated
     OrderStatus status;
+
 
     @UpdateTimestamp
     LocalDateTime updatedAt;

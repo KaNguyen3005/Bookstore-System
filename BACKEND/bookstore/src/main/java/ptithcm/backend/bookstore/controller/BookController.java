@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
@@ -37,6 +38,13 @@ public class BookController {
         return apiResponse;
     }
 
+    @PostMapping("{id}/book-images")
+    public void uploadImages(
+            @PathVariable Integer id,
+            @RequestParam("files") List<MultipartFile> files
+    ) {
+        bookService.uploadImages(id, files);
+    }
     @GetMapping()
     public ApiResponse<List<BookResponse>> getAll(){
         ApiResponse<List<BookResponse>> apiResponse = new ApiResponse<>();

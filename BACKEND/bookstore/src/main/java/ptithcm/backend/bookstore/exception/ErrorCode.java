@@ -51,6 +51,7 @@ public enum ErrorCode {
     BOOK_NOT_FOUND(3015, "Book not found", HttpStatus.NOT_FOUND),
     BOOK_ALREADY_DELETED(3016, "Book already deleted", HttpStatus.BAD_REQUEST),
     INVALID_COMMENT(3017, "Comment must not exceed {max} characters", HttpStatus.BAD_REQUEST),
+    UPLOAD_IMAGE_FAILED(3018, "Upload image failed", HttpStatus.INTERNAL_SERVER_ERROR), // nên là 500
     // ===== PEOPLE (4xxx) =====
     AUTHOR_NOT_FOUND(4001, "Author not found", HttpStatus.NOT_FOUND),
 
@@ -84,6 +85,11 @@ public enum ErrorCode {
     VOUCHER_ALREADY_EXISTS(7102, "Voucher code already exists", HttpStatus.CONFLICT),
     INVALID_VOUCHER_CODE(7103, "Voucher code must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
     INVALID_NOTE(7104, "Note must not exceed {max} characters", HttpStatus.BAD_REQUEST),
+    VOUCHER_NOT_STARTED(7105, "Voucher is not active yet", HttpStatus.BAD_REQUEST),
+    VOUCHER_EXPIRED(7106, "Voucher has expired", HttpStatus.BAD_REQUEST),
+    VOUCHER_OUT_OF_STOCK(7107, "Voucher is out of stock", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_ELIGIBLE_FOR_VOUCHER(7108, "Order does not meet voucher requirements", HttpStatus.BAD_REQUEST),
+    VOUCHER_INACTIVE(7109, "Voucher is not active", HttpStatus.BAD_REQUEST),
     // ===== ORDER (8xxx) =====
     ORDER_NOT_FOUND(8001, "Order not found", HttpStatus.NOT_FOUND),
     ORDER_ALREADY_CANCELLED(8002, "Order already cancelled", HttpStatus.BAD_REQUEST),
@@ -116,7 +122,12 @@ public enum ErrorCode {
     // ===== OTP (91xx) =====
     OTP_NOT_FOUND(9101, "OTP not found", HttpStatus.NOT_FOUND),
     OTP_EXPIRED(9102, "OTP has expired", HttpStatus.BAD_REQUEST),
-    OTP_INVALID(9103, "Invalid OTP", HttpStatus.BAD_REQUEST);
+    OTP_INVALID(9103, "Invalid OTP", HttpStatus.BAD_REQUEST),
+    // ===== FILE (92xx) =====
+    INVALID_FILE(9201, "Invalid file", HttpStatus.BAD_REQUEST),
+    FILE_NOT_FOUND(9202, "File not found", HttpStatus.NOT_FOUND),
+    INVALID_REQUEST(9203, "Invalid request", HttpStatus.BAD_REQUEST);
+
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;

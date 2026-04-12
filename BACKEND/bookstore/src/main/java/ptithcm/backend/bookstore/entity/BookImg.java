@@ -28,7 +28,7 @@ public class BookImg {
     Book book;
 
     String imgUrl;
-
+    String publicId;
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;

@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
@@ -34,6 +35,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class BookService {
+    private final BookImgRepository bookImgRepository;
 
     CategoryRepository categoryRepository;
     AuthorRepository authorRepository;
@@ -124,6 +126,7 @@ public class BookService {
 
         return books.map(bookMapper::toResponse);
     }
+
     public BookResponse get(Integer id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
@@ -254,5 +257,50 @@ public class BookService {
             reviews.add(reviewMapper.toResponse(review));
         }
         return reviews;
+    }
+
+    @Transactional
+    public void uploadImages(Integer id, List<MultipartFile> files) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
+
+        if (files == null || files.isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+
+        List<UploadResult> uploadedResults = new ArrayList<>();
+        List<BookImg> bookImages = new ArrayList<>();
+
+        try {
+            for (MultipartFile file : files) {
+                if (file == null || file.isEmpty()) {
+                    throw new AppException(ErrorCode.INVALID_FILE);
+                }
+
+                UploadResult uploadResult = cloudinaryService.uploadFile(file, "books");
+                uploadedResults.add(uploadResult);
+
+                BookImg bookImage = new BookImg();
+                bookImage.setBook(book);
+                bookImage.setImgUrl(uploadResult.getUrl());
+                bookImage.setPublicId(uploadResult.getPublicId());
+
+                bookImages.add(bookImage);
+            }
+
+            bookImgRepository.saveAll(bookImages);
+
+        } catch (Exception e) {
+            for (UploadResult result : uploadedResults) {
+                try {
+                    cloudinaryService.deleteFile(result.getPublicId());
+                } catch (Exception ex) {
+                    log.error("Không thể xóa ảnh rác trên Cloudinary: {}", result.getPublicId(), ex);
+                }
+            }
+
+            log.error("Lỗi khi upload ảnh cho sách {}: {}", id, e.getMessage(), e);
+            throw new AppException(ErrorCode.UPLOAD_IMAGE_FAILED);
+        }
     }
 }
