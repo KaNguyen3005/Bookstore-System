@@ -42,7 +42,6 @@ public class CartService {
 
     public List<CartItemResponse> getAll() {
         UserResponse userResponse = userService.getMyInfo();
-        log.error(userResponse.getUserId() + "");
         User user = userRepository.findById(userResponse.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -52,7 +51,6 @@ public class CartService {
         return cart.getBookCarts().stream()
                 .map(bookCart -> CartItemResponse.builder()
                         .bookCartId(bookCart.getBookCartId())
-                        .cartId(cart.getCartId().longValue())
                         .book(bookMapper.toResponse(bookCart.getBook()))
                         .quantity(bookCart.getQuantity())
                         .build())
@@ -72,11 +70,11 @@ public class CartService {
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
 
         Optional<BookCart> existing = bookCartRepository.findByCart_CartIdAndBook_BookId(cart.getCartId(), bookId);
-        if (existing.isPresent()) {
+        // Nếu đã tồn tại và tổng số lượng sau khi cộng thêm không vượt quá stock, cập nhật số lượng
+        if (existing.isPresent() && existing.get().getBook().getStockQuantity() >= existing.get().getQuantity() + request.getQuantity()) {
             BookCart bookCart = existing.get();
             bookCart.setQuantity(bookCart.getQuantity() + request.getQuantity());
             return CartItemResponse.builder()
-                    .cartId(cart.getCartId().longValue())
                     .book(bookMapper.toResponse(bookCart.getBook()))
                     .quantity(bookCart.getQuantity())
                     .build();
@@ -88,7 +86,6 @@ public class CartService {
                     .build();
             bookCartRepository.save(bookCart);
             return CartItemResponse.builder()
-                    .cartId(cart.getCartId().longValue())
                     .book(bookMapper.toResponse(bookCart.getBook()))
                     .quantity(request.getQuantity())
                     .build();
@@ -112,7 +109,6 @@ public class CartService {
         bookCartRepository.save(bookCart);
 
         return CartItemResponse.builder()
-                .cartId(bookCart.getCart().getCartId().longValue())
                 .book(bookMapper.toResponse(bookCart.getBook()))
                 .quantity(bookCart.getQuantity())
                 .build();
@@ -131,6 +127,6 @@ public class CartService {
             throw new AppException(ErrorCode.ACCESS_DENIED);
         }
 
-        bookCart.setDeletedAt(LocalDateTime.now());
+        bookCartRepository.delete(bookCart);
     }
 }

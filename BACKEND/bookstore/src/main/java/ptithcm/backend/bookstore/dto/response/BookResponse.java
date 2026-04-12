@@ -7,6 +7,7 @@ import ptithcm.backend.bookstore.entity.Publisher;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -28,4 +29,5 @@ public class BookResponse {
     Float avgRating; //0 - 5
     Integer salePercent; // Đơn vị %
     Set<String> categories = new HashSet<>();
+    List<ReviewResponse> reviews;
 }

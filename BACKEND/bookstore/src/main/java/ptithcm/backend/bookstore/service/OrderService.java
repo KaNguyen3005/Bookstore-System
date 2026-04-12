@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.configuration.GHNConfig;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.OrderItemRequest;
+import ptithcm.backend.bookstore.dto.request.OrderPricing;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
 import ptithcm.backend.bookstore.dto.response.RevenueResponse;
@@ -17,7 +18,9 @@ import ptithcm.backend.bookstore.entity.*;
 import ptithcm.backend.bookstore.enums.*;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
+import ptithcm.backend.bookstore.mapper.OrderItemMapper;
 import ptithcm.backend.bookstore.mapper.OrderMapper;
+import ptithcm.backend.bookstore.mapper.VoucherMapper;
 import ptithcm.backend.bookstore.repository.*;
 
 import java.math.BigDecimal;
@@ -26,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +37,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
-    private final ShipmentRepository shipmentRepository;
+    ShipmentRepository shipmentRepository;
     PaymentRepository paymentRepository;
     BookRepository bookRepository;
     VoucherRepository voucherRepository;
@@ -43,6 +47,7 @@ public class OrderService {
     UserService userService;
     OrderMapper orderMapper;
     GHNService ghnService;
+    VoucherMapper voucherMapper;
     public List<OrderResponse> getAll() {
 
         List<Order> orders = orderRepository.findAll();
@@ -57,6 +62,12 @@ public class OrderService {
                         s -> s.getOrder().getOrderId(),
                         s -> s
                 ));
+        Map<Long, Payment> paymentMap = paymentRepository.findByOrderIds(orderIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        p -> p.getOrder().getOrderId(),
+                        p -> p
+                ));
 
         return orders.stream()
                 .map(order -> {
@@ -66,189 +77,63 @@ public class OrderService {
                     if (shipment != null) {
                         response.setShippingStatus(shipment.getStatus());
                     }
-
+                    Payment payment = paymentMap.get(order.getOrderId());
+                    if (payment != null) {
+                        response.setPaymentStatus(payment.getStatus());
+                    }
                     return response;
                 })
                 .toList();
     }
 
     @Transactional
-    public OrderResponse create(CreateOrderRequest request){
-        // 1. Lấy thông tin user hiện tại
-        UserResponse userResponse = userService.getMyInfo();
-        User customer = userRepository.findById(userResponse.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public OrderResponse create(CreateOrderRequest request) {
+        User customer = getCurrentCustomer();
 
-        // 2. Validate và lấy địa chỉ giao hàng
-        Address address = addressRepository.findById(request.getAddressId())
-                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
+        Address address = getValidatedAddress(request.getAddressId(), customer);
 
-        // Kiểm tra địa chỉ có thuộc về user không
-        if (!address.getUser().getUserId().equals(customer.getUserId())) {
-            throw new AppException(ErrorCode.ACCESS_DENIED);
-        }
+        validateOrderItems(request);
 
-        // 3. Validate items không rỗng
-        if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new AppException(ErrorCode.ORDER_IS_EMPTY);
-        }
+        Map<Integer, Book> bookMap = loadBooksMap(request);
 
-        // 4. Lấy tất cả bookId từ request
-        List<Integer> bookIds = request.getItems().stream()
-                .map(OrderItemRequest::getBookId)
-                .distinct()
-                .collect(Collectors.toList());
+        BigDecimal subtotal = calculateSubtotal(request, bookMap);
 
-        // 5. Query 1 lần lấy tất cả sách
-        List<Book> books = bookRepository.findAllById(bookIds);
+        Voucher voucher = resolveVoucher(request.getVoucherCode(), subtotal);
 
-        // 6. Chuyển sang Map để tra cứu nhanh
-        Map<Integer, Book> bookMap = books.stream()
-                .collect(Collectors.toMap(Book::getBookId, book -> book));
+        BigDecimal tierRate = getTierRate(customer);
 
-        // 7. Kiểm tra tất cả sách có tồn tại không
-        if (books.size() != bookIds.size()) {
-            throw new AppException(ErrorCode.BOOK_NOT_FOUND);
-        }
+        OrderPricing pricing = calculatePricing(subtotal, voucher, tierRate);
 
-        // 8. Tạo Order
-        Order order = Order.builder()
-                .customer(customer)
-                .status(OrderStatus.PENDING)
-                .build();
+        Order order = buildOrder(customer, voucher, pricing);
 
-        // 9. Tính tổng tiền trước khi áp dụng voucher
-        BigDecimal subtotal = request.getItems().stream()
-                .map(item -> {
-                    Book book = bookMap.get(item.getBookId());
-                    if (book == null) {
-                        throw new AppException(ErrorCode.BOOK_NOT_FOUND);
-                    }
-
-                    // Kiểm tra tồn kho
-                    if (book.getStockQuantity() < item.getQuantity()) {
-                        throw new AppException(ErrorCode.INSUFFICIENT_STOCK);
-                    }
-                    
-                    return book.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // 10. Xử lý voucher nếu có
-        Voucher voucher = null;
-        BigDecimal discountAmount = BigDecimal.ZERO;
-
-        if (request.getVoucherCode() != null && !request.getVoucherCode().trim().isEmpty()) {
-            voucher = voucherRepository.findByVoucherCode(request.getVoucherCode())
-                    .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_NOT_FOUND));
-
-            // Validate voucher
-            if (Boolean.FALSE.equals(voucher.getIsActive())) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR);
-            }
-
-            LocalDateTime now = LocalDateTime.now();
-            if (voucher.getStartDate().isAfter(now) || voucher.getEndDate().isBefore(now)) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR); // Voucher hết hạn hoặc chưa bắt đầu
-            }
-
-            if (voucher.getTotalLimit() != null && voucher.getUsedCount() >= voucher.getTotalLimit()) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR); // Voucher đã hết lượt sử dụng
-            }
-
-            if (subtotal.compareTo(voucher.getMinOrderValue()) < 0) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR); // Đơn hàng không đạt giá trị tối thiểu
-            }
-
-            // Tính discount
-            if (voucher.getType() == VoucherType.FIXED) {
-                discountAmount = voucher.getDiscountValue();
-            } else if (voucher.getType() == VoucherType.PERCENTAGE) {
-                discountAmount = subtotal.multiply(voucher.getDiscountValue())
-                        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
-            }
-
-            // Áp dụng giới hạn discount tối đa
-            if (voucher.getMaxDiscountAmount() != null &&
-                discountAmount.compareTo(voucher.getMaxDiscountAmount()) > 0) {
-                discountAmount = voucher.getMaxDiscountAmount();
-            }
-
-            order.setVoucher(voucher);
-        }
-
-        // 11. Tính VAT (5% theo mặc định)
-        BigDecimal vatRate = order.getVatRate() != null ? order.getVatRate() : new BigDecimal("0.05");
-        BigDecimal vatAmount = subtotal.multiply(vatRate).setScale(2, RoundingMode.HALF_UP);
-
-        // 12. Tính tổng tiền cuối cùng
-        BigDecimal totalAmount = subtotal
-                .add(vatAmount)
-                .subtract(discountAmount)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        // 13. Cập nhật thông tin order
-        order.setVatAmount(vatAmount);
-        order.setTotalAmount(totalAmount);
-
-        // 14. Tạo BookOrder items
-        List<BookOrder> bookOrders = request.getItems().stream()
-                .map(item -> BookOrder.builder()
-                        .book(bookMap.get(item.getBookId()))
-                        .quantity(item.getQuantity())
-                        .order(order)
-                        .build())
-                .toList();
+        List<BookOrder> bookOrders = buildBookOrders(request, order, bookMap);
 
         order.setBookOrders(bookOrders);
 
-        // 15. Lưu order
+        decreaseStock(request, bookMap);
+
+        bookRepository.saveAll(bookMap.values());
+
         Order savedOrder = orderRepository.save(order);
-        // 15.1 Tạo shipment nội bộ
-        Shipment shipment = Shipment.builder()
-                .order(savedOrder)
-                .customerName(customer.getName())
-                .customerPhone(customer.getPhone())
-                .detailAddress(address.getDetailAddress())
-                .ward(address.getWard())
-                .district(address.getDistrict())
-                .province(address.getProvince())
-                .status(ShippingStatus.PENDING)
-                .build();
+
+        Shipment shipment = buildShipment(savedOrder, customer, address);
 
         shipmentRepository.save(shipment);
 
-        // 16. Cập nhật voucher nếu được sử dụng
-        if (voucher != null) {
-            voucher.setUsedCount(voucher.getUsedCount() + 1);
-            voucherRepository.save(voucher);
-        }
+        increaseVoucherUsage(voucher);
 
-        // 17. Tạo Payment
-        PaymentMethod paymentMethod = PaymentMethod.COD;
-        if (request.getPaymentMethod() != null) {
-            try {
-                paymentMethod = PaymentMethod.valueOf(request.getPaymentMethod().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid payment method: {}, using COD as default", request.getPaymentMethod());
-            }
-        }
+        Payment payment = buildPayment(savedOrder, request.getPaymentMethod(), pricing.getTotalAmount());
 
-        Payment payment = Payment.builder()
-                .order(savedOrder)
-                .method(paymentMethod)
-                .status(PaymentStatus.PENDING)
-                .amount(totalAmount)
-                .build();
-        
         paymentRepository.save(payment);
 
-        log.info("Order created successfully - OrderId: {}, CustomerId: {}, TotalAmount: {}",
-                 savedOrder.getOrderId(), customer.getUserId(), totalAmount);
+        logOrderCreated(savedOrder, customer, subtotal, pricing);
 
-        return orderMapper.toResponse(savedOrder);
+        OrderResponse response = orderMapper.toResponse(savedOrder);
+
+        response.setSubtotal(subtotal);
+
+        return response;
     }
-
     public OrderResponse update(Long id, UpdateOrderStatusRequest request) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -291,6 +176,7 @@ public class OrderService {
 
         return orderMapper.toResponse(order);
     }
+
     @Transactional
     public void cancelOrder(Integer id) {
         // 1. Lấy thông tin user hiện tại
@@ -353,5 +239,328 @@ public class OrderService {
                         (BigDecimal) row[1]
                 ))
                 .toList();
+    }
+
+    private User getCurrentCustomer() {
+        UserResponse userResponse = userService.getMyInfo();
+        return userRepository.findById(userResponse.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Address getValidatedAddress(Long addressId, User customer) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
+
+        if (!address.getUser().getUserId().equals(customer.getUserId())) {
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
+
+        return address;
+    }
+
+    private void validateOrderItems(CreateOrderRequest request) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new AppException(ErrorCode.ORDER_IS_EMPTY);
+        }
+    }
+
+    private Map<Integer, Book> loadBooksMap(CreateOrderRequest request) {
+        List<Integer> bookIds = request.getItems().stream()
+                .map(OrderItemRequest::getBookId)
+                .distinct()
+                .toList();
+
+        List<Book> books = bookRepository.findAllById(bookIds);
+
+        if (books.size() != bookIds.size()) {
+            throw new AppException(ErrorCode.BOOK_NOT_FOUND);
+        }
+
+        return books.stream()
+                .collect(Collectors.toMap(Book::getBookId, Function.identity()));
+    }
+
+    private BigDecimal calculateSubtotal(CreateOrderRequest request, Map<Integer, Book> bookMap) {
+        BigDecimal subtotal = request.getItems().stream()
+                .map(item -> calculateItemAmount(item, bookMap))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return subtotal.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal calculateItemAmount(OrderItemRequest item, Map<Integer, Book> bookMap) {
+        if (item.getQuantity() == null || item.getQuantity() <= 0) {
+            throw new AppException(ErrorCode.INVALID_QUANTITY);
+        }
+
+        Book book = bookMap.get(item.getBookId());
+        if (book == null) {
+            throw new AppException(ErrorCode.BOOK_NOT_FOUND);
+        }
+
+        if (book.getStockQuantity() < item.getQuantity()) {
+            throw new AppException(ErrorCode.INSUFFICIENT_STOCK);
+        }
+
+        return book.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+    }
+
+    private BigDecimal getTierRate(User customer) {
+        BigDecimal tierRate = mappingTierToDiscount(customer.getTier());
+        return tierRate != null ? tierRate : BigDecimal.ZERO;
+    }
+
+    private Voucher resolveVoucher(String voucherCode, BigDecimal subtotal) {
+        if (voucherCode == null || voucherCode.trim().isEmpty()) {
+            return null;
+        }
+
+        Voucher voucher = voucherRepository.findByVoucherCode(voucherCode.trim())
+                .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_NOT_FOUND));
+
+        validateVoucher(voucher, subtotal);
+        return voucher;
+    }
+
+    private void validateVoucher(Voucher voucher, BigDecimal subtotal) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (Boolean.FALSE.equals(voucher.getIsActive())) {
+            throw new AppException(ErrorCode.VOUCHER_INACTIVE);
+        }
+
+        if (voucher.getStartDate() != null && voucher.getStartDate().isAfter(now)) {
+            throw new AppException(ErrorCode.VOUCHER_NOT_STARTED);
+        }
+
+        if (voucher.getEndDate() != null && voucher.getEndDate().isBefore(now)) {
+            throw new AppException(ErrorCode.VOUCHER_EXPIRED);
+        }
+
+        if (voucher.getTotalLimit() != null
+                && voucher.getUsedCount() != null
+                && voucher.getUsedCount() >= voucher.getTotalLimit()) {
+            throw new AppException(ErrorCode.VOUCHER_OUT_OF_STOCK);
+        }
+
+        if (voucher.getMinOrderValue() != null
+                && subtotal.compareTo(voucher.getMinOrderValue()) < 0) {
+            throw new AppException(ErrorCode.ORDER_NOT_ELIGIBLE_FOR_VOUCHER);
+        }
+    }
+
+    public BigDecimal mappingTierToDiscount(String tier) {
+        return switch (tier.toUpperCase()) {
+            case "BRONZE" -> BigDecimal.valueOf(0.01);
+            case "SILVER" -> BigDecimal.valueOf(0.02);
+            case "GOLD" -> BigDecimal.valueOf(0.03);
+            case "PLATINUM" -> BigDecimal.valueOf(0.05);
+            default -> BigDecimal.ZERO;
+        };
+    }
+
+
+
+
+
+    private OrderPricing calculatePricing(BigDecimal subtotal, Voucher voucher, BigDecimal tierRate) {
+        BigDecimal fixedDiscountAmount = BigDecimal.ZERO;
+        BigDecimal voucherPercentRate = BigDecimal.ZERO;
+
+        if (voucher != null) {
+            if (voucher.getType() == VoucherType.FIXED) {
+                fixedDiscountAmount = voucher.getDiscountValue().setScale(2, RoundingMode.HALF_UP);
+            } else if (voucher.getType() == VoucherType.PERCENTAGE) {
+                voucherPercentRate = voucher.getDiscountValue()
+                        .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+            }
+        }
+
+        if (fixedDiscountAmount.compareTo(subtotal) > 0) {
+            fixedDiscountAmount = subtotal;
+        }
+
+        BigDecimal amountAfterFixedDiscount = subtotal.subtract(fixedDiscountAmount)
+                .max(BigDecimal.ZERO)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal percentDiscountAmount = calculatePercentDiscount(
+                amountAfterFixedDiscount, voucher, voucherPercentRate, tierRate
+        );
+
+        if (percentDiscountAmount.compareTo(amountAfterFixedDiscount) > 0) {
+            percentDiscountAmount = amountAfterFixedDiscount;
+        }
+
+        BigDecimal amountAfterAllDiscount = amountAfterFixedDiscount.subtract(percentDiscountAmount)
+                .max(BigDecimal.ZERO)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal vatRate = new BigDecimal("0.05");
+        BigDecimal vatAmount = amountAfterAllDiscount.multiply(vatRate)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal totalAmount = amountAfterAllDiscount.add(vatAmount)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        return OrderPricing.builder()
+                .vatRate(vatRate)
+                .vatAmount(vatAmount)
+                .totalAmount(totalAmount)
+                .fixedDiscountAmount(fixedDiscountAmount)
+                .voucherPercentRate(voucherPercentRate)
+                .tierRate(tierRate)
+                .percentDiscountAmount(percentDiscountAmount)
+                .build();
+    }
+
+    private BigDecimal calculatePercentDiscount(
+            BigDecimal amountAfterFixedDiscount,
+            Voucher voucher,
+            BigDecimal voucherPercentRate,
+            BigDecimal tierRate
+    ) {
+        BigDecimal totalPercentDiscountRate = voucherPercentRate.add(tierRate);
+
+        if (totalPercentDiscountRate.compareTo(BigDecimal.ONE) > 0) {
+            totalPercentDiscountRate = BigDecimal.ONE;
+        }
+
+        if (totalPercentDiscountRate.compareTo(BigDecimal.ZERO) < 0) {
+            totalPercentDiscountRate = BigDecimal.ZERO;
+        }
+
+        BigDecimal percentDiscountAmount = amountAfterFixedDiscount
+                .multiply(totalPercentDiscountRate)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        if (voucher != null
+                && voucher.getType() == VoucherType.PERCENTAGE
+                && voucher.getMaxDiscountAmount() != null) {
+
+            BigDecimal rawVoucherDiscount = amountAfterFixedDiscount
+                    .multiply(voucherPercentRate)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            BigDecimal cappedVoucherDiscount = rawVoucherDiscount.min(voucher.getMaxDiscountAmount());
+
+            BigDecimal tierDiscountAmount = amountAfterFixedDiscount
+                    .multiply(tierRate)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            percentDiscountAmount = cappedVoucherDiscount.add(tierDiscountAmount)
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
+
+        return percentDiscountAmount;
+    }
+
+    private Order buildOrder(User customer, Voucher voucher, OrderPricing pricing) {
+        Order order = Order.builder()
+                .customer(customer)
+                .status(OrderStatus.PENDING)
+                .voucher(voucher)
+                .vatRate(pricing.getVatRate())
+                .vatAmount(pricing.getVatAmount())
+                .totalAmount(pricing.getTotalAmount())
+                .tierRate(pricing.getTierRate())
+                .build();
+
+        return order;
+    }
+
+    private List<BookOrder> buildBookOrders(CreateOrderRequest request, Order order, Map<Integer, Book> bookMap) {
+        return request.getItems().stream()
+                .map(item -> BookOrder.builder()
+                        .order(order)
+                        .book(bookMap.get(item.getBookId()))
+                        .quantity(item.getQuantity())
+                        .build())
+                .toList();
+    }
+
+    private void decreaseStock(CreateOrderRequest request, Map<Integer, Book> bookMap) {
+        for (OrderItemRequest item : request.getItems()) {
+            Book book = bookMap.get(item.getBookId());
+            book.setStockQuantity(book.getStockQuantity() - item.getQuantity());
+        }
+    }
+
+    private Shipment buildShipment(Order order, User customer, Address address) {
+        return Shipment.builder()
+                .order(order)
+                .customerName(customer.getName())
+                .customerPhone(customer.getPhone())
+                .detailAddress(address.getDetailAddress())
+                .ward(address.getWard())
+                .district(address.getDistrict())
+                .province(address.getProvince())
+                .status(ShippingStatus.PENDING)
+                .build();
+    }
+
+    private void increaseVoucherUsage(Voucher voucher) {
+        if (voucher == null) return;
+
+        int currentUsedCount = voucher.getUsedCount() == null ? 0 : voucher.getUsedCount();
+        voucher.setUsedCount(currentUsedCount + 1);
+        voucherRepository.save(voucher);
+    }
+
+    private Payment buildPayment(Order order, String paymentMethodRaw, BigDecimal totalAmount) {
+        PaymentMethod paymentMethod = parsePaymentMethod(paymentMethodRaw);
+
+        return Payment.builder()
+                .order(order)
+                .method(paymentMethod)
+                .status(PaymentStatus.PENDING)
+                .amount(totalAmount)
+                .build();
+    }
+
+    private PaymentMethod parsePaymentMethod(String paymentMethodRaw) {
+        if (paymentMethodRaw == null || paymentMethodRaw.isBlank()) {
+            return PaymentMethod.COD;
+        }
+
+        try {
+            return PaymentMethod.valueOf(paymentMethodRaw.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid payment method: {}, using COD as default", paymentMethodRaw);
+            return PaymentMethod.COD;
+        }
+    }
+
+    private void logOrderCreated(Order order, User customer, BigDecimal subtotal, OrderPricing pricing) {
+        log.info(
+                "Order created successfully - OrderId: {}, CustomerId: {}, Subtotal: {}, FixedDiscount: {}, VoucherPercentRate: {}, TierRate: {}, PercentDiscount: {}, VAT: {}, TotalAmount: {}",
+                order.getOrderId(),
+                customer.getUserId(),
+                subtotal,
+                pricing.getFixedDiscountAmount(),
+                pricing.getVoucherPercentRate(),
+                pricing.getTierRate(),
+                pricing.getPercentDiscountAmount(),
+                pricing.getVatAmount(),
+                pricing.getTotalAmount()
+        );
+    }
+
+    @Transactional
+    public void addPointsForDeliveredOrder(Order order) {
+        if (Boolean.TRUE.equals(order.getRewardPointApplied())) {
+            return;
+        }
+
+        User user = order.getCustomer();
+        if (user == null) return;
+
+        Long points = order.getTotalAmount().longValue() / 10000;
+
+        user.setPoint(user.getPoint() + points);
+        order.setRewardPointApplied(true);
+
+        userRepository.save(user);
+        orderRepository.save(order);
     }
 }

@@ -16,7 +16,7 @@ public class OrderItemRequest {
 
     @Min(value = 1, message = "INVALID_QUANTITY")
     @Max(value = 999, message = "INVALID_QUANTITY")
-    int quantity;
+    Integer quantity;
 
     @Size(max = 255, message = "INVALID_NOTE")
     String note; // ghi chú

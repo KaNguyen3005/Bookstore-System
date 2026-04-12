@@ -10,7 +10,6 @@ import ptithcm.backend.bookstore.entity.Book;
 @AllArgsConstructor
 @Builder
 public class CartItemResponse {
-    Long cartId;
     BookResponse book;
     Integer quantity;
     Long bookCartId;

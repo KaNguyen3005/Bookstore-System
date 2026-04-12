@@ -56,4 +56,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             @Param("to") LocalDateTime to,
             @Param("status") Integer status
     );
+
+    @Query("""
+        SELECT o
+        FROM Order o
+        WHERE o.rewardPointApplied = false
+          AND o.rewardEligibleAt IS NOT NULL
+          AND o.rewardEligibleAt <= :now
+    """)
+    List<Order> findEligibleOrdersForReward(@Param("now") LocalDateTime now);
 }

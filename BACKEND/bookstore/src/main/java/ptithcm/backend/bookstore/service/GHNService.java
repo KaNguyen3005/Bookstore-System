@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import ptithcm.backend.bookstore.configuration.GHNConfig;
@@ -29,6 +30,7 @@ public class GHNService {
     ShipmentRepository shipmentRepository;
     RestClient restClient;
     GHNConfig ghnConfig;
+    String BASE_URL = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data";
 
     String GHN_CREATE_ORDER_URL =
             "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create";
@@ -129,5 +131,37 @@ public class GHNService {
         if (shipment.getStatus() == newStatus) return; // tránh update lại
 
         shipment.setStatus(newStatus);
+    }
+
+    public List<Map<String, Object>> getProvinces() {
+        Map<String, Object> response = restClient.get()
+                .uri(BASE_URL + "/province")
+                .header("Token", ghnConfig.getToken())
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        return (List<Map<String, Object>>) response.get("data");
+    }
+
+    public List<Map<String, Object>> getDistricts(Integer provinceId) {
+        Map<String, Object> response = restClient.post()
+                .uri(BASE_URL + "/district")
+                .header("Token", ghnConfig.getToken())
+                .body(Map.of("province_id", provinceId))
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        return (List<Map<String, Object>>) response.get("data");
+    }
+
+    public List<Map<String, Object>> getWards(Integer districtId) {
+        Map<String, Object> response = restClient.post()
+                .uri(BASE_URL + "/ward")
+                .header("Token", ghnConfig.getToken())
+                .body(Map.of("district_id", districtId))
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {});
+
+        return (List<Map<String, Object>>) response.get("data");
     }
 }

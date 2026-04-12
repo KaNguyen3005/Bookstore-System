@@ -17,6 +17,7 @@ import ptithcm.backend.bookstore.dto.response.ReviewResponse;
 import ptithcm.backend.bookstore.dto.response.UploadResult;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.entity.*;
+import ptithcm.backend.bookstore.enums.Tier;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.UserMapper;
@@ -302,5 +303,19 @@ public class UserService {
     public UploadResult uploadAvatar(UploadAvatarRequest request) {
         UploadResult uploadResult = cloudinaryService.uploadFile(request.getAvatar(), "avatars");
         return uploadResult;
+    }
+
+    public void pointToTier(User user) {
+        Long point = user.getPoint();
+        if(point >= 10000) {
+            user.setTier(Tier.PLATINUM.name());
+        }
+        else if (point >= 5000) {
+            user.setTier(Tier.GOLD.name());
+        } else if (point >= 1000) {
+            user.setTier(Tier.SILVER.name());
+        } else {
+            user.setTier(Tier.BRONZE.name());
+        }
     }
 }
