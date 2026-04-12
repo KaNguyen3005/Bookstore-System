@@ -80,6 +80,14 @@ public class UserController {
         return apiResponse;
     }
 
+    @PostMapping("/{id}/disable")
+    ApiResponse<Void> disableAccount(@PathVariable("id") Long id){
+        userService.disableUser(id);
+        return ApiResponse.<Void>builder()
+                .message("User disabled successfully")
+                .build();
+    }
+
     @PostMapping("/reviews")
     ApiResponse<ReviewResponse> createReview(@RequestBody @Valid CreateReviewRequest request){
         ApiResponse<ReviewResponse> apiResponse = new ApiResponse<>();

@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class AuthorController {
     AuthorService authorService;
 
     @PostMapping()
-    ApiResponse<AuthorResponse> create(@RequestBody CreateAuthorRequest request){
+    ApiResponse<AuthorResponse> create(@RequestBody @Valid CreateAuthorRequest request){
         ApiResponse<AuthorResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(authorService.create(request));
@@ -38,7 +39,7 @@ public class AuthorController {
     }
 
     @PatchMapping("/{id}")
-    ApiResponse<AuthorResponse> update(@PathVariable("id") Integer id,@RequestBody UpdateAuthorRequest request){
+    ApiResponse<AuthorResponse> update(@PathVariable("id") Integer id,@RequestBody @Valid UpdateAuthorRequest request){
         ApiResponse<AuthorResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(authorService.update(id, request));

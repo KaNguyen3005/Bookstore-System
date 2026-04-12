@@ -100,10 +100,6 @@ public class UserService {
             user.setPhone(request.getPhone());
         }
 
-        if (request.getStatus() != null) {
-            user.setStatus(request.getStatus());
-        }
-
         if (request.getGender() != null && !request.getGender().isBlank()) {
             user.setGender(request.getGender());
         }
@@ -129,6 +125,18 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
         return userMapper.toResponse(savedUser);
+    }
+
+    @Transactional
+    public void disableUser(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.USER_ALREADY_DELETED);
+        }
+
+        user.setStatus(false);
     }
 
     @Transactional

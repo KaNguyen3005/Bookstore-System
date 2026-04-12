@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +37,12 @@ public class CartController {
     }
 
     @PostMapping("/items/{bookId}")
-    ApiResponse<CartItemResponse> addItem(@PathVariable Integer bookId, @RequestBody CreateCartItemRequest request) {
+    ApiResponse<CartItemResponse> addItem(@PathVariable Integer bookId, @RequestBody @Valid CreateCartItemRequest request) {
         return ApiResponse.<CartItemResponse>builder().result(cartService.create(bookId, request)).build();
     }
 
     @PatchMapping("/items/{bookCartId}")
-    ApiResponse<CartItemResponse> updateItem(@PathVariable Long bookCartId, @RequestBody UpdateCartItemRequest request) {
+    ApiResponse<CartItemResponse> updateItem(@PathVariable Long bookCartId, @RequestBody @Valid UpdateCartItemRequest request) {
         return ApiResponse.<CartItemResponse>builder().result(cartService.update(bookCartId, request)).build();
     }
 

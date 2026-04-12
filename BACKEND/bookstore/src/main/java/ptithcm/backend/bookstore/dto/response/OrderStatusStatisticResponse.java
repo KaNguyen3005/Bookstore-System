@@ -8,7 +8,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookImgResponse {
-    String imgUrl;
-    String publicId; // Dùng để xóa ảnh trên Cloudinary
+public class OrderStatusStatisticResponse {
+    String status;      // pending, confirmed, shipping, completed, cancelled
+    Long count;         // Số lượng đơn hàng với trạng thái này
 }
+

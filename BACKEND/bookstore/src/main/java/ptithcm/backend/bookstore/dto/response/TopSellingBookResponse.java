@@ -8,7 +8,10 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookImgResponse {
-    String imgUrl;
-    String publicId; // Dùng để xóa ảnh trên Cloudinary
+public class TopSellingBookResponse {
+    Integer bookId;
+    String title;
+    Long totalQuantitySold;
+    Long rank;
 }
+

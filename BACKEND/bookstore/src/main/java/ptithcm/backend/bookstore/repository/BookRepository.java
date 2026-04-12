@@ -13,6 +13,15 @@ import java.util.List;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Integer> {
+    /**
+     * Tìm tất cả sách chưa bị xóa (soft delete)
+     */
+    Page<Book> findAllByDeletedAtIsNull(Pageable pageable);
+
+    /**
+     * Tìm kiếm sách theo keyword, category, giá cả và sort
+     * ✅ FIXED: Thêm check deletedAt
+     */
     @Query(value = """
         SELECT DISTINCT b
         FROM Book b

@@ -31,8 +31,6 @@ public class UpdateUserRequest {
     @Pattern(regexp = "^(0|\\+84)[0-9]{9}$", message = "INVALID_PHONE")
     String phone;
 
-    Boolean status;
-
     @Pattern(regexp = "MALE|FEMALE|OTHER", message = "INVALID_GENDER")
     String gender;
 

@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping()
-    ApiResponse<RoleResponse> create(@RequestBody CreateRoleRequest request){
+    ApiResponse<RoleResponse> create(@RequestBody @Valid CreateRoleRequest request){
         ApiResponse<RoleResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(roleService.create(request));
         return apiResponse;

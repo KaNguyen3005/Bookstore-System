@@ -1,6 +1,7 @@
 package ptithcm.backend.bookstore.controller;
 
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,10 @@ import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
+import ptithcm.backend.bookstore.dto.response.TopSellingBookResponse;
 import ptithcm.backend.bookstore.service.OrderService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -24,7 +27,7 @@ import java.util.List;
 public class OrderController {
     OrderService orderService;
     @PostMapping()
-    ApiResponse<OrderResponse> create(@RequestBody CreateOrderRequest request){
+    ApiResponse<OrderResponse> create(@RequestBody @Valid CreateOrderRequest request){
         ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(orderService.create(request));
@@ -46,7 +49,7 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}")
-    ApiResponse<OrderResponse> updateOrderStatus(@PathVariable("id") Long id,@RequestBody UpdateOrderStatusRequest request){
+    ApiResponse<OrderResponse> updateOrderStatus(@PathVariable("id") Long id,@RequestBody @Valid UpdateOrderStatusRequest request){
         ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(orderService.update(id, request));
@@ -66,5 +69,34 @@ public class OrderController {
     @PutMapping("/{orderId}/approve")
     public OrderResponse approveOrder(@PathVariable Long orderId) {
         return orderService.approveOrder(orderId);
+    }
+
+    /**
+     * API: Lấy sách bán chạy nhất trong khoảng thời gian
+     * GET /api/v1/orders/top-selling-book?from=2026-01-01&to=2026-12-31
+     */
+    @GetMapping("/top-selling-book")
+    public ApiResponse<TopSellingBookResponse> getTopSellingBook(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to
+    ) {
+        return ApiResponse.<TopSellingBookResponse>builder()
+                .result(orderService.getTopSellingBook(from, to))
+                .build();
+    }
+
+    /**
+     * API: Lấy danh sách N sách bán chạy nhất trong khoảng thời gian
+     * GET /api/v1/orders/top-selling-books?from=2026-01-01&to=2026-12-31&limit=10
+     */
+    @GetMapping("/top-selling-books")
+    public ApiResponse<List<TopSellingBookResponse>> getTopSellingBooks(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<TopSellingBookResponse>>builder()
+                .result(orderService.getTopSellingBooksWithRank(from, to, limit))
+                .build();
     }
 }

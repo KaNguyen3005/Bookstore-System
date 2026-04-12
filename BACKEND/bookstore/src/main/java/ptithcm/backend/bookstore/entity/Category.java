@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,14 +24,29 @@ import java.util.List;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long categoryId;
+    @EqualsAndHashCode.Include
+    Integer categoryId;
+    
     String categoryName;
-    @ManyToOne
+    
+    /**
+     * Parent category - để tạo cấu trúc đệ quy
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     Category parentCategory;
 
-    @ManyToMany(mappedBy = "categories")
-    List<Book> books;
+    /**
+     * Children categories - để tạo cấu trúc đệ quy
+     */
+    @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    List<Category> childCategories = new ArrayList<>();
+
+    /**
+     * Books liên kết với category này
+     */
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    List<Book> books = new ArrayList<>();
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -38,5 +54,6 @@ public class Category {
 
     @UpdateTimestamp
     LocalDateTime updatedAt;
+    
     LocalDateTime deletedAt;
 }
