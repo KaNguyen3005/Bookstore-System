@@ -3,7 +3,7 @@ import "./HeaderAdmin.css";
 import { FaRegUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
-import DropdownAdmin from "../../../features/admin/components/DropdownAdmin/DropdownAdmin";
+import DropdownAdmin from "../../../features/admin/shared/components/DropdownAdmin/DropdownAdmin";
 
 const HeaderAdmin: React.FC = () => {
   const [open, setOpen] = useState(false);

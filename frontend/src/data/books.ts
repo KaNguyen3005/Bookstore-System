@@ -9,7 +9,9 @@ export const MOCK_ALL_BOOKS: Book[] = [
   {
     book_id: 1,
     title: "Harry Potter và Hòn Đá Phù Thủy",
-    price: 120000,
+    price: 96000,
+    oldPrice: 120000,
+    sale_percent: 20,
     author_name: "J.K. Rowling",
     description: "Cuốn sách đầu tiên trong series Harry Potter, kể về cậu bé phù thủy Harry Potter.",
     cover_image_url: placeholderImage(1),
@@ -47,7 +49,9 @@ export const MOCK_ALL_BOOKS: Book[] = [
   {
     book_id: 3,
     title: "Mắt biếc",
-    price: 108000,
+    price: 75600,
+    oldPrice: 108000,
+    sale_percent: 30,
     author_name: "Nguyễn Nhật Ánh",
     description: "Câu chuyện tình buồn giữa Ngạn và Hà Lan.",
     cover_image_url: placeholderImage(3, 320, 450),
@@ -85,7 +89,9 @@ export const MOCK_ALL_BOOKS: Book[] = [
   {
     book_id: 5,
     title: "Nhà Giả Kim",
-    price: 89000,
+    price: 71200,
+    oldPrice: 89000,
+    sale_percent: 20,
     author_name: "Paulo Coelho",
     description: "Hành trình theo đuổi vận mệnh của cậu bé chăn cừu Santiago.",
     cover_image_url: placeholderImage(5),
