@@ -1,4 +1,5 @@
 import { authorsMock, type Author } from "../data/author";
+export type { Author };
 
 
 let authorsDB: Author[] = [...authorsMock];

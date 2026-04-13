@@ -23,14 +23,15 @@ import Register from "../features/auth/pages/Register/Register";
 import Otp from "../features/auth/pages/Otp/Otp";
 
 import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
-import CustomerManagement from "../features/admin/pages/CustomerManagement/CustomerManagement";
-import StatisticalReportManagement from "../features/admin/pages/StatisticalReportManagement/StatisticalReportManagement";
-import AuthorManagement from "../features/admin/pages/AuthorManagement/AuthorManagement";
+import { CustomerManagement } from "../features/admin/customerManagement";
+import { StatisticalReportManagement } from "../features/admin/reportManagement";
+import { AuthorManagement } from "../features/admin/authorManagement";
 
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
+import { ProductManagement } from "../features/admin/productManagement";
 
-import AdminHome from "../features/admin/pages/AdminHome/AdminHome";
-import Dashboard from "../features/admin/pages/DashBoardManagement/Dashboard";
+import AdminHome from "../layout/layoutAdmin/AdminHome/AdminHome";
+import { Dashboard } from "../features/admin/dashboardManagement";
 
 export default function AppRoutes() {
   return (
@@ -86,6 +87,7 @@ export default function AppRoutes() {
       >
         <Route element={<AdminHome />}>
           <Route index element={<Dashboard />} />
+          <Route path="products" element={<ProductManagement />} />
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="statistical_report" element={<StatisticalReportManagement />} />
           <Route path="author" element={<AuthorManagement />} />

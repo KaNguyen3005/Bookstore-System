@@ -2,7 +2,7 @@ import axiosClient from "./axiosClient";
 import users from "../data/user1";
 import { type UserFE } from "./userApi";
 
-const IS_MOCK = false;
+const IS_MOCK = true;
 
 const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));

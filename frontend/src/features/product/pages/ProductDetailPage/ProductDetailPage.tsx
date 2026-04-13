@@ -176,9 +176,9 @@ const ProductDetailPage: React.FC = () => {
             <div className="product-card-white info-main-card">
               <h1 className="detail-title">{book.title}</h1>
               <div className="detail-meta-grid">
-                <div className="meta-item">Nhà cung cấp: <span className="blue-text">{book.publisher || "NXB Trẻ"}</span></div>
+                <div className="meta-item">Nhà cung cấp: <span className="blue-text">{book.publisher_name || "NXB Trẻ"}</span></div>
                 <div className="meta-item">Tác giả: <strong>{book.author_name}</strong></div>
-                <div className="meta-item">Nhà xuất bản: <span>{book.publisher || "NXB Trẻ"}</span></div>
+                <div className="meta-item">Nhà xuất bản: <span>{book.publisher_name || "NXB Trẻ"}</span></div>
                 <div className="meta-item">Hình thức bìa: <strong>{book.cover_type || "Bìa mềm"}</strong></div>
               </div>
 
@@ -232,7 +232,7 @@ const ProductDetailPage: React.FC = () => {
               <table className="specs-table">
                 <tbody>
                   <tr><td>Mã hàng</td><td>{book.book_id}</td></tr>
-                  <tr><td>Tên nhà cung cấp</td><td>{book.publisher || "NXB Trẻ"}</td></tr>
+                  <tr><td>Tên nhà cung cấp</td><td>{book.publisher_name || "NXB Trẻ"}</td></tr>
                   <tr><td>Tác giả</td><td>{book.author_name}</td></tr>
                   <tr><td>Năm xuất bản</td><td>{book.publication_date || "2023"}</td></tr>
                   <tr><td>Ngôn ngữ</td><td>Tiếng Việt</td></tr>

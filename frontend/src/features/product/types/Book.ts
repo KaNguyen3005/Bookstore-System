@@ -20,5 +20,7 @@ export interface Book {
   is_active: boolean;
   avg_rating: number;
   reviewCount: number;
+  oldPrice?: number;
+  sale_percent?: number;
   categories: Category[];
 }
