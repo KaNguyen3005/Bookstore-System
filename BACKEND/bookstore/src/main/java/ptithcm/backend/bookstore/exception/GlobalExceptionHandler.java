@@ -1,6 +1,8 @@
 package ptithcm.backend.bookstore.exception;
 
 import jakarta.validation.ConstraintViolation;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,15 +16,16 @@ import java.util.Objects;
 
 @RestControllerAdvice
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class GlobalExceptionHandler {
     // Khai báo tất cả attribute keys
-    private static final String MIN_ATTRIBUTE = "min";
-    private static final String MAX_ATTRIBUTE = "max";
-    private static final String VALUE_ATTRIBUTE = "value";
-    private static final String INCLUSIVE_ATTRIBUTE = "inclusive";
-    private static final String INTEGER_ATTRIBUTE = "integer";
-    private static final String FRACTION_ATTRIBUTE = "fraction";
-    private static final String REGEXP_ATTRIBUTE = "regexp";
+    String MIN_ATTRIBUTE = "min";
+    String MAX_ATTRIBUTE = "max";
+    String VALUE_ATTRIBUTE = "value";
+    String INCLUSIVE_ATTRIBUTE = "inclusive";
+    String INTEGER_ATTRIBUTE = "integer";
+    String FRACTION_ATTRIBUTE = "fraction";
+    String REGEXP_ATTRIBUTE = "regexp";
 
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(Exception exception) {

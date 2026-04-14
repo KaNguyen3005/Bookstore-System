@@ -54,7 +54,7 @@ public class Order {
     @JoinColumn(name = "staff_id")
     User staff;
 
-    @Column(name = "reward_points_awarded")
+    @Column(name = "reward_point_applied")
     Boolean rewardPointApplied = false;
 
 
