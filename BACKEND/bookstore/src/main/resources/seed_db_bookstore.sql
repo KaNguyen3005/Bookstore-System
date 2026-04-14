@@ -265,7 +265,7 @@ INSERT INTO `book_category` (`category_id`, `book_id`) VALUES
 (8,4),(5,4),
 (3,5),(9,5);
 
-INSERT INTO `book_imgs` (`book_img_id`, `img_url`, `book_book_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
+INSERT INTO `book_imgs` (`book_img_id`, `img_url`, `book_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 'http://localhost:8080/imgs/books/book_extra.jpg', 1, NOW(), NOW(), NULL),
 (2, 'http://localhost:8080/imgs/books/book_extra.jpg', 1, NOW(), NOW(), NULL),
 (3, 'http://localhost:8080/imgs/books/book_extra.jpg',   2, NOW(), NOW(), NULL),

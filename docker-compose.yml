@@ -38,3 +38,7 @@ volumes:
 
 #docker build -t morex3/bookstore-backend:latest ./backend/bookstore
 #docker push morex3/bookstore-backend:latest
+
+
+#docker compose down -v
+#docker compose up --build
