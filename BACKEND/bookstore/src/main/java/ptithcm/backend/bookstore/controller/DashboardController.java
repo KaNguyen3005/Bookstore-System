@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,6 +57,7 @@ public class DashboardController {
      *   }
      * }
      */
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')") // Chỉ admin mới được xem dashboard
     @GetMapping
     public ApiResponse<DashboardSummaryResponse> getDashboard() {
         log.info("Get dashboard summary");
@@ -80,6 +82,7 @@ public class DashboardController {
      *   ]
      * }
      */
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')") // Chỉ admin mới được xem dashboard
     @GetMapping("/order-status")
     public ApiResponse<List<OrderStatusStatisticResponse>> getOrderStatusStatistics() {
         log.info("Get order status statistics");

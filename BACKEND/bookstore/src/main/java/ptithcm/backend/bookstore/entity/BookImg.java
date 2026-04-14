@@ -25,6 +25,7 @@ public class BookImg {
     Integer bookImgId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id")
     Book book;
 
     String imgUrl;

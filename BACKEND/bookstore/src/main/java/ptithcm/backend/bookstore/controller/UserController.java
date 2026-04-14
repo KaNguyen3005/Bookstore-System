@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.*;
 import ptithcm.backend.bookstore.dto.response.*;
@@ -26,7 +27,7 @@ public class UserController {
     CloudinaryService cloudinaryService;
 
 
-
+    @PreAuthorize("hasAuthority('CREATE_USER')")
     @PostMapping()
     ApiResponse<UserResponse> create(@RequestBody @Valid CreateUserRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
@@ -34,11 +35,13 @@ public class UserController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('READ_USER')")
     @GetMapping()
     ApiResponse<List<UserResponse>> getAll(){
         return ApiResponse.<List<UserResponse>>builder().result(userService.getAll()).build();
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PatchMapping("/{id}")
     ApiResponse<UserResponse> update(@PathVariable("id") Long id, @RequestBody @Valid UpdateUserRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
@@ -48,6 +51,7 @@ public class UserController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Long id){
 
@@ -57,6 +61,7 @@ public class UserController {
                 .build();
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PutMapping("/{id}/status")
     ApiResponse<Void> changeStatusAccount(@PathVariable("id") Long id, @RequestBody @Valid ChangeStatusAccountRequest request){
         ApiResponse<Void> apiResponse = new ApiResponse<>();
@@ -74,12 +79,14 @@ public class UserController {
     @PatchMapping("/me")
     ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UpdateMyInfoRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+
         userService.updateMyInfo(request);
         apiResponse.setResult(userService.updateMyInfo(request));
 
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PostMapping("/{id}/disable")
     ApiResponse<Void> disableAccount(@PathVariable("id") Long id){
         userService.disableUser(id);
@@ -94,4 +101,5 @@ public class UserController {
         apiResponse.setResult(userService.createReview(request));
         return apiResponse;
     }
+
 }

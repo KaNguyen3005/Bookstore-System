@@ -26,7 +26,7 @@ public class OtpService {
 
         // Gửi email (vẫn tiếp tục xử lý)
         emailService.sendOtpEmail(email, otp);
-
+        log.warn("OTP sent to {}: {} (expires at {})", email, otp, expiryTime);
         // Trả về thời gian kết thúc cho Controller hoặc Service lớp trên
         return expiryTime;
     }
@@ -34,4 +34,6 @@ public class OtpService {
     public boolean verifyOtp(String email, String otp) {
         return otpStoreService.verifyOtp(email, otp);
     }
+
+
 }

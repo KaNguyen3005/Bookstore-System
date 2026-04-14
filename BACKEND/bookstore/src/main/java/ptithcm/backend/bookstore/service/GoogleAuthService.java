@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,7 +20,9 @@ import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.repository.UserRepository;
 import ptithcm.backend.bookstore.utils.GoogleOAuthProperties;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -81,9 +84,14 @@ public class GoogleAuthService {
 
             String token = authenticationService.generateToken(user);
 
+            SignedJWT signedJwt = authenticationService.verifyToken(token, false);
+
+            Date expiryDate = signedJwt.getJWTClaimsSet().getExpirationTime();
+            LocalDateTime expiredAt = LocalDateTime.ofInstant(expiryDate.toInstant(), java.time.ZoneId.systemDefault());
             return AuthenticationResponse.builder()
                     .token(token)
                     .authenticated(true)
+                    .expiredAt(expiredAt)
                     .build();
 
         } catch (AppException e) {

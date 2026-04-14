@@ -62,15 +62,26 @@ public class CategoryService {
      * Kết quả sắp xếp theo cấu trúc cây (root → children)
      */
     public List<CategoryResponse> getAll() {
-        // Lấy tất cả category cha
         List<Category> rootCategories = categoryRepository.findAllRootCategories();
-        
-        List<CategoryResponse> result = new ArrayList<>();
-        for (Category root : rootCategories) {
-            result.add(categoryMapper.toResponse(root));
-        }
-        
-        return result;
+
+        return rootCategories.stream()
+                .map(this::buildCategoryTree)
+                .toList();
+    }
+
+    private CategoryResponse buildCategoryTree(Category category) {
+        CategoryResponse response = categoryMapper.toResponse(category);
+
+        List<Category> childCategories =
+                categoryRepository.findChildCategories(category.getCategoryId());
+
+        List<CategoryResponse> children = childCategories.stream()
+                .map(this::buildCategoryTree)
+                .toList();
+
+        response.setChildren(children);
+
+        return response;
     }
 
     /**

@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class BookstoreApplication {
 	public static void main(String[] args) {
-        System.out.println("Hello world!");
 		SpringApplication.run(BookstoreApplication.class, args);
 	}
 }

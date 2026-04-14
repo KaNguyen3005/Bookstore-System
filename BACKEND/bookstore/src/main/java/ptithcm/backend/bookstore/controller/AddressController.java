@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateAddressRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateAddressRequest;
@@ -27,6 +28,8 @@ public class AddressController {
 
     AddressService addressService;
     GHNService ghnAddressService;
+
+    @PreAuthorize("hasAuthority('CREATE_ADDRESS')")
     @PostMapping()
     ApiResponse<AddressResponse> create(@RequestBody @Valid CreateAddressRequest request){
         ApiResponse<AddressResponse> apiResponse = new ApiResponse<>();
@@ -35,11 +38,13 @@ public class AddressController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('READ_ADDRESS')")
     @GetMapping()
     ApiResponse<List<AddressResponse>> getAll(){
         return ApiResponse.<List<AddressResponse>>builder().result(addressService.getAll()).build();
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
     @PatchMapping("/{id}")
     ApiResponse<AddressResponse> update(@PathVariable("id") Long id,@RequestBody @Valid UpdateAddressRequest request){
         ApiResponse<AddressResponse> apiResponse = new ApiResponse<>();
@@ -49,6 +54,7 @@ public class AddressController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Long id){
         addressService.delete(id);
@@ -62,6 +68,7 @@ public class AddressController {
     public ApiResponse<List<Map<String, Object>>> getProvinces() {
         return ApiResponse.<List<Map<String,Object>>>builder().result(ghnAddressService.getProvinces()).build();
     }
+
 
     @GetMapping("/districts/{provinceId}")
     public ApiResponse<List<Map<String, Object>>> getDistricts(@PathVariable Integer provinceId) {

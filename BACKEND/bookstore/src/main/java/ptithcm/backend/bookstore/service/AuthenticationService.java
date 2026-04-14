@@ -114,6 +114,30 @@ public class AuthenticationService {
         return AuthenticationResponse.builder().token(token).authenticated(true).expiredAt(expiresAt).build();
     }
 
+    public String generateResetToken(String email){
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(email)
+                .issuer("kaakaa.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(Instant.now().plus(15, ChronoUnit.MINUTES).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(header, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Can not create reset token", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
@@ -188,7 +212,7 @@ public class AuthenticationService {
     // Mục đích: vô hiệu hóa JWT hiện tại bằng cách lưu token vào blacklist
     // Sau khi logout, token này sẽ không còn sử dụng được dù chưa hết hạn
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
-
+        if(request.getToken() == null) throw new AppException(ErrorCode.TOKEN_NOT_PROVIDED);
         // Verify JWT token để đảm bảo:
         // - Token hợp lệ
         // - Chữ ký đúng
@@ -228,7 +252,7 @@ public class AuthenticationService {
     // Hàm dùng để verify (xác thực) JWT token
     // Trả về SignedJWT nếu token hợp lệ
     // Nếu token không hợp lệ → throw exception
-    private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
+    public SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
 
         // Tạo verifier để kiểm tra chữ ký JWT
         // MACVerifier dùng cho JWT ký bằng thuật toán HMAC (HS256, HS512, ...)
@@ -294,18 +318,23 @@ public class AuthenticationService {
         invalidatedTokenRepository.save(invalidatedToken);
 
         // Lấy username (subject) từ token cũ
-        var username = signToken.getJWTClaimsSet().getSubject();
+        Long userId = signToken.getJWTClaimsSet().getSubject() != null
+                ? Long.parseLong(signToken.getJWTClaimsSet().getSubject())
+                : null;
 
         // Tìm thông tin user trong database
         // Nếu không tồn tại → báo lỗi UNAUTHENTICATED
         var user =
-                userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+                userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
         // Sinh token mới cho user
         var token = generateToken(user);
+        SignedJWT signedJWT = verifyToken(token, false);
 
-        // Trả về response chứa token mới và trạng thái authenticated = true
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        Date expiryTimeOfToken = signedJWT.getJWTClaimsSet().getExpirationTime();
+        LocalDateTime expiresAt = LocalDateTime.ofInstant(expiryTime.toInstant(), java.time.ZoneId.systemDefault());
+
+        return AuthenticationResponse.builder().token(token).authenticated(true).expiredAt(expiresAt).build();
     }
 
     public AuthenticationResponse validateUserInfo(RegisterRequest request) {
@@ -316,12 +345,19 @@ public class AuthenticationService {
                 .build();
     }
 
-    public Boolean isExistingEmail(String email) {
+    public void sendOtpToResetPassword(ResetPasswordInitRequest request) {
+        if (!isExistingEmail(request.getEmail())) throw new AppException(ErrorCode.USER_NOT_FOUND);
+        otpService.sendOtp(request.getEmail());
+    }
+
+    private Boolean isExistingEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    public void resetPassword(ResetPasswordRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+    public void resetPassword(ResetPasswordRequest request) throws ParseException, JOSEException {
+        SignedJWT signedJWT = verifyToken(request.getResetToken(), false);
+        String email = signedJWT.getJWTClaimsSet().getSubject();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -334,7 +370,6 @@ public class AuthenticationService {
 
         Role role = roleRepository.findByRoleName(ptithcm.backend.bookstore.enums.Role.CUSTOMER.name())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
         user.setRole(role);
 
         return userMapper.toResponse(userRepository.save(user));

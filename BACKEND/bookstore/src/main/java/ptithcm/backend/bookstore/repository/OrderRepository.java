@@ -11,6 +11,7 @@ import ptithcm.backend.bookstore.enums.OrderStatus;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -137,4 +138,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         FROM orders o
         """, nativeQuery = true)
     Long countTotalOrders();
+
+    Optional<List<Order>> findByCustomer_UserId(Long userId);
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,7 @@ public class ReportController {
     OrderService orderService;
 
     //TODO: Cần hiểu code này
+    @PreAuthorize("hasAuthority('READ_REPORT')")
     @GetMapping("/revenue")
     public ApiResponse<List<RevenueResponse>> getRevenue(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -56,6 +58,7 @@ public class ReportController {
      *   ]
      * }
      */
+    @PreAuthorize("hasAuthority('READ_REPORT')")
     @GetMapping("/top-selling-books")
     public ApiResponse<List<TopSellingBookResponse>> getTopSellingBooks(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,

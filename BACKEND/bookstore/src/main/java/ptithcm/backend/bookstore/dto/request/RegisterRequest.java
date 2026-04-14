@@ -39,10 +39,6 @@ public class RegisterRequest {
     String gender;
 
     @NotBlank(message = "INVALID_DOB")
-    @Pattern(
-            regexp = "^\\d{4}-\\d{2}-\\d{2}$",
-            message = "INVALID_DOB"
-    )
     String dob;
 
     String otp;
