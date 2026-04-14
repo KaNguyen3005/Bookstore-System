@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateVoucherRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateVoucherRequest;
@@ -23,6 +24,7 @@ public class VoucherController {
 
     VoucherService voucherService;
 
+    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
     @PostMapping()
     ApiResponse<VoucherResponse> create(@RequestBody @Valid CreateVoucherRequest request){
         return ApiResponse.<VoucherResponse>builder()
@@ -58,6 +60,7 @@ public class VoucherController {
                 .build();
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PatchMapping("/{id}")
     ApiResponse<VoucherResponse> update(@PathVariable("id") Long id, @RequestBody UpdateVoucherRequest request){
         return ApiResponse.<VoucherResponse>builder()
@@ -65,6 +68,7 @@ public class VoucherController {
                 .build();
     }
 
+    @PreAuthorize("hasAuthority('DELETE_VOUCHER')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Long id){
         voucherService.delete(id);

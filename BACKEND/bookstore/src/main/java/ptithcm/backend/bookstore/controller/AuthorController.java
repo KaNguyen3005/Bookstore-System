@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateAuthorRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateAuthorRequest;
@@ -25,6 +26,7 @@ public class AuthorController {
 
     AuthorService authorService;
 
+    @PreAuthorize("hasAuthority('CREATE_AUTHOR')")
     @PostMapping()
     ApiResponse<AuthorResponse> create(@RequestBody @Valid CreateAuthorRequest request){
         ApiResponse<AuthorResponse> apiResponse = new ApiResponse<>();
@@ -33,11 +35,13 @@ public class AuthorController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('READ_AUTHOR')")
     @GetMapping()
     ApiResponse<List<AuthorResponse>> getAll(){
         return ApiResponse.<List<AuthorResponse>>builder().result(authorService.getAll()).build();
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_AUTHOR')")
     @PatchMapping("/{id}")
     ApiResponse<AuthorResponse> update(@PathVariable("id") Integer id,@RequestBody @Valid UpdateAuthorRequest request){
         ApiResponse<AuthorResponse> apiResponse = new ApiResponse<>();
@@ -47,6 +51,7 @@ public class AuthorController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('DELETE_AUTHOR')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Integer id){
         authorService.delete(id);
@@ -55,6 +60,4 @@ public class AuthorController {
             .message("Delete success")
             .build();
     }
-
-
 }

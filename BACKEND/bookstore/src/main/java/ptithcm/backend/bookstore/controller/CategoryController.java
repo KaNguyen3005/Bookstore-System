@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateCategoryRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateCategoryRequest;
@@ -29,6 +30,7 @@ public class CategoryController {
      * Tạo category mới
      * POST /api/v1/categories
      */
+    @PreAuthorize("hasAuthority('CREATE_CATEGORY')")
     @PostMapping()
     ApiResponse<CategoryResponse> create(@RequestBody @Valid CreateCategoryRequest request) {
         ApiResponse<CategoryResponse> apiResponse = new ApiResponse<>();
@@ -58,21 +60,12 @@ public class CategoryController {
                 .build();
     }
 
-    /**
-     * Lấy tất cả category con của một category
-     * GET /api/v1/categories/{id}/children
-     */
-    @GetMapping("/{id}/children")
-    ApiResponse<List<CategoryResponse>> getChildCategories(@PathVariable("id") Integer id) {
-        return ApiResponse.<List<CategoryResponse>>builder()
-                .result(categoryService.getChildCategories(id))
-                .build();
-    }
 
     /**
      * Soft delete category (và tất cả children)
      * DELETE /api/v1/categories/{id}
      */
+    @PreAuthorize("hasAuthority('DELETE_CATEGORY')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Integer id) {
         categoryService.delete(id);
@@ -85,6 +78,7 @@ public class CategoryController {
      * Update category
      * PATCH /api/v1/categories/{id}
      */
+    @PreAuthorize("hasAuthority('UPDATE_CATEGORY')")
     @PatchMapping("/{id}")
     ApiResponse<CategoryResponse> update(@PathVariable("id") Integer id, 
                                          @RequestBody @Valid UpdateCategoryRequest request) {

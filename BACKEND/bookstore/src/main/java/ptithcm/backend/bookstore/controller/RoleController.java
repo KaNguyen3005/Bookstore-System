@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateCategoryRequest;
 import ptithcm.backend.bookstore.dto.request.CreateRoleRequest;
@@ -29,6 +30,7 @@ public class RoleController {
 
     RoleService roleService;
 
+    @PreAuthorize("hasAuthority('CREATE_ROLE')")
     @PostMapping()
     ApiResponse<RoleResponse> create(@RequestBody @Valid CreateRoleRequest request){
         ApiResponse<RoleResponse> apiResponse = new ApiResponse<>();
@@ -41,6 +43,7 @@ public class RoleController {
         return ApiResponse.<List<RoleResponse>>builder().result(roleService.getAll()).build();
     }
 
+    @PreAuthorize("hasAuthority('DELETE_ROLE')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Integer id){
 
@@ -49,7 +52,8 @@ public class RoleController {
                 .message("Delete success")
                 .build();
     }
-    
+
+    @PreAuthorize("hasAuthority('UPDATE_ROLE')")
     @PatchMapping("/{id}")
     ApiResponse<RoleResponse> update(@PathVariable("id") Integer id, @RequestBody UpdateRoleRequest request){
         ApiResponse<RoleResponse> apiResponse = new ApiResponse<>();

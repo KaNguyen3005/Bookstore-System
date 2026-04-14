@@ -89,6 +89,27 @@ public class OrderService {
                 .toList();
     }
 
+    public List<OrderResponse> getMyOrders() {
+        UserResponse userResponse = userService.getMyInfo();
+
+        List<Order> orders = orderRepository.findByCustomer_UserId(userResponse.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        return orders.stream()
+                .map(orderMapper::toResponse)
+                .toList();
+    }
+
+    public OrderResponse getMyOrderById(Long id){
+        UserResponse user = userService.getMyInfo();
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        return orderMapper.toResponse(order);
+    }
+
+
     @Transactional
     public OrderResponse create(CreateOrderRequest request) {
         User customer = getCurrentCustomer();

@@ -58,7 +58,6 @@ public class Order {
     Boolean rewardPointApplied = false;
 
 
-
     LocalDateTime deliveredAt;
 
     LocalDateTime rewardEligibleAt;

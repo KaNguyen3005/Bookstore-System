@@ -2,6 +2,7 @@ package ptithcm.backend.bookstore.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,19 +21,35 @@ import java.util.List;
 public class SecurityConfig {
 
     CustomJwtDecoder customJwtDecoder;
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/api/v1/auth/login",
+            "/api/v1/auth/introspect",
+            "/api/v1/auth/refresh",
+            "/api/v1/auth/google",
+            "/api/v1/auth/register/init",
+            "/api/v1/auth/register/complete",
+            "/api/v1/auth/reset-password/init",
+            "/api/v1/auth/reset-password/verify",
+            "/api/v1/auth/reset-password/complete",
+    };
 
+    private final String[] RESOURCE_ENDPOINTS = {
+            "/imgs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults());
-
+        http.exceptionHandling(exception -> exception
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
         http.csrf(csrf -> csrf.disable()) // Tắt CSRF để gọi POST/PUT được
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/webhooks/ghn").permitAll()
-                        .requestMatchers("/api/v1/users/me").authenticated()
-                        .requestMatchers("/api/v1/addresses").authenticated()
-                        .requestMatchers("/api/v1/orders").authenticated()
-                        .anyRequest().permitAll()); // Cho phép tất cả
+                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, RESOURCE_ENDPOINTS).permitAll()
+                        .anyRequest().authenticated()); // Cho phép tất cả
         // Cấu hình application hoạt động như một OAuth2 Resource Server
         // Tức là server sẽ:
         // - Nhận JWT từ client

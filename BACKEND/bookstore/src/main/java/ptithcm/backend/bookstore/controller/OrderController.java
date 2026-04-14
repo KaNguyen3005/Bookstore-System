@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
@@ -26,6 +27,8 @@ import java.util.List;
 @RequestMapping("api/v1/orders")
 public class OrderController {
     OrderService orderService;
+
+    @PreAuthorize("hasAuthority('CREATE_ORDER')")
     @PostMapping()
     ApiResponse<OrderResponse> create(@RequestBody @Valid CreateOrderRequest request){
         ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
@@ -34,6 +37,7 @@ public class OrderController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('READ_ORDER')")
     @GetMapping()
     ApiResponse<List<OrderResponse>> getAll(){
         return ApiResponse.<List<OrderResponse>>builder().result(orderService.getAll()).build();
@@ -44,6 +48,20 @@ public class OrderController {
         ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
 
         apiResponse.setResult(orderService.getById(id));
+
+        return apiResponse;
+    }
+
+    @GetMapping("/my")
+    ApiResponse<List<OrderResponse>> getMyOrders(){
+        return ApiResponse.<List<OrderResponse>>builder().result(orderService.getMyOrders()).build();
+    }
+
+    @GetMapping("/my/{id}")
+    ApiResponse<OrderResponse> getMyOrderById(@PathVariable("id") Long id){
+        ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
+
+        apiResponse.setResult(orderService.getMyOrderById(id));
 
         return apiResponse;
     }

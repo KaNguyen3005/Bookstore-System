@@ -1,5 +1,6 @@
 package ptithcm.backend.bookstore.dto.request;
 
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ResetPasswordRequest {
-    String resetToken;
-    String newPassword;
+public class ResetPasswordInitRequest {
+    String email;
 }

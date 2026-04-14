@@ -51,100 +51,205 @@ SET FOREIGN_KEY_CHECKS = 1;
 START TRANSACTION;
 
 -- =====================================================
--- 1. ROLE + PERMISSION
+-- 1. ROLE + PERMISSION (Based on Controllers)
 -- =====================================================
 INSERT INTO `roles` (`role_id`, `role_name`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 'ADMIN',   NOW(), NOW(), NULL),
 (2, 'STAFF',   NOW(), NOW(), NULL),
 (3, 'CUSTOMER',NOW(), NOW(), NULL);
 
+-- Permissions từ Controllers: Book, User, Order, Category, Address, Author, Publisher, Voucher, Review, Payment, etc.
 INSERT INTO `permissions` (`permission_id`, `permission_name`, `description`) VALUES
-(1, 'USER_READ',        'Xem danh sách người dùng'),
-(2, 'USER_WRITE',       'Tạo và cập nhật người dùng'),
-(3, 'BOOK_READ',        'Xem sách'),
-(4, 'BOOK_WRITE',       'Tạo và cập nhật sách'),
-(5, 'ORDER_READ',       'Xem đơn hàng'),
-(6, 'ORDER_WRITE',      'Xử lý đơn hàng'),
-(7, 'VOUCHER_MANAGE',   'Quản lý voucher'),
-(8, 'REVIEW_MODERATE',  'Kiểm duyệt đánh giá');
+-- BOOK Permissions (BookController)
+(1, 'CREATE_BOOK',      'Tạo sách mới'),
+(2, 'READ_BOOK',        'Xem danh sách sách'),
+(3, 'UPDATE_BOOK',      'Cập nhật thông tin sách'),
+(4, 'DELETE_BOOK',      'Xóa sách'),
 
+-- USER Permissions (UserController)
+(5, 'CREATE_USER',      'Tạo người dùng mới'),
+(6, 'READ_USER',        'Xem danh sách người dùng'),
+(7, 'UPDATE_USER',      'Cập nhật thông tin người dùng'),
+(8, 'DELETE_USER',      'Xóa người dùng'),
+
+-- ORDER Permissions (OrderController)
+(9, 'CREATE_ORDER',     'Tạo đơn hàng'),
+(10, 'READ_ORDER',      'Xem danh sách đơn hàng'),
+(11, 'UPDATE_ORDER',    'Cập nhật trạng thái đơn hàng'),
+(12, 'DELETE_ORDER',    'Hủy đơn hàng'),
+(13, 'APPROVE_ORDER',   'Phê duyệt đơn hàng'),
+
+-- CATEGORY Permissions (CategoryController)
+(14, 'CREATE_CATEGORY', 'Tạo danh mục'),
+(15, 'READ_CATEGORY',   'Xem danh mục'),
+(16, 'UPDATE_CATEGORY', 'Cập nhật danh mục'),
+(17, 'DELETE_CATEGORY', 'Xóa danh mục'),
+
+-- ADDRESS Permissions (AddressController)
+(18, 'CREATE_ADDRESS',  'Tạo địa chỉ'),
+(19, 'READ_ADDRESS',    'Xem địa chỉ'),
+(20, 'UPDATE_ADDRESS',  'Cập nhật địa chỉ'),
+(21, 'DELETE_ADDRESS',  'Xóa địa chỉ'),
+
+-- AUTHOR Permissions (AuthorController)
+(22, 'CREATE_AUTHOR',   'Tạo tác giả'),
+(23, 'READ_AUTHOR',     'Xem tác giả'),
+(24, 'UPDATE_AUTHOR',   'Cập nhật tác giả'),
+(25, 'DELETE_AUTHOR',   'Xóa tác giả'),
+
+-- PUBLISHER Permissions (PublisherController)
+(26, 'CREATE_PUBLISHER','Tạo nhà xuất bản'),
+(27, 'READ_PUBLISHER',  'Xem nhà xuất bản'),
+(28, 'UPDATE_PUBLISHER','Cập nhật nhà xuất bản'),
+(29, 'DELETE_PUBLISHER','Xóa nhà xuất bản'),
+
+-- VOUCHER Permissions (VoucherController)
+(30, 'CREATE_VOUCHER',  'Tạo mã giảm giá'),
+(31, 'READ_VOUCHER',    'Xem mã giảm giá'),
+(32, 'UPDATE_VOUCHER',  'Cập nhật mã giảm giá'),
+(33, 'DELETE_VOUCHER',  'Xóa mã giảm giá'),
+
+-- REVIEW Permissions (ReviewController)
+(34, 'READ_REVIEW',     'Xem đánh giá'),
+(35, 'CREATE_REVIEW',   'Tạo đánh giá'),
+(36, 'DELETE_REVIEW',   'Xóa đánh giá'),
+
+-- PAYMENT Permissions (PaymentController)
+(37, 'READ_PAYMENT',    'Xem thanh toán'),
+(38, 'CREATE_PAYMENT',  'Tạo thanh toán'),
+
+-- REPORT Permissions (ReportController)
+(39, 'READ_REPORT',     'Xem báo cáo'),
+(40, 'READ_DASHBOARD',  'Xem dashboard');
+
+-- Role Permissions Mapping
 INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
-(1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),
-(2,3),(2,4),(2,5),(2,6),
-(3,3),(3,5);
+-- ADMIN: Tất cả quyền
+(1,1),(1,2),(1,3),(1,4),
+(1,5),(1,6),(1,7),(1,8),
+(1,9),(1,10),(1,11),(1,12),(1,13),
+(1,14),(1,15),(1,16),(1,17),
+(1,18),(1,19),(1,20),(1,21),
+(1,22),(1,23),(1,24),(1,25),
+(1,26),(1,27),(1,28),(1,29),
+(1,30),(1,31),(1,32),(1,33),
+(1,34),(1,35),(1,36),
+(1,37),(1,38),
+(1,39),(1,40),
+
+-- STAFF: Quản lý sách, đơn hàng, danh mục, báo cáo
+(2,2),(2,3),(2,4),
+(2,10),(2,11),(2,12),(2,13),
+(2,14),(2,15),(2,16),(2,17),
+(2,22),(2,23),(2,24),(2,25),
+(2,26),(2,27),(2,28),(2,29),
+(2,34),
+(2,39),(2,40),
+
+-- CUSTOMER: Xem sách, tạo đơn hàng, đánh giá, địa chỉ cá nhân
+(3,2),
+(3,9),(3,10),(3,12),
+(3,18),(3,19),(3,20),(3,21),
+(3,34),(3,35),
+(3,40);
 
 -- =====================================================
 -- 2. USER + ADDRESS
 -- Password mẫu đều là BCrypt của chuỗi: 123456
 -- =====================================================
 INSERT INTO `users`
-(`user_id`, `username`, `password`, `name`, `email`, `phone`, `status`, `gender`, `is_change_account`, `point`, `dob`, `role_id`, `created_at`, `updated_at`, `deleted_at`)
+(`user_id`, `username`, `password`, `name`, `email`, `phone`, `status`, `gender`, `is_change_account`, `point`, `tier`, `dob`, `role_id`, `avatar_url`, `auth_provider`, `email_verified`, `created_at`, `updated_at`, `deleted_at`)
 VALUES
-(1, 'admin01',    '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Quản trị hệ thống', 'admin@bookstore.vn',    '0901000001', b'1', 'MALE',   b'1', 5000, '1998-01-10 00:00:00', 1, NOW(), NOW(), NULL),
-(2, 'staff01',    '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Nhân viên bán hàng', 'staff@bookstore.vn',    '0901000002', b'1', 'FEMALE', b'1', 1200, '2000-05-20 00:00:00', 2, NOW(), NOW(), NULL),
-(3, 'sonnguyen',  '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Nguyễn Văn Sơn',     'son@example.com',       '0901000003', b'1', 'MALE',   b'0', 350,  '2003-09-15 00:00:00', 3, NOW(), NOW(), NULL),
-(4, 'lananh',     '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Trần Lan Anh',       'lananh@example.com',    '0901000004', b'1', 'FEMALE', b'0', 780,  '2004-12-01 00:00:00', 3, NOW(), NOW(), NULL);
+(1, 'admin01',    '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Quản trị hệ thống', 'admin@bookstore.vn',    '0901000001', b'1', 'MALE',   b'1', 10000, 'PLATINUM', '1998-01-10 00:00:00', 1, 'http://localhost:8080/imgs/users/user_default.jpg', 'LOCAL', b'1', NOW(), NOW(), NULL),
+(2, 'staff01',    '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Nhân viên bán hàng', 'staff@bookstore.vn',    '0901000002', b'1', 'FEMALE', b'1', 5000, 'GOLD', '2000-05-20 00:00:00', 2, 'http://localhost:8080/imgs/users/user_default.jpg', 'LOCAL', b'1', NOW(), NOW(), NULL),
+(3, 'sonnguyen',  '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Nguyễn Văn Sơn',     'son@example.com',       '0901000003', b'1', 'MALE',   b'0', 1350, 'SILVER', '2003-09-15 00:00:00', 3, 'http://localhost:8080/imgs/users/user_default.jpg', 'LOCAL', b'1', NOW(), NOW(), NULL),
+(4, 'lananh',     '$2y$10$/huMvV0ij6YO3HFj8wBpmeuYxcFWHttFqyH6jb8kWCaHQTlU862XG', 'Trần Lan Anh',       'lananh@example.com',    '0901000004', b'1', 'FEMALE', b'0', 2780, 'GOLD', '2004-12-01 00:00:00', 3, 'http://localhost:8080/imgs/users/user_default.jpg', 'LOCAL', b'1', NOW(), NOW(), NULL);
 
 INSERT INTO `addresses`
-(`address_id`, `customer_name`, `customer_phone`, `detail_address`, `ward`, `district`, `province`, `is_default`, `user_id`, `created_at`, `updated_at`, `deleted_at`)
+(`address_id`, `user_id`, `detail_address`, `ward`, `district`, `province`, `customer_name`, `customer_phone`, `is_default`, `created_at`, `updated_at`, `deleted_at`)
 VALUES
-(1, 'Nguyễn Văn Sơn', '0901000003', '12 Nguyễn Huệ', 'Bến Nghé', 'Quận 1', 'TP. Hồ Chí Minh', b'1', 3, NOW(), NOW(), NULL),
-(2, 'Trần Lan Anh',   '0901000004', '45 Võ Thị Sáu', 'Thống Nhất', 'Biên Hòa', 'Đồng Nai',        b'1', 4, NOW(), NOW(), NULL),
-(3, 'Nguyễn Văn Sơn', '0901000003', '18 Lý Tự Trọng', 'Bến Thành', 'Quận 1', 'TP. Hồ Chí Minh', b'0', 3, NOW(), NOW(), NULL);
+(1, 3, '12 Nguyễn Huệ', 'Bến Nghé', 'Quận 1', 'TP. Hồ Chí Minh', 'Nguyễn Văn Sơn', '0901000003', b'1', NOW(), NOW(), NULL),
+(2, 4, '45 Võ Thị Sáu', 'Thống Nhất', 'Biên Hòa', 'Đồng Nai', 'Trần Lan Anh', '0901000004', b'1', NOW(), NOW(), NULL),
+(3, 3, '18 Lý Tự Trọng', 'Bến Thành', 'Quận 1', 'TP. Hồ Chí Minh', 'Nguyễn Văn Sơn', '0901000003', b'0', NOW(), NOW(), NULL);
 
 -- =====================================================
--- 3. AUTHOR + PUBLISHER + CATEGORY
+-- 3. AUTHOR + PUBLISHER + CATEGORY (RECURSIVE STRUCTURE)
 -- =====================================================
-INSERT INTO `authors` (`author_id`, `alias`, `author_name`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'NNA',   'Nguyễn Nhật Ánh', NOW(), NOW(), NULL),
-(2, 'THD',   'Tô Hoài',         NOW(), NOW(), NULL),
-(3, 'DMB',   'Dale Carnegie',   NOW(), NOW(), NULL),
-(4, 'JKR',   'J. K. Rowling',   NOW(), NOW(), NULL),
-(5, 'JAMES', 'James Clear',     NOW(), NOW(), NULL);
+INSERT INTO `authors` (`author_id`, `author_name`, `alias`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'Nguyễn Nhật Ánh', 'NNA', NOW(), NOW(), NULL),
+(2, 'Tô Hoài',         'TH', NOW(), NOW(), NULL),
+(3, 'Dale Carnegie',   'DC', NOW(), NOW(), NULL),
+(4, 'J. K. Rowling',   'JKR', NOW(), NOW(), NULL),
+(5, 'James Clear',     'JC', NOW(), NOW(), NULL),
+(6, 'Robert Martin',   'RM', NOW(), NOW(), NULL),
+(7, 'Joshua Bloch',    'JB', NOW(), NOW(), NULL),
+(8, 'Haruki Murakami', 'HM', NOW(), NOW(), NULL);
 
 INSERT INTO `publishers` (`publisher_id`, `publisher_name`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 'NXB Trẻ',             NOW(), NOW(), NULL),
 (2, 'NXB Kim Đồng',        NOW(), NOW(), NULL),
 (3, 'NXB Tổng Hợp TP.HCM', NOW(), NOW(), NULL),
-(4, 'NXB Văn Học',         NOW(), NOW(), NULL);
+(4, 'NXB Văn Học',         NOW(), NOW(), NULL),
+(5, 'Penguin Books',       NOW(), NOW(), NULL);
 
-INSERT INTO `categories` (`category_id`, `category_name`, `parent_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'Sách tiếng Việt', NULL, NOW(), NOW(), NULL),
-(2, 'Văn học',         NULL, NOW(), NOW(), NULL),
-(3, 'Kỹ năng sống',    NULL, NOW(), NOW(), NULL),
-(4, 'Thiếu nhi',       NULL, NOW(), NOW(), NULL),
-(5, 'Tiểu thuyết',     2,    NOW(), NOW(), NULL),
-(6, 'Truyện dài',      2,    NOW(), NOW(), NULL),
-(7, 'Tâm lý - Kỹ năng',3,    NOW(), NOW(), NULL),
-(8, 'Fantasy',         NULL, NOW(), NOW(), NULL),
-(9, 'Self-help',       3,    NOW(), NOW(), NULL),
-(10,'Truyện đồng thoại',4,   NOW(), NOW(), NULL);
+-- ROOT CATEGORIES (Level 1)
+INSERT INTO `categories` (`category_name`, `parent_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
+('Lập Trình', NULL, NOW(), NOW(), NULL),
+('Văn Học',   NULL, NOW(), NOW(), NULL),
+('Kinh Tế',   NULL, NOW(), NOW(), NULL),
+('Tâm Lý',    NULL, NOW(), NOW(), NULL),
+('Khoa Học',  NULL, NOW(), NOW(), NULL);
+
+-- LEVEL 2 CATEGORIES - Children of 'Lập Trình' (id: 1)
+INSERT INTO `categories` (`category_name`, `parent_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
+('Java', 1, NOW(), NOW(), NULL),
+('Python', 1, NOW(), NOW(), NULL),
+('C++', 1, NOW(), NOW(), NULL),
+('Web Development', 1, NOW(), NOW(), NULL),
+('Mobile Development', 1, NOW(), NOW(), NULL);
+
+-- LEVEL 2 CATEGORIES - Children of 'Văn Học' (id: 2)
+INSERT INTO `categories` (`category_name`, `parent_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
+('Tiểu Thuyết', 2, NOW(), NOW(), NULL),
+('Thơ',         2, NOW(), NOW(), NULL),
+('Truyện Ngắn', 2, NOW(), NOW(), NULL);
+
+-- LEVEL 3 CATEGORIES - Children of 'Java' (id: 6)
+INSERT INTO `categories` (`category_name`, `parent_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
+('Spring Boot',    6, NOW(), NOW(), NULL),
+('Design Pattern', 6, NOW(), NOW(), NULL),
+('Microservices',  6, NOW(), NOW(), NULL);
+
+-- LEVEL 3 CATEGORIES - Children of 'Web Development' (id: 9)
+INSERT INTO `categories` (`category_name`, `parent_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
+('Frontend',  9, NOW(), NOW(), NULL),
+('Backend',   9, NOW(), NOW(), NULL);
 
 -- =====================================================
 -- 4. BOOK + RELATION
 -- =====================================================
 INSERT INTO `books`
-(`book_id`, `title`, `description`, `isbn`, `language`, `page_count`, `price`, `sale_percent`, `stock_quantity`, `avg_rating`, `cover_type`, `cover_image_url`, `is_active`, `publisher_id`, `created_at`, `updated_at`, `deleted_at`)
+(`book_id`, `title`, `description`, `isbn`, `language`, `page_count`, `price`, `sale_percent`, `stock_quantity`, `avg_rating`, `cover_type`, `cover_image_url`, `is_active`, `width`, `length`, `height`, `weight`, `publisher_id`, `created_at`, `updated_at`, `deleted_at`)
 VALUES
 (1, 'Mắt Biếc',
  'Tác phẩm nổi tiếng của Nguyễn Nhật Ánh về tuổi học trò và mối tình đầu.',
- '9786041234501', 'vi', 290, 95000.00, 10, 120, 4.8, 'Bìa mềm', 'https://example.com/mat-biec.jpg', b'1', 1, NOW(), NOW(), NULL),
+ '9786041234501', 'vi', 290, 95000.00, 10, 120, 4.8, 'Bìa mềm', 'http://localhost:8080/imgs/books/book_default.jpg', b'1', 14, 20, 2, 0.3, 1, NOW(), NOW(), NULL),
 
 (2, 'Dế Mèn Phiêu Lưu Ký',
  'Tác phẩm kinh điển của Tô Hoài dành cho thiếu nhi và mọi lứa tuổi.',
- '9786041234502', 'vi', 210, 78000.00, 5, 90, 4.7, 'Bìa cứng', 'https://example.com/de-men.jpg', b'1', 2, NOW(), NOW(), NULL),
+ '9786041234502', 'vi', 210, 78000.00, 5, 90, 4.7, 'Bìa cứng', 'http://localhost:8080/imgs/books/book_default.jpg', b'1', 14, 20, 2, 0.3, 2, NOW(), NOW(), NULL),
 
 (3, 'Đắc Nhân Tâm',
  'Cuốn sách kỹ năng giao tiếp và ứng xử kinh điển.',
- '9786041234503', 'vi', 320, 110000.00, 15, 150, 4.9, 'Bìa mềm', 'https://example.com/dac-nhan-tam.jpg', b'1', 3, NOW(), NOW(), NULL),
+ '9786041234503', 'vi', 320, 110000.00, 15, 150, 4.9, 'Bìa mềm', 'http://localhost:8080/imgs/books/book_default.jpg', b'1', 14, 20, 2, 0.3, 3, NOW(), NOW(), NULL),
 
 (4, 'Harry Potter và Hòn Đá Phù Thủy',
  'Phần mở đầu của loạt truyện fantasy nổi tiếng thế giới.',
- '9786041234504', 'vi', 350, 150000.00, 20, 75, 4.9, 'Bìa mềm', 'https://example.com/hp1.jpg', b'1', 4, NOW(), NOW(), NULL),
+ '9786041234504', 'vi', 350, 150000.00, 20, 75, 4.9, 'Bìa mềm', 'http://localhost:8080/imgs/books/book_default.jpg', b'1', 14, 20, 2, 0.3, 4, NOW(), NOW(), NULL),
 
 (5, 'Atomic Habits',
  'Cuốn sách về xây dựng thói quen tốt và loại bỏ thói quen xấu.',
- '9786041234505', 'en', 280, 180000.00, 12, 65, 4.8, 'Paperback', 'https://example.com/atomic-habits.jpg', b'1', 4, NOW(), NOW(), NULL);
+ '9786041234505', 'en', 280, 180000.00, 12, 65, 4.8, 'Paperback', 'http://localhost:8080/imgs/books/book_default.jpg', b'1', 14, 20, 2, 0.3, 4, NOW(), NOW(), NULL);
 
 INSERT INTO `book_author` (`book_id`, `author_id`) VALUES
 (1,1),
@@ -161,12 +266,12 @@ INSERT INTO `book_category` (`category_id`, `book_id`) VALUES
 (3,5),(9,5);
 
 INSERT INTO `book_imgs` (`book_img_id`, `img_url`, `book_book_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'https://example.com/mat-biec-1.jpg', 1, NOW(), NOW(), NULL),
-(2, 'https://example.com/mat-biec-2.jpg', 1, NOW(), NOW(), NULL),
-(3, 'https://example.com/de-men-1.jpg',   2, NOW(), NOW(), NULL),
-(4, 'https://example.com/dac-nhan-tam-1.jpg', 3, NOW(), NOW(), NULL),
-(5, 'https://example.com/hp1-1.jpg',      4, NOW(), NOW(), NULL),
-(6, 'https://example.com/atomic-1.jpg',   5, NOW(), NOW(), NULL);
+(1, 'http://localhost:8080/imgs/books/book_extra.jpg', 1, NOW(), NOW(), NULL),
+(2, 'http://localhost:8080/imgs/books/book_extra.jpg', 1, NOW(), NOW(), NULL),
+(3, 'http://localhost:8080/imgs/books/book_extra.jpg',   2, NOW(), NOW(), NULL),
+(4, 'http://localhost:8080/imgs/books/book_extra.jpg', 3, NOW(), NOW(), NULL),
+(5, 'http://localhost:8080/imgs/books/book_extra.jpg',      4, NOW(), NOW(), NULL),
+(6, 'http://localhost:8080/imgs/books/book_extra.jpg',   5, NOW(), NOW(), NULL);
 
 -- =====================================================
 -- 5. CART
@@ -200,10 +305,10 @@ INSERT INTO `user_voucher` (`user_id`, `voucher_id`) VALUES
 -- status trong orders/shipments là số nguyên vì schema hiện tại map kiểu số
 -- =====================================================
 INSERT INTO `orders`
-(`order_id`, `customer_id`, `staff_id`, `voucher_id`, `status`, `total_amount`, `vat_rate`, `vat_amount`, `created_at`, `updated_at`, `deleted_at`)
+(`order_id`, `customer_id`, `staff_id`, `voucher_id`, `status`, `vat_rate`, `vat_amount`, `tier_rate`, `total_amount`, `reward_point_applied`, `created_at`, `updated_at`, `deleted_at`)
 VALUES
-(1, 3, 2, 1, 1, 270000.00, 8.00, 20000.00, NOW(), NOW(), NULL),
-(2, 4, 2, NULL, 0, 228000.00, 8.00, 16888.89, NOW(), NOW(), NULL);
+(1, 3, 2, 1, 1, 0.05, 20000.00, 0.02, 270000.00, b'0', NOW(), NOW(), NULL),
+(2, 4, 2, NULL, 0, 0.05, 16888.89, 0.01, 228000.00, b'0', NOW(), NOW(), NULL);
 
 INSERT INTO `book_order`
 (`book_order_id`, `order_id`, `book_id`, `quantity`, `unit`, `created_at`, `updated_at`, `deleted_at`)
@@ -212,12 +317,6 @@ VALUES
 (2, 1, 3, 1, 'Cuốn', NOW(), NOW(), NULL),
 (3, 2, 2, 1, 'Cuốn', NOW(), NOW(), NULL),
 (4, 2, 5, 1, 'Cuốn', NOW(), NOW(), NULL);
-
-INSERT INTO `payments`
-(`payment_id`, `order_id`, `amount`, `method`, `status`, `transaction_id`, `paid_at`, `created_at`, `updated_at`)
-VALUES
-(1, 1, 270000.00, 'MOMO',    'SUCCESS', 'MOMO_TXN_0001', NOW(), NOW(), NOW()),
-(2, 2, 228000.00, 'COD',     'PENDING', NULL,             NULL,  NOW(), NOW());
 
 INSERT INTO `shipments`
 (`shipment_id`, `order_id`, `carrier_name`, `tracking_number`, `customer_name`, `customer_phone`, `detail_address`, `ward`, `district`, `province`, `estimated_delivery_date`, `actual_delivery_date`, `status`)

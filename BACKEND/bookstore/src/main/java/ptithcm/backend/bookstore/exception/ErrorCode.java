@@ -15,6 +15,7 @@ public enum ErrorCode {
     CATEGORY_ALREADY_EXISTS(9004, "Category name already exists", HttpStatus.CONFLICT),
     CATEGORY_ALREADY_DELETED(9005, "Category already deleted", HttpStatus.BAD_REQUEST),
     INVALID_PARENT_CATEGORY(9006, "Invalid parent category", HttpStatus.BAD_REQUEST),
+    TOKEN_NOT_PROVIDED(9007, "Token not provided", HttpStatus.UNAUTHORIZED),
     // ===== AUTH (1xxx) =====
     UNAUTHENTICATED(1001, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     ACCESS_DENIED(1002, "You do not have permission", HttpStatus.FORBIDDEN),

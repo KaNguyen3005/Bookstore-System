@@ -12,44 +12,8 @@ import ptithcm.backend.bookstore.entity.Category;
 public interface CategoryMapper {
     
     Category toEntity(CreateCategoryRequest createCategoriesRequest);
-    
-    /**
-     * Map Category entity to response
-     * Tránh infinite loop bằng cách:
-     * - Chỉ map parent info (id + name), không map full parent
-     * - Chỉ map child info (id + name), không map full children
-     */
-    @Mapping(target = "parentCategory", source = "parentCategory", qualifiedByName = "mapParentCategory")
-    @Mapping(target = "childCategories", source = "childCategories", qualifiedByName = "mapChildCategories")
+
+    @Mapping(target = "children", ignore = true)
     CategoryResponse toResponse(Category category);
-    
-    /**
-     * Helper: Map parent category thành ParentCategoryInfo
-     */
-    @Named("mapParentCategory")
-    default CategoryResponse.ParentCategoryInfo mapParentCategory(Category parent) {
-        if (parent == null) {
-            return null;
-        }
-        return CategoryResponse.ParentCategoryInfo.builder()
-                .categoryId(parent.getCategoryId().intValue())
-                .categoryName(parent.getCategoryName())
-                .build();
-    }
-    
-    /**
-     * Helper: Map child categories thành List<ChildCategoryInfo>
-     */
-    @Named("mapChildCategories")
-    default java.util.List<CategoryResponse.ChildCategoryInfo> mapChildCategories(java.util.List<Category> children) {
-        if (children == null) {
-            return null;
-        }
-        return children.stream()
-                .map(child -> CategoryResponse.ChildCategoryInfo.builder()
-                        .categoryId(child.getCategoryId().intValue())
-                        .categoryName(child.getCategoryName())
-                        .build())
-                .toList();
-    }
+
 }
