@@ -4,6 +4,7 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
 import DropdownAdmin from "../../../features/admin/shared/components/DropdownAdmin/DropdownAdmin";
+import logo from "../../../assets/images/logo.png";
 
 const HeaderAdmin: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -36,7 +37,7 @@ const HeaderAdmin: React.FC = () => {
   return (
     <div className="header-admin">
       <div className="header-top-admin">
-        <div className="logo-header-admin">KATIIA MANAGEMENT</div>
+        <div className="logo-header-admin"><img src={logo} alt="logo" className="logo-img" /></div>
 
         <div className="login-item" ref={menuRef}>
           <div
