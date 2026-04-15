@@ -17,7 +17,7 @@
 
 .header {
   width: 100%;
-  background: #2c6f7b;;
+  background: rgba(50, 88, 99, 1);
   color: var(--text-color-light);
   position: sticky;
   top: 0;
@@ -121,11 +121,11 @@
   display: flex;
   gap: 10px;
   padding: 6px 30px;
-  background: var(--secondary-color);
+  background: rgba(116, 169, 162, 1);
   flex-wrap: wrap;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  box-shadow: 0 2px 5px #74a9a2;
+  box-shadow: 0 1px 2px #74a9a2;
 }
 
 .header-menu button {
