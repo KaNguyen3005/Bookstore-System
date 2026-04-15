@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -9,7 +10,9 @@ import {
   ChevronRight,
   LogOut 
 } from "lucide-react";
+
 import "./AdminHome.css";
+import logo from "../../../assets/images/logo.png";
 
 const SidebarAdmin = () => {
   const menuItems = [
@@ -27,8 +30,8 @@ const SidebarAdmin = () => {
   return (
     <div className="sidebar-admin">
       <div className="logo-section">
-        <h2 className="logo-admin">KATIIA</h2>
-        <span className="admin-badge">Quản trị Admin</span>
+        <h2 className="logo-admin"></h2>
+        <h2 className="admin-badge">System Management</h2>
       </div>
 
       <nav className="menu-admin">
