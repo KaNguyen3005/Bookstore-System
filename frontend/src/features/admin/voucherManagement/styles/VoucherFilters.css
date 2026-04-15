@@ -1,0 +1,47 @@
+/* =============================================
+   VoucherFilters.css – Status Tab Bar BEM
+   ============================================= */
+
+.voucher-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.voucher-filters__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  padding-right: 4px;
+}
+
+.voucher-filters__tab {
+  padding: 7px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.voucher-filters__tab:hover {
+  border-color: #5f857a;
+  color: #5f857a;
+}
+
+.voucher-filters__tab--active {
+  background-color: #5f857a;
+  color: #ffffff;
+  border-color: #5f857a;
+  font-weight: 700;
+}
+
+.voucher-filters__tab--active:hover {
+  background-color: #4a6b61;
+  color: #ffffff;
+}
