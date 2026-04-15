@@ -32,6 +32,7 @@ import { ProductManagement } from "../features/admin/productManagement";
 
 import AdminHome from "../layout/layoutAdmin/AdminHome/AdminHome";
 import { Dashboard } from "../features/admin/dashboardManagement";
+import { OrderManagement } from "../features/admin/orderManagement";
 
 export default function AppRoutes() {
   return (
@@ -88,6 +89,7 @@ export default function AppRoutes() {
         <Route element={<AdminHome />}>
           <Route index element={<Dashboard />} />
           <Route path="products" element={<ProductManagement />} />
+          <Route path="orders" element={<OrderManagement />} />
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="statistical_report" element={<StatisticalReportManagement />} />
           <Route path="author" element={<AuthorManagement />} />

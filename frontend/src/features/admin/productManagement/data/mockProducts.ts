@@ -1,4 +1,4 @@
-import type { AdminProduct } from "../types/product.type";
+import type { AdminProduct } from "../types/product";
 
 export const adminProductsMock: AdminProduct[] = [
   {
