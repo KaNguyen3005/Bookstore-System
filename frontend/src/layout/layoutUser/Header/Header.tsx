@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
+import logo from "../../../assets/images/logo.png";
+
 import { addressApi } from "../../../services/addressApi";
 import type {Address } from "../../../data/address";
 
@@ -110,7 +112,7 @@ const handleSearch = () => {
     <header className="header">
       <div className="header-top">
         <Link to="/" className="logo-header" onClick={scrollToTop}>
-          KATIIA
+          <img src={logo} alt="logo" className="logo-img" />
         </Link>
 
         <div className="delivery">
