@@ -1,89 +1,69 @@
-import { adminProductsMock } from "../data/products";
-import type { AdminProduct, BaseResponse, ProductFilters, ProductSummary } from "../types/product.type";
+import axiosClient from '../../../../services/axiosClient';
+import { adminProductsMock } from "../data/mockProducts";
+import type { AdminProduct, BaseResponse, ProductSummary } from "../types/product";
 
-// Giả lập Database trong RAM để test chức năng xóa/sửa
+const IS_MOCK = true;
+
+// Simulating a database for mock mode
 let adminProductsDB: AdminProduct[] = [...adminProductsMock];
 
 export const productService = {
-  // Lấy danh sách sản phẩm với filter
-  getProducts: async (filters?: ProductFilters): Promise<BaseResponse<AdminProduct[]>> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let result = [...adminProductsDB];
-
-        if (filters) {
-          if (filters.search) {
-            const searchLower = filters.search.toLowerCase();
-            result = result.filter(
-              (p) =>
-                p.name.toLowerCase().includes(searchLower) ||
-                p.id.toString().includes(searchLower)
-            );
-          }
-          if (filters.category && filters.category !== "Tất cả thể loại") {
-            result = result.filter((p) => p.category === filters.category);
-          }
-          if (filters.status && filters.status !== "Tất cả trạng thái") {
-            result = result.filter((p) => p.status === filters.status);
-          }
-        }
-
-        resolve({
-          success: true,
-          message: "Lấy danh sách sản phẩm thành công",
-          data: result,
-        });
-      }, 500); // Fake delay 500ms
-    });
+  // 1. Fetch products from API or Mock
+  getProducts: async (): Promise<BaseResponse<AdminProduct[]>> => {
+    if (IS_MOCK) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return {
+        success: true,
+        message: "Lấy danh sách sản phẩm thành công (Mock)",
+        data: adminProductsDB,
+      };
+    }
+    const response = await axiosClient.get('/admin/products');
+    return response as unknown as BaseResponse<AdminProduct[]>;
   },
 
-  // Xóa sản phẩm
-  deleteProduct: async (id: number): Promise<BaseResponse<null>> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        adminProductsDB = adminProductsDB.filter((p) => p.id !== id);
-        resolve({
-          success: true,
-          message: "Đã xóa sản phẩm thành công",
-          data: null,
-        });
-      }, 300);
-    });
-  },
-
-  // Cập nhật trạng thái
-  updateStatus: async (id: number, status: AdminProduct["status"]): Promise<BaseResponse<AdminProduct>> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const index = adminProductsDB.findIndex((p) => p.id === id);
-        if (index !== -1) {
-          adminProductsDB[index].status = status;
-          resolve({
-            success: true,
-            message: "Cập nhật trạng thái thành công",
-            data: adminProductsDB[index],
-          });
-        } else {
-          reject(new Error("Sản phẩm không tồn tại"));
-        }
-      }, 300);
-    });
-  },
-
-  // Lấy thống kê
+  // 2. Fetch summary stats
   getSummary: async (): Promise<BaseResponse<ProductSummary>> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const total = adminProductsDB.length;
-        const inStock = adminProductsDB.filter((p) => p.stock > 0 && p.status === "Đang bán").length;
-        const outOfStock = adminProductsDB.filter((p) => p.stock === 0 || p.status === "Hết hàng").length;
+    if (IS_MOCK) {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const total = adminProductsDB.length;
+      const inStock = adminProductsDB.filter((p) => p.stock > 0 && p.status === "Đang bán").length;
+      const outOfStock = adminProductsDB.filter((p) => p.stock === 0 || p.status === "Hết hàng").length;
 
-        resolve({
-          success: true,
-          message: "Lấy thống kê thành công",
-          data: { total, inStock, outOfStock },
-        });
-      }, 400);
-    });
+      return {
+        success: true,
+        message: "Lấy thống kê thành công (Mock)",
+        data: { total, inStock, outOfStock },
+      };
+    }
+    const response = await axiosClient.get('/admin/products/summary');
+    return response as unknown as BaseResponse<ProductSummary>;
   },
+
+  // 3. Status/Action methods
+  deleteProduct: async (id: number): Promise<BaseResponse<null>> => {
+    if (IS_MOCK) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      adminProductsDB = adminProductsDB.filter((p) => p.id !== id);
+      return { success: true, message: "Đã xóa sản phẩm thành công", data: null };
+    }
+    const response = await axiosClient.delete(`/admin/products/${id}`);
+    return response as unknown as BaseResponse<null>;
+  },
+
+  updateStatus: async (id: number, status: AdminProduct["status"]): Promise<BaseResponse<AdminProduct>> => {
+    if (IS_MOCK) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const index = adminProductsDB.findIndex((p) => p.id === id);
+      if (index !== -1) {
+        adminProductsDB[index].status = status;
+        return { success: true, message: "Cập nhật trạng thái thành công", data: adminProductsDB[index] };
+      }
+      throw new Error("Sản phẩm không tồn tại");
+    }
+    const response = await axiosClient.patch(`/admin/products/${id}/status`, { status });
+    return response as unknown as BaseResponse<AdminProduct>;
+  }
 };
+
+export default productService;

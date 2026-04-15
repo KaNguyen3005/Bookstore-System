@@ -1,0 +1,120 @@
+/* Product Table CSS - BEM */
+
+.product-table__wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table__thead {
+  background-color: #f5f7f9;
+}
+
+.product-table__th {
+  padding: 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.product-table__th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.product-table__th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.product-table__tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s;
+}
+
+.product-table__tr:hover {
+  background-color: rgba(249, 250, 251, 0.5);
+}
+
+.product-table__td {
+  padding: 16px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.product-table__info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.product-table__img {
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.product-table__name {
+  font-weight: 700;
+  color: #1f2937;
+  max-width: 200px;
+  line-height: 1.2;
+}
+
+.product-table__author {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.product-table__category {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.product-table__price {
+  font-weight: 700;
+  color: #111827;
+}
+
+.product-table__stock {
+  font-weight: 600;
+}
+
+.product-table__stock--out {
+  color: #ef4444;
+}
+
+/* Badge System */
+.product-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.product-badge--success { background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.product-badge--danger { background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+.product-badge--warning { background-color: #fff7ed; color: #f97316; border: 1px solid #fed7aa; }
+
+.product-table__actions {
+  display: flex;
+  gap: 12px;
+  color: #9ca3af;
+}
+
+.product-table__action {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.product-table__action--edit:hover { color: #5f857a; }
+.product-table__action--delete:hover { color: #ef4444; }

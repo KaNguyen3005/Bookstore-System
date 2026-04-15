@@ -1,74 +1,91 @@
-import React from "react";
-import type { AdminProduct } from "../types/product.type";
-import StatusBadge from "./StatusBadge";
-import { FiEye, FiTrash2, FiEdit2 } from "react-icons/fi";
+import React from 'react';
+import { Edit, Trash2 } from 'lucide-react';
+import type { AdminProduct } from '../types/product';
+import '../styles/ProductTable.css';
 
 interface ProductTableProps {
   products: AdminProduct[];
-  onDelete: (id: number) => void;
   loading: boolean;
+  onDelete: (id: number) => void;
+  onUpdateStatus: (id: number, status: AdminProduct['status']) => void;
 }
 
-const ProductTable: React.FC<ProductTableProps> = ({ products, onDelete, loading }) => {
-  if (loading) {
-    return <div className="table-loading">Đang tải dữ liệu...</div>;
-  }
+export const ProductTable: React.FC<ProductTableProps> = ({
+  products,
+  loading,
+  onDelete,
+}) => {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount).replace('₫', 'đ');
+  };
 
-  if (products.length === 0) {
-    return <div className="table-empty">Không tìm thấy sản phẩm nào.</div>;
+  const getBadgeClass = (status: AdminProduct['status']) => {
+    switch (status) {
+      case 'Đang bán': return 'product-badge--success';
+      case 'Hết hàng': return 'product-badge--danger';
+      case 'Tạm ngưng': return 'product-badge--warning';
+      default: return '';
+    }
+  };
+
+  if (loading) {
+    return <div className="p-8 text-center text-gray-500">Đang tải danh sách sản phẩm...</div>;
   }
 
   return (
-    <div className="product-table-wrapper">
+    <div className="product-table__wrapper">
       <table className="product-table">
-        <thead>
+        <thead className="product-table__thead">
           <tr>
-            <th><input type="checkbox" /></th>
-            <th>Sản phẩm</th>
-            <th>Tác giả</th>
-            <th>Thể loại</th>
-            <th>Giá bán</th>
-            <th>Tồn kho</th>
-            <th>Đã bán</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
+            <th className="product-table__th">ID</th>
+            <th className="product-table__th">Sản phẩm</th>
+            <th className="product-table__th">Thể loại</th>
+            <th className="product-table__th">Giá bán</th>
+            <th className="product-table__th">Kho hàng</th>
+            <th className="product-table__th">Đã bán</th>
+            <th className="product-table__th">Trạng thái</th>
+            <th className="product-table__th">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           {products.map((product) => (
-            <tr key={product.id}>
-              <td><input type="checkbox" /></td>
-              <td className="product-info-cell">
-                <img src={product.thumbnail} alt={product.name} className="product-thumb" />
-                <div className="product-name-col">
-                  <span className="product-name-text" title={product.name}>{product.name}</span>
-                  <span className="product-id-text">ID: #{product.id}</span>
+            <tr key={product.id} className="product-table__tr">
+              <td className="product-table__td">{product.id}</td>
+              <td className="product-table__td">
+                <div className="product-table__info">
+                  <img src={product.thumbnail} alt={product.name} className="product-table__img" />
+                  <div>
+                    <div className="product-table__name">{product.name}</div>
+                    <div className="product-table__author">{product.author}</div>
+                  </div>
                 </div>
               </td>
-              <td>{product.author}</td>
-              <td>
-                <span className="category-tag">{product.category}</span>
+              <td className="product-table__td">
+                <span className="product-table__category">{product.category}</span>
               </td>
-              <td className="price-text">{product.price.toLocaleString("vi-VN")}đ</td>
-              <td>{product.stock}</td>
-              <td>{product.sold}</td>
-              <td>
-                <StatusBadge status={product.status} />
+              <td className="product-table__td">
+                <span className="product-table__price">{formatCurrency(product.price)}</span>
               </td>
-              <td className="action-cell">
-                <button className="action-btn view-btn" title="Xem">
-                  <FiEye />
-                </button>
-                <button
-                  className="action-btn delete-btn"
-                  title="Xóa"
-                  onClick={() => onDelete(product.id)}
-                >
-                  <FiTrash2 />
-                </button>
-                <button className="action-btn edit-btn" title="Sửa">
-                  <FiEdit2 />
-                </button>
+              <td className="product-table__td">
+                <span className={`product-table__stock ${product.stock === 0 ? 'product-table__stock--out' : ''}`}>
+                  {product.stock}
+                </span>
+              </td>
+              <td className="product-table__td">{product.sold}</td>
+              <td className="product-table__td">
+                <span className={`product-badge ${getBadgeClass(product.status)}`}>
+                  {product.status}
+                </span>
+              </td>
+              <td className="product-table__td">
+                <div className="product-table__actions">
+                  <Edit className="product-table__action product-table__action--edit" size={18} />
+                  <Trash2 
+                    className="product-table__action product-table__action--delete" 
+                    size={18} 
+                    onClick={() => onDelete(product.id)}
+                  />
+                </div>
               </td>
             </tr>
           ))}
@@ -77,5 +94,3 @@ const ProductTable: React.FC<ProductTableProps> = ({ products, onDelete, loading
     </div>
   );
 };
-
-export default ProductTable;
