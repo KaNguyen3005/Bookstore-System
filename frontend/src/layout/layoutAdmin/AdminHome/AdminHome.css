@@ -12,13 +12,12 @@
   flex: 1;
   gap: 24px;
   padding: 24px;
-  background-color: #f3f4f6;
   box-sizing: border-box;
 }
 
 .content-admin {
   flex: 1;
-  background: #F1F5F9;
+  background: white;
   overflow-y: auto;
   border-radius: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -30,7 +29,7 @@
 /* sidebar*/
 .sidebar-admin {
   width: 260px;
-  background: rgba(50, 88, 99, 0.95);
+  background: white;
   color: white;
   padding: 32px 20px;
   box-sizing: border-box;
@@ -47,6 +46,7 @@
 .logo-section {
   padding: 0 12px;
   margin-bottom: 40px;
+  color: black;
 }
 
 .logo-admin {
@@ -54,11 +54,11 @@
   font-weight: 800;
   margin: 0;
   letter-spacing: 2px;
-  color: #fff;
+  color: black;
 }
 
 .admin-badge {
-  font-size: 12px;
+  font-size: 18px;
   opacity: 0.8;
   display: block;
   margin-top: 4px;
@@ -76,7 +76,7 @@
 }
 
 .menu-admin::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(217, 217, 217, 1);
   border-radius: 10px;
 }
 
@@ -95,7 +95,7 @@
   gap: 12px;
   width: 100%;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: black;
   padding: 14px 18px;
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -110,8 +110,8 @@
 
 /* hover */
 .menu-admin li a.card-name:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgba(217, 217, 217, 1);
+  color: rgba(57, 96, 107, 1);
   transform: translateX(4px);
 }
 
@@ -122,7 +122,7 @@
 /* active state */
 .menu-admin li a.card-name.active {
   background: white;
-  color: #72a9a3;
+  color: rgba(57, 96, 107, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-weight: 600;
 }
