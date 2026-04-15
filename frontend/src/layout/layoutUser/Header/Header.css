@@ -42,6 +42,11 @@
   margin-right: 30px;
 }
 
+.logo-img {
+  height: 40px; /* chỉnh theo UI của bạn */
+  object-fit: contain;
+}
+
 
 .delivery {
   display: flex;

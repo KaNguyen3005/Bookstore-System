@@ -1,5 +1,6 @@
 import React from "react";
 import "./Footer.css";
+import logo from "../../../assets/images/logo.png";
 
 import { MdOutlineEmail } from "react-icons/md";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -43,7 +44,11 @@ const Footer: React.FC = () => {
 
         {/* LEFT */}
         <div className="footer-col logo-col">
-          <h1 className="logo-footer">KATIIA</h1>
+          <h1 className="logo-footer">
+                    <Link to="/" className="logo-header" onClick={scrollToTop}>
+                      <img src={logo} alt="logo" className="logo-img" />
+                    </Link>
+          </h1>
           <p>Nhà sách số 1 Việt Nam</p>
 
           <div className="contact">

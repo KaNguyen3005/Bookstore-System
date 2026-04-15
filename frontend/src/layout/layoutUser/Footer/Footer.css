@@ -1,6 +1,6 @@
 .footer {
   max-width: 100%;
-  background: #3c6670;
+  background: #2c6f7b;
   color: white;
   font-size: 12px;
   padding: 0 0 15px 0;
@@ -75,6 +75,11 @@
   font-size: 30px;
   font-weight: bold;
   font-family: "Urban Jungle", sans-serif;
+}
+
+.logo-img {
+  height: 40px;
+  object-fit: contain;
 }
 
 
