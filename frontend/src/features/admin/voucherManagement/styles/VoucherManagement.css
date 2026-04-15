@@ -1,0 +1,78 @@
+/* =============================================
+   VoucherManagement.css – Layout & Page BEM
+   ============================================= */
+
+:root {
+  --teal-primary: #5f857a;
+  --teal-dark: #4a6b61;
+  --teal-bg: #f0f9f7;
+  --gray-light: #f9fafb;
+  --gray-border: #e5e7eb;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --shadow-card: 0 2px 12px -3px rgba(95, 133, 122, 0.12);
+}
+
+.voucher-mgmt {
+  padding: 24px;
+  background-color: var(--gray-light);
+  min-height: 100vh;
+}
+
+.voucher-mgmt__header {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.voucher-mgmt__header-info h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--teal-primary);
+  margin: 0 0 4px;
+}
+
+.voucher-mgmt__header-info p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0;
+}
+
+.voucher-mgmt__btn-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--teal-primary);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.voucher-mgmt__btn-create:hover {
+  background-color: var(--teal-dark);
+  transform: translateY(-1px);
+}
+
+.voucher-mgmt__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 20px;
+}
+
+.voucher-mgmt__empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}

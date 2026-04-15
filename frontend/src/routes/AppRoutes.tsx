@@ -33,6 +33,7 @@ import { ProductManagement } from "../features/admin/productManagement";
 import AdminHome from "../layout/layoutAdmin/AdminHome/AdminHome";
 import { Dashboard } from "../features/admin/dashboardManagement";
 import { OrderManagement } from "../features/admin/orderManagement";
+import { VoucherManagement } from "../features/admin/voucherManagement";
 
 export default function AppRoutes() {
   return (
@@ -93,6 +94,7 @@ export default function AppRoutes() {
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="statistical_report" element={<StatisticalReportManagement />} />
           <Route path="author" element={<AuthorManagement />} />
+          <Route path="vouchers" element={<VoucherManagement />} />
         </Route>
 
 

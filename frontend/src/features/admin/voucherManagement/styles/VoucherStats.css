@@ -1,0 +1,60 @@
+/* =============================================
+   VoucherStats.css – Summary Cards BEM
+   ============================================= */
+
+.voucher-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.voucher-stats__card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 12px -3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.voucher-stats__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.12);
+}
+
+.voucher-stats__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.voucher-stats__icon--teal   { background-color: #e6f2f0; color: #5f857a; }
+.voucher-stats__icon--green  { background-color: #f0fdf4; color: #22c55e; }
+.voucher-stats__icon--orange { background-color: #fff7ed; color: #f97316; }
+.voucher-stats__icon--red    { background-color: #fef2f2; color: #ef4444; }
+
+.voucher-stats__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.voucher-stats__value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.voucher-stats__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
