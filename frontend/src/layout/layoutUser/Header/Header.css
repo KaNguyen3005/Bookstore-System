@@ -125,6 +125,7 @@
   flex-wrap: wrap;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  box-shadow: 0 2px 5px #74a9a2;
 }
 
 .header-menu button {
@@ -195,6 +196,7 @@
 
 .search {
   position: relative;
+
 }
 
 .search-dropdown {
