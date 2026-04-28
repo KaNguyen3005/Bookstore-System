@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
+import ptithcm.backend.bookstore.dto.request.UpdateOrderItemRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
@@ -117,4 +118,12 @@ public class OrderController {
                 .result(orderService.getTopSellingBooksWithRank(from, to, limit))
                 .build();
     }
+    @PatchMapping("/{id}/items/{itemId}")
+    public ApiResponse<Void> updateOrderItem(@PathVariable Long id, @PathVariable Long itemId, @RequestBody @Valid UpdateOrderItemRequest request) {
+        orderService.updateOrderItem(id, itemId, request);
+        return ApiResponse.<Void>builder()
+                .message("Update order item success")
+                .build();
+    }
+
 }

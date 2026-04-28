@@ -94,12 +94,4 @@ public class UserController {
                 .message("User disabled successfully")
                 .build();
     }
-
-    @PostMapping("/reviews")
-    ApiResponse<ReviewResponse> createReview(@RequestBody @Valid CreateReviewRequest request){
-        ApiResponse<ReviewResponse> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.createReview(request));
-        return apiResponse;
-    }
-
 }

@@ -55,9 +55,6 @@ public class User {
     )
     List<Voucher> vouchers;
 
-    @OneToMany(mappedBy = "customer")
-    List<Review> reviews;
-
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;

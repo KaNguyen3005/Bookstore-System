@@ -13,15 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
-import ptithcm.backend.bookstore.dto.response.BookImgResponse;
-import ptithcm.backend.bookstore.dto.response.BookResponse;
-import ptithcm.backend.bookstore.dto.response.ReviewResponse;
-import ptithcm.backend.bookstore.dto.response.UploadResult;
+import ptithcm.backend.bookstore.dto.response.*;
 import ptithcm.backend.bookstore.entity.*;
+import ptithcm.backend.bookstore.enums.InteractEventType;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.BookMapper;
-import ptithcm.backend.bookstore.mapper.ReviewMapper;
+import ptithcm.backend.bookstore.mapper.BookOrderMapper;
 import ptithcm.backend.bookstore.repository.*;
 
 import java.math.BigDecimal;
@@ -42,9 +40,13 @@ public class BookService {
     AuthorRepository authorRepository;
     PublisherRepository publisherRepository;
     BookRepository bookRepository;
+    BookOrderRepository bookOrderRepository;
     BookMapper bookMapper;
     CloudinaryService cloudinaryService;
-    ReviewMapper reviewMapper;
+    BookOrderMapper bookOrderMapper;
+    AuthenticationService authenticationService;
+    UserService userService;
+    InteractEventService interactEventService;
 
     @Transactional
     public BookResponse create(CreateBookRequest request) {
@@ -151,6 +153,10 @@ public class BookService {
                     return imgResponse;
                 })
                 .toList());
+        UserResponse user = userService.getMyInfoOrNull();
+        if(user != null){
+            interactEventService.recordViewBookEvent(user.getUserId(), id);
+        }
         return response;
     }
 
@@ -293,11 +299,16 @@ public class BookService {
         }
     }
 
-    // ❌ FIXED: Không phân trang + N+1 Query + không check deletedAt
-    public Page<ReviewResponse> getAllReview(Integer bookId, int page, int size) {
+
+    /**
+     * Get book reviews from BookOrder entities
+     * Maps BookOrder to ReviewResponse using BookOrderMapper
+     */
+    public Page<OrderItemResponse> getBookReviews(Integer bookId, int page, int size) {
+        // Verify book exists
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
-        
+
         if (book.getDeletedAt() != null) {
             throw new AppException(ErrorCode.BOOK_NOT_FOUND);
         }
@@ -306,14 +317,16 @@ public class BookService {
         if (page < 0) page = 0;
         if (size <= 0) size = 10;
         if (size > 100) size = 100;
-        
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Review> reviews = book.getReviews() != null ? 
-            new org.springframework.data.domain.PageImpl<>(book.getReviews(), pageable, book.getReviews().size()) :
-            Page.empty();
 
-        return reviews.map(reviewMapper::toResponse);
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Get BookOrders with reviews for this book
+        Page<BookOrder> bookOrders = bookOrderRepository.findAllByBook_BookId(bookId, pageable);
+
+        // Map BookOrder to ReviewResponse
+        return bookOrders.map(bookOrderMapper::toResponse);
     }
+
 
     @Transactional
     public void uploadImages(Integer id, List<MultipartFile> files) {

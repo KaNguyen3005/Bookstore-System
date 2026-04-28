@@ -17,4 +17,7 @@ public class OrderItemResponse {
     String bookTitle;
     Integer quantity;
     BigDecimal price;
+    Integer rate;
+    String content;
+    String unit;
 }

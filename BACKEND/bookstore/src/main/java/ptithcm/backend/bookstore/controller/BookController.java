@@ -1,6 +1,5 @@
 package ptithcm.backend.bookstore.controller;
 
-import com.cloudinary.Api;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -16,8 +15,7 @@ import ptithcm.backend.bookstore.dto.request.CreateBookRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateBookRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.dto.response.BookResponse;
-import ptithcm.backend.bookstore.dto.response.ReviewResponse;
-import ptithcm.backend.bookstore.entity.Review;
+import ptithcm.backend.bookstore.dto.response.OrderItemResponse;
 import ptithcm.backend.bookstore.service.BookService;
 
 import java.math.BigDecimal;
@@ -103,13 +101,13 @@ public class BookController {
     }
 
     @GetMapping("{id}/reviews")
-    ApiResponse<Page<ReviewResponse>> getAllReview(
+    ApiResponse<Page<OrderItemResponse>> getBookReviews(
             @PathVariable("id") Integer id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        ApiResponse<Page<ReviewResponse>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(bookService.getAllReview(id, page, size));
+        ApiResponse<Page<OrderItemResponse>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(bookService.getBookReviews(id, page, size));
         return apiResponse;
     }
 }

@@ -19,6 +19,21 @@ services:
       retries: 10
       start_period: 20s
 
+  recommendation-service:
+    build:
+      context: ./recommendation-service
+    container_name: recommendation-service
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: db_bookstore
+      DB_USER: app
+      DB_PASSWORD: app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+
   backend:
     image: morex3/bookstore-backend:latest
     container_name: backend-dev

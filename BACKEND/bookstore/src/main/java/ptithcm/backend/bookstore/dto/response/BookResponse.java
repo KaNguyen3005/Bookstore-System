@@ -30,6 +30,5 @@ public class BookResponse {
     Float avgRating; //0 - 5
     Integer salePercent; // Đơn vị %
     Set<String> categories = new HashSet<>();
-    List<ReviewResponse> reviews;
     List<BookImgResponse> bookImgs;
 }

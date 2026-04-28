@@ -81,8 +81,6 @@ public class Book {
     @OneToMany(mappedBy = "book")
     List<InteractEvent> interactEvents;
 
-    @OneToMany(mappedBy = "book")
-    List<Review> reviews;
 
     @CreationTimestamp
     @Column(updatable = false)

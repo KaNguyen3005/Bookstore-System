@@ -6,7 +6,14 @@ import ptithcm.backend.bookstore.entity.InteractEvent;
 import ptithcm.backend.bookstore.entity.Voucher;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Repository
 public interface InteractEventRepository extends JpaRepository<InteractEvent, Long> {
+    boolean existsByCustomer_UserIdAndBook_BookIdAndEventTypeAndEventTimeAfter(
+            Long userId,
+            Integer bookId,
+            String eventType,
+            LocalDateTime after
+    );
 }

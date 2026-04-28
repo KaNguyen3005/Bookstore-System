@@ -102,6 +102,7 @@ public enum ErrorCode {
     ORDER_CANNOT_CANCEL(8005, "Order cannot be cancelled at this stage", HttpStatus.BAD_REQUEST),
     ORDER_ITEM_NOT_FOUND(8006, "Order item not found", HttpStatus.NOT_FOUND),
     ORDER_IS_EMPTY(8007, "Order must have at least 1 item", HttpStatus.BAD_REQUEST),
+    REVIEW_ALREADY_EXISTS(8008, "You have already reviewed this book", HttpStatus.BAD_REQUEST),
 
     // ===== PAYMENT (85xx) =====
     PAYMENT_NOT_FOUND(8501, "Payment not found", HttpStatus.NOT_FOUND),
