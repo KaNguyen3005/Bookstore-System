@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 public class CreateReviewRequest {
-    Integer bookId;
+    Long bookOrderId;
     @Min(value = 1, message = "INVALID_RATING")
     @Max(value = 5, message = "INVALID_RATING")
     Integer rating;

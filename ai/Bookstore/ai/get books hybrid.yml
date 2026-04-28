@@ -1,0 +1,18 @@
+info:
+  name: get books hybrid
+  type: http
+
+http:
+  method: GET
+  url: http://localhost:8000/recommendations/v4/users/1/hybrid?limit=10
+  params:
+    - name: limit
+      value: "10"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,21 @@
+info:
+  name: introspect
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/bookstore/api/v1/auth/introspect
+  body:
+    type: json
+    data: |-
+      {
+        "token":"eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJrYWFrYWEuY29tIiwic3ViIjoiMSIsImV4cCI6MTc3NzM0OTcyNCwiaWF0IjoxNzc3MzQ2MTI0LCJqdGkiOiJiOTU2ZTM3ZS05YmQ3LTQ2YzEtYmM1Yy0yZWM3NjE3NDAyZTYiLCJzY29wZSI6IlJPTEVfQURNSU4gQ1JFQVRFX1VTRVIgUkVBRF9VU0VSIFVQREFURV9VU0VSIERFTEVURV9VU0VSIENSRUFURV9CT09LIFJFQURfQk9PSyBVUERBVEVfQk9PSyBERUxFVEVfQk9PSyJ9.cAKatdRxMrEJJZOdD8Javcp1eaH1Nq46Zt-lFWdP3wX37lF3J3kpgy6mE2120oYcFVNd_yfGoLz3PVAJCoMJ1g"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

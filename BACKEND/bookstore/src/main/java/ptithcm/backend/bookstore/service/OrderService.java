@@ -7,20 +7,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.configuration.GHNConfig;
-import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
-import ptithcm.backend.bookstore.dto.request.OrderItemRequest;
-import ptithcm.backend.bookstore.dto.request.OrderPricing;
-import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
-import ptithcm.backend.bookstore.dto.response.OrderResponse;
-import ptithcm.backend.bookstore.dto.response.RevenueResponse;
-import ptithcm.backend.bookstore.dto.response.UserResponse;
-import ptithcm.backend.bookstore.dto.response.TopSellingBookResponse;
-import ptithcm.backend.bookstore.dto.response.OrderStatusStatisticResponse;
-import ptithcm.backend.bookstore.dto.response.DashboardSummaryResponse;
+import ptithcm.backend.bookstore.dto.request.*;
+import ptithcm.backend.bookstore.dto.response.*;
 import ptithcm.backend.bookstore.entity.*;
 import ptithcm.backend.bookstore.enums.*;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
+import ptithcm.backend.bookstore.mapper.BookOrderMapper;
 import ptithcm.backend.bookstore.mapper.OrderItemMapper;
 import ptithcm.backend.bookstore.mapper.OrderMapper;
 import ptithcm.backend.bookstore.mapper.VoucherMapper;
@@ -51,6 +44,10 @@ public class OrderService {
     OrderMapper orderMapper;
     GHNService ghnService;
     VoucherMapper voucherMapper;
+    BookOrderRepository bookOrderRepository;
+    private final BookOrderMapper bookOrderMapper;
+    private final InteractEventService interactEventService;
+
     public List<OrderResponse> getAll() {
 
         List<Order> orders = orderRepository.findAll();
@@ -113,49 +110,35 @@ public class OrderService {
     @Transactional
     public OrderResponse create(CreateOrderRequest request) {
         User customer = getCurrentCustomer();
-
         Address address = getValidatedAddress(request.getAddressId(), customer);
-
         validateOrderItems(request);
-
         Map<Integer, Book> bookMap = loadBooksMap(request);
-
         BigDecimal subtotal = calculateSubtotal(request, bookMap);
-
         Voucher voucher = resolveVoucher(request.getVoucherCode(), subtotal);
-
         BigDecimal tierRate = getTierRate(customer);
-
         OrderPricing pricing = calculatePricing(subtotal, voucher, tierRate);
-
         Order order = buildOrder(customer, voucher, pricing);
-
         List<BookOrder> bookOrders = buildBookOrders(request, order, bookMap);
-
         order.setBookOrders(bookOrders);
-
         decreaseStock(request, bookMap);
-
         bookRepository.saveAll(bookMap.values());
-
         Order savedOrder = orderRepository.save(order);
-
         Shipment shipment = buildShipment(savedOrder, customer, address);
-
         shipmentRepository.save(shipment);
-
         increaseVoucherUsage(voucher);
-
         Payment payment = buildPayment(savedOrder, request.getPaymentMethod(), pricing.getTotalAmount());
-
         paymentRepository.save(payment);
-
         logOrderCreated(savedOrder, customer, subtotal, pricing);
-
         OrderResponse response = orderMapper.toResponse(savedOrder);
-
         response.setSubtotal(subtotal);
 
+        for (OrderItemRequest item : request.getItems()) {
+            interactEventService.recordEvent(
+                    customer.getUserId(),
+                    item.getBookId(),
+                    InteractEventType.PURCHASE
+            );
+        }
         return response;
     }
     public OrderResponse update(Long id, UpdateOrderStatusRequest request) {
@@ -514,15 +497,76 @@ public class OrderService {
     }
 
     private Shipment buildShipment(Order order, User customer, Address address) {
+        // Tính toán kích thước và trọng lượng từ các sách trong đơn hàng
+        ShipmentDimensions dimensions = calculateShipmentDimensions(order.getBookOrders());
+
         return Shipment.builder()
                 .order(order)
-                .customerName(customer.getName())
-                .customerPhone(customer.getPhone())
-                .detailAddress(address.getDetailAddress())
-                .ward(address.getWard())
-                .district(address.getDistrict())
-                .province(address.getProvince())
+                .address(address)
                 .status(ShippingStatus.PENDING)
+                .weight(dimensions.getWeight())
+                .length(dimensions.getLength())
+                .width(dimensions.getWidth())
+                .height(dimensions.getHeight())
+                .build();
+    }
+
+    /**
+     * Tính toán kích thước và trọng lượng từ danh sách sách trong đơn hàng
+     * - Weight: Tổng trọng lượng của tất cả sách (weight * quantity)
+     * - Length: Chiều dài lớn nhất * số lượng sách loại
+     * - Width: Chiều rộng lớn nhất * số lượng sách loại
+     * - Height: Tổng chiều cao của tất cả sách xếp chồng lên nhau (height * quantity)
+     */
+    private ShipmentDimensions calculateShipmentDimensions(List<BookOrder> bookOrders) {
+        if (bookOrders == null || bookOrders.isEmpty()) {
+            return ShipmentDimensions.builder()
+                    .weight(0.0)
+                    .length(10)      // Default 10cm
+                    .width(10)       // Default 10cm
+                    .height(5)       // Default 5cm
+                    .build();
+        }
+
+        double totalWeight = 0.0;
+        int maxLength = 0;
+        int maxWidth = 0;
+        int totalHeight = 0;
+
+        for (BookOrder bookOrder : bookOrders) {
+            Book book = bookOrder.getBook();
+            int quantity = bookOrder.getQuantity();
+
+            // Tính tổng trọng lượng (kg)
+            if (book.getWeight() != null) {
+                totalWeight += book.getWeight() * quantity;
+            }
+
+            // Lấy chiều dài và chiều rộng lớn nhất
+            if (book.getLength() != null && book.getLength() > maxLength) {
+                maxLength = book.getLength();
+            }
+            if (book.getWidth() != null && book.getWidth() > maxWidth) {
+                maxWidth = book.getWidth();
+            }
+
+            // Tính tổng chiều cao (xếp chồng lên nhau)
+            if (book.getHeight() != null) {
+                totalHeight += book.getHeight() * quantity;
+            }
+        }
+
+        // Đảm bảo các giá trị tối thiểu
+        if (maxLength == 0) maxLength = 20;  // Default 20cm
+        if (maxWidth == 0) maxWidth = 15;   // Default 15cm
+        if (totalHeight == 0) totalHeight = 5; // Default 5cm
+        if (totalWeight == 0) totalWeight = 1.0; // Default 1kg
+
+        return ShipmentDimensions.builder()
+                .weight(totalWeight)
+                .length(maxLength)
+                .width(maxWidth)
+                .height(totalHeight)
                 .build();
     }
 
@@ -771,5 +815,28 @@ public class OrderService {
                 .dailyRevenue(totalRevenueToday)
                 .ordersByStatus(orderStats)
                 .build();
+    }
+
+    public OrderItemResponse updateOrderItem(Long orderId, Long itemId, UpdateOrderItemRequest request){
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        if(!order.getStatus().equals(OrderStatus.COMPLETED)){
+            throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        BookOrder bookOrder = bookOrderRepository.findByBookOrderIdAndOrder_OrderId(orderId, itemId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_ITEM_NOT_FOUND));
+
+        if(bookOrder.getContent() != null || bookOrder.getRate() != null){
+            throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        }
+
+        bookOrder.setContent(request.getContent());
+        bookOrder.setRate(request.getRating());
+        UserResponse user = userService.getMyInfoOrNull();
+        if(user != null) {
+            interactEventService.recordEvent(user.getUserId(), bookOrder.getBook().getBookId(), InteractEventType.REVIEW);
+        }
+        return bookOrderMapper.toResponse(bookOrderRepository.save(bookOrder));
     }
 }

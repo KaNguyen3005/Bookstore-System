@@ -12,8 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.*;
-import ptithcm.backend.bookstore.dto.response.CategoryResponse;
-import ptithcm.backend.bookstore.dto.response.ReviewResponse;
 import ptithcm.backend.bookstore.dto.response.UploadResult;
 import ptithcm.backend.bookstore.dto.response.UserResponse;
 import ptithcm.backend.bookstore.entity.*;
@@ -22,7 +20,6 @@ import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.UserMapper;
 import ptithcm.backend.bookstore.repository.BookRepository;
-import ptithcm.backend.bookstore.repository.ReviewRepository;
 import ptithcm.backend.bookstore.repository.RoleRepository;
 import ptithcm.backend.bookstore.repository.UserRepository;
 
@@ -35,7 +32,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    ReviewRepository reviewRepository;
     BookRepository bookRepository;
     RoleRepository roleRepository;
     UserRepository userRepository;
@@ -180,6 +176,27 @@ public class UserService {
         return userMapper.toResponse(user);
     }
 
+    public UserResponse getMyInfoOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            return null;
+        }
+
+        try {
+            Long userId = Long.parseLong(authentication.getName());
+
+            return userRepository.findById(userId)
+                    .map(userMapper::toResponse)
+                    .orElse(null);
+
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     @Transactional
     public UserResponse updateMyInfo(UpdateMyInfoRequest request) {
         UserResponse userResponse = getMyInfo();
@@ -274,39 +291,8 @@ public class UserService {
         }
     }
 
-    public ReviewResponse createReview(CreateReviewRequest request) {
-
-        // 1. Lấy user hiện tại
-        UserResponse userResponse = getMyInfo();
-
-        User user = userRepository.findByUsername(userResponse.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        // 2. Lấy book
-        Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
-
-        // 4. Tạo review
-        Review review = Review.builder()
-                .book(book)
-                .customer(user)
-                .content(request.getComment())
-                .rating(request.getRating())
-                .build();
-
-        // 5. Save
-        review = reviewRepository.save(review);
-
-        // 6. Map sang response
-        return ReviewResponse.builder()
-                .reviewId(review.getReviewId())
-                .bookId(book.getBookId())
-                .username(user.getUsername())
-                .rating(review.getRating())
-                .comment(review.getContent())
-                .createdAt(review.getCreatedAt())
-                .build();
-    }
+    // Review functionality removed - Review entity no longer exists
+    // This method has been deprecated
 
     public UploadResult uploadAvatar(UploadAvatarRequest request) {
         UploadResult uploadResult = cloudinaryService.uploadFile(request.getAvatar(), "avatars");

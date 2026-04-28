@@ -6,7 +6,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ptithcm.backend.bookstore.enums.ShippingStatus;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,14 +31,12 @@ public class Shipment {
     LocalDateTime estimatedDeliveryDate;
     LocalDateTime actualDeliveryDate;
 
-    String province;
-    String district;
-    String ward;
-    String detailAddress;
-    String customerName;
-    String customerPhone;
 
-    Integer weight;
+    @OneToOne
+    @JoinColumn(name = "address_id")
+    Address address;
+
+    Double weight;
     Integer length;
     Integer width;
     Integer height;

@@ -15,6 +15,7 @@ import ptithcm.backend.bookstore.entity.Book;
 import ptithcm.backend.bookstore.entity.BookCart;
 import ptithcm.backend.bookstore.entity.Cart;
 import ptithcm.backend.bookstore.entity.User;
+import ptithcm.backend.bookstore.enums.InteractEventType;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.mapper.BookMapper;
@@ -39,6 +40,7 @@ public class CartService {
     UserService userService;
     BookRepository bookRepository;
     BookMapper bookMapper;
+    private final InteractEventService interactEventService;
 
     public List<CartItemResponse> getAll() {
         UserResponse userResponse = userService.getMyInfo();
@@ -84,6 +86,9 @@ public class CartService {
                     .book(book)
                     .quantity(request.getQuantity())
                     .build();
+            if(user != null){
+                interactEventService.recordEvent(user.getUserId(), book.getBookId(), InteractEventType.VIEW_BOOK);
+            }
             bookCartRepository.save(bookCart);
             return CartItemResponse.builder()
                     .book(bookMapper.toResponse(bookCart.getBook()))

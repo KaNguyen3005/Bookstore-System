@@ -35,7 +35,8 @@ public class BookOrder {
     Order order;
     int quantity;
     String unit;
-
+    Integer rate;
+    String content;
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
