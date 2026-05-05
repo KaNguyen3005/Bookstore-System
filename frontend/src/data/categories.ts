@@ -1,8 +1,4 @@
-export interface Category {
-  id: string;
-  label: string;
-  href: string;
-}
+import { Category } from "../features/category/types/category";
 
 export const CATEGORIES: Category[] = [
   { id: "1", label: "Lãng mạn", href: "/categories/romance" },

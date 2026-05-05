@@ -3,9 +3,19 @@ import ProductCard from '../../../product/components/ProductCard';
 import TopSellingBooks from '../../../home/components/TopsellingBooks/TopSellingBooks';
 import ExploreCategories from '../../../home/components/ExploreCategories/ExploreCategories';
 
-import { MOCK_ALL_BOOKS, getTopSellingBooks } from '../../../../data/books';
+import { useCategoryData } from '../../hooks/useCategoryData';
 
 const CategoryPage = () => {
+  const { allBooks, topSellingBooks, loading } = useCategoryData();
+
+  if (loading) {
+    return (
+      <div className="category-page" style={{ padding: '50px', textAlign: 'center' }}>
+        <p>Đang tải dữ liệu danh mục...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="category-page">
       <main className="category-page__main">
@@ -41,7 +51,7 @@ const CategoryPage = () => {
               </div>
 
               <div className="category-page__grid">
-                {MOCK_ALL_BOOKS.map((book) => (
+                {allBooks.map((book) => (
                   <ProductCard key={book.book_id} book={book} />
                 ))}
               </div>
@@ -52,7 +62,7 @@ const CategoryPage = () => {
 
         {/* Section 2: Top Selling Books (FULL WIDTH) */}
         <div className="category-page__bestsellers">
-          <TopSellingBooks books={getTopSellingBooks(4)} />
+          <TopSellingBooks books={topSellingBooks} />
         </div>
 
         {/* Section 3: Explore Categories */}

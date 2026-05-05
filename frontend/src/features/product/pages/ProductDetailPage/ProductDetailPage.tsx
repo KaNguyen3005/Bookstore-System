@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
-import { bookApi } from "../../../../services/bookApi";
-import type { Book } from "../../types/Book";
-import { useCartActions } from "../../../cart/hooks/useCartActions";
+import { useProductDetail } from "../../hooks/useProductDetail";
 import ProductCard from "../../components/ProductCard";
 import ExploreCategories from "../../../home/components/ExploreCategories/ExploreCategories";
 import "./ProductDetailPage.css";
@@ -12,68 +10,18 @@ import { TbTruckDelivery } from "react-icons/tb";
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [book, setBook] = useState<Book | null>(null);
-  const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
-  const [isAdding, setIsAdding] = useState(false);
-  const [isBuying, setIsBuying] = useState(false);
-  const { onAddToCart, onBuyNow } = useCartActions();
+  const {
+    book,
+    relatedBooks,
+    loading,
+    quantity,
+    setQuantity,
+    isAdding,
+    isBuying,
+    handleAddToCart,
+    handleBuyNow
+  } = useProductDetail(id);
 
-  const getCartItem = () => {
-    if (!book) return null;
-    return {
-      book_id: book.book_id,
-      title: book.title,
-      price: book.oldPrice || book.price,
-      sale_percent: book.sale_percent || 0,
-      cover_image_url: book.cover_image_url || `https://picsum.photos/seed/book${book.book_id}/400/600`,
-      quantity: quantity,
-      stock_quantity: 100, // mock stock
-      selected: true
-    };
-  };
-
-  const handleAddToCart = async () => {
-    const item = getCartItem();
-    if (!item) return;
-
-    setIsAdding(true);
-    // Simulate minor delay for UX feedback
-    await new Promise(resolve => setTimeout(resolve, 500));
-    onAddToCart(item);
-    setIsAdding(false);
-  };
-
-  const handleBuyNow = async () => {
-    const item = getCartItem();
-    if (!item) return;
-
-    setIsBuying(true);
-    // Buy Now transition is almost immediate or handled by redirect guards
-    onBuyNow(item);
-    // If it's a redirect, the component will unmount anyway. 
-    // If it's a login prompt, the state remains until redirect.
-    setTimeout(() => setIsBuying(false), 2000);
-  };
-
-  useEffect(() => {
-    const fetchBookData = async () => {
-      if (!id) return;
-      setLoading(true);
-      const bookId = parseInt(id);
-      const [bookData, relatedData] = await Promise.all([
-        bookApi.getBookById(bookId),
-        bookApi.getRelatedBooks(bookId),
-      ]);
-      setBook(bookData);
-      setRelatedBooks(relatedData);
-      setLoading(false);
-      window.scrollTo(0, 0);
-    };
-
-    fetchBookData();
-  }, [id]);
 
   if (loading) {
     return (

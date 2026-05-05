@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../auth/hooks/useAuth';
-import { addressApi } from '../../../../services/addressApi';
 import type { CheckoutAddress } from '../../types';
 import { useCheckout } from '../../hooks/useCheckout';
+import { useAddressList } from '../../hooks/useAddressList';
 
 import CheckoutCartItem from '../../components/CheckoutCartItem/CheckoutCartItem';
 import ShippingMethod from '../../components/ShippingMethod/ShippingMethod';
@@ -22,7 +22,6 @@ const CheckoutPage: React.FC = () => {
   // High-priority direct purchase item
   const buyNowItem = location.state?.buyNowItem;
   const { user } = useAuth();
-  const [addresses, setAddresses] = useState<CheckoutAddress[]>([]);
 
   const {
     shippingMethod,
@@ -47,29 +46,16 @@ const CheckoutPage: React.FC = () => {
     canPlaceOrder,
   } = useCheckout(buyNowItem ? [buyNowItem] : undefined);
 
+  // Use useCallback so we don't recreate this function on every render, which would trigger the useEffect in useAddressList endlessly
+  const handleDefaultAddressFound = useCallback((addr: CheckoutAddress) => {
+    setSelectedAddress(addr);
+  }, [setSelectedAddress]);
+
+  const { addresses } = useAddressList(user?.user_id, handleDefaultAddressFound);
+
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [orderSuccessData, setOrderSuccessData] = useState<{ orderId: number | string, total: number } | null>(null);
 
-  // Fetch addresses and auto-select default on mount
-  useEffect(() => {
-    const fetchAddresses = async () => {
-      if (user?.user_id) {
-        try {
-          const list = await addressApi.getAll(user.user_id);
-          setAddresses(list);
-          const defaultAddr = list.find((a: any) => a.is_default);
-          if (defaultAddr) {
-            setSelectedAddress(defaultAddr);
-          } else if (list.length > 0) {
-            setSelectedAddress(list[0]);
-          }
-        } catch (error) {
-          console.error("Failed to fetch address list:", error);
-        }
-      }
-    };
-    fetchAddresses();
-  }, [user, setSelectedAddress]);
 
   // Redirect if checkout items are empty
   useEffect(() => {
