@@ -3,7 +3,7 @@ import HotSearchBooks from "../../components/HotsearchBooks/HotSearchBooks";
 import TopSellingBooks from "../../components/TopsellingBooks/TopSellingBooks";
 import ExploreCategories from "../../components/ExploreCategories/ExploreCategories";
 import Banner from "../../components/Banner/Banner";
-import { useHomeData } from "../hooks/useHomeData";
+import { useHomeData } from "../../hooks/useHomeData";
 
 function Home() {
   const { homeData, loading } = useHomeData();
