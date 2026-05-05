@@ -8,6 +8,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ book }: ProductCardProps) => {
+  console.log("BOOK:", book);
   const { onAddToCart } = useCartActions();
   const rating = book.avg_rating || 0;
   const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));

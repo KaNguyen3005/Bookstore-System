@@ -2,7 +2,7 @@ import axiosClient from "./axiosClient";
 import users from "../data/user1";
 import { type UserFE } from "./userApi";
 
-const IS_MOCK = true;
+const IS_MOCK = false;
 
 const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -15,16 +15,14 @@ const mapToFE = (u: any): UserFE => ({
   id: u.user_id,
   user_id: u.user_id,
   username: clean(u.username),
-  fullname: `${clean(u.first_name)} ${clean(u.last_name)}`.trim(),
-  firstname: clean(u.first_name),
-  lastname: clean(u.last_name),
+  name: u.name,
   email: clean(u.email),
   phone: clean(u.phone),
-  birth: u.birth,
+  dob: u.dob,
   point: u.point,
   status: u.status,
   gender: u.gender,
-  role_id: u.role_id,
+  role: u.role,
 });
 
 // ================= API =================
@@ -57,7 +55,7 @@ export const authApi = {
       }
 
       // ================= LOGIN API =================
-      const res: any = await axiosClient.post("/auth/token", {
+      const res: any = await axiosClient.post("/auth/login", {
         username: clean(data.account),
         password: clean(data.password),
       });
@@ -82,8 +80,7 @@ export const authApi = {
       const userRes: any = await axiosClient.post("/users/me");
 
       console.log("USER RESPONSE:", userRes);
-
-      return mapToFE(userRes);
+      return mapToFE(userRes?.data?.result);
     } catch (error: any) {
       console.error("LOGIN ERROR:", error?.response || error);
 
