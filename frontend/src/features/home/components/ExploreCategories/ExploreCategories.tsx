@@ -1,4 +1,4 @@
-import { CATEGORIES } from "../../../category/constants/categories";
+import { CATEGORIES } from "../../../../data/categories";
 import "./ExploreCategories.css";
 
 const ExploreCategories = () => {
