@@ -15,7 +15,6 @@ const Login = () => {
 
   const from = location.state?.from || "/";
 
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -28,8 +27,11 @@ const Login = () => {
 
     login(user); // đưa thẳng vào context
 
-    if (user.role_id === 2) {
-      navigate("/admin", { replace: true });
+    if (user.role === "ADMIN") {
+      console.log("IN ADMIN")
+      setTimeout(() => {
+        navigate("/admin", { replace: true });
+      }, 0);
     } else {
       navigate(from, { replace: true });
     }
@@ -41,7 +43,7 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      <div className="login-container" >
+      <div className="login-container">
         <h1 className="logo"> KATIIA BOOKSTORE </h1>
         <p className="subtitle">Đăng nhập tài khoản </p>
 
@@ -60,9 +62,7 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button type="submit">
-            Đăng nhập
-          </button>
+          <button type="submit">Đăng nhập</button>
         </form>
 
         <p className="forgot ">Quên mật khẩu</p>
@@ -72,7 +72,7 @@ const Login = () => {
         </Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Login;

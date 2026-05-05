@@ -97,14 +97,14 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
             <div className="date-filter__picker">
               <DatePicker
                 selected={dateRange.startDate}
-                onChange={(date) => onDateRangeChange({ ...dateRange, startDate: date })}
+                onChange={(date: Date | null) => onDateRangeChange({ ...dateRange, startDate: date })}
                 placeholderText="Từ ngày"
                 dateFormat="dd/MM/yyyy"
               />
               <span className="date-filter__divider">-</span>
               <DatePicker
                 selected={dateRange.endDate}
-                onChange={(date) => onDateRangeChange({ ...dateRange, endDate: date })}
+                onChange={(date: Date | null) => onDateRangeChange({ ...dateRange, endDate: date })}
                 placeholderText="Đến ngày"
                 dateFormat="dd/MM/yyyy"
                 minDate={dateRange.startDate || undefined}

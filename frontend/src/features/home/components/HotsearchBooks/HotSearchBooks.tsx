@@ -1,4 +1,4 @@
-import type { Book } from "../../../../product/types/Book";
+import type { Book } from "../../../product/types/Book";
 import ProductCard from "../../../product/components/ProductCard";
 import "./HotSearchBooks.css";
 

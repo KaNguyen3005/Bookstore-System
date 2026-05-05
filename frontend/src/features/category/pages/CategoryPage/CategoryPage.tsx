@@ -24,7 +24,7 @@ const CategoryPage = () => {
             {/* Section 1: Book Grid */}
             <section>
               <div className="category-page__header">
-                <h1 className="category-page__title">Danh Mục Sách</h1>
+                <h1 className="category-page__title">Tất Cả Sản Phẩm</h1>
 
                 <div className="category-page__sort">
                   <span className="category-page__sort-label">

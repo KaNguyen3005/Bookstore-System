@@ -9,38 +9,34 @@ export interface UserFE {
   id: number; // Thêm id để tương thích UI cũ
   user_id: number;
   username: string;
-  fullname: string;
-  firstname?: string; // Thêm để tương thích
-  lastname?: string;  // Thêm để tương thích
+  name: string;
   email: string;
   phone: string;
   address?: string;
   point: number;
-  avatar?: string;
-  birth: string;
+  avatarUrl?: string;
+  dob: Date;
   status: boolean;
   gender: string;
-  role_id: number;
+  role: string;
 }
 
 const mapToFE = (u: any): UserFE => ({
   id: u.user_id, // Map id từ user_id
   user_id: u.user_id,
   username: u.username,
-  fullname: `${u.first_name || ""} ${u.last_name || ""}`.trim(),
-  firstname: u.first_name,
-  lastname: u.last_name,
+  name: u.name,
   email: u.email,
   phone: u.phone,
-  birth: u.birth,
+  dob: u.dob,
   point: u.point,
   status: u.status,
   gender: u.gender,
-  role_id: u.role_id,
+  role: u.role,
 });
 
 const mapToDB = (u: UserFE, old: any) => {
-  const [first, ...rest] = (u.fullname || "").split(" ");
+  const [first, ...rest] = (u.name || "").split(" ");
   return {
     ...old,
     user_id: u.user_id,
@@ -49,7 +45,7 @@ const mapToDB = (u: UserFE, old: any) => {
     last_name: rest.join(" "),
     email: u.email,
     phone: u.phone,
-    birth: u.birth,
+    dob: u.dob,
     point: u.point,
     updatedAt: new Date(),
   };

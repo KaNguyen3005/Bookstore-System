@@ -27,7 +27,7 @@ export const useRequireAuth = () => {
       }
       
       // Save current location as 'from' for redirect back
-      navigate('/login', { state: { from: location.pathname } });
+      navigate('/auth/login', { state: { from: location.pathname } });
     }
   };
 

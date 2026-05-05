@@ -8,8 +8,7 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode; role?: 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
-
-  if (role === 'admin' && user?.role_id !== 2) {
+  if (user !== null && user.role !== 'ADMIN') {
     return <Navigate to="/" replace />;
   }
 
