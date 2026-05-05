@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { addressApi } from "../../../../services/addressApi";
+import { addressApi } from "../../../services/addressApi";
 import type { CheckoutAddress } from "../types";
 
 export const useAddressList = (userId: string | number | undefined, onDefaultAddressFound?: (address: CheckoutAddress) => void) => {

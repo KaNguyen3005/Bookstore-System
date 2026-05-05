@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { bookApi } from "../../../../services/bookApi";
+import { bookApi } from "../../../services/bookApi";
 import type { Book } from "../types/Book";
-import { useCartActions } from "../../../cart/hooks/useCartActions";
+import { useCartActions } from "../../cart/hooks/useCartActions";
 
 export const useProductDetail = (id: string | undefined) => {
   const [book, setBook] = useState<Book | null>(null);

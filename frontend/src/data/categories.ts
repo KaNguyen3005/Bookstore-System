@@ -1,4 +1,4 @@
-import { Category } from "../features/category/types/category";
+import type { Category } from "../features/category/types/category";
 
 export const CATEGORIES: Category[] = [
   { id: "1", label: "Lãng mạn", href: "/categories/romance" },
