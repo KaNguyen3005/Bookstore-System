@@ -8,8 +8,11 @@ const ProtectedRoute = ({
   children: React.ReactNode;
   role?: string;
 }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
+
+  // 🔥 tránh loading giả
+  if (loading) return <div>Loading...</div>;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;

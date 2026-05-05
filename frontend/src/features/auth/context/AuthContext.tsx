@@ -1,11 +1,12 @@
-import { useCart } from '../../cart/hooks/useCart';
+
 import React, {
   createContext,
   useState,
   type ReactNode,
   useCallback,
-  useContext,
+  useEffect,
 } from "react";
+import { userApi } from "../../../services/userApi";
 
 export interface User {
   user_id: number;
@@ -19,6 +20,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  loading: boolean;
   login: (user: User) => void;
   logout: () => void;
 }
@@ -30,25 +32,47 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  // ✅ load từ localStorage trước (tránh loading lâu)
   const [user, setUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem("user");
-      if (!saved) return null;
-
-      const parsed = JSON.parse(saved);
-
-      // validate tránh data sai (A -> B bug)
-      if (!parsed?.user_id || !parsed?.email) {
-        localStorage.removeItem("user");
-        return null;
-      }
-
-      return parsed;
+      return saved ? JSON.parse(saved) : null;
     } catch {
-      localStorage.removeItem("user");
       return null;
     }
   });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        // ❗ nếu chưa login thì bỏ qua
+        if (!localStorage.getItem("user")) {
+          setLoading(false);
+          return;
+        }
+
+        const me = await userApi.getMe();
+
+        if (me) {
+          setUser(me);
+          localStorage.setItem("user", JSON.stringify(me)); // sync lại
+        } else {
+          setUser(null);
+          localStorage.removeItem("user");
+        }
+      } catch (err) {
+        console.error("fetchUser error:", err);
+        setUser(null);
+        localStorage.removeItem("user");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const isAuthenticated = !!user;
 
@@ -63,7 +87,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated, loading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
