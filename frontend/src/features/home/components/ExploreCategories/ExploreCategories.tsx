@@ -1,4 +1,4 @@
-import { CATEGORIES } from "../../../../data/categories";
+import { categoriesData } from "../../../../data/categoriesData";
 import "./ExploreCategories.css";
 
 const ExploreCategories = () => {
@@ -9,8 +9,8 @@ const ExploreCategories = () => {
           Khám phá các danh mục hàng đầu
         </h2>
         <div className="explore-categories__grid">
-          {CATEGORIES.map((cat, idx) => (
-            <a key={cat.id} href={cat.href} className="explore-categories__item">
+          {categoriesData.slice(0, 5).map((cat, idx) => (
+            <a key={cat.id} href={`/category?categoryId=${cat.id}`} className="explore-categories__item">
               <span className="explore-categories__item-icon">
                 {idx === 0
                   ? "💖"
@@ -23,7 +23,7 @@ const ExploreCategories = () => {
                         : "📖"}
               </span>
               <span className="explore-categories__item-label">
-                {cat.label}
+                {cat.name}
               </span>
               <span className="explore-categories__item-arrow">→</span>
             </a>

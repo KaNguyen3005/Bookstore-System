@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "../layout/layoutUser/MainLayout/Layout";
 
 import Home from "../features/home/pages/Home/Home";
-import CategoryPage from "../features/category/pages/CategoryPage/CategoryPage";
+import CategoryPage from "../features/book-category/pages/CategoryPage";
 import ProductDetailPage from "../features/product/pages/ProductDetailPage/ProductDetailPage";
 import Cart from "../features/cart/pages/Cart/Cart";
 import ProtectedRoute from "../features/auth/routes/ProtectedRoute";
