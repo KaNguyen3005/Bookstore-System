@@ -74,7 +74,7 @@ export const bookApi = {
       return getTopSellingBooks(limit);
     }
 
-    const res: any = await axiosClient.get("/books/top-selling", {
+    const res: any = await axiosClient.get("/books", {
       params: { limit },
     });
 
