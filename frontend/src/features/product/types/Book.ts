@@ -1,26 +1,26 @@
 export interface Category {
-  category_id: number;
+  categoryId: number;
   name: string;
 }
 
 export interface Book {
-  book_id: number;
+  bookId: number;
   title: string;
   price: number;
-  author_name: string;
+  authorName: string;
   description: string;
-  cover_image_url: string;
-  stock_quantity: number;
-  publisher_name: string;
+  coverImgUrl: string;
+  stockQuantity: number;
+  publisherName: string;
   isbn: string;
-  publication_date: string;
+  publicationDate: string;
   dimensions: string;
-  cover_type: string;
-  num_pages: number;
-  is_active: boolean;
-  avg_rating: number;
+  coverType: string;
+  numPages: number;
+  isActive: boolean;
+  avgRating: number;
   reviewCount: number;
   oldPrice?: number;
-  sale_percent?: number;
+  salePercent?: number;
   categories: Category[];
-}
+}

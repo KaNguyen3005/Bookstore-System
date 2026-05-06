@@ -1,9 +1,7 @@
-import type { Category } from "../features/category/types/category";
-
-export const CATEGORIES: Category[] = [
-  { id: "1", label: "Lãng mạn", href: "/categories/romance" },
-  { id: "2", label: "Sách thiếu nhi", href: "/categories/children" },
-  { id: "3", label: "Bí ẩn, ly kỳ & hồi hộp", href: "/categories/mystery" },
-  { id: "4", label: "Khoa học viễn tưởng & kỳ ảo", href: "/categories/sci-fi" },
-  { id: "5", label: "Văn học & Tiểu thuyết", href: "/categories/literature" },
+export const CATEGORIES = [
+  { id: 1, label: 'Tiểu Thuyết', href: '/category?categoryIds=1' },
+  { id: 2, label: 'Kinh Tế', href: '/category?categoryIds=2' },
+  { id: 3, label: 'Tâm Lý Học', href: '/category?categoryIds=3' },
+  { id: 4, label: 'Giáo Dục', href: '/category?categoryIds=4' },
+  { id: 5, label: 'Thiếu Nhi', href: '/category?categoryIds=5' },
 ];

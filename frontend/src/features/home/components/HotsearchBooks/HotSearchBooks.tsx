@@ -13,7 +13,7 @@ const HotSearchBooks = ({ books }: HotSearchBooksProps) => {
 
       <div className="hot-search__grid">
         {books.map((book) => (
-          <ProductCard key={book.book_id} book={book} />
+          <ProductCard key={book.bookId} book={book} />
         ))}
       </div>
     </div>

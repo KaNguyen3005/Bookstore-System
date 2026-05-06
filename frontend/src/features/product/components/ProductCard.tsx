@@ -10,7 +10,8 @@ interface ProductCardProps {
 const ProductCard = ({ book }: ProductCardProps) => {
   console.log("BOOK:", book);
   const { onAddToCart } = useCartActions();
-  const rating = book.avg_rating || 0;
+
+  const rating = book.avgRating || 0;
   const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -18,13 +19,15 @@ const ProductCard = ({ book }: ProductCardProps) => {
     e.stopPropagation();
 
     const item = {
-      book_id: book.book_id,
+      bookId: book.bookId,
       title: book.title,
       price: book.oldPrice || book.price,
-      sale_percent: book.sale_percent || 0,
-      cover_image_url: book.cover_image_url || `https://picsum.photos/seed/book${book.book_id}/200/280`,
+      salePercent: book.salePercent || 0,
+      coverImgUrl:
+        book.coverImgUrl ||
+        `https://picsum.photos/seed/book${book.bookId}/200/280`,
       quantity: 1,
-      stock_quantity: 100, // mock stock
+      stockQuantity: 100, // mock stock
       selected: true
     };
 
@@ -33,22 +36,21 @@ const ProductCard = ({ book }: ProductCardProps) => {
 
   return (
     <div className="product-card">
-      <Link to={`/product/${book.book_id}`} className="product-card__link">
+      <Link to={`/product/${book.bookId}`} className="product-card__link">
         <div className="product-card__cover">
-          {book.cover_image_url ? (
-            <img src={book.cover_image_url} alt={book.title} />
-          ) : (
-            <img
-              src={`https://picsum.photos/seed/book${book.book_id}/200/280`}
-              alt={book.title}
-            />
-          )}
+          <img
+            src={
+              book.coverImgUrl ||
+              `https://picsum.photos/seed/book${book.bookId}/200/280`
+            }
+            alt={book.title}
+          />
 
-          {book.sale_percent && (
+          {/* {book.salePercent && (
             <span className="product-card__badge">
-              -{book.sale_percent}%
+              -{book.salePercent}%
             </span>
-          )}
+          )} */}
         </div>
 
         <div className="product-card__content">
@@ -62,8 +64,9 @@ const ProductCard = ({ book }: ProductCardProps) => {
                 {stars.map((isFilled, index) => (
                   <span
                     key={index}
-                    className={`product-card__star ${isFilled ? "product-card__star--filled" : ""
-                      }`}
+                    className={`product-card__star ${
+                      isFilled ? "product-card__star--filled" : ""
+                    }`}
                   >
                     ★
                   </span>
@@ -81,7 +84,7 @@ const ProductCard = ({ book }: ProductCardProps) => {
                     ★
                   </span>
                 ))}
-                <span className="product-card__review-count">(0)</span>
+                <span className="product-card__review-count"></span>
               </>
             )}
           </div>
