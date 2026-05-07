@@ -1,55 +1,96 @@
-import { useState, useEffect } from "react";
-import type { Book } from "../types/book";
-import type { BookFilters } from "../types/filter";
+import { useEffect, useState } from "react";
+
+import type { Book } from "../../product/types/Book";
+import type { BookFilters } from "../types/bookFilter";
+
 import { searchBooks } from "../services/bookService";
 
-/**
- * Custom hook to handle book searching with debouncing and abort controllers.
- * 
- * @param filters Current active filters
- * @returns Object containing books data, loading state, error state, and total count.
- */
-export const useBookSearch = (filters: BookFilters) => {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState<number>(0);
+export const useBookSearch = (
+  filters: BookFilters
+) => {
+  const [books, setBooks] =
+    useState<Book[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [total, setTotal] =
+    useState(0);
 
   useEffect(() => {
-    // AbortController to prevent race conditions from rapid filter changes
-    const abortController = new AbortController();
-    
+    const abortController =
+      new AbortController();
+
     setLoading(true);
     setError(null);
 
-    // 300ms debounce implementation
-    const timerId = setTimeout(async () => {
-      try {
-        // Call the service layer. All filtering logic is strictly inside the service.
-        const response = await searchBooks(filters);
-        
-        // If the request was aborted while waiting, do not update state
-        if (abortController.signal.aborted) return;
-        
-        setBooks(response.data);
-        setTotal(response.total);
-      } catch (err) {
-        if (abortController.signal.aborted) return;
-        setError("Failed to fetch books. Please try again.");
-        console.error("Book search error:", err);
-      } finally {
-        if (!abortController.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    }, 300);
+    const timerId = setTimeout(
+      async () => {
+        try {
+          const response =
+            await searchBooks(filters);
 
-    // Cleanup function: clears timeout and aborts pending request
+          if (
+            abortController.signal.aborted
+          ) {
+            return;
+          }
+
+          console.log(
+            "SEARCH RESULT:",
+            response
+          );
+
+          // ✅ response đã được normalize
+          setBooks(response.data || []);
+
+          setTotal(
+            response.total || 0
+          );
+        } catch (err: any) {
+          if (
+            abortController.signal.aborted
+          ) {
+            return;
+          }
+
+          console.error(
+            "BOOK SEARCH ERROR:",
+            err
+          );
+
+          setError(
+            err?.message ||
+              "Failed to fetch books"
+          );
+
+          setBooks([]);
+          setTotal(0);
+        } finally {
+          if (
+            !abortController.signal.aborted
+          ) {
+            setLoading(false);
+          }
+        }
+      },
+      300
+    );
+
     return () => {
       clearTimeout(timerId);
+
       abortController.abort();
     };
-  }, [filters]); // Re-run effect whenever filters change
+  }, [filters]);
 
-  return { books, loading, error, total };
+  return {
+    books,
+    loading,
+    error,
+    total,
+  };
 };

@@ -1,8 +1,5 @@
-export interface Category {
-  categoryId: number;
-  name: string;
-}
-
+import type { Category } from "../../book-category/types/category";
+import type { Publisher } from "../../book-category/types/category";
 export interface Book {
   bookId: number;
   title: string;
@@ -11,7 +8,6 @@ export interface Book {
   description: string;
   coverImgUrl: string;
   stockQuantity: number;
-  publisherName: string;
   isbn: string;
   publicationDate: string;
   dimensions: string;
@@ -23,4 +19,5 @@ export interface Book {
   oldPrice?: number;
   salePercent?: number;
   categories: Category[];
+  publishers: Publisher;
 }

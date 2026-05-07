@@ -1,6 +1,8 @@
 export interface BookFilters {
   categoryId?: number;
   publisherId?: number;
-  priceRangeId?: number;
+  minPrice?: number;
+  maxPrice?:number;
   page: number;
+  sort:string;
 }

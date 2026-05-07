@@ -1,125 +1,235 @@
 import axiosClient from "../../../services/axiosClient";
-import { MOCK_ALL_BOOKS } from "../../../data/books";
-import { priceRangesData } from "../../../data/priceRangesData";
-import { publishersData } from "../../../data/publishersData";
-import type { Book } from "../types/book";
-import type { BookFilters } from "../types/filter";
 
-const IS_MOCK = true;
+import { MOCK_ALL_BOOKS } from "../../../data/books";
+import { categoriesData } from "../../../data/categoriesData";
+
+import type { Book } from "../../product/types/Book";
+import type { BookFilters } from "../types/bookFilter";
+
+const IS_MOCK = false;
 
 const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Map mock data -> camelCase Book
+ * 📚 Search books
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapToBook = (mockBook: any): Book => {
-  const publisher = publishersData.find(
-    (p) => p.name === mockBook.publisherName
-  );
-
-  return {
-    bookId: mockBook.bookId,
-    title: mockBook.title,
-    price: mockBook.price,
-    oldPrice: mockBook.oldPrice,
-    salePercent: mockBook.salePercent || 0,
-    coverImageUrl: mockBook.coverImgUrl,
-    coverImgUrl: mockBook.coverImgUrl,
-    categoryId: mockBook.categories?.[0]?.categoryId || 0,
-    publisherId: publisher ? publisher.id : 0,
-    avgRating: mockBook.avgRating || 0,
-    reviewCount: mockBook.reviewCount || 0,
-  };
-};
-
 export const searchBooks = async (
   filters: BookFilters
-): Promise<{ data: Book[]; total: number }> => {
+): Promise<{
+  data: Book[];
+  total: number;
+}> => {
+  // ================= MOCK =================
   if (IS_MOCK) {
     await delay(300);
 
     let filtered = MOCK_ALL_BOOKS;
 
-    // category
+    // ================= CATEGORY FILTER =================
     if (filters.categoryId) {
-      filtered = filtered.filter(
-        (b) => b.categories?.[0]?.categoryId === filters.categoryId
-      );
-    }
+      let targetCategoryIds = [
+        filters.categoryId,
+      ];
 
-    // publisher
-    if (filters.publisherId) {
-      const publisher = publishersData.find(
-        (p) => p.id === filters.publisherId
-      );
-
-      if (publisher) {
-        filtered = filtered.filter(
-          (b) => b.publisherName === publisher.name
+      const parentCategory =
+        categoriesData.find(
+          (c) =>
+            c.categoryId ===
+            filters.categoryId
         );
-      }
-    }
 
-    // price range
-    if (filters.priceRangeId) {
-      const range = priceRangesData.find(
-        (r) => r.id === filters.priceRangeId
+      // 📌 include children categories
+      if (parentCategory?.children) {
+        targetCategoryIds = [
+          ...targetCategoryIds,
+          ...parentCategory.children.map(
+            (child) =>
+              child.categoryId
+          ),
+        ];
+      }
+
+      filtered = filtered.filter((book) =>
+        book.categories?.some((category) =>
+          targetCategoryIds.includes(
+            category.categoryId
+          )
+        )
       );
-
-      if (range) {
-        filtered = filtered.filter((book) => {
-          const price = book.price;
-          if (range.max !== undefined) {
-            return price >= range.min && price <= range.max;
-          }
-          return price >= range.min;
-        });
-      }
     }
 
-    // pagination
+    // ================= PUBLISHER FILTER =================
+    if (filters.publisherId) {
+      filtered = filtered.filter(
+        (book) =>
+          book.publishers?.publisherId ===
+          filters.publisherId
+      );
+    }
+
+    // ================= PRICE FILTER =================
+    if (
+      filters.minPrice !== undefined ||
+      filters.maxPrice !== undefined
+    ) {
+      filtered = filtered.filter((book) => {
+        const matchMin =
+          filters.minPrice !== undefined
+            ? book.price >= filters.minPrice
+            : true;
+
+        const matchMax =
+          filters.maxPrice !== undefined
+            ? book.price <= filters.maxPrice
+            : true;
+
+        return matchMin && matchMax;
+      });
+    }
+
+    // ================= PAGINATION =================
     const PAGE_SIZE = 12;
-    const startIndex = filters.page * PAGE_SIZE;
+
+    const currentPage =
+      filters.page || 0;
+
+    const startIndex =
+      currentPage * PAGE_SIZE;
+
     const paginated = filtered.slice(
       startIndex,
       startIndex + PAGE_SIZE
     );
 
     return {
-      data: paginated.map(mapToBook),
+      data: paginated,
       total: filtered.length,
     };
   }
 
-  const res: any = await axiosClient.get("/books/search", {
-    params: filters,
-  });
+  // ================= REAL API =================
+  try {
+    const token =
+      localStorage.getItem(
+        "accessToken"
+      );
 
-  return {
-    data: res?.data?.result?.content || [],
-    total: res?.data?.result?.total || 0,
-  };
-};
+    // 📌 remove undefined values
+    const apiFilters: any = {
+      ...filters,
+    };
+    console.log(apiFilters)
+    Object.keys(apiFilters).forEach(
+      (key) => {
+        if (
+          apiFilters[key] === undefined
+        ) {
+          delete apiFilters[key];
+        }
+      }
+    );
 
-export const getTopSellingBooks = async (limit: number = 5): Promise<Book[]> => {
-  if (IS_MOCK) {
-    await delay(300);
+    const res: any =
+      await axiosClient.get(
+        "/books/search",
+        {
+          params: apiFilters,
 
-    const sorted = [...MOCK_ALL_BOOKS]
-      .sort(
-        (a, b) =>
-          (b.reviewCount || 0) - (a.reviewCount || 0)
-      )
-      .slice(0, limit);
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    return sorted.map(mapToBook);
+    console.log(
+      "BOOK SEARCH RESPONSE:",
+      res
+    );
+
+    // 📌 backend structure:
+    // data.result.content
+    const result =
+      res?.data?.result;
+
+    const data: Book[] =
+      result?.content || [];
+
+    const total =
+      result?.totalElements ||
+      result?.total ||
+      data.length;
+
+    return {
+      data,
+      total,
+    };
+  } catch (error: any) {
+    console.error(
+      "SEARCH BOOKS ERROR:",
+      error?.response || error
+    );
+
+    throw new Error(
+      error?.response?.data?.message ||
+        "Failed to search books"
+    );
   }
-
-  const res: any = await axiosClient.get("/books", {
-    params: { limit },
-  });
-
-  return res?.data?.result || res?.data || [];
 };
+
+/**
+ * 🔥 Top selling books
+ */
+export const getTopSellingBooks =
+  async (
+    limit: number = 5
+  ): Promise<Book[]> => {
+    // ================= MOCK =================
+    if (IS_MOCK) {
+      await delay(300);
+
+      return [...MOCK_ALL_BOOKS]
+        .sort(
+          (a, b) =>
+            (b.reviewCount || 0) -
+            (a.reviewCount || 0)
+        )
+        .slice(0, limit);
+    }
+
+    // ================= API =================
+    try {
+      const token =
+        localStorage.getItem(
+          "accessToken"
+        );
+
+      const res: any =
+        await axiosClient.get(
+          "/books",
+          {
+            params: { limit },
+
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+      const result =
+        res?.data?.result;
+
+      return (
+        result?.content ||
+        result ||
+        []
+      );
+    } catch (error: any) {
+      console.error(
+        "TOP SELLING BOOKS ERROR:",
+        error?.response || error
+      );
+
+      return [];
+    }
+  };

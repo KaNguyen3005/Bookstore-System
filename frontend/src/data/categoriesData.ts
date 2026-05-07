@@ -1,18 +1,37 @@
-export interface Category {
-  id: number;
-  name: string;
-}
-
+import type { Category } from "../features/book-category/types/category";
 export const categoriesData: Category[] = [
-  { id: 1, name: "Văn học" },
-  { id: 2, name: "Giả tưởng" },
-  { id: 3, name: "Công nghệ" },
-  { id: 4, name: "Lập trình" },
-  { id: 5, name: "Lãng mạn" },
-  { id: 6, name: "Lịch sử" },
-  { id: 7, name: "Khoa học" },
-  { id: 8, name: "Triết lý" },
-  { id: 9, name: "Tâm lý" },
-  { id: 10, name: "Tội phạm" },
-  { id: 11, name: "Kỹ năng sống" }
+  {
+    categoryId: 1,
+    categoryName: "Văn học",
+    children: [
+      { categoryId: 101, categoryName: "Văn học Việt Nam" },
+      { categoryId: 102, categoryName: "Văn học nước ngoài" },
+      { categoryId: 103, categoryName: "Tiểu thuyết" },
+    ]
+  },
+  { categoryId: 2, categoryName: "Giả tưởng" },
+  {
+    categoryId: 3,
+    categoryName: "Công nghệ",
+    children: [
+      { categoryId: 301, categoryName: "Phần mềm" },
+      { categoryId: 302, categoryName: "Phần cứng" },
+    ]
+  },
+  { categoryId: 4, categoryName: "Lập trình" },
+  { categoryId: 5, categoryName: "Lãng mạn" },
+  { categoryId: 6, categoryName: "Lịch sử" },
+  {
+    categoryId: 7,
+    categoryName: "Khoa học",
+    children: [
+      { categoryId: 701, categoryName: "Vật lý" },
+      { categoryId: 702, categoryName: "Hóa học" },
+      { categoryId: 703, categoryName: "Sinh học" },
+    ]
+  },
+  { categoryId: 8, categoryName: "Triết lý" },
+  { categoryId: 9, categoryName: "Tâm lý" },
+  { categoryId: 10, categoryName: "Tội phạm" },
+  { categoryId: 11, categoryName: "Kỹ năng sống" }
 ];

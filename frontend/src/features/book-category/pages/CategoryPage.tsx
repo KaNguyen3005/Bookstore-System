@@ -1,74 +1,146 @@
-import React, { useState, useEffect } from 'react';
-import FilterSidebar from '../components/FilterSidebar';
-import BookGrid from '../components/BookGrid';
-import { useBookSearch } from '../hooks/useBookSearch';
-import type { BookFilters } from '../types/filter';
-import type { Book } from '../types/book';
-import { categoriesData } from '../../../data/categoriesData';
-import { publishersData } from '../../../data/publishersData';
-import { priceRangesData } from '../../../data/priceRangesData';
-import { getTopSellingBooks } from '../services/bookService';
-import './CategoryPage.css';
+import React, { useState, useEffect } from "react";
+
+import FilterSidebar from "../components/FilterSidebar";
+import BookGrid from "../components/BookGrid";
+
+import { useBookSearch } from "../hooks/useBookSearch";
+
+import type { BookFilters } from "../types/bookFilter";
+import type { Book } from "../../product/types/Book";
+import { searchBooks } from "../services/bookService";
+import type { Category, Publisher } from "../types/category";
+
+import { categoriesData } from "../../../data/categoriesData";
+import { publishersData } from "../../../data/publishersData";
+import { priceRangesData } from "../../../data/priceRangesData";
+
+import { getTopSellingBooks } from "../services/bookService";
+import { categoryService } from "../services/categoryService";
+import { publisherService } from "../services/publisherService";
+
+import "./CategoryPage.css";
 
 /**
  * Main container component for the Category Page.
- * Manages the global filter state and orchestrates data fetching via useBookSearch hook.
  */
 const CategoryPage: React.FC = () => {
-  // Initialize filter state
+  // ================= FILTER STATE =================
   const [filters, setFilters] = useState<BookFilters>({
-    page: 0
+    page: 0,
+    sort: "asc",
+
+    // 💰 thêm price filter
+    minPrice: undefined,
+    maxPrice: undefined,
   });
 
+  // ================= TOP SELLING =================
   const [topSellingBooks, setTopSellingBooks] = useState<Book[]>([]);
 
-  // Fetch books using custom hook with current filters
+  // ================= CATEGORY STATE =================
+  const [categories, setCategories] = useState<Category[]>(categoriesData);
+
+  // ================= PUBLISHER STATE =================
+  const [publishers, setPublishers] = useState<Publisher[]>(publishersData);
+
+  // ================= BOOK SEARCH =================
   const { books, loading, error, total } = useBookSearch(filters);
 
-  // Fetch top selling books once on mount
+  // ================= TOP SELLING API =================
   useEffect(() => {
     const fetchTopSelling = async () => {
-      const data = await getTopSellingBooks(10);
-      setTopSellingBooks(data);
+      try {
+        const data = await getTopSellingBooks(10);
+
+        setTopSellingBooks(data);
+      } catch (error) {
+        console.log("Top selling API failed → fallback empty");
+      }
     };
+
     fetchTopSelling();
   }, []);
 
-  // Handle filter changes from the sidebar
-  const handleFilterChange = (newFilters: Partial<BookFilters>) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      ...newFilters,
-      page: 0 // Always reset to first page when changing filters
-    }));
-  };
+  // ================= CATEGORY API =================
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await categoryService.getCategories();
 
+        if (data && data.length > 0) {
+          setCategories(data);
+        }
+      } catch (error) {
+        console.log("Category API failed → fallback mock");
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // ================= PUBLISHER API =================
+  useEffect(() => {
+    const fetchPublishers = async () => {
+      try {
+        const data = await publisherService.getPublishers();
+
+        if (data && data.length > 0) {
+          setPublishers(data);
+        }
+      } catch (error) {
+        console.log("Publisher API failed → fallback mock");
+      }
+    };
+
+    fetchPublishers();
+  }, []);
+
+  // ================= FILTER HANDLER =================
+  const handleFilterChange = (newFilters: Partial<BookFilters>) => {
+    setFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        ...newFilters,
+
+        // reset page khi đổi filter
+        page: 0,
+      };
+
+      console.log("UPDATED FILTERS:", updatedFilters);
+
+      return updatedFilters;
+    });
+  };
   return (
     <div className="category-page">
+      {/* ================= HEADER ================= */}
       <div className="category-page__header">
-        <h1 className="category-page__title">Danh mục sản phẩm</h1>
+        <h1 className="category-page__title">Danh mục sách</h1>
+
         <p className="category-page__subtitle">Tìm thấy {total} kết quả</p>
       </div>
-      
+
+      {/* ================= CONTENT ================= */}
       <div className="category-page__content">
-        {/* Sidebar Component (Pure UI) */}
+        {/* Sidebar */}
         <FilterSidebar
           filters={filters}
           onFilterChange={handleFilterChange}
-          categories={categoriesData}
-          publishers={publishersData}
+          categories={categories}
+          publishers={publishers}
           priceRanges={priceRangesData}
         />
-        
-        {/* Main Grid Component */}
+
+        {/* Books */}
         <main className="category-page__main">
           <BookGrid books={books} loading={loading} error={error} />
         </main>
       </div>
 
-      {/* Top Selling Section */}
+      {/* ================= TOP SELLING ================= */}
       <section className="category-page__top-selling">
         <h2 className="category-page__section-title">TOP SÁCH BÁN CHẠY NHẤT</h2>
+
         <div className="category-page__top-grid">
           <BookGrid books={topSellingBooks} loading={false} error={null} />
         </div>
