@@ -34,7 +34,6 @@ public class PublisherController {
         return apiResponse;
     }
 
-    @PreAuthorize("hasAuthority('READ_PUBLISHER')")
     @GetMapping()
     ApiResponse<List<PublisherResponse>> getAll(){
         return ApiResponse.<List<PublisherResponse>>builder().result(publisherService.getAll()).build();

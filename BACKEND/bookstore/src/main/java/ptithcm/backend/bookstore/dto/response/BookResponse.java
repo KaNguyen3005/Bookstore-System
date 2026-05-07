@@ -31,4 +31,5 @@ public class BookResponse {
     Integer salePercent; // Đơn vị %
     Set<String> categories = new HashSet<>();
     List<BookImgResponse> bookImgs;
+    Integer bookId;
 }

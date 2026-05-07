@@ -65,11 +65,12 @@ public class BookController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer publisherId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         return ApiResponse.<Page<BookResponse>>builder()
-                .result(bookService.searchBooks(keyword, categoryId, minPrice, maxPrice, sort, page, size))
+                .result(bookService.searchBooks(keyword, categoryId, minPrice, maxPrice, sort, publisherId, page, size))
                 .build();
     }
 

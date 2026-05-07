@@ -69,7 +69,7 @@ public class UserController {
         return apiResponse;
     }
 
-    @PostMapping("/me")
+    @GetMapping("/me")
     ApiResponse<UserResponse> getMyInfo(){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.getMyInfo());

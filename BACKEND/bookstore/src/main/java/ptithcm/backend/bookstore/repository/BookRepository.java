@@ -23,37 +23,42 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
      * ✅ FIXED: Thêm check deletedAt
      */
     @Query(value = """
-        SELECT DISTINCT b
-        FROM Book b
-        LEFT JOIN b.categories c
-        WHERE b.deletedAt IS NULL
-          AND (:keyword IS NULL OR
-               LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-               LOWER(b.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
-          AND (:categoryId IS NULL OR c.categoryId = :categoryId)
-          AND (:minPrice IS NULL OR b.price >= :minPrice)
-          AND (:maxPrice IS NULL OR b.price <= :maxPrice)
-        ORDER BY
-          CASE WHEN :sort = 'asc' THEN b.price END ASC,
-          CASE WHEN :sort = 'desc' THEN b.price END DESC,
-          b.createdAt DESC
-        """,
+                SELECT DISTINCT b
+                  FROM Book b
+                  LEFT JOIN b.categories c
+                  LEFT JOIN b.publisher p
+                  WHERE b.deletedAt IS NULL
+                    AND (:keyword IS NULL OR
+                         LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+                         LOWER(b.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                    AND (:categoryId IS NULL OR c.categoryId = :categoryId)
+                    AND (:minPrice IS NULL OR b.price >= :minPrice)
+                    AND (:maxPrice IS NULL OR b.price <= :maxPrice)
+                    AND (:publisherId IS NULL OR p.publisherId = :publisherId)
+                  ORDER BY
+                    CASE WHEN :sort = 'asc' THEN b.price END ASC,
+                    CASE WHEN :sort = 'desc' THEN b.price END DESC,
+                    b.createdAt DESC
+            """,
             countQuery = """
-        SELECT COUNT(DISTINCT b)
-        FROM Book b
-        LEFT JOIN b.categories c
-        WHERE b.deletedAt IS NULL
-          AND (:keyword IS NULL OR
-               LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-               LOWER(b.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
-          AND (:categoryId IS NULL OR c.categoryId = :categoryId)
-          AND (:minPrice IS NULL OR b.price >= :minPrice)
-          AND (:maxPrice IS NULL OR b.price <= :maxPrice)
-        """)
+                    SELECT COUNT(DISTINCT b)
+                    FROM Book b
+                    LEFT JOIN b.categories c
+                    LEFT JOIN b.publisher p
+                    WHERE b.deletedAt IS NULL
+                      AND (:keyword IS NULL OR
+                           LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
+                           LOWER(b.description) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                      AND (:categoryId IS NULL OR c.categoryId = :categoryId)
+                      AND (:minPrice IS NULL OR b.price >= :minPrice)
+                      AND (:maxPrice IS NULL OR b.price <= :maxPrice)
+                      AND (:publisherId IS NULL OR p.publisherId = :publisherId)
+                    """)
     Page<Book> searchBooks(@Param("keyword") String keyword,
                            @Param("categoryId") Integer categoryId,
                            @Param("minPrice") BigDecimal minPrice,
                            @Param("maxPrice") BigDecimal maxPrice,
                            @Param("sort") String sort,
+                           @Param("publisherId") Integer publisherId,
                            Pageable pageable);
 }
