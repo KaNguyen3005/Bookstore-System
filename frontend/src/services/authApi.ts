@@ -4,16 +4,15 @@ import { type UserFE } from "./userApi";
 
 const IS_MOCK = false;
 
-const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ================= CLEAN INPUT =================
 const clean = (value: any) => value?.toString().trim();
 
 // ================= MAP USER =================
 const mapToFE = (u: any): UserFE => ({
-  id: u.user_id,
-  user_id: u.user_id,
+  id: u.userId,
+  userId: u.userId,
   username: clean(u.username),
   name: u.name,
   email: clean(u.email),
@@ -23,6 +22,8 @@ const mapToFE = (u: any): UserFE => ({
   status: u.status,
   gender: u.gender,
   role: u.role,
+  avatarUrl: u.avatarUrl,
+  address: u.address,
 });
 
 // ================= API =================
@@ -41,7 +42,7 @@ export const authApi = {
             (u.email === account ||
               u.phone === account ||
               u.username === account) &&
-            u.password === password
+            u.password === password,
         );
 
         if (!user) {
@@ -54,7 +55,7 @@ export const authApi = {
         return mapToFE(user);
       }
 
-      // ================= LOGIN API =================
+      // ================= LOGIN =================
       const res: any = await axiosClient.post("/auth/login", {
         username: clean(data.account),
         password: clean(data.password),
@@ -62,7 +63,7 @@ export const authApi = {
 
       console.log("LOGIN RESPONSE:", res);
 
-      // ================= EXTRACT TOKEN =================
+      // ================= TOKEN =================
       const token =
         res?.data?.result?.token ||
         res?.result?.token ||
@@ -76,17 +77,21 @@ export const authApi = {
 
       localStorage.setItem("access_token", token);
 
-      // ================= GET USER =================
-      const userRes: any = await axiosClient.post("/users/me");
-
+      // ================= GET ME =================
+      const userRes: any = await axiosClient.get("/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log("USER RESPONSE:", userRes);
-      return mapToFE(userRes?.data?.result);
+
+      const userData = userRes?.data?.result || userRes?.data || userRes;
+
+      return mapToFE(userData);
     } catch (error: any) {
       console.error("LOGIN ERROR:", error?.response || error);
 
-      throw new Error(
-        error?.response?.data?.message || "Login failed"
-      );
+      throw new Error(error?.response?.data?.message || "Login failed");
     }
   },
 

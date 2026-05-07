@@ -1,13 +1,13 @@
 export interface Publisher {
-  id: number;
-  name: string;
+  publisherId: number;
+  publisherName: string;
 }
 
 export const publishersData: Publisher[] = [
-  { id: 1, name: "NXB Trẻ" },
-  { id: 2, name: "Pearson" },
-  { id: 3, name: "NXB Thế Giới" },
-  { id: 4, name: "NXB Văn Học" },
-  { id: 5, name: "NXB Lao Động" },
-  { id: 6, name: "NXB Tổng Hợp" }
+  { publisherId: 1, publisherName: "NXB Trẻ" },
+  { publisherId: 2, publisherName: "Pearson" },
+  { publisherId: 3, publisherName: "NXB Thế Giới" },
+  { publisherId: 4, publisherName: "NXB Văn Học" },
+  { publisherId: 5, publisherName: "NXB Lao Động" },
+  { publisherId: 6, publisherName: "NXB Tổng Hợp" }
 ];

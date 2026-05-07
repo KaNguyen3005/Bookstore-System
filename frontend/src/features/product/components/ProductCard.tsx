@@ -8,7 +8,7 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ book }: ProductCardProps) => {
-  console.log("BOOK:", book);
+  // console.log("BOOK:", book);
   const { onAddToCart } = useCartActions();
 
   const rating = book.avgRating || 0;

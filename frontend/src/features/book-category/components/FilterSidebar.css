@@ -91,6 +91,49 @@
   border-color: #94a3b8;
 }
 
+.filter-sidebar__item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-sidebar__toggle-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: color 0.2s ease;
+}
+
+.filter-sidebar__toggle-btn:hover {
+  color: #3b82f6;
+}
+
+.filter-sidebar__toggle-placeholder {
+  width: 20px;
+  height: 20px;
+}
+
+.filter-sidebar__sublist {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-sidebar__subitem .filter-sidebar__label {
+  font-size: 0.9rem;
+}
+
 @media (max-width: 768px) {
   .filter-sidebar {
     width: 100%;

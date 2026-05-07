@@ -1,9 +1,7 @@
-import React from 'react';
-import type { BookFilters } from '../types/filter';
-import type { Category } from '../../../data/categoriesData';
-import type { Publisher } from '../../../data/publishersData';
-import type { PriceRange } from '../../../data/priceRangesData';
-import './FilterSidebar.css';
+import React from "react";
+import type { BookFilters } from "../types/bookFilter";
+import type { Category, Publisher, PriceRange } from "../types/category";
+import "./FilterSidebar.css";
 
 interface FilterSidebarProps {
   filters: BookFilters;
@@ -23,29 +21,34 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   onFilterChange,
   categories,
   publishers,
-  priceRanges
+  priceRanges,
 }) => {
   return (
     <aside className="filter-sidebar">
       <h2 className="filter-sidebar__title">Bộ lọc tìm kiếm</h2>
-      
+
       {/* Categories Section */}
       <div className="filter-sidebar__section">
         <h3 className="filter-sidebar__section-title">Danh mục</h3>
         <ul className="filter-sidebar__list">
           {categories.map((cat) => (
-            <li key={cat.id} className="filter-sidebar__item">
+            <li key={cat.categoryId} className="filter-sidebar__item">
               <label className="filter-sidebar__label">
                 <input
                   type="checkbox"
                   className="filter-sidebar__checkbox"
-                  checked={filters.categoryId === cat.id}
+                  checked={filters.categoryId === cat.categoryId}
                   onChange={() => {
                     // Realtime filtering: no Apply button, updates immediately
-                    onFilterChange({ categoryId: filters.categoryId === cat.id ? undefined : cat.id });
+                    onFilterChange({
+                      categoryId:
+                        filters.categoryId === cat.categoryId
+                          ? undefined
+                          : cat.categoryId,
+                    });
                   }}
                 />
-                <span>{cat.name}</span>
+                <span>{cat.categoryName}</span>
               </label>
             </li>
           ))}
@@ -55,43 +58,69 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       {/* Price Ranges Section */}
       <div className="filter-sidebar__section">
         <h3 className="filter-sidebar__section-title">Khoảng giá</h3>
+
         <ul className="filter-sidebar__list">
-          {priceRanges.map((range) => (
-            <li key={range.id} className="filter-sidebar__item">
-              <label className="filter-sidebar__label">
-                <input
-                  type="checkbox"
-                  className="filter-sidebar__checkbox"
-                  checked={filters.priceRangeId === range.id}
-                  onChange={() => {
-                    // Realtime filtering: no Apply button, updates immediately
-                    onFilterChange({ priceRangeId: filters.priceRangeId === range.id ? undefined : range.id });
-                  }}
-                />
-                <span>{range.label}</span>
-              </label>
-            </li>
-          ))}
+          {priceRanges.map((range) => {
+            const isChecked =
+              filters.minPrice === range.minPrice &&
+              (filters.maxPrice ?? null) === (range.maxPrice ?? null);
+
+            return (
+              <li key={range.label} className="filter-sidebar__item">
+                <label className="filter-sidebar__label">
+                  <input
+                    type="checkbox"
+                    className="filter-sidebar__checkbox"
+                    checked={isChecked}
+                    onChange={() => {
+                      // ✅ clear filter
+                      if (isChecked) {
+                        onFilterChange({
+                          minPrice: undefined,
+                          maxPrice: undefined,
+                        });
+
+                        return;
+                      }
+
+                      // ✅ apply filter
+                      onFilterChange({
+                        minPrice: range.minPrice,
+
+                        maxPrice: range.maxPrice,
+                      });
+                    }}
+                  />
+
+                  <span>{range.label}</span>
+                </label>
+              </li>
+            );
+          })}
         </ul>
       </div>
-
       {/* Publishers Section */}
       <div className="filter-sidebar__section">
         <h3 className="filter-sidebar__section-title">Nhà xuất bản</h3>
         <ul className="filter-sidebar__list">
           {publishers.map((pub) => (
-            <li key={pub.id} className="filter-sidebar__item">
+            <li key={pub.publisherId} className="filter-sidebar__item">
               <label className="filter-sidebar__label">
                 <input
                   type="checkbox"
                   className="filter-sidebar__checkbox"
-                  checked={filters.publisherId === pub.id}
+                  checked={filters.publisherId === pub.publisherId}
                   onChange={() => {
                     // Realtime filtering: no Apply button, updates immediately
-                    onFilterChange({ publisherId: filters.publisherId === pub.id ? undefined : pub.id });
+                    onFilterChange({
+                      publisherId:
+                        filters.publisherId === pub.publisherId
+                          ? undefined
+                          : pub.publisherId,
+                    });
                   }}
                 />
-                <span>{pub.name}</span>
+                <span>{pub.publisherName}</span>
               </label>
             </li>
           ))}
