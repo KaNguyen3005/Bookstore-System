@@ -2,6 +2,7 @@ import React from 'react';
 import { useCart } from '../../hooks/useCart';
 import CartItem from '../../components/CartItem';
 import CartSummary from '../../components/CartSummary';
+import type { CartItemType } from '../../types/cartItemType';
 import { Link } from 'react-router-dom';
 import './Cart.css';
 
@@ -64,7 +65,7 @@ const Cart: React.FC = () => {
           
           <div className="cart-items-list">
             {cartItems.map((item) => (
-              <CartItem key={item.book_id} item={item} />
+              <CartItem key={item.book.bookId} item={item} />
             ))}
           </div>
         </div>

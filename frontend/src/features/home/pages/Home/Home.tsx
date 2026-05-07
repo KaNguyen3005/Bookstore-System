@@ -4,10 +4,11 @@ import TopSellingBooks from "../../components/TopsellingBooks/TopSellingBooks";
 import ExploreCategories from "../../components/ExploreCategories/ExploreCategories";
 import Banner from "../../components/Banner/Banner";
 import { useHomeData } from "../../hooks/useHomeData";
+import { type Category } from "../../../book-category/types/category";
 
 function Home() {
   const { homeData, loading } = useHomeData();
-
+  console.log(homeData);
   if (loading || !homeData) return null;
 
   return (
@@ -27,7 +28,7 @@ function Home() {
         </div>
 
         <div className="section">
-          <ExploreCategories />
+          <ExploreCategories categories={homeData.categories} />
         </div>
 
       </div>

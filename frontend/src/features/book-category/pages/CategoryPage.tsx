@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import FilterSidebar from "../components/FilterSidebar";
 import BookGrid from "../components/BookGrid";
@@ -7,7 +8,6 @@ import { useBookSearch } from "../hooks/useBookSearch";
 
 import type { BookFilters } from "../types/bookFilter";
 import type { Book } from "../../product/types/Book";
-import { searchBooks } from "../services/bookService";
 import type { Category, Publisher } from "../types/category";
 
 import { categoriesData } from "../../../data/categoriesData";
@@ -24,12 +24,22 @@ import "./CategoryPage.css";
  * Main container component for the Category Page.
  */
 const CategoryPage: React.FC = () => {
+  // ================= URL PARAMS =================
+  const [searchParams] = useSearchParams();
+
+  const categoryIdParam = searchParams.get("categoryId");
+
   // ================= FILTER STATE =================
   const [filters, setFilters] = useState<BookFilters>({
     page: 0,
     sort: "asc",
 
-    // 💰 thêm price filter
+    // 📌 category từ URL
+    categoryId: categoryIdParam
+      ? Number(categoryIdParam)
+      : undefined,
+
+    // 💰 price filters
     minPrice: undefined,
     maxPrice: undefined,
   });
@@ -38,23 +48,44 @@ const CategoryPage: React.FC = () => {
   const [topSellingBooks, setTopSellingBooks] = useState<Book[]>([]);
 
   // ================= CATEGORY STATE =================
-  const [categories, setCategories] = useState<Category[]>(categoriesData);
+  const [categories, setCategories] =
+    useState<Category[]>(categoriesData);
 
   // ================= PUBLISHER STATE =================
-  const [publishers, setPublishers] = useState<Publisher[]>(publishersData);
+  const [publishers, setPublishers] =
+    useState<Publisher[]>(publishersData);
 
   // ================= BOOK SEARCH =================
-  const { books, loading, error, total } = useBookSearch(filters);
+  const {
+    books,
+    loading,
+    error,
+    total,
+  } = useBookSearch(filters);
+
+  // ================= SYNC URL → FILTER =================
+  useEffect(() => {
+    if (categoryIdParam) {
+      setFilters((prev) => ({
+        ...prev,
+        categoryId: Number(categoryIdParam),
+        page: 0,
+      }));
+    }
+  }, [categoryIdParam]);
 
   // ================= TOP SELLING API =================
   useEffect(() => {
     const fetchTopSelling = async () => {
       try {
-        const data = await getTopSellingBooks(10);
+        const data =
+          await getTopSellingBooks(10);
 
         setTopSellingBooks(data);
       } catch (error) {
-        console.log("Top selling API failed → fallback empty");
+        console.log(
+          "Top selling API failed → fallback empty"
+        );
       }
     };
 
@@ -65,13 +96,16 @@ const CategoryPage: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await categoryService.getCategories();
+        const data =
+          await categoryService.getCategories();
 
         if (data && data.length > 0) {
           setCategories(data);
         }
       } catch (error) {
-        console.log("Category API failed → fallback mock");
+        console.log(
+          "Category API failed → fallback mock"
+        );
       }
     };
 
@@ -82,13 +116,16 @@ const CategoryPage: React.FC = () => {
   useEffect(() => {
     const fetchPublishers = async () => {
       try {
-        const data = await publisherService.getPublishers();
+        const data =
+          await publisherService.getPublishers();
 
         if (data && data.length > 0) {
           setPublishers(data);
         }
       } catch (error) {
-        console.log("Publisher API failed → fallback mock");
+        console.log(
+          "Publisher API failed → fallback mock"
+        );
       }
     };
 
@@ -96,7 +133,9 @@ const CategoryPage: React.FC = () => {
   }, []);
 
   // ================= FILTER HANDLER =================
-  const handleFilterChange = (newFilters: Partial<BookFilters>) => {
+  const handleFilterChange = (
+    newFilters: Partial<BookFilters>
+  ) => {
     setFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,
@@ -106,18 +145,26 @@ const CategoryPage: React.FC = () => {
         page: 0,
       };
 
-      console.log("UPDATED FILTERS:", updatedFilters);
+      console.log(
+        "UPDATED FILTERS:",
+        updatedFilters
+      );
 
       return updatedFilters;
     });
   };
+
   return (
     <div className="category-page">
       {/* ================= HEADER ================= */}
       <div className="category-page__header">
-        <h1 className="category-page__title">Danh mục sách</h1>
+        <h1 className="category-page__title">
+          Danh mục sách
+        </h1>
 
-        <p className="category-page__subtitle">Tìm thấy {total} kết quả</p>
+        <p className="category-page__subtitle">
+          Tìm thấy {total} kết quả
+        </p>
       </div>
 
       {/* ================= CONTENT ================= */}
@@ -133,16 +180,26 @@ const CategoryPage: React.FC = () => {
 
         {/* Books */}
         <main className="category-page__main">
-          <BookGrid books={books} loading={loading} error={error} />
+          <BookGrid
+            books={books}
+            loading={loading}
+            error={error}
+          />
         </main>
       </div>
 
       {/* ================= TOP SELLING ================= */}
       <section className="category-page__top-selling">
-        <h2 className="category-page__section-title">TOP SÁCH BÁN CHẠY NHẤT</h2>
+        <h2 className="category-page__section-title">
+          TOP SÁCH BÁN CHẠY NHẤT
+        </h2>
 
         <div className="category-page__top-grid">
-          <BookGrid books={topSellingBooks} loading={false} error={null} />
+          <BookGrid
+            books={topSellingBooks}
+            loading={false}
+            error={null}
+          />
         </div>
       </section>
     </div>

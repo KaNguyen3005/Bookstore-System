@@ -1,18 +1,12 @@
-import React, { createContext, useState, useEffect, type ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { cartApi } from "../services/cartApi";
-
-export interface CartItemType {
-  cartId?: number;
-  bookId: number;
-  title: string;
-  price: number;
-  salePercent: number;
-  coverImgUrl: string;
-  quantity: number;
-  stockQuantity: number;
-  selected: boolean;
-}
+import type { CartItemType } from "../types/cartItemType";
 
 interface CartContextType {
   cartItems: CartItemType[];
@@ -28,11 +22,15 @@ interface CartContextType {
   isLoading: boolean;
 }
 
-export const CartContext = createContext<CartContextType | undefined>(undefined);
+export const CartContext = createContext<CartContextType | undefined>(
+  undefined,
+);
 
 const initialCartState: CartItemType[] = [];
 
-export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const { isAuthenticated, user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,7 +62,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (isAuthenticated && user?.userId) {
         try {
           const serverCart = await cartApi.getCart();
-          setCartItems(serverCart);
+          setCartItems(serverCart); // ✅ PHẢI LẤY result
         } catch (error) {
           console.error("Failed to fetch cart from server:", error);
         }
@@ -89,12 +87,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.bookId === newItem.bookId);
+      const existing = prev.find(
+        (item) => item.book.bookId === newItem.book.bookId,
+      );
       if (existing) {
         return prev.map((item) =>
-          item.bookId === newItem.bookId
+          item.book.bookId === newItem.book.bookId
             ? { ...item, quantity: item.quantity + newItem.quantity }
-            : item
+            : item,
         );
       }
       return [...prev, { ...newItem, selected: true }];
@@ -114,8 +114,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     setCartItems((prev) =>
       prev.map((item) =>
-        item.bookId === bookId ? { ...item, quantity: newQuantity } : item
-      )
+        item.book.bookId === bookId ? { ...item, quantity: newQuantity } : item,
+      ),
     );
   };
 
@@ -128,19 +128,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
 
-    setCartItems((prev) => prev.filter((item) => item.bookId !== bookId));
+    setCartItems((prev) => prev.filter((item) => item.book.bookId !== bookId));
   };
 
   const toggleSelect = (bookId: number) => {
     setCartItems((prev) =>
       prev.map((item) =>
-        item.bookId === bookId ? { ...item, selected: !item.selected } : item
-      )
+        item.book.bookId === bookId
+          ? { ...item, selected: !item.selected }
+          : item,
+      ),
     );
   };
 
   const selectAll = (isSelected: boolean) => {
-    setCartItems((prev) => prev.map((item) => ({ ...item, selected: isSelected })));
+    setCartItems((prev) =>
+      prev.map((item) => ({ ...item, selected: isSelected })),
+    );
   };
 
   const calculateTotal = () => {
@@ -148,8 +152,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let discount = 0;
 
     selectedItems.forEach((item) => {
-      const itemSubtotal = item.price * item.quantity;
-      const itemDiscount = (item.price * item.salePercent) / 100 * item.quantity;
+      const itemSubtotal = item.book.price * item.quantity;
+      const itemDiscount =
+        ((item.book.price * item.book.salePercent) / 100) * item.quantity;
 
       subtotal += itemSubtotal;
       discount += itemDiscount;
@@ -171,10 +176,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         await Promise.all(bookIds.map((id) => cartApi.removeCartItem(id)));
       } catch (error) {
-        console.error("Failed to remove purchased cart items from server:", error);
+        console.error(
+          "Failed to remove purchased cart items from server:",
+          error,
+        );
       }
     }
-    setCartItems((prev) => prev.filter((item) => !bookIds.includes(item.bookId)));
+    setCartItems((prev) =>
+      prev.filter((item) => !bookIds.includes(item.book.bookId)),
+    );
   };
 
   return (
