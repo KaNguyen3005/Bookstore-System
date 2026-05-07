@@ -21,7 +21,9 @@ import java.util.List;
 public class SecurityConfig {
 
     CustomJwtDecoder customJwtDecoder;
-    private final String[] PUBLIC_ENDPOINTS = {
+
+    // POST endpoints - không cần JWT
+    private final String[] PUBLIC_POST_ENDPOINTS = {
             "/api/v1/auth/login",
             "/api/v1/auth/introspect",
             "/api/v1/auth/refresh",
@@ -31,8 +33,38 @@ public class SecurityConfig {
             "/api/v1/auth/reset-password/init",
             "/api/v1/auth/reset-password/verify",
             "/api/v1/auth/reset-password/complete",
+            "/api/v1/otp/send",
+            "/api/v1/otp/verify",
     };
 
+    // GET endpoints - không cần JWT
+    private final String[] PUBLIC_GET_ENDPOINTS = {
+            // Books
+            "/api/v1/books",
+            "/api/v1/books/**",
+            "/api/v1/books/search",
+
+            // Authors
+            "/api/v1/authors",
+            "/api/v1/authors/**",
+
+            // Publishers
+            "/api/v1/publishers",
+            "/api/v1/publishers/**",
+
+            // Categories
+            "/api/v1/categories",
+            "/api/v1/categories/**",
+
+            // Vouchers
+            "/api/v1/vouchers",
+            "/api/v1/vouchers/**",
+
+            // Recommendations
+            "/api/v1/recommendations/**",
+    };
+
+    // Static resources - không cần JWT
     private final String[] RESOURCE_ENDPOINTS = {
             "/imgs/**",
             "/swagger-ui/**",
@@ -45,11 +77,16 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
         http.exceptionHandling(exception -> exception
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
-        http.csrf(csrf -> csrf.disable()) // Tắt CSRF để gọi POST/PUT được
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        // POST endpoints - public
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                        // GET endpoints - public
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                        // Static resources - public
                         .requestMatchers(HttpMethod.GET, RESOURCE_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()); // Cho phép tất cả
+                        // Tất cả các request khác phải có JWT
+                        .anyRequest().authenticated());
         // Cấu hình application hoạt động như một OAuth2 Resource Server
         // Tức là server sẽ:
         // - Nhận JWT từ client

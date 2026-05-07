@@ -21,7 +21,7 @@ services:
 
   recommendation-service:
     build:
-      context: ./recommendation-service
+      context: ./ai
     container_name: recommendation-service
     environment:
       DB_HOST: mysql

@@ -113,6 +113,7 @@ public class BookService {
                                           BigDecimal minPrice,
                                           BigDecimal maxPrice,
                                           String sort,
+                                          Integer publisherId,
                                           int page,
                                           int size) {
         // Validate sort parameter
@@ -129,7 +130,7 @@ public class BookService {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Book> books = bookRepository.searchBooks(
-                keyword, categoryId, minPrice, maxPrice, sort, pageable
+                keyword, categoryId, minPrice, maxPrice, sort, publisherId, pageable
         );
 
         return books.map(bookMapper::toResponse);
