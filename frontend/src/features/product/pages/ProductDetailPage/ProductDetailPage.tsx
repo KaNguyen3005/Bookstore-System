@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useProductDetail } from "../../hooks/useProductDetail";
 
 // import ProductCard from "../../components/ProductCard";
 import ExploreCategories from "../../../home/components/ExploreCategories/ExploreCategories";
-
+import { categoryService } from "../../../book-category/services/categoryService";
+import type { Category } from "../../../book-category/types/category";
 import "./ProductDetailPage.css";
 
 import {
@@ -25,10 +26,30 @@ const ProductDetailPage: React.FC = () => {
     id: string;
   }>();
 
+  // ================= CATEGORIES =================
+  const [categories, setCategories] =
+    useState<Category[]>([]);
+
+  // ================= FETCH CATEGORIES =================
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data =
+          await categoryService.getCategories();
+
+        setCategories(data || []);
+      } catch (error) {
+        console.log(
+          "Fetch categories failed"
+        );
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const {
     book,
-
-    // relatedBooks,
 
     loading,
 
@@ -41,7 +62,6 @@ const ProductDetailPage: React.FC = () => {
     handleAddToCart,
     handleBuyNow,
   } = useProductDetail(id);
-
   // ================= LOADING =================
   if (loading) {
     return (
@@ -494,9 +514,11 @@ const ProductDetailPage: React.FC = () => {
         */}
       </div>
 
-      {/* EXPLORE */}
+        {/* EXPLORE */}
       <div className="mt-5 pb-5">
-        <ExploreCategories />
+        <ExploreCategories
+          categories={categories}
+        />
       </div>
     </div>
   );

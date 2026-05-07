@@ -6,6 +6,8 @@ import {
   getFeaturedBook,
 } from "../data/books";
 import type { Book } from "../features/product/types/Book";
+import { categoriesData } from "../data/categoriesData";
+import type { Category } from "../features/book-category/types/category";
 
 const IS_MOCK = false;
 
@@ -35,39 +37,65 @@ export const bookApi = {
     return res?.data?.result || res?.data;
   },
 
-  getRelatedBooks: async (bookId: number): Promise<Book[]> => {
+  // getRelatedBooks: async (bookId: number): Promise<Book[]> => {
+  //   if (IS_MOCK) {
+  //     await delay(500);
+  //     return MOCK_ALL_BOOKS
+  //       .filter((b) => b.bookId !== bookId)
+  //       .sort(() => 0.5 - Math.random())
+  //       .slice(0, 15);
+  //   }
+
+  //   const res: any = await axiosClient.get(`/books/${bookId}/related`);
+  //   return res?.data?.result || res?.data || [];
+  // },
+
+   // ================= CATEGORIES =================
+
+  getCategories: async (): Promise<Category[]> => {
     if (IS_MOCK) {
-      await delay(500);
-      return MOCK_ALL_BOOKS
-        .filter((b) => b.bookId !== bookId)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 15);
+      await delay(300);
+
+      return categoriesData;
     }
 
-    const res: any = await axiosClient.get(`/books/${bookId}/related`);
-    return res?.data?.result || res?.data || [];
+    const res: any = await axiosClient.get("/categories");
+
+    return res?.data?.result || [];
   },
+
+  // ================= HOME DATA =================
 
   getHomeData: async () => {
     if (IS_MOCK) {
       await delay(500);
+
       return {
         hotSearchBooks: getHotSearchBooks(),
         topSellingBooks: getTopSellingBooks(),
         featuredBook: getFeaturedBook(),
+        categories: categoriesData,
       };
     }
 
-    const res: any = await axiosClient.get("/books");
-    const books: Book[] = res?.data?.result?.content || [];
+    const [booksRes, categoriesRes] = await Promise.all([
+      axiosClient.get("/books"),
+      axiosClient.get("/categories"),
+    ]);
+
+    const books: Book[] =
+      booksRes?.data?.result?.content || [];
+
+    const categories: Category[] =
+      categoriesRes?.data?.result || [];
 
     return {
       hotSearchBooks: books.slice(0, 10),
       topSellingBooks: books.slice(0, 10),
       featuredBook: books[0],
+      categories,
     };
   },
-
   getTopSellingBooks: async (limit?: number): Promise<Book[]> => {
     if (IS_MOCK) {
       await delay(500);

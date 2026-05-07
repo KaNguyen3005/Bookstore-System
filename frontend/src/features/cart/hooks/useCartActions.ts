@@ -1,7 +1,7 @@
 import { useCart } from './useCart';
 import { useRequireAuth } from '../../auth/hooks/useRequireAuth';
 import { useNavigate } from 'react-router-dom';
-import type { CartItemType } from '../context/CartContext';
+import type { CartItemType } from '../types/cartItemType';
 
 export const useCartActions = () => {
   const { addToCart } = useCart();

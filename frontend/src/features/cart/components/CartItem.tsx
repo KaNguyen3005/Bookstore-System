@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCart } from '../hooks/useCart';
-import { type CartItemType } from '../context/CartContext';
+import type{ CartItemType } from '../types/cartItemType';
 import { FaTrash } from 'react-icons/fa';
 
 interface CartItemProps {
@@ -12,34 +12,37 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
   const handleDecrease = () => {
     if (item.quantity > 1) {
-      updateQuantity(item.book_id, item.quantity - 1);
+      updateQuantity(item.book.bookId, item.quantity - 1);
     }
   };
 
   const handleIncrease = () => {
-    if (item.quantity < item.stock_quantity) {
-      updateQuantity(item.book_id, item.quantity + 1);
+    if (item.quantity < item.book.stockQuantity) {
+      updateQuantity(item.book.bookId, item.quantity + 1);
     }
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
-    if (!isNaN(value) && value > 0 && value <= item.stock_quantity) {
-      updateQuantity(item.book_id, value);
+    if (!isNaN(value) && value > 0 && value <= item.book.stockQuantity) {
+      updateQuantity(item.book.bookId, value);
     }
   };
 
   const handleDelete = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
-      removeItem(item.book_id);
+      removeItem(item.book.bookId);
     }
   };
 
-  const currentPrice = item.price * (1 - item.sale_percent / 100);
+  const currentPrice = item.book.price * (1 - item.book.salePercent / 100);
   const totalItemPrice = currentPrice * item.quantity;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price);
   };
 
   return (
@@ -48,37 +51,54 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <input
           type="checkbox"
           checked={item.selected}
-          onChange={() => toggleSelect(item.book_id)}
+          onChange={() => toggleSelect(item.book.bookId)}
         />
       </div>
 
       <div className="cart-item-image">
-        <img src={item.cover_image_url} alt={item.title} />
+        <img src={item.book.coverImgUrl} alt={item.book.title} />
       </div>
 
       <div className="cart-item-details">
-        <h3 className="cart-item-title">{item.title}</h3>
+        <h3 className="cart-item-title">{item.book.title}</h3>
         <div className="cart-item-price-info">
-          <span className="cart-item-current-price">{formatPrice(currentPrice)}</span>
-          {item.sale_percent > 0 && (
-            <span className="cart-item-original-price">{formatPrice(item.price)}</span>
+          <span className="cart-item-current-price">
+            {formatPrice(currentPrice)}
+          </span>
+
+          {item.book.salePercent > 0 && (
+            <span className="cart-item-original-price">
+              {formatPrice(item.book.price)}
+            </span>
           )}
         </div>
       </div>
 
       <div className="cart-item-quantity-wrapper">
         <div className="cart-item-quantity">
-          <button onClick={handleDecrease} disabled={item.quantity <= 1}>-</button>
+          <button onClick={handleDecrease} disabled={item.quantity <= 1}>
+            -
+          </button>
+
           <input
             type="number"
             value={item.quantity}
             onChange={handleQuantityChange}
             min={1}
-            max={item.stock_quantity}
+            max={item.book.stockQuantity}
           />
-          <button onClick={handleIncrease} disabled={item.quantity >= item.stock_quantity}>+</button>
+
+          <button
+            onClick={handleIncrease}
+            disabled={item.quantity >= item.book.stockQuantity}
+          >
+            +
+          </button>
         </div>
-        <p className="cart-item-stock">Còn lại: {item.stock_quantity}</p>
+
+        <p className="cart-item-stock">
+          Còn lại: {item.book.stockQuantity}
+        </p>
       </div>
 
       <div className="cart-item-total">
@@ -86,7 +106,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       </div>
 
       <div className="cart-item-actions">
-        <button onClick={handleDelete} className="cart-item-delete-btn" aria-label="Xóa sản phẩm">
+        <button
+          onClick={handleDelete}
+          className="cart-item-delete-btn"
+          aria-label="Xóa sản phẩm"
+        >
           <FaTrash />
         </button>
       </div>

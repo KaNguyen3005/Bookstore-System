@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useCartActions } from "../../cart/hooks/useCartActions";
 import type { Book } from "../types/Book";
 import "./ProductCard.css";
+import type { CartItemType } from "../../cart/types/cartItemType";
 
 interface ProductCardProps {
   book: Book;
@@ -18,17 +19,17 @@ const ProductCard = ({ book }: ProductCardProps) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const item = {
-      bookId: book.bookId,
-      title: book.title,
-      price: book.oldPrice || book.price,
-      salePercent: book.salePercent || 0,
-      coverImgUrl:
-        book.coverImgUrl ||
-        `https://picsum.photos/seed/book${book.bookId}/200/280`,
+    const item: CartItemType = {
+      book: {
+        bookId: book.bookId,
+        title: book.title,
+        price: book.price,
+        salePercent: book.salePercent || 0,
+        coverImgUrl: book.coverImgUrl,
+        stockQuantity: book.stockQuantity || 100,
+      },
       quantity: 1,
-      stockQuantity: 100, // mock stock
-      selected: true
+      selected: true,
     };
 
     onAddToCart(item);
