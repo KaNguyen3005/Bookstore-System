@@ -26,8 +26,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ totals, itemCount }) => {
 
         <div className="order-summary__row">
           <span>Phí vận chuyển</span>
-          <span className={totals.shipping_fee === 0 ? 'order-summary__free' : ''}>
-            {totals.shipping_fee === 0 ? 'Miễn phí' : formatPrice(totals.shipping_fee)}
+          <span className={totals.shippingFee === 0 ? 'order-summary__free' : ''}>
+            {totals.shippingFee === 0 ? 'Miễn phí' : formatPrice(totals.shippingFee)}
           </span>
         </div>
 
@@ -38,10 +38,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ totals, itemCount }) => {
           </div>
         )}
 
-        {totals.shipping_fee > 0 && (
+        {totals.shippingDiscount > 0 && (
           <div className="order-summary__row order-summary__row--discount">
             <span>Giảm giá phí vận chuyển</span>
-            <span>-0₫</span>
+            <span>-{formatPrice(totals.shippingDiscount)}</span>
           </div>
         )}
       </div>

@@ -12,8 +12,10 @@ interface VoucherInputProps {
   onChange: (value: string) => void;
   onApply: () => void;
   onRemove: () => void;
-}
 
+  // 👉 thêm cái này
+  onOpenVoucherList: () => void;
+}
 const VoucherInput: React.FC<VoucherInputProps> = ({
   code,
   appliedVoucher,
@@ -23,6 +25,7 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
   onChange,
   onApply,
   onRemove,
+  onOpenVoucherList,
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') onApply();
@@ -39,9 +42,9 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
         <div className="voucher-input__applied">
           <div className="voucher-input__applied-info">
             <FiTag />
-            <span className="voucher-input__applied-code">{appliedVoucher.code}</span>
+            <span className="voucher-input__applied-code">{appliedVoucher.voucherCode}</span>
             <span className="voucher-input__applied-desc">
-              Giảm {appliedVoucher.discount_value.toLocaleString('vi-VN')}đ
+              Giảm {appliedVoucher.discountValue.toLocaleString('vi-VN')}đ
             </span>
           </div>
           <button
@@ -90,7 +93,7 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
             id="btn-browse-vouchers"
             className="voucher-input__browse-btn"
             type="button"
-            onClick={() => {}}
+             onClick={onOpenVoucherList}
           >
             Chọn hoặc nhập mã khác &rsaquo;
           </button>

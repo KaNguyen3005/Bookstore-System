@@ -6,7 +6,10 @@ const IS_MOCK = false;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const addressApi = {
-  // Mock Address methods
+  // ─────────────────────────────────────────
+  // Address CRUD
+  // ─────────────────────────────────────────
+
   getAll: async (): Promise<any[]> => {
     if (IS_MOCK) {
       await delay(500);
@@ -16,94 +19,124 @@ export const addressApi = {
 
     const response = await axiosClient.get("/addresses");
 
-    return response.data.result.map((item: any) => ({
-      province: item.province,
-      district: item.district,
-      ward: item.ward,
-
-      detailAddress: item.detailAddress,
-
-      customerName: item.customerName,
-
-      customerPhone: item.customerPhone,
-    }));
+    return response.data.result
+      .filter((item: any) => !item.deletedAt)
+      .map((item: any) => ({
+        addressId: item.addressId,
+        province: item.province,
+        district: item.district,
+        ward: item.ward,
+        detailAddress: item.detailAddress,
+        customerName: item.customerName,
+        customerPhone: item.customerPhone,
+        isDefault: item.isDefault,
+      }));
   },
+
   create: async (data: any): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
+
       const newItem = {
         ...data,
-        address_id: Date.now(),
+        addressId: Date.now(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         deletedAt: null,
       };
+
       mockAddresses.push(newItem);
+
       return newItem;
     }
+
     return axiosClient.post("/addresses", data);
   },
 
   update: async (id: number, data: any): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
-      const index = mockAddresses.findIndex((item) => item.address_id === id);
+
+      const index = mockAddresses.findIndex((item) => item.addressId === id);
+
       if (index !== -1) {
         mockAddresses[index] = {
           ...mockAddresses[index],
           ...data,
           updatedAt: new Date().toISOString(),
         };
+
         return mockAddresses[index];
       }
+
       throw new Error("Address not found");
     }
-    return axiosClient.put(`/addresses/${id}`, data);
+
+    return axiosClient.patch(`/addresses/${id}`, data);
   },
 
-  remove: async (id: number): Promise<boolean> => {
+  remove: async (id: number): Promise<void> => {
     if (IS_MOCK) {
       await delay(500);
-      const item = mockAddresses.find((i) => i.address_id === id);
-      if (item) {
-        item.deletedAt = new Date().toISOString();
+
+      const index = mockAddresses.findIndex((item) => item.addressId === id);
+
+      if (index !== -1) {
+        mockAddresses.splice(index, 1);
       }
-      return true;
+
+      return;
     }
-    return axiosClient.delete(`/addresses/${id}`);
+
+    await axiosClient.delete(`/addresses/${id}`);
   },
 
-  setDefault: async (id: number): Promise<boolean> => {
+  setDefault: async (id: number): Promise<void> => {
     if (IS_MOCK) {
       await delay(500);
+
       mockAddresses.forEach((item) => {
-        item.is_default = item.address_id === id;
+        item.isDefault = item.addressId === id;
       });
-      return true;
+
+      return;
     }
-    return axiosClient.patch(`/addresses/${id}/default`);
+
+    await axiosClient.patch(`/addresses/${id}/default`);
   },
 
-  // Location methods
+  // ─────────────────────────────────────────
+  // Location APIs
+  // ─────────────────────────────────────────
+
+  // addressApi.ts
+
   getProvinces: async () => {
-    // Luôn gọi API thật cho tỉnh thành hoặc dùng mock nếu cần
-    const res = await fetch("https://provinces.open-api.vn/api/p/");
-    return res.json();
+    const response = await axiosClient.get("/addresses/provinces");
+
+    return response.data.result.map((item: any) => ({
+      provinceId: item.ProvinceID,
+      provinceName: item.ProvinceName,
+    }));
   },
 
-  getDistricts: async (provinceCode: number) => {
-    const res = await fetch(
-      `https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`,
+  getDistricts: async (provinceId: number | string) => {
+    const response = await axiosClient.get(
+      `/addresses/districts/${provinceId}`,
     );
-    const data = await res.json();
-    return data.districts;
+
+    return response.data.result.map((item: any) => ({
+      districtId: item.DistrictID,
+      districtName: item.DistrictName,
+    }));
   },
 
-  getWards: async (districtCode: number) => {
-    const res = await fetch(
-      `https://provinces.open-api.vn/api/d/${districtCode}?depth=2`,
-    );
-    const data = await res.json();
-    return data.wards;
+  getWards: async (districtId: number | string) => {
+    const response = await axiosClient.get(`/addresses/wards/${districtId}`);
+
+    return response.data.result.map((item: any) => ({
+      wardId: item.WardCode,
+      wardName: item.WardName,
+    }));
   },
 };

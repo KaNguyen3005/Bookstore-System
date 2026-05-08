@@ -35,8 +35,8 @@ const calcDiscount = (
   voucher: CheckoutVoucher | null,
 ): number => {
   if (!voucher) return 0;
-  if (subtotal < voucher.min_order_value) return 0;
-  return Math.min(voucher.discount_value, voucher.max_discount_amount);
+  if (subtotal < voucher.minOrderValue) return 0;
+  return Math.min(voucher.discountValue, voucher.maxDiscountAmount);
 };
 
 // ─── calculateOrder ───────────────────────────────────────────────────────────
@@ -47,11 +47,34 @@ export const calculateOrder = (
   voucher: CheckoutVoucher | null,
 ): CalculateOrderResponse => {
   const subtotal = calcSubtotal(items);
-  const shipping_fee = calcShippingFee(shippingMethod);
-  const discount = calcDiscount(subtotal, voucher);
-  const total = subtotal - discount + shipping_fee;
+  const shippingFee = calcShippingFee(shippingMethod);
+  
+  let discount = 0;
+  let shippingDiscount = 0;
 
-  return { subtotal, shipping_fee, discount, total };
+  if (voucher && subtotal >= voucher.minOrderValue) {
+    const isFreeship = voucher.voucherCode.toLowerCase().includes("freeship");
+    
+    let calcVal = 0;
+    if (voucher.type === "PERCENT") {
+      calcVal = subtotal * (voucher.discountValue / 100);
+      if (voucher.maxDiscountAmount > 0) {
+        calcVal = Math.min(calcVal, voucher.maxDiscountAmount);
+      }
+    } else {
+      calcVal = voucher.discountValue;
+    }
+
+    if (isFreeship) {
+      shippingDiscount = Math.min(calcVal, shippingFee);
+    } else {
+      discount = calcVal;
+    }
+  }
+
+  const total = subtotal - discount + (shippingFee - shippingDiscount);
+
+  return { subtotal, shippingFee, discount, shippingDiscount, total };
 };
 
 // ─── applyVoucher ─────────────────────────────────────────────────────────────
@@ -67,9 +90,9 @@ export const applyVoucher = async (
   try {
     const voucher = await voucherApi.validateVoucher(code);
 
-    if (subtotal < voucher.min_order_value) {
+    if (subtotal < voucher.minOrderValue) {
       throw new Error(
-        `Đơn hàng tối thiểu ${voucher.min_order_value.toLocaleString("vi-VN")}đ để áp dụng voucher này.`,
+        `Đơn hàng tối thiểu ${voucher.minOrderValue.toLocaleString("vi-VN")}đ để áp dụng voucher này.`,
       );
     }
 

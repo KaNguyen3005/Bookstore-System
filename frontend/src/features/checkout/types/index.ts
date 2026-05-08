@@ -21,27 +21,36 @@ export type ShippingMethodType = "DELIVERY" | "PICKUP";
 
 // ─── Address (maps to DB: address table) ─────────────────────────────────────
 export interface CheckoutAddress {
+  addressId: number;
   province: string;
   district: string;
   ward: string;
-
   detailAddress: string;
-
   customerName: string;
-
   customerPhone: string;
-
   isDefault: boolean;
 }
 
 // ─── Voucher (maps to DB: voucher table) ─────────────────────────────────────
 
 export interface CheckoutVoucher {
-  voucher_id: number;
-  code: string;
-  discount_value: number;
-  max_discount_amount: number;
-  min_order_value: number;
+  voucherId: number;
+  voucherCode: string;
+  title: string;
+  description: string;
+  type: "FIXED" | "PERCENT";
+  discountValue: number;
+  maxDiscountAmount: number;
+  minOrderValue: number;
+  totalLimit: number;
+  usedCount: number;
+  limitPerUser: number;
+  minPoint: number;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ─── Order API Request/Response ───────────────────────────────────────────────
@@ -74,8 +83,9 @@ export interface CreateOrderResponse {
 
 export interface CalculateOrderResponse {
   subtotal: number;
-  shipping_fee: number;
+  shippingFee: number;
   discount: number;
+  shippingDiscount: number;
   total: number;
 }
 
@@ -83,7 +93,8 @@ export interface CalculateOrderResponse {
 
 export interface CheckoutTotals {
   subtotal: number;
-  shipping_fee: number;
+  shippingFee: number;
   discount: number;
+  shippingDiscount: number;
   total: number;
 }
