@@ -1,20 +1,33 @@
 import axiosClient from "./axiosClient";
 import { mockAddresses } from "../data/address";
 
-const IS_MOCK = true;
+const IS_MOCK = false;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const addressApi = {
   // Mock Address methods
-  getAll: async (userId: number): Promise<any[]> => {
+  getAll: async (): Promise<any[]> => {
     if (IS_MOCK) {
       await delay(500);
-      return mockAddresses.filter((item) => item.user_id === userId && !item.deletedAt);
-    }
-    return axiosClient.get(`/addresses/user/${userId}`);
-  },
 
+      return mockAddresses.filter((item) => !item.deletedAt);
+    }
+
+    const response = await axiosClient.get("/addresses");
+
+    return response.data.result.map((item: any) => ({
+      province: item.province,
+      district: item.district,
+      ward: item.ward,
+
+      detailAddress: item.detailAddress,
+
+      customerName: item.customerName,
+
+      customerPhone: item.customerPhone,
+    }));
+  },
   create: async (data: any): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
@@ -79,13 +92,17 @@ export const addressApi = {
   },
 
   getDistricts: async (provinceCode: number) => {
-    const res = await fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
+    const res = await fetch(
+      `https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`,
+    );
     const data = await res.json();
     return data.districts;
   },
 
   getWards: async (districtCode: number) => {
-    const res = await fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+    const res = await fetch(
+      `https://provinces.open-api.vn/api/d/${districtCode}?depth=2`,
+    );
     const data = await res.json();
     return data.wards;
   },

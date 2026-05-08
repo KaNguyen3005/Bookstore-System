@@ -20,7 +20,7 @@ import type {
   CheckoutTotals,
   CreateOrderResponse,
 } from '../types';
-import type { CartItemType } from '../../cart/context/CartContext';
+import type { CartItemType } from '../../cart/types/cartItemType';
 
 interface UseCheckoutReturn {
   // State
@@ -125,9 +125,9 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
       // Map UI state to the new Backend format:
       // { source: string, addressId: number, items: [{ bookId: number, quantity: number }], paymentMethod: string, voucherCode: string }
       const payload = {
-        addressId: selectedAddress.address_id,
+        addressId: selectedAddress.addressId,
         items: selectedItems.map((item) => ({
-          bookId: item.book_id,
+          bookId: item.book.bookId,
           quantity: item.quantity,
         })),
         paymentMethod: paymentMethod,
@@ -140,7 +140,7 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
       if (response && response.orderId) {
         // Only clear cart if the order was placed from the general cart flow
         if (!initialItems) {
-          await removePurchasedItems(selectedItems.map(item => item.book_id));
+          await removePurchasedItems(selectedItems.map(item => item.book.bookId));
         }
         return response;
       }

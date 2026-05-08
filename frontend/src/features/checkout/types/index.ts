@@ -5,25 +5,33 @@
 
 // ─── Payment ──────────────────────────────────────────────────────────────────
 
-export type PaymentMethodId = 'COD' | 'VNPAY' | 'MOMO' | 'CARD' | 'ATM' | 'ZALOPAY';
+export type PaymentMethodId =
+  | "COD"
+  | "VNPAY"
+  | "MOMO"
+  | "CARD"
+  | "ATM"
+  | "ZALOPAY";
 
-export type PaymentStatus = 'PENDING' | 'PAID';
+export type PaymentStatus = "PENDING" | "PAID";
 
 // ─── Shipping ─────────────────────────────────────────────────────────────────
 
-export type ShippingMethodType = 'DELIVERY' | 'PICKUP';
+export type ShippingMethodType = "DELIVERY" | "PICKUP";
 
 // ─── Address (maps to DB: address table) ─────────────────────────────────────
-
 export interface CheckoutAddress {
-  address_id: number;
   province: string;
   district: string;
   ward: string;
-  detail_address: string;
-  customer_name: string;
-  customer_phone: string;
-  is_default?: boolean;
+
+  detailAddress: string;
+
+  customerName: string;
+
+  customerPhone: string;
+
+  isDefault: boolean;
 }
 
 // ─── Voucher (maps to DB: voucher table) ─────────────────────────────────────
