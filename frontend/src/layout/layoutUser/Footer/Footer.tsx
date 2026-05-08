@@ -93,27 +93,26 @@ const Footer: React.FC = () => {
 
       </div>
 
-      {/* SOCIAL */}
-<<<<<<< HEAD
-      <div className="social-icon">
-=======
-      <div className="footer-social">
->>>>>>> 95e0179d5b90069601fd651dd7b3fa82e8458d26
-        <span><FaFacebookSquare /></span>
-        <span><FaInstagram /></span>
-        <span><SiZalo /></span>
-        <span><AiFillTikTok /></span>
-        <span><FaYoutube /></span>
-      </div>
 
-      {/* BOTTOM */}
-      <div className="footer-bottom">
-        <p>
-          Thông báo bản quyền | Điều khoản & Điều kiện | Chính sách bảo mật | Chính sách cookie
-        </p>
-        <p>KaTiIa.com</p>
-        <p>Gửi phản hồi tại thông liên hệ KaTiIa</p>
-      </div>
+            {/* SOCIAL */}
+            <div className="social-icon">
+              <div className="footer-social">
+                <span><FaFacebookSquare /></span>
+                <span><FaInstagram /></span>
+                <span><SiZalo /></span>
+                <span><AiFillTikTok /></span>
+                <span><FaYoutube /></span>
+              </div>
+            </div>
+
+            {/* BOTTOM */}
+            <div className="footer-bottom">
+              <p>
+                Thông báo bản quyền | Điều khoản & Điều kiện | Chính sách bảo mật | Chính sách cookie
+              </p>
+              <p>KaTiIa.com</p>
+              <p>Gửi phản hồi tại thông liên hệ KaTiIa</p>
+            </div>
 
     </footer>
   );
