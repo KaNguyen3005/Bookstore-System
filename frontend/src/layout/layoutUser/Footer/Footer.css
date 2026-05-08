@@ -83,7 +83,11 @@
 }
 
 
+<<<<<<< HEAD
 .social-icon {
+=======
+.footer-social {
+>>>>>>> 95e0179d5b90069601fd651dd7b3fa82e8458d26
   display: flex;
   justify-content: center;
   gap: 15px;

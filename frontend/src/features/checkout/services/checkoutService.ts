@@ -4,15 +4,15 @@
  * Coordinates between UI state and API Layer.
  */
 
-import { voucherApi } from './voucherApi';
-import checkoutApi from './checkoutApi';
-import type { CartItemType } from '../../cart/context/CartContext';
+import { voucherApi } from "./voucherApi";
+import checkoutApi from "./checkoutApi";
+import type { CartItemType } from "../../cart/types/cartItemType";
 import type {
   CheckoutVoucher,
   CreateOrderResponse,
   CalculateOrderResponse,
   ShippingMethodType,
-} from '../types';
+} from "../types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -22,17 +22,17 @@ const SHIPPING_FEE_PICKUP = 0;
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const getItemPrice = (item: CartItemType): number =>
-  item.price * (1 - item.sale_percent / 100);
+  item.book.price * (1 - item.book.salePercent / 100);
 
 const calcSubtotal = (items: CartItemType[]): number =>
   items.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
 
 const calcShippingFee = (method: ShippingMethodType): number =>
-  method === 'DELIVERY' ? SHIPPING_FEE_DELIVERY : SHIPPING_FEE_PICKUP;
+  method === "DELIVERY" ? SHIPPING_FEE_DELIVERY : SHIPPING_FEE_PICKUP;
 
 const calcDiscount = (
   subtotal: number,
-  voucher: CheckoutVoucher | null
+  voucher: CheckoutVoucher | null,
 ): number => {
   if (!voucher) return 0;
   if (subtotal < voucher.min_order_value) return 0;
@@ -44,7 +44,7 @@ const calcDiscount = (
 export const calculateOrder = (
   items: CartItemType[],
   shippingMethod: ShippingMethodType,
-  voucher: CheckoutVoucher | null
+  voucher: CheckoutVoucher | null,
 ): CalculateOrderResponse => {
   const subtotal = calcSubtotal(items);
   const shipping_fee = calcShippingFee(shippingMethod);
@@ -62,14 +62,14 @@ export const calculateOrder = (
  */
 export const applyVoucher = async (
   code: string,
-  subtotal: number
+  subtotal: number,
 ): Promise<CheckoutVoucher> => {
   try {
     const voucher = await voucherApi.validateVoucher(code);
 
     if (subtotal < voucher.min_order_value) {
       throw new Error(
-        `Đơn hàng tối thiểu ${voucher.min_order_value.toLocaleString('vi-VN')}đ để áp dụng voucher này.`
+        `Đơn hàng tối thiểu ${voucher.min_order_value.toLocaleString("vi-VN")}đ để áp dụng voucher này.`,
       );
     }
 
@@ -86,19 +86,33 @@ export const applyVoucher = async (
  * Maps UI request format and coordinates with checkoutApi.
  */
 export const createOrder = async (
-  payload: any 
+  payload: any,
 ): Promise<CreateOrderResponse> => {
   try {
     // 1. Map to Backend Format:
     const mappedPayload = {
-      source: 'WEBSITE',
-      addressId: payload.addressId,
+      source: "WEBSITE",
+
+      address: {
+        province: payload.address.province,
+        district: payload.address.district,
+        ward: payload.address.ward,
+
+        detailAddress: payload.address.detailAddress,
+
+        customerName: payload.address.customerName,
+
+        customerPhone: payload.address.customerPhone,
+      },
+
       items: payload.items.map((item: any) => ({
         bookId: item.bookId || item.book_id,
         quantity: item.quantity,
       })),
+
       paymentMethod: payload.paymentMethod || payload.payment_method,
-      voucherCode: payload.voucherCode || '',
+
+      voucherCode: payload.voucherCode || "",
     };
 
     // 2. Call the API layer

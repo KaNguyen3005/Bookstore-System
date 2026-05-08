@@ -1,7 +1,7 @@
 import axiosClient from "./axiosClient";
 import users from "../data/user1";
 
-const IS_MOCK = true;
+const IS_MOCK = false;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
