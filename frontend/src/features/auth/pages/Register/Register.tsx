@@ -1,23 +1,131 @@
 import "./Register.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
+import { authApi } from "../../../../services/authApi";
 
 const Register = () => {
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    navigate("/otp");
-  };
+  const [form, setForm] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+    day: "",
+    month: "",
+    year: "",
+    gender: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  const [day, setDay] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
+  const [errors, setErrors] = useState<any>({});
+  const [loading, setLoading] = useState(false);
+  const [globalError, setGlobalError] = useState("");
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 80 }, (_, i) => 2025 - i);
+
+  // VALIDATE
+  const validate = () => {
+    const err: any = {};
+
+    if (!form.username.trim()) err.username = "Vui lòng nhập tên đăng nhập";
+    if (!form.firstName.trim()) err.firstName = "Vui lòng nhập họ";
+    if (!form.lastName.trim()) err.lastName = "Vui lòng nhập tên";
+
+    if (!form.day || !form.month || !form.year)
+      err.birth = "Vui lòng chọn ngày sinh";
+
+    if (!form.gender) err.gender = "Vui lòng chọn giới tính";
+
+    if (!form.email.trim()) err.email = "Vui lòng nhập email";
+
+    if (!form.password) err.password = "Vui lòng nhập mật khẩu";
+
+    if (form.password !== form.confirmPassword)
+      err.confirmPassword = "Mật khẩu không khớp";
+
+    setErrors(err);
+    return Object.keys(err).length === 0;
+  };
+
+  //  REGISTER INIT
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validate()) return;
+
+    setLoading(true);
+    setErrors({});
+    setGlobalError("");
+
+    try {
+      const dob = `${form.year}-${String(form.month).padStart(2, "0")}-${String(
+        form.day
+      ).padStart(2, "0")}`;
+
+    const genderMap: any = {
+      male: "MALE",
+      female: "FEMALE",
+      other: "OTHER",
+      MALE: "MALE",
+      FEMALE: "FEMALE",
+      OTHER: "OTHER",
+    };
+
+    const payload = {
+      email: form.email,
+      password: form.password,
+      username: form.username,
+      name: `${form.firstName} ${form.lastName}`.trim(),
+      phone: "+84445412876",
+      gender: genderMap[form.gender] || "OTHER",
+      dob: `${form.year}-${String(form.month).padStart(2, "0")}-${String(form.day).padStart(2, "0")}`,
+      otp: ""
+    };
+
+      //  CALL REGISTER INIT
+      console.log("REGISTER PAYLOAD:", payload);
+      console.log("FINAL GENDER:", payload.gender);
+
+-
+      await authApi.registerInit(payload);
+
+      sessionStorage.setItem("registerUsername", form.username);
+      sessionStorage.setItem("registerPassword", form.password);
+
+      // lưu email qua OTP page
+      sessionStorage.setItem("registerEmail", form.email);
+
+      // chuyển sang OTP
+      navigate("/otp");
+
+    } catch (err: any) {
+      console.log("REGISTER ERROR:", err);
+
+      const msg =
+        err?.response?.data?.message || "Đăng ký thất bại";
+
+      setGlobalError(msg);
+
+      const lower = msg.toLowerCase();
+
+      if (lower.includes("email")) {
+        setErrors((p: any) => ({ ...p, email: msg }));
+      } else if (lower.includes("username")) {
+        setErrors((p: any) => ({ ...p, username: msg }));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev: any) => ({ ...prev, [field]: "" }));
+  };
 
   return (
     <div className="register-page">
@@ -26,74 +134,117 @@ const Register = () => {
         <h1 className="logo">KATIIA BOOKSTORE</h1>
         <p className="subtitle">Đăng ký tài khoản</p>
 
+        {globalError && (
+          <div className="error-message">{globalError}</div>
+        )}
+
         <form className="register-form" onSubmit={handleRegister}>
 
           <label>Tên đăng nhập</label>
-          <input className="full" placeholder="Tên đăng nhập" />
+          <input
+            className={`full input ${errors.username ? "error" : ""}`}
+            value={form.username}
+            onChange={(e) => handleChange("username", e.target.value)}
+          />
+          <p className="error-text">{errors.username}</p>
 
           <label>Họ và tên</label>
           <div className="name-row">
-            <input type="text" placeholder="Họ" />
-            <input type="text" placeholder="Tên" />
+            <div>
+              <input
+                placeholder="Họ"
+                className={`input ${errors.firstName ? "error" : ""}`}
+                value={form.firstName}
+                onChange={(e) => handleChange("firstName", e.target.value)}
+              />
+              <p className="error-text">{errors.firstName}</p>
+            </div>
+
+            <div>
+              <input
+                placeholder="Tên"
+                className={`input ${errors.lastName ? "error" : ""}`}
+                value={form.lastName}
+                onChange={(e) => handleChange("lastName", e.target.value)}
+              />
+              <p className="error-text">{errors.lastName}</p>
+            </div>
           </div>
 
           <label>Ngày sinh</label>
           <div className="birth-row">
-
-            <select value={day} onChange={(e) => setDay(e.target.value)}>
+            <select value={form.day}
+              onChange={(e) => handleChange("day", e.target.value)}>
               <option value="">Ngày</option>
               {days.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d}>{d}</option>
               ))}
             </select>
 
-            <select value={month} onChange={(e) => setMonth(e.target.value)}>
+            <select value={form.month}
+              onChange={(e) => handleChange("month", e.target.value)}>
               <option value="">Tháng</option>
               {months.map((m) => (
-                <option key={m} value={m}>{m}</option>
+                <option key={m}>{m}</option>
               ))}
             </select>
 
-            <select value={year} onChange={(e) => setYear(e.target.value)}>
+            <select value={form.year}
+              onChange={(e) => handleChange("year", e.target.value)}>
               <option value="">Năm</option>
               {years.map((y) => (
-                <option key={y} value={y}>{y}</option>
+                <option key={y}>{y}</option>
               ))}
             </select>
-
           </div>
+          <p className="error-text">{errors.birth}</p>
 
-          <label>Giới tính</label>
-          <select className="full">
-            <option value="">Chọn giới tính</option>
-            <option value="male">Nam</option>
-            <option value="female">Nữ</option>
+          <select
+            value={form.gender}
+            onChange={(e) => handleChange("gender", e.target.value)}
+          >
+            <option value="">Giới tính</option>
+            <option value="MALE">Nam</option>
+            <option value="FEMALE">Nữ</option>
+            <option value="OTHER">Khác</option>
           </select>
 
+          <p className="error-text">{errors.gender}</p>
+
           <label>Email</label>
-          <input className="full" placeholder="Email" />
+          <input
+            className={`full input ${errors.email ? "error" : ""}`}
+            value={form.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+          />
+          <p className="error-text">{errors.email}</p>
 
           <label>Mật khẩu</label>
-          <input className="full" type="password" placeholder="Mật khẩu" />
+          <input
+            type="password"
+            className={`full input ${errors.password ? "error" : ""}`}
+            value={form.password}
+            onChange={(e) => handleChange("password", e.target.value)}
+          />
+          <p className="error-text">{errors.password}</p>
 
           <label>Xác nhận mật khẩu</label>
-          <input className="full" type="password" placeholder="Xác nhận mật khẩu" />
+          <input
+            type="password"
+            className={`full input ${errors.confirmPassword ? "error" : ""}`}
+            value={form.confirmPassword}
+            onChange={(e) => handleChange("confirmPassword", e.target.value)}
+          />
+          <p className="error-text">{errors.confirmPassword}</p>
 
-          <button type="submit">Đăng ký tài khoản</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Đang xử lý..." : "Đăng ký tài khoản"}
+          </button>
+
         </form>
 
-        <div className="social-reg-wrapper">
-          <button className="social-reg">
-            <FcGoogle size={20} />
-            Đăng ký với Google
-          </button>
-        </div>
-
         <p className="ask-register">
-          Đã có tài khoản?
-          <Link to="/login" className="login-link">
-            đăng nhập ngay
-          </Link>
+          Đã có tài khoản? <Link to="/login">đăng nhập ngay</Link>
         </p>
 
       </div>

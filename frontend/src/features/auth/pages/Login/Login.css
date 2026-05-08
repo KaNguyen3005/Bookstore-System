@@ -165,3 +165,25 @@
     font-size: 32px;
   }
 }
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.input {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 6px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.input:focus {
+  border-color: #4a90e2;
+}
+
+.input.error {
+  border: 1px solid red;
+}

@@ -4,7 +4,6 @@ import { useAuth } from "../../hooks/useAuth";
 import "./Login.css";
 
 import { FcGoogle } from "react-icons/fc";
-
 import { authApi } from "../../../../services/authApi";
 
 const Login = () => {
@@ -15,66 +14,121 @@ const Login = () => {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
 
-  const from = location.state?.from?.pathname || "/";
-  //chặn spam request.
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const [accountError, setAccountError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
-  if (loading) return;
+  const from = location.state?.from?.pathname || "/";
 
-  setLoading(true);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  try {
-    const user = await authApi.login({ account, password });
+    if (loading) return;
 
-    if (!user) {
-      alert("Sai tài khoản hoặc mật khẩu");
+    setError("");
+    setAccountError(false);
+    setPasswordError(false);
+
+    // ================= VALIDATE =================
+    if (!account.trim()) {
+      setAccountError(true);
+      setError("Vui lòng nhập tài khoản");
       return;
     }
 
-    login(user);
+    if (!password.trim()) {
+      setPasswordError(true);
+      setError("Vui lòng nhập mật khẩu");
+      return;
+    }
 
-    navigate(user.role === "ADMIN" ? "/admin" : from, {
-      replace: true,
-    });
+    setLoading(true);
 
-  } catch (error: any) {
-    console.error("LOGIN ERROR:", error);
-    alert(error?.message || "Đăng nhập thất bại");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      // 🔥 AUTH API ĐÃ TRẢ FULL USER + TOKEN
+      const user = await authApi.login({
+        account,
+        password,
+      });
 
-  const scrollToTop = () => {
-    window.scrollTo(0, 0);
+      console.log("LOGIN SUCCESS:", user);
+
+      if (!user || !user.id) {
+        setAccountError(true);
+        setPasswordError(true);
+        setError("Sai tài khoản hoặc mật khẩu");
+        return;
+      }
+
+      // ================= SAVE AUTH =================
+      login(user);
+
+      // ================= REDIRECT =================
+      navigate(user.role === "ADMIN" ? "/admin" : from, {
+        replace: true,
+      });
+
+    } catch (error: any) {
+      console.error("LOGIN ERROR:", error);
+
+      const msg = error?.message;
+
+      // backend error mapping (từ authApi throw Error)
+      const mapError: Record<string, string> = {
+        "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
+        "Login failed": "Sai tài khoản hoặc mật khẩu",
+        "Token not found": "Sai tài khoản hoặc mật khẩu",
+      };
+
+      setAccountError(true);
+      setPasswordError(true);
+
+      setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
+
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        <h1 className="logo"> KATIIA BOOKSTORE </h1>
-        <p className="subtitle">Đăng nhập tài khoản </p>
+
+        <h1 className="logo">KATIIA BOOKSTORE</h1>
+        <p className="subtitle">Đăng nhập tài khoản</p>
+
+        {error && <div className="error-message">{error}</div>}
 
         <form className="login-form" onSubmit={handleLogin}>
+
           <input
             type="text"
             placeholder="Email hoặc tên đăng nhập"
             value={account}
-            onChange={(e) => setAccount(e.target.value)}
+            className={accountError ? "input error" : "input"}
+            onChange={(e) => {
+              setAccount(e.target.value);
+              setAccountError(false);
+              setError("");
+            }}
           />
 
           <input
             type="password"
             placeholder="Mật khẩu"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            className={passwordError ? "input error" : "input"}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError(false);
+              setError("");
+            }}
           />
 
           <div className="forgot-wrapper">
-            <div className="forgot">Forgot password</div>
+            <div className="forgot">Quên mật khẩu</div>
           </div>
 
           <button type="submit" disabled={loading}>
@@ -84,17 +138,16 @@ const handleLogin = async (e: React.FormEvent) => {
         </form>
 
         <div className="social-wrapper">
-          <button className="social">
+          <button className="social" disabled={loading}>
             <FcGoogle size={20} />
             Đăng nhập với Google
           </button>
         </div>
 
-
-
-        <Link to="/register" className="register" onClick={scrollToTop}>
+        <Link to="/register" className="register">
           Đăng ký tài khoản
         </Link>
+
       </div>
     </div>
   );
