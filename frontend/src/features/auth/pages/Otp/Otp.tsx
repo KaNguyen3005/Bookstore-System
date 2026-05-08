@@ -11,12 +11,12 @@ const OTP =() => {
         <div className ="otp-page">
             <div className ="otp-container" >
                 <h1 className ="logo-otp"> KATIIA BOOKSTORE </h1>
-                <p className = "subtitle">Đăng ký tài khoản </p>
+                <p className = "subtitle">Nhập mã xác nhận</p>
 
                 <form className ="otp-form">
                     <input
                     type ="text"
-                    placeholder ="Nhập mã xác nhận "
+                    placeholder ="Mã xác nhận "
                     />
 
                     <button type ="submit">
