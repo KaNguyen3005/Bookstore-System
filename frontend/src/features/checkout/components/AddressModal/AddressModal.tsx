@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import type { CheckoutAddress } from '../../types';
-import { FiX, FiCheck } from 'react-icons/fi';
-import './AddressModal.css';
+import type { CheckoutAddress } from "../../types";
+import { FiX, FiCheck } from "react-icons/fi";
+import "./AddressModal.css";
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -19,7 +19,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
   onSelect,
   onClose,
 }) => {
-  const [selected, setSelected] = useState<CheckoutAddress | null>(currentAddress);
+  const [selected, setSelected] = useState<CheckoutAddress | null>(
+    currentAddress,
+  );
 
   useEffect(() => {
     setSelected(currentAddress);
@@ -27,12 +29,12 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -46,7 +48,13 @@ const AddressModal: React.FC<AddressModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="addr-modal__overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="Chọn địa chỉ giao hàng">
+    <div
+      className="addr-modal__overlay"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Chọn địa chỉ giao hàng"
+    >
       <div
         className="addr-modal__container"
         onClick={(e) => e.stopPropagation()}
@@ -65,26 +73,35 @@ const AddressModal: React.FC<AddressModalProps> = ({
         </div>
 
         <div className="addr-modal__list">
-          {addresses.map((addr) => {
-            const isChosen = selected?.address_id === addr.address_id;
+          {addresses.map((addr, index) => {
+            const isChosen =
+              selected?.detailAddress === addr.detailAddress &&
+              selected?.customerPhone === addr.customerPhone;
             return (
               <button
-                key={addr.address_id}
-                id={`addr-option-${addr.address_id}`}
-                className={`addr-modal__item ${isChosen ? 'addr-modal__item--active' : ''}`}
+                key={index}
+                id={`addr-option-${index}`}
+                className={`addr-modal__item ${isChosen ? "addr-modal__item--active" : ""}`}
                 onClick={() => setSelected(addr)}
                 type="button"
               >
                 <div className="addr-modal__item-info">
                   <div className="addr-modal__item-top">
-                    <span className="addr-modal__item-name">{addr.customer_name}</span>
-                    <span className="addr-modal__item-phone">{addr.customer_phone}</span>
-                    {addr.is_default && (
-                      <span className="addr-modal__default-badge">Mặc định</span>
+                    <span className="addr-modal__item-name">
+                      {addr.customerName}
+                    </span>
+                    <span className="addr-modal__item-phone">
+                      {addr.customerPhone}
+                    </span>
+                    {addr.isDefault && (
+                      <span className="addr-modal__default-badge">
+                        Mặc định
+                      </span>
                     )}
                   </div>
                   <p className="addr-modal__item-addr">
-                    {addr.detail_address}, {addr.ward}, {addr.district}, {addr.province}
+                    {addr.detailAddress}, {addr.ward}, {addr.district},{" "}
+                    {addr.province}
                   </p>
                 </div>
                 {isChosen && <FiCheck className="addr-modal__item-check" />}
