@@ -94,7 +94,11 @@ const Footer: React.FC = () => {
       </div>
 
       {/* SOCIAL */}
+<<<<<<< HEAD
       <div className="social-icon">
+=======
+      <div className="footer-social">
+>>>>>>> 95e0179d5b90069601fd651dd7b3fa82e8458d26
         <span><FaFacebookSquare /></span>
         <span><FaInstagram /></span>
         <span><SiZalo /></span>
