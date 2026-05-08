@@ -94,7 +94,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* SOCIAL */}
-      <div className="social">
+      <div className="social-icon">
         <span><FaFacebookSquare /></span>
         <span><FaInstagram /></span>
         <span><SiZalo /></span>

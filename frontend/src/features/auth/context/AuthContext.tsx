@@ -32,7 +32,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // ✅ load từ localStorage trước (tránh loading lâu)
+  //  load từ localStorage trước (tránh loading lâu)
   const [user, setUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem("user");
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // ❗ nếu chưa login thì bỏ qua
+        // nếu chưa login thì bỏ qua
         if (!localStorage.getItem("user")) {
           setLoading(false);
           return;
