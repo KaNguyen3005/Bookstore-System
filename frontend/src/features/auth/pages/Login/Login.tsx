@@ -3,6 +3,8 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import "./Login.css";
 
+import { FcGoogle } from "react-icons/fc";
+
 import { authApi } from "../../../../services/authApi";
 
 const Login = () => {
@@ -13,11 +15,18 @@ const Login = () => {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
 
-  const from = location.state?.from || "/";
+  const from = location.state?.from?.pathname || "/";
+  //chặn spam request.
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
 
+  if (loading) return;
+
+  setLoading(true);
+
+  try {
     const user = await authApi.login({ account, password });
 
     if (!user) {
@@ -25,17 +34,19 @@ const Login = () => {
       return;
     }
 
-    login(user); // đưa thẳng vào context
+    login(user);
 
-    if (user.role === "ADMIN") {
-      console.log("IN ADMIN")
-      setTimeout(() => {
-        navigate("/admin", { replace: true });
-      }, 0);
-    } else {
-      navigate(from, { replace: true });
-    }
-  };
+    navigate(user.role === "ADMIN" ? "/admin" : from, {
+      replace: true,
+    });
+
+  } catch (error: any) {
+    console.error("LOGIN ERROR:", error);
+    alert(error?.message || "Đăng nhập thất bại");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const scrollToTop = () => {
     window.scrollTo(0, 0);
@@ -62,10 +73,24 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button type="submit">Đăng nhập</button>
+          <div className="forgot-wrapper">
+            <div className="forgot">Forgot password</div>
+          </div>
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+          </button>
+
         </form>
 
-        <p className="forgot ">Quên mật khẩu</p>
+        <div className="social-wrapper">
+          <button className="social">
+            <FcGoogle size={20} />
+            Đăng nhập với Google
+          </button>
+        </div>
+
+
 
         <Link to="/register" className="register" onClick={scrollToTop}>
           Đăng ký tài khoản

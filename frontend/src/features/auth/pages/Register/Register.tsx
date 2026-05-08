@@ -1,9 +1,9 @@
 import "./Register.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
 
 const Register = () => {
-
   const navigate = useNavigate();
 
   const handleRegister = (e) => {
@@ -11,7 +11,6 @@ const Register = () => {
     navigate("/otp");
   };
 
-  // state ngày sinh
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -22,7 +21,6 @@ const Register = () => {
 
   return (
     <div className="register-page">
-
       <div className="register-container">
 
         <h1 className="logo">KATIIA BOOKSTORE</h1>
@@ -30,78 +28,75 @@ const Register = () => {
 
         <form className="register-form" onSubmit={handleRegister}>
 
+          <label>Tên đăng nhập</label>
+          <input className="full" placeholder="Tên đăng nhập" />
 
-          <label>Tên đăng</label>
-          <input className="full" placeholder= "Tên đăng nhập" />
-
-          <label>Tên</label>
+          <label>Họ và tên</label>
           <div className="name-row">
             <input type="text" placeholder="Họ" />
             <input type="text" placeholder="Tên" />
           </div>
 
-
-
           <label>Ngày sinh</label>
-
           <div className="birth-row">
 
-            <select value={day} onChange={(e)=>setDay(e.target.value)}>
+            <select value={day} onChange={(e) => setDay(e.target.value)}>
               <option value="">Ngày</option>
-              {days.map((d)=>(
+              {days.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
             </select>
 
-            <select value={month} onChange={(e)=>setMonth(e.target.value)}>
+            <select value={month} onChange={(e) => setMonth(e.target.value)}>
               <option value="">Tháng</option>
-              {months.map((m)=>(
+              {months.map((m) => (
                 <option key={m} value={m}>{m}</option>
               ))}
             </select>
 
-            <select value={year} onChange={(e)=>setYear(e.target.value)}>
+            <select value={year} onChange={(e) => setYear(e.target.value)}>
               <option value="">Năm</option>
-              {years.map((y)=>(
+              {years.map((y) => (
                 <option key={y} value={y}>{y}</option>
               ))}
             </select>
 
           </div>
 
-
-
           <label>Giới tính</label>
-
           <select className="full">
             <option value="">Chọn giới tính</option>
             <option value="male">Nam</option>
             <option value="female">Nữ</option>
           </select>
 
-
           <label>Email</label>
-          <input className="full" placeholder= "Email" />
+          <input className="full" placeholder="Email" />
 
           <label>Mật khẩu</label>
           <input className="full" type="password" placeholder="Mật khẩu" />
 
           <label>Xác nhận mật khẩu</label>
-          <input className="full" type="confirmPassword" placeholder="Xác nhận mật khẩu" />
+          <input className="full" type="password" placeholder="Xác nhận mật khẩu" />
 
           <button type="submit">Đăng ký tài khoản</button>
-
         </form>
 
+        <div className="social-reg-wrapper">
+          <button className="social-reg">
+            <FcGoogle size={20} />
+            Đăng ký với Google
+          </button>
+        </div>
+
         <p className="ask-register">
-          Đã có tài khoản,
+          Đã có tài khoản?
           <Link to="/login" className="login-link">
             đăng nhập ngay
           </Link>
         </p>
 
       </div>
-
     </div>
   );
 };
