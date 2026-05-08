@@ -11,11 +11,7 @@ interface PaymentMethodProps {
 // Maps data/payment.mock id strings → PaymentMethodId enum
 const ID_MAP: Record<string, PaymentMethodId> = {
   cod: 'COD',
-  vnpay: 'VNPAY',
-  momo: 'MOMO',
-  card: 'CARD',
-  atm: 'ATM',
-  zalopay: 'ZALOPAY',
+  vnpay: 'VNPAY'
 };
 
 const PaymentMethod: React.FC<PaymentMethodProps> = ({ selected, onChange }) => {

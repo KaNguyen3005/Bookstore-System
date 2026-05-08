@@ -8,6 +8,9 @@ import ProductDetailPage from "../features/product/pages/ProductDetailPage/Produ
 import Cart from "../features/cart/pages/Cart/Cart";
 import ProtectedRoute from "../features/auth/routes/ProtectedRoute";
 import CheckoutPage from "../features/checkout/pages/CheckoutPage/CheckoutPage";
+import PaymentCallbackPage from "../features/checkout/pages/PaymentCallbackPage/PaymentCallbackPage";
+import PaymentSuccessPage from "../features/checkout/pages/PaymentSuccessPage/PaymentSuccessPage";
+import PaymentFailPage from "../features/checkout/pages/PaymentFailPage/PaymentFailPage";
 import Profile from "../features/UserProfile/pages/ProfileUser/Profile";
 import ProfileContent from "../features/UserProfile/components/ProfileDetail/ProfileContent";
 
@@ -54,6 +57,9 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="payment/callback" element={<PaymentCallbackPage />} />
+        <Route path="payment/success" element={<PaymentSuccessPage />} />
+        <Route path="payment/fail" element={<PaymentFailPage />} />
 
         <Route
           path="profile"

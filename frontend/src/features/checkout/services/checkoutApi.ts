@@ -1,12 +1,11 @@
-import axiosClient from '../../../services/axiosClient';
-import type { CreateOrderResponse } from '../types';
+import axiosClient from "../../../services/axiosClient";
+import type { CreateOrderResponse } from "../types";
 
-const IS_MOCK = true;
+const IS_MOCK = false;
 
 const checkoutApi = {
   createOrder: async (mappedPayload: any): Promise<CreateOrderResponse> => {
     if (IS_MOCK) {
-      // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       return {
@@ -14,10 +13,10 @@ const checkoutApi = {
       };
     }
 
-    // axiosClient already unwraps { message, result } from Backend
-    const response = await axiosClient.post('/orders', mappedPayload);
-    return (response as unknown) as CreateOrderResponse;
-  }
+    const response = await axiosClient.post("/orders", mappedPayload);
+
+    return response.data.result;
+  },
 };
 
 export default checkoutApi;

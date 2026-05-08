@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../auth/hooks/useAuth";
-import type { CheckoutAddress } from "../../types";
+import type { CheckoutAddress, CheckoutVoucher } from "../../types";
 import { useCheckout } from "../../hooks/useCheckout";
-import { useAddressList } from "../../hooks/useAddressList";
+import { useAddressLogic } from "../../hooks/useAddressLogic";
+import { voucherApi } from "../../services/voucherApi"; // 👈 THÊM
 
 import CheckoutCartItem from "../../components/CheckoutCartItem/CheckoutCartItem";
 import ShippingMethod from "../../components/ShippingMethod/ShippingMethod";
@@ -12,6 +13,7 @@ import AddressCard from "../../components/AddressCard/AddressCard";
 import VoucherInput from "../../components/VoucherInput/VoucherInput";
 import OrderSummary from "../../components/OrderSummary/OrderSummary";
 import AddressModal from "../../components/AddressModal/AddressModal";
+import VoucherModal from "../../components/VoucherModal/VoucherModal";
 
 import "./CheckoutPage.css";
 
@@ -19,9 +21,9 @@ const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // High-priority direct purchase item
   const buyNowItem = location.state?.buyNowItem;
   const checkoutItems = location.state?.selectedItems || [];
+
   const { user } = useAuth();
 
   const {
@@ -47,7 +49,7 @@ const CheckoutPage: React.FC = () => {
     canPlaceOrder,
   } = useCheckout(buyNowItem ? [buyNowItem] : checkoutItems);
 
-  // Use useCallback so we don't recreate this function on every render, which would trigger the useEffect in useAddressList endlessly
+  // ───────────────────────── ADDRESS ─────────────────────────
   const handleDefaultAddressFound = useCallback(
     (addr: CheckoutAddress) => {
       setSelectedAddress(addr);
@@ -55,14 +57,40 @@ const CheckoutPage: React.FC = () => {
     [setSelectedAddress],
   );
 
-  const { addresses } = useAddressList(handleDefaultAddressFound)
+  useAddressLogic(handleDefaultAddressFound);
+
+  // ───────────────────────── MODAL STATE ─────────────────────────
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+
   const [orderSuccessData, setOrderSuccessData] = useState<{
     orderId: number | string;
     total: number;
   } | null>(null);
 
-  // Redirect if checkout items are empty
+  // ───────────────────────── VOUCHER MODAL ─────────────────────────
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+  const [voucherList, setVoucherList] = useState<CheckoutVoucher[]>([]);
+  const [loadingVouchers, setLoadingVouchers] = useState(false);
+
+  const handleOpenVoucherList = async () => {
+    setIsVoucherModalOpen(true);
+    setLoadingVouchers(true);
+    try {
+      const data = await voucherApi.getActiveVouchers();
+      setVoucherList(data);
+    } catch (err) {
+      console.error("Load vouchers failed:", err);
+    } finally {
+      setLoadingVouchers(false);
+    }
+  };
+
+  const handleSelectVoucher = async (v: CheckoutVoucher) => {
+    setIsVoucherModalOpen(false);
+    await applyVoucherCode(v.voucherCode);
+  };
+
+  // ───────────────────────── ORDER ─────────────────────────
   useEffect(() => {
     if (selectedItems.length === 0 && !orderSuccessData) {
       navigate("/cart");
@@ -83,36 +111,21 @@ const CheckoutPage: React.FC = () => {
         <div className="checkout-success__content">
           <div className="checkout-success__icon">✓</div>
           <h2 className="checkout-success__title">Đặt hàng thành công!</h2>
-          <p className="checkout-success__msg">
-            Cảm ơn bạn đã mua hàng tại KATIIA. Đơn hàng{" "}
-            <strong>#{orderSuccessData.orderId}</strong> của bạn đang được xử
-            lý.
-          </p>
-          <p className="checkout-success__msg">
-            Tổng thanh toán:{" "}
-            <strong>{orderSuccessData.total.toLocaleString("vi-VN")} đ</strong>
-          </p>
-          <p className="checkout-success__redirect">
-            Đang chuyển về trang chủ...
-          </p>
         </div>
       </div>
     );
   }
 
+  // ───────────────────────── UI ─────────────────────────
   return (
-    <main className="checkout-page" aria-label="Trang thanh toán">
+    <main className="checkout-page">
       <div className="checkout-page__container">
         <h1 className="checkout-page__title">Trang thanh toán</h1>
 
         <div className="checkout-page__layout">
-          {/* ── LEFT COLUMN ─────────────────────────────────────── */}
+          {/* LEFT */}
           <div className="checkout-page__left">
-            {/* 1. Kiểm tra đơn hàng */}
-            <section
-              className="checkout-section"
-              aria-label="Kiểm tra đơn hàng"
-            >
+            <section className="checkout-section">
               <h2 className="checkout-section__title">Kiểm tra đơn hàng</h2>
               <div className="checkout-items__list">
                 {selectedItems.map((item: any) => (
@@ -121,7 +134,6 @@ const CheckoutPage: React.FC = () => {
               </div>
             </section>
 
-            {/* 2. Phương thức vận chuyển */}
             <section className="checkout-section">
               <ShippingMethod
                 selected={shippingMethod}
@@ -129,7 +141,6 @@ const CheckoutPage: React.FC = () => {
               />
             </section>
 
-            {/* 3. Phương thức thanh toán */}
             <section className="checkout-section">
               <PaymentMethod
                 selected={paymentMethod}
@@ -138,15 +149,13 @@ const CheckoutPage: React.FC = () => {
             </section>
           </div>
 
-          {/* ── RIGHT COLUMN ─────────────────────────────────────── */}
+          {/* RIGHT */}
           <div className="checkout-page__right">
-            {/* 1. Địa chỉ giao hàng */}
             <AddressCard
               address={selectedAddress}
               onChangeAddress={() => setIsAddressModalOpen(true)}
             />
 
-            {/* 2. Voucher */}
             <VoucherInput
               code={voucherCode}
               appliedVoucher={voucher}
@@ -156,61 +165,47 @@ const CheckoutPage: React.FC = () => {
               onChange={setVoucherCode}
               onApply={applyVoucherCode}
               onRemove={removeVoucher}
+              onOpenVoucherList={handleOpenVoucherList}
             />
 
-            {/* 3. Order Summary */}
             <OrderSummary totals={totals} itemCount={selectedItems.length} />
 
-            {/* 4. Error */}
             {orderError && (
-              <div className="checkout-page__order-error" role="alert">
+              <div className="checkout-page__order-error">
                 {orderError}
               </div>
             )}
 
-            {/* Validation hints */}
-            {!selectedAddress && (
-              <p className="checkout-page__hint">
-                ⚠ Vui lòng chọn địa chỉ giao hàng
-              </p>
-            )}
-            {!paymentMethod && (
-              <p className="checkout-page__hint">
-                ⚠ Vui lòng chọn phương thức thanh toán
-              </p>
-            )}
-
-            {/* 5. Nút Đặt hàng */}
             <button
-              id="btn-place-order"
               className={`checkout-page__place-order-btn ${!canPlaceOrder ? "checkout-page__place-order-btn--disabled" : ""}`}
+              disabled={!canPlaceOrder || isSubmitting}
               onClick={handlePlaceOrder}
-              disabled={!canPlaceOrder}
-              type="button"
-              aria-label="Đặt hàng"
             >
               {isSubmitting ? (
-                <span className="checkout-page__spinner" aria-hidden="true" />
+                <span className="checkout-page__spinner" />
               ) : null}
               {isSubmitting ? "Đang xử lý..." : "Đặt hàng"}
             </button>
-
-            <p className="checkout-page__terms">
-              Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo{" "}
-              <a href="/terms" className="checkout-page__terms-link">
-                Điều khoản KATIIA
-              </a>
-            </p>
           </div>
         </div>
       </div>
 
+      {/* ADDRESS MODAL */}
       <AddressModal
         isOpen={isAddressModalOpen}
-        addresses={addresses}
         currentAddress={selectedAddress}
         onSelect={setSelectedAddress}
         onClose={() => setIsAddressModalOpen(false)}
+      />
+
+      {/* VOUCHER MODAL */}
+      <VoucherModal
+        isOpen={isVoucherModalOpen}
+        vouchers={voucherList}
+        currentVoucher={voucher}
+        subtotal={totals.subtotal}
+        onSelect={handleSelectVoucher}
+        onClose={() => setIsVoucherModalOpen(false)}
       />
     </main>
   );

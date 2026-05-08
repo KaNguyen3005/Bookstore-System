@@ -4,13 +4,13 @@
  * Components only call actions — no business logic in JSX.
  */
 
-import { useState, useMemo, useCallback } from 'react';
-import { useCart } from '../../cart/hooks/useCart';
+import { useState, useMemo, useCallback } from "react";
+import { useCart } from "../../cart/hooks/useCart";
 import {
   calculateOrder,
   applyVoucher as applyVoucherService,
   createOrder as createOrderService,
-} from '../services/checkoutService';
+} from "../services/checkoutService";
 // import { orderApi } from '../../../services/orderApi'; // Using checkoutService instead
 import type {
   ShippingMethodType,
@@ -19,9 +19,9 @@ import type {
   CheckoutAddress,
   CheckoutTotals,
   CreateOrderResponse,
-} from '../types';
-import type { CartItemType } from '../../cart/types/cartItemType';
-
+} from "../types";
+import type { CartItemType } from "../../cart/types/cartItemType";
+import paymentApi from "../services/paymentApi";
 interface UseCheckoutReturn {
   // State
   shippingMethod: ShippingMethodType;
@@ -41,7 +41,7 @@ interface UseCheckoutReturn {
   setShippingMethod: (method: ShippingMethodType) => void;
   setPaymentMethod: (method: PaymentMethodId) => void;
   setVoucherCode: (code: string) => void;
-  applyVoucherCode: () => Promise<void>;
+  applyVoucherCode: (code?: string) => Promise<void>;
   removeVoucher: () => void;
   setSelectedAddress: (address: CheckoutAddress) => void;
   placeOrder: () => Promise<CreateOrderResponse | null>;
@@ -50,19 +50,25 @@ interface UseCheckoutReturn {
   canPlaceOrder: boolean;
 }
 
-export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn => {
+export const useCheckout = (
+  initialItems?: CartItemType[],
+): UseCheckoutReturn => {
   const { selectedItems: cartSelectedItems, removePurchasedItems } = useCart();
 
   // If initialItems are provided (e.g. from Buy Now), use them. Otherwise use selectedItems from cart.
-  const selectedItems = useMemo(() => initialItems || cartSelectedItems, [initialItems, cartSelectedItems]);
+  const selectedItems = useMemo(
+    () => initialItems || cartSelectedItems,
+    [initialItems, cartSelectedItems],
+  );
 
   // ── State ────────────────────────────────────────────────────────────────────
   const [shippingMethod, setShippingMethod] =
-    useState<ShippingMethodType>('DELIVERY');
-  const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethodId | null>(null);
+    useState<ShippingMethodType>("DELIVERY");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId | null>(
+    null,
+  );
   const [voucher, setVoucher] = useState<CheckoutVoucher | null>(null);
-  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherCode, setVoucherCode] = useState("");
   const [voucherError, setVoucherError] = useState<string | null>(null);
   const [voucherSuccess, setVoucherSuccess] = useState<string | null>(null);
   const [selectedAddress, setSelectedAddress] =
@@ -74,88 +80,134 @@ export const useCheckout = (initialItems?: CartItemType[]): UseCheckoutReturn =>
   // ── Derived Totals ───────────────────────────────────────────────────────────
   const totals: CheckoutTotals = useMemo(
     () => calculateOrder(selectedItems, shippingMethod, voucher),
-    [selectedItems, shippingMethod, voucher]
+    [selectedItems, shippingMethod, voucher],
   );
 
   // ── Actions ──────────────────────────────────────────────────────────────────
-  const handleSetShippingMethod = useCallback(
-    (method: ShippingMethodType) => {
-      setShippingMethod(method);
-    },
-    []
-  );
+  const handleSetShippingMethod = useCallback((method: ShippingMethodType) => {
+    setShippingMethod(method);
+  }, []);
 
   const handleSetPaymentMethod = useCallback((method: PaymentMethodId) => {
     setPaymentMethod(method);
   }, []);
 
-  const handleApplyVoucher = useCallback(async () => {
-    if (!voucherCode.trim()) return;
-    setVoucherError(null);
-    setVoucherSuccess(null);
-    setIsApplyingVoucher(true);
+  const handleApplyVoucher = useCallback(
+    async (code?: string) => {
+      const targetCode = code || voucherCode;
+      if (!targetCode.trim()) return;
 
-    try {
-      const applied = await applyVoucherService(voucherCode, totals.subtotal);
-      setVoucher(applied);
-      setVoucherSuccess(`Áp dụng thành công! Giảm ${applied.discount_value.toLocaleString('vi-VN')}đ`);
-    } catch (err) {
-      const error = err as Error;
-      setVoucherError(error.message);
-      setVoucher(null);
-    } finally {
-      setIsApplyingVoucher(false);
-    }
-  }, [voucherCode, totals.subtotal]);
+      setVoucherError(null);
+      setVoucherSuccess(null);
+      setIsApplyingVoucher(true);
+
+      try {
+        const applied = await applyVoucherService(targetCode, totals.subtotal);
+        setVoucher(applied);
+        setVoucherSuccess(
+          `Áp dụng thành công! Giảm ${applied.discountValue.toLocaleString("vi-VN")}đ`,
+        );
+        if (code) setVoucherCode(code);
+      } catch (err) {
+        const error = err as Error;
+        setVoucherError(error.message);
+        setVoucher(null);
+      } finally {
+        setIsApplyingVoucher(false);
+      }
+    },
+    [voucherCode, totals.subtotal],
+  );
 
   const handleRemoveVoucher = useCallback(() => {
     setVoucher(null);
-    setVoucherCode('');
+    setVoucherCode("");
     setVoucherError(null);
     setVoucherSuccess(null);
   }, []);
 
-  const handlePlaceOrder = useCallback(async (): Promise<CreateOrderResponse | null> => {
-    if (!paymentMethod || !selectedAddress) return null;
+  const handlePlaceOrder =
+    useCallback(async (): Promise<CreateOrderResponse | null> => {
+  
+      if (!paymentMethod || !selectedAddress) return null;
 
-    setIsSubmitting(true);
-    setOrderError(null);
+      setIsSubmitting(true);
+      setOrderError(null);
 
-    try {
-      // Map UI state to the new Backend format:
-      // { source: string, addressId: number, items: [{ bookId: number, quantity: number }], paymentMethod: string, voucherCode: string }
-      const payload = {
-        addressId: selectedAddress.addressId,
-        items: selectedItems.map((item) => ({
-          bookId: item.book.bookId,
-          quantity: item.quantity,
-        })),
-        paymentMethod: paymentMethod,
-        voucherCode: voucher?.code || '',
-      };
+      try {
+        // ======================
+        // 1. CREATE ORDER (ALWAYS)
+        // ======================
+        const orderPayload = {
+          address: {
+            province: selectedAddress.province,
+            district: selectedAddress.district,
+            ward: selectedAddress.ward,
+            detailAddress: selectedAddress.detailAddress,
+            customerName: selectedAddress.customerName,
+            customerPhone: selectedAddress.customerPhone,
+          },
 
-      const response = await createOrderService(payload);
+          items: selectedItems.map((item) => ({
+            bookId: item.book.bookId,
+            quantity: item.quantity,
+          })),
 
-      // Backend returns { orderId } on success.
-      if (response && response.orderId) {
-        // Only clear cart if the order was placed from the general cart flow
-        if (!initialItems) {
-          await removePurchasedItems(selectedItems.map(item => item.book.bookId));
+          voucherCode: voucher?.voucherCode || "",
+          paymentMethod,
+        };
+
+        const order = await createOrderService(orderPayload);
+
+        if (!order?.orderId) throw new Error("Create order failed");
+
+        // ======================
+        // 2. COD FLOW
+        // ======================
+        if (paymentMethod === "COD") {
+          return order;
         }
-        return response;
+
+        // ======================
+        // 3. VNPay FLOW
+        // ======================
+        if (paymentMethod === "VNPAY") {
+          const paymentRes = await paymentApi.checkout({
+            orderId: order.orderId,
+            paymentMethod: "VNPAY",
+          });
+
+          const redirectUrl = paymentRes?.result?.redirectUrl;
+
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
+          }
+
+          return null;
+        }
+
+        return null;
+      } catch (err) {
+        const error = err as Error;
+        setOrderError(error.message || "Đặt hàng thất bại");
+        return null;
+      } finally {
+        setIsSubmitting(false);
       }
-      return null;
-    } catch (err) {
-      const error = err as Error;
-      setOrderError(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
-      return null;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [paymentMethod, selectedAddress, selectedItems, voucher, removePurchasedItems, initialItems]);
+    }, [
+      paymentMethod,
+      selectedAddress,
+      selectedItems,
+      voucher,
+      removePurchasedItems,
+      initialItems,
+    ]);
 
   const canPlaceOrder =
-    !!paymentMethod && !!selectedAddress && selectedItems.length > 0 && !isSubmitting;
+    !!paymentMethod &&
+    !!selectedAddress &&
+    selectedItems.length > 0 &&
+    !isSubmitting;
 
   return {
     shippingMethod,
