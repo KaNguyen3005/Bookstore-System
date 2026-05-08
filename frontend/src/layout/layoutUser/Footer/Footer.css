@@ -4,17 +4,13 @@
   color: white;
   font-size: 12px;
   padding: 0 0 15px 0;
-
 }
-
 
 .footer-feedback {
   background: #7fa5a3;
   padding: 10px;
   text-align: center;
-
 }
-
 
 .footer-feedback .link {
   text-decoration: underline;
@@ -29,9 +25,7 @@
 
 .link:hover {
   color: #2c6f7b;
-  /* Màu sắc hover hợp lý với theme */
 }
-
 
 .back-top {
   background: black;
@@ -41,30 +35,24 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-
 .back-top:hover {
   color: #3c6670;
 }
 
-
 .footer-main {
   display: grid;
-
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   max-width: 1200px;
   margin: auto;
-  gap: 100px;
+  gap: 40px;
   padding: 20px 40px;
 }
-
-
 
 .footer-col h4 {
   margin-bottom: 15px;
   font-size: 1.1em;
   font-weight: bold;
 }
-
 
 .footer-col p {
   margin: 6px 0;
@@ -82,18 +70,20 @@
   object-fit: contain;
 }
 
-
-<<<<<<< HEAD
+/* SOCIAL */
 .social-icon {
-=======
-.footer-social {
->>>>>>> 95e0179d5b90069601fd651dd7b3fa82e8458d26
+  margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+.footer-social {
+  display: flex;
   gap: 15px;
   font-size: 24px;
 }
 
+/* FOOTER BOTTOM */
 .footer-bottom {
   border-top: 2px solid rgba(218, 226, 219, 1);
   margin-top: 10px;
@@ -101,4 +91,17 @@
   text-align: center;
   font-size: 11px;
   color: rgba(218, 226, 219, 1);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .social-icon {
+    justify-content: flex-start;
+  }
 }
