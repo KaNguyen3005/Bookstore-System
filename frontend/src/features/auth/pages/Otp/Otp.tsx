@@ -69,15 +69,16 @@ const OTP = () => {
         throw new Error(verifyData?.message || "OTP không hợp lệ");
       }
 
-      const completeRes: any = await authApi.registerComplete({
-        ...registerPayload,
-      });
+    const completeRes: any = await authApi.registerComplete({
+      ...registerPayload,
+      otp,
+    });
 
-      const completeData = completeRes?.data ?? completeRes;
+    const completeData = completeRes?.data ?? completeRes;
 
-      if (completeData?.code !== 0) {
-        throw new Error(completeData?.message || "Register failed");
-      }
+    if (completeData?.code !== 0) {
+      throw new Error(completeData?.message || "Register failed");
+    }
 
       sessionStorage.removeItem("registerEmail");
       sessionStorage.removeItem("registerPayload");
