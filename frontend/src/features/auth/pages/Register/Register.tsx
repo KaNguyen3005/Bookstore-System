@@ -25,7 +25,13 @@ const Register = () => {
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  const years = Array.from({ length: 80 }, (_, i) => 2025 - i);
+
+    const currentYear = new Date().getFullYear();
+
+    const years = Array.from(
+      { length: 80 },
+      (_, i) => currentYear - i
+    );
 
   // VALIDATE
   const validate = () => {
@@ -80,27 +86,26 @@ const Register = () => {
       password: form.password,
       username: form.username,
       name: `${form.firstName} ${form.lastName}`.trim(),
-      phone: "+84445412876",
+      phone: "+84901234567",
       gender: genderMap[form.gender] || "OTHER",
-      dob: `${form.year}-${String(form.month).padStart(2, "0")}-${String(form.day).padStart(2, "0")}`,
-      otp: ""
+      dob: `${form.year}-${String(form.month).padStart(2, "0")}-${String(form.day).padStart(2, "0")}`
     };
 
       //  CALL REGISTER INIT
       console.log("REGISTER PAYLOAD:", payload);
       console.log("FINAL GENDER:", payload.gender);
 
--
-      await authApi.registerInit(payload);
+    await authApi.registerInit(payload);
 
-      sessionStorage.setItem("registerUsername", form.username);
-      sessionStorage.setItem("registerPassword", form.password);
+    // lưu payload đầy đủ
+    sessionStorage.setItem(
+      "registerPayload",
+      JSON.stringify(payload)
+    );
 
-      // lưu email qua OTP page
-      sessionStorage.setItem("registerEmail", form.email);
+    sessionStorage.setItem("registerEmail", form.email);
 
-      // chuyển sang OTP
-      navigate("/otp");
+    navigate("/otp");
 
     } catch (err: any) {
       console.log("REGISTER ERROR:", err);
