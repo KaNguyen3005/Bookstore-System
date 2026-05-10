@@ -1,23 +1,38 @@
+import type { Author } from "../types/Author";
 import type { Category } from "../../book-category/types/category";
 import type { Publisher } from "../../book-category/types/category";
 export interface Book {
   bookId: number;
+
   title: string;
-  price: number;
-  authorName: string;
-  description: string;
-  coverImgUrl: string;
-  stockQuantity: number;
+
+  authors: Author[];
+
+  publisher: Publisher;
+
   isbn: string;
-  publicationDate: string;
-  dimensions: string;
+
+  language: string;
+
+  description: string;
+
+  pageCount: number;
+
   coverType: string;
-  numPages: number;
-  isActive: boolean;
+
+  coverImgUrl: string;
+
+  stockQuantity: number;
+
+  price: number;
+
   avgRating: number;
-  reviewCount: number;
-  oldPrice?: number;
-  salePercent?: number;
+
+  salePercent: number;
+
   categories: Category[];
-  publishers: Publisher;
+
+  bookImgs: string[] | null;
+
+  isActive: boolean;
 }

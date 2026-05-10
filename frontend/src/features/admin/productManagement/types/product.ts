@@ -1,20 +1,5 @@
-export interface BaseResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-export interface AdminProduct {
-  id: number;
-  thumbnail: string;
-  name: string;
-  author: string;
-  category: string;
-  price: number;
-  stock: number;
-  sold: number;
-  status: "Đang bán" | "Hết hàng" | "Tạm ngưng"; // Based on UI badges
-}
+import type { Book } from "../../../product/types/Book";
+export type ProductItem = Book;
 
 export interface ProductFilters {
   category: string;
@@ -26,4 +11,12 @@ export interface ProductSummary {
   total: number;
   inStock: number;
   outOfStock: number;
+}
+
+export interface ProductsResponse {
+  content: Book[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
 }
