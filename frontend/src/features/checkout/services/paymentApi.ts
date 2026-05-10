@@ -20,7 +20,8 @@ export const paymentApi = {
   checkout: async (
     data: CheckoutPaymentRequest,
   ): Promise<CheckoutPaymentResponse> => {
-    const accessToken = localStorage.getItem("accessToken")
+    const accessToken = localStorage.getItem("access_token")
+    console.log(accessToken)
     const response = await axiosClient.post("/payments/checkout", data,{headers: {Authorization: `Bearer ${accessToken}`}});
     console.log("response data",response.data);
     return response.data;
