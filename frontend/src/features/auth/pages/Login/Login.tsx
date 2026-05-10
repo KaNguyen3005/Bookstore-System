@@ -63,13 +63,16 @@ const Login = () => {
       }
 
       // ================= SAVE AUTH =================
+
       login(user);
+console.log(user)
+      setTimeout(() => {
+        const role = user.role?.trim().toUpperCase();
 
-      // ================= REDIRECT =================
-      navigate(user.role === "ADMIN" ? "/admin" : from, {
-        replace: true,
-      });
-
+        navigate(role === "ADMIN" ? "/admin" : from, {
+          replace: true,
+        });
+      }, 0);
     } catch (error: any) {
       console.error("LOGIN ERROR:", error);
 
@@ -86,7 +89,6 @@ const Login = () => {
       setPasswordError(true);
 
       setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
-
     } finally {
       setLoading(false);
     }
@@ -95,14 +97,12 @@ const Login = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-
         <h1 className="logo">KATIIA BOOKSTORE</h1>
         <p className="subtitle">Đăng nhập tài khoản</p>
 
         {error && <div className="error-message">{error}</div>}
 
         <form className="login-form" onSubmit={handleLogin}>
-
           <input
             type="text"
             placeholder="Email hoặc tên đăng nhập"
@@ -134,7 +134,6 @@ const Login = () => {
           <button type="submit" disabled={loading}>
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
-
         </form>
 
         <div className="social-wrapper">
@@ -147,7 +146,6 @@ const Login = () => {
         <Link to="/register" className="register">
           Đăng ký tài khoản
         </Link>
-
       </div>
     </div>
   );

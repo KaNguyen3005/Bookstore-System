@@ -119,7 +119,7 @@ export const userApi = {
       return users.filter((u) => u.role_id === roleId).map(mapToFE);
     }
 
-    const res = await axiosClient.get(`/users/role/${roleId}`);
+    const res = await axiosClient.get(`/users/roles/${roleId}`);
     return res.data.map(mapToFE);
   },
 
