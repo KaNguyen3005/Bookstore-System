@@ -37,8 +37,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
     currentAddress,
   );
 
-  const [editingAddress, setEditingAddress] =
-    useState<CheckoutAddress | null>(null);
+  const [editingAddress, setEditingAddress] = useState<CheckoutAddress | null>(
+    null,
+  );
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -56,14 +57,11 @@ const AddressModal: React.FC<AddressModalProps> = ({
   const [districts, setDistricts] = useState<any[]>([]);
   const [wards, setWards] = useState<any[]>([]);
 
-  const [selectedProvinceId, setSelectedProvinceId] =
-    useState<string>("");
+  const [selectedProvinceId, setSelectedProvinceId] = useState<string>("");
 
-  const [selectedDistrictId, setSelectedDistrictId] =
-    useState<string>("");
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>("");
 
-  const [selectedWardCode, setSelectedWardCode] =
-    useState<string>("");
+  const [selectedWardCode, setSelectedWardCode] = useState<string>("");
 
   useEffect(() => {
     if (isOpen) {
@@ -111,16 +109,12 @@ const AddressModal: React.FC<AddressModalProps> = ({
       });
 
       // tìm province
-      const prov = provinces.find(
-        (p) => p.provinceName === addr.province,
-      );
+      const prov = provinces.find((p) => p.provinceName === addr.province);
 
       if (prov) {
         setSelectedProvinceId(String(prov.provinceId));
 
-        const districtData = await addressApi.getDistricts(
-          prov.provinceId,
-        );
+        const districtData = await addressApi.getDistricts(prov.provinceId);
 
         setDistricts(districtData);
 
@@ -132,16 +126,12 @@ const AddressModal: React.FC<AddressModalProps> = ({
         if (dist) {
           setSelectedDistrictId(String(dist.districtId));
 
-          const wardData = await addressApi.getWards(
-            dist.districtId,
-          );
+          const wardData = await addressApi.getWards(dist.districtId);
 
           setWards(wardData);
 
           // tìm ward
-          const ward = wardData.find(
-            (w: any) => w.wardName === addr.ward,
-          );
+          const ward = wardData.find((w: any) => w.wardName === addr.ward);
 
           if (ward) {
             setSelectedWardCode(String(ward.wardId));
@@ -177,9 +167,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
   ) => {
     const provId = e.target.value;
 
-    const province = provinces.find(
-      (p) => String(p.provinceId) === provId,
-    );
+    const province = provinces.find((p) => String(p.provinceId) === provId);
 
     setSelectedProvinceId(provId);
 
@@ -209,9 +197,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
   ) => {
     const distId = e.target.value;
 
-    const district = districts.find(
-      (d) => String(d.districtId) === distId,
-    );
+    const district = districts.find((d) => String(d.districtId) === distId);
 
     setSelectedDistrictId(distId);
 
@@ -232,14 +218,10 @@ const AddressModal: React.FC<AddressModalProps> = ({
     }
   };
 
-  const handleWardChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
+  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const wardId = e.target.value;
 
-    const ward = wards.find(
-      (w) => String(w.wardId) === wardId,
-    );
+    const ward = wards.find((w) => String(w.wardId) === wardId);
 
     setSelectedWardCode(wardId);
 
@@ -255,9 +237,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
     return regex.test(phone);
   };
 
-  const handleFormSubmit = async (
-    e: React.FormEvent,
-  ) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setPhoneError("");
@@ -282,10 +262,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
     try {
       if (editingAddress) {
-        success = await updateAddress(
-          editingAddress.addressId,
-          payload,
-        );
+        success = await updateAddress(editingAddress.addressId, payload);
 
         if (success) {
           const updatedAddress = {
@@ -303,11 +280,9 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
         // reload list mới nhất
         if (success) {
-          const latestAddresses =
-            await addressApi.getAll();
+          const latestAddresses = await addressApi.getAll();
 
-          const newestAddress =
-            latestAddresses[latestAddresses.length - 1];
+          const newestAddress = latestAddresses[latestAddresses.length - 1];
 
           if (newestAddress) {
             setSelected(newestAddress);
@@ -326,18 +301,18 @@ const AddressModal: React.FC<AddressModalProps> = ({
     }
   };
 
-  const handleDelete = async (
-    e: React.MouseEvent,
-    id: number,
-  ) => {
+  const handleDelete = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
 
-    if (
-      window.confirm(
-        "Bạn có chắc chắn muốn xóa địa chỉ này?",
-      )
-    ) {
-      await deleteAddress(id);
+    if (window.confirm("Bạn có chắc chắn muốn xóa địa chỉ này?")) {
+      const success = await deleteAddress(id);
+
+      if (success) {
+        // bỏ chọn nếu đang chọn đúng địa chỉ bị xóa
+        if (selected?.addressId === id) {
+          setSelected(null);
+        }
+      }
     }
   };
 
@@ -352,10 +327,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="addr-modal__overlay"
-      onClick={onClose}
-    >
+    <div className="addr-modal__overlay" onClick={onClose}>
       <div
         className="addr-modal__container"
         onClick={(e) => e.stopPropagation()}
@@ -374,14 +346,11 @@ const AddressModal: React.FC<AddressModalProps> = ({
             {viewMode === "list"
               ? "Địa chỉ của tôi"
               : editingAddress
-              ? "Cập nhật địa chỉ"
-              : "Địa chỉ mới"}
+                ? "Cập nhật địa chỉ"
+                : "Địa chỉ mới"}
           </h3>
 
-          <button
-            className="addr-modal__close"
-            onClick={onClose}
-          >
+          <button className="addr-modal__close" onClick={onClose}>
             <FiX />
           </button>
         </div>
@@ -395,43 +364,30 @@ const AddressModal: React.FC<AddressModalProps> = ({
                     Đang tải danh sách địa chỉ...
                   </div>
                 ) : addresses.length === 0 ? (
-                  <div className="addr-modal__empty">
-                    Chưa có địa chỉ nào.
-                  </div>
+                  <div className="addr-modal__empty">Chưa có địa chỉ nào.</div>
                 ) : (
                   addresses.map((addr) => (
                     <div
                       key={addr.addressId}
                       className={`addr-modal__item ${
-                        selected?.addressId ===
-                        addr.addressId
-                          ? "active"
-                          : ""
+                        selected?.addressId === addr.addressId ? "active" : ""
                       }`}
                       onClick={() => setSelected(addr)}
                     >
                       <div className="addr-modal__item-info">
                         <div className="addr-modal__item-header">
-                          <span>
-                            {addr.customerName}
-                          </span>
+                          <span>{addr.customerName}</span>
 
                           <span>|</span>
 
-                          <span>
-                            {addr.customerPhone}
-                          </span>
+                          <span>{addr.customerPhone}</span>
                         </div>
 
                         <div className="addr-modal__item-body">
-                          <p>
-                            {addr.detailAddress}
-                          </p>
+                          <p>{addr.detailAddress}</p>
 
                           <p>
-                            {addr.ward},{" "}
-                            {addr.district},{" "}
-                            {addr.province}
+                            {addr.ward}, {addr.district}, {addr.province}
                           </p>
                         </div>
 
@@ -457,12 +413,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                         {!addr.isDefault && (
                           <button
                             className="action-btn delete"
-                            onClick={(e) =>
-                              handleDelete(
-                                e,
-                                addr.addressId,
-                              )
-                            }
+                            onClick={(e) => handleDelete(e, addr.addressId)}
                           >
                             Xóa
                           </button>
@@ -482,10 +433,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
               </button>
             </div>
           ) : (
-            <form
-              className="addr-modal__form"
-              onSubmit={handleFormSubmit}
-            >
+            <form className="addr-modal__form" onSubmit={handleFormSubmit}>
               <div className="form-row">
                 <div className="form-group">
                   <input
@@ -496,8 +444,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        customerName:
-                          e.target.value,
+                        customerName: e.target.value,
                       })
                     }
                   />
@@ -512,8 +459,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                     onChange={(e) => {
                       setFormData({
                         ...formData,
-                        customerPhone:
-                          e.target.value,
+                        customerPhone: e.target.value,
                       });
 
                       setPhoneError("");
@@ -541,15 +487,10 @@ const AddressModal: React.FC<AddressModalProps> = ({
                   value={selectedProvinceId}
                   onChange={handleProvinceChange}
                 >
-                  <option value="">
-                    Tỉnh/Thành phố
-                  </option>
+                  <option value="">Tỉnh/Thành phố</option>
 
                   {provinces.map((p) => (
-                    <option
-                      key={p.provinceId}
-                      value={p.provinceId}
-                    >
+                    <option key={p.provinceId} value={p.provinceId}>
                       {p.provinceName}
                     </option>
                   ))}
@@ -564,15 +505,10 @@ const AddressModal: React.FC<AddressModalProps> = ({
                   onChange={handleDistrictChange}
                   disabled={!selectedProvinceId}
                 >
-                  <option value="">
-                    Quận/Huyện
-                  </option>
+                  <option value="">Quận/Huyện</option>
 
                   {districts.map((d) => (
-                    <option
-                      key={d.districtId}
-                      value={d.districtId}
-                    >
+                    <option key={d.districtId} value={d.districtId}>
                       {d.districtName}
                     </option>
                   ))}
@@ -587,15 +523,10 @@ const AddressModal: React.FC<AddressModalProps> = ({
                   onChange={handleWardChange}
                   disabled={!selectedDistrictId}
                 >
-                  <option value="">
-                    Phường/Xã
-                  </option>
+                  <option value="">Phường/Xã</option>
 
                   {wards.map((w) => (
-                    <option
-                      key={w.wardId}
-                      value={w.wardId}
-                    >
+                    <option key={w.wardId} value={w.wardId}>
                       {w.wardName}
                     </option>
                   ))}
@@ -612,8 +543,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      detailAddress:
-                        e.target.value,
+                      detailAddress: e.target.value,
                     })
                   }
                 />
@@ -623,9 +553,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                 <button
                   type="button"
                   className="btn-back"
-                  onClick={() =>
-                    setViewMode("list")
-                  }
+                  onClick={() => setViewMode("list")}
                 >
                   Trở lại
                 </button>
@@ -635,9 +563,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
                   className="btn-submit"
                   disabled={submitting}
                 >
-                  {submitting
-                    ? "Đang lưu..."
-                    : "Hoàn thành"}
+                  {submitting ? "Đang lưu..." : "Hoàn thành"}
                 </button>
               </div>
             </form>
@@ -646,10 +572,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
         {viewMode === "list" && (
           <div className="addr-modal__footer">
-            <button
-              className="btn-cancel"
-              onClick={onClose}
-            >
+            <button className="btn-cancel" onClick={onClose}>
               Hủy
             </button>
 

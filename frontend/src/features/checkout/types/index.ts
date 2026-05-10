@@ -8,10 +8,6 @@
 export type PaymentMethodId =
   | "COD"
   | "VNPAY"
-  | "MOMO"
-  | "CARD"
-  | "ATM"
-  | "ZALOPAY";
 
 export type PaymentStatus = "PENDING" | "PAID";
 
