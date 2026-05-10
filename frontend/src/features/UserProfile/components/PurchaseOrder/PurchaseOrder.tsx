@@ -25,10 +25,10 @@ export default function Orders() {
   };
 
   useEffect(() => {
-    if (!user?.user_id) return;
+    if (!user?.userId) return;
 
-    loadOrders(active, user.user_id);
-  }, [user?.user_id, active]);
+    loadOrders(active, user.userId);
+  }, [user?.userId, active]);
 
   const renderActions = (status: OrderStatus) => {
     switch (status) {
@@ -84,7 +84,7 @@ export default function Orders() {
         ) : (
           <div className="order-list">
             {orders.map((o) => (
-              <div key={`${o.id}-${o.user_id}`} className="order-item">
+              <div key={`${o.id}-${o.userId}`} className="order-item">
                 {/* TOP */}
                 <div className="order-top">
                   <img src={o.image} alt={o.name} className="order-img" />

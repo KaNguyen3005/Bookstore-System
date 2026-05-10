@@ -18,7 +18,7 @@ export const getOrdersByStatus = async (status: string, userId?: number): Promis
     await delay(500);
     return mockOrders.filter((o) => {
       const matchStatus = o.status === status;
-      const matchUser = userId ? o.user_id === userId : true;
+      const matchUser = userId ? o.userId === userId : true;
       return matchStatus && matchUser;
     });
   }
