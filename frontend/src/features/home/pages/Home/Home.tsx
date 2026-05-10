@@ -60,7 +60,7 @@ function Home() {
   }, [topPage]);
 
   // item / page
-  const itemsPerPage = 10;
+  const itemsPerPage = 15;
 
   // phải đặt sau hooks
   if (loading || !homeData) return null;

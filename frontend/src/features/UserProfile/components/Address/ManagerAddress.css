@@ -1,91 +1,162 @@
-/* CARD */
-.address-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 15px;
-  padding: 16px 18px;
-  transition: 0.1s;
-  position: relative;
+/* =========================
+   CONTAINER LIST
+========================= */
+.address-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
   margin-top: 20px;
 }
 
-.address-card input {
-  width: 100%;
-  padding: 8px 10px;
-  margin-bottom: 8px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.address-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+/* =========================
+   CARD
+========================= */
+.address-card {
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  border-radius: 16px;
+  padding: 18px;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .address-card:hover {
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: #dbe4ff;
 }
 
+/* =========================
+   DEFAULT BADGE
+========================= */
 .default-badge {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #e0edff;
-  color: #2563eb;
+
+  background: #e8f0ff;
+  color: #2f6fed;
+
   font-size: 12px;
-  padding: 4px 8px;
+  font-weight: 500;
+
+  padding: 4px 10px;
   border-radius: 999px;
 }
 
-
+/* =========================
+   TITLE
+========================= */
 .address-name {
   font-size: 16px;
   font-weight: 600;
+  color: #111827;
   margin-bottom: 8px;
 }
 
-/* INFO */
+/* =========================
+   INFO TEXT
+========================= */
 .address-info {
   font-size: 14px;
-  color: #555;
-  line-height: 1.5;
+  color: #6b7280;
+  line-height: 1.6;
 }
 
+.address-info div {
+  margin-bottom: 4px;
+}
 
-/* chuc nang */
+/* =========================
+   INPUT / SELECT (EDIT MODE)
+========================= */
+.address-card input,
+.address-card select {
+  width: 100%;
+  padding: 10px 12px;
+
+  margin-bottom: 10px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  outline: none;
+  transition: 0.2s;
+  background: #fff;
+}
+
+.address-card input:focus,
+.address-card select:focus {
+  border-color: #4f8cff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+}
+
+/* =========================
+   ACTIONS
+========================= */
 .address-actions {
   display: flex;
   gap: 10px;
-  margin-top: 12px;
-}
-/*nút*/
-.address-btn {
-  font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
+  margin-top: 14px;
+  flex-wrap: wrap;
 }
 
-/*nút*/
+/* =========================
+   BUTTON BASE
+========================= */
+.address-btn {
+  font-size: 13px;
+  font-weight: 500;
+
+  padding: 7px 12px;
+  border-radius: 10px;
+
+  cursor: pointer;
+  border: none;
+
+  transition: all 0.2s ease;
+}
+
+/* =========================
+   BUTTONS STYLE
+========================= */
 .btn-edit {
   background: #4f8cff;
   color: #fff;
 }
 
+.btn-edit:hover {
+  background: #3b78f0;
+}
+
 .btn-save {
-  background: #4f8cff;
+  background: #22c55e;
   color: #fff;
 }
 
-.btn-cancel{
+.btn-save:hover {
+  background: #16a34a;
+}
+
+.btn-cancel {
   background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
 }
 
 .btn-delete {
-  background: #f3f4f6;
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
 }
 
 .btn-default {
@@ -94,10 +165,7 @@
   color: #4f8cff;
 }
 
-.address-card select {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+.btn-default:hover {
+  background: #4f8cff;
+  color: white;
 }
