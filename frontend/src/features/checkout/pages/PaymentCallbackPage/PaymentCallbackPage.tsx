@@ -1,32 +1,128 @@
 import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import paymentApi from "../../services/paymentApi";
 
-const PaymentCallback = () => {
-  const [params] = useSearchParams();
-  const navigate = useNavigate();
+import {
+  useSearchParams,
+  useNavigate,
+} from "react-router-dom";
 
-  const paymentId = params.get("paymentId");
+import { paymentApi } from "../../services/paymentApi";
+
+import "./PaymentCallbackPage.css";
+
+const PaymentCallbackPage = () => {
+
+  const [params] =
+    useSearchParams();
+
+  const navigate =
+    useNavigate();
+
+  // =========================
+  // QUERY PARAMS
+  // =========================
+
+  const paymentId =
+    params.get("paymentId");
+
+  const orderId =
+    params.get("orderId");
+
+  // =========================
+  // VERIFY PAYMENT
+  // =========================
 
   useEffect(() => {
-    const verifyPayment = async () => {
-      if (!paymentId) return;
 
-      const res = await paymentApi.getStatus(Number(paymentId));
+    const verifyPayment =
+      async () => {
 
-      const status = res?.result?.status;
+        try {
 
-      if (status === "SUCCESS") {
-        navigate("/payment/success");
-      } else {
-        navigate("/payment/fail");
-      }
-    };
+          if (!paymentId) {
+
+            navigate(
+              "/payment/fail"
+            );
+
+            return;
+          }
+
+          const res =
+            await paymentApi.getStatus(
+              Number(paymentId)
+            );
+
+          const status =
+            res?.result?.status;
+
+          // SUCCESS
+
+          if (
+            status === "SUCCESS"
+          ) {
+
+            navigate(
+              `/payment/success?orderId=${orderId || ""}`
+            );
+
+            return;
+          }
+
+          // FAIL
+
+          navigate(
+            `/payment/fail?orderId=${orderId || ""}`
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Verify payment failed:",
+            error
+          );
+
+          navigate(
+            `/payment/fail?orderId=${orderId || ""}`
+          );
+        }
+      };
 
     verifyPayment();
-  }, [paymentId]);
 
-  return <div>Đang xác thực thanh toán...</div>;
+  }, [
+    paymentId,
+    orderId,
+    navigate,
+  ]);
+
+  // =========================
+  // UI
+  // =========================
+
+  return (
+
+    <div className="payment-callback">
+
+      <div className="payment-callback__container">
+
+        <div className="payment-callback__loading">
+
+          <div className="payment-callback__spinner" />
+
+          <p>
+            Đang xác thực thanh toán...
+          </p>
+
+          <span>
+            Vui lòng không đóng trình duyệt
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
 };
 
-export default PaymentCallback;
+export default PaymentCallbackPage;

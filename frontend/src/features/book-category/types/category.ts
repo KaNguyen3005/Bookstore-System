@@ -1,17 +1,18 @@
 export interface Category {
   categoryId: number;
   categoryName: string;
+  parentCategoryId?: number | null;
   children?: Category[];
 }
-
-export interface Publisher {
-  publisherId: number;
-  publisherName: string;
+export interface Publisher{
+    publisherId: number;
+    publisherName: string;
 }
-
 export interface PriceRange {
-  id: number;
   label: string;
-  min: number;
-  max?: number;
+
+  minPrice: number;
+
+  // optional
+  maxPrice?: number;
 }
