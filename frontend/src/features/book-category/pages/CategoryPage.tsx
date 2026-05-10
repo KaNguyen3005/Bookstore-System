@@ -9,6 +9,7 @@ import { useSearchParams } from "react-router-dom";
 import FilterSidebar from "../components/FilterSidebar";
 import BookGrid from "../components/BookGrid";
 import Pagination from "../../home/components/Pagination/Pagination";
+import TopSellingBooks from "../../home/components/TopSellingBooks/TopSellingBooks";
 
 import { useBookSearch } from "../hooks/useBookSearch";
 
@@ -45,7 +46,7 @@ const CategoryPage: React.FC = () => {
   const [topPage, setTopPage] =
     useState(1);
 
-  const itemsPerPage = 9;
+  const itemsPerPage = 10;
 
   // ================= REFS =================
 
@@ -318,37 +319,15 @@ const CategoryPage: React.FC = () => {
 
       {/* ================= TOP SELLING ================= */}
 
-      <div
-        ref={topSellingRef}
-        className="category-page__top-selling"
-      >
 
-        <h2 className="category-page__section-title">
-          TOP SÁCH BÁN CHẠY NHẤT
-        </h2>
+      <TopSellingBooks
+        books={currentTopBooks}
+        currentPage={topPage}
+        totalPages={topTotalPages}
+        onPageChange={setTopPage}
+        scrollToTop={scrollToTopSelling}
+      />
 
-        <div className="category-page__top-grid">
-
-          <BookGrid
-            books={currentTopBooks}
-            loading={false}
-            error={null}
-          />
-
-        </div>
-
-        <Pagination
-          currentPage={topPage}
-          totalPages={topTotalPages}
-          setCurrentPage={(page) => {
-
-            setTopPage(page);
-
-            scrollToTopSelling();
-          }}
-        />
-
-      </div>
     </div>
   );
 };
