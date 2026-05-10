@@ -116,17 +116,7 @@ export const createOrder = async (
     const mappedPayload = {
       source: "WEBSITE",
 
-      address: {
-        province: payload.address.province,
-        district: payload.address.district,
-        ward: payload.address.ward,
-
-        detailAddress: payload.address.detailAddress,
-
-        customerName: payload.address.customerName,
-
-        customerPhone: payload.address.customerPhone,
-      },
+      addressId: payload.addressId,
 
       items: payload.items.map((item: any) => ({
         bookId: item.bookId || item.book_id,

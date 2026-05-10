@@ -1,108 +1,264 @@
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+
 import { addressApi } from "../../../services/addressApi";
-import type { CheckoutAddress } from "../types";
+
+import type {
+  CheckoutAddress,
+} from "../types";
 
 export const useAddressLogic = (
-  onDefaultAddressFound?: (address: CheckoutAddress) => void,
+  onDefaultAddressFound?: (
+    address: CheckoutAddress
+  ) => void,
 ) => {
-  const [addresses, setAddresses] = useState<CheckoutAddress[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
-  const fetchAddresses = useCallback(async () => {
-    setLoading(true);
-    try {
-      const list = await addressApi.getAll();
-      setAddresses(list);
+  const [
+    addresses,
+    setAddresses,
+  ] = useState<CheckoutAddress[]>([]);
 
-      const defaultAddr = list.find((a: CheckoutAddress) => a.isDefault);
-      if (defaultAddr && onDefaultAddressFound) {
-        onDefaultAddressFound(defaultAddr);
-      } else if (list.length > 0 && onDefaultAddressFound) {
-        // Fallback to first address if no default found but list is not empty
-        onDefaultAddressFound(list[0]);
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
+
+  // =========================
+  // FETCH ADDRESSES
+  // =========================
+
+  const fetchAddresses =
+    useCallback(async () => {
+
+      setLoading(true);
+
+      try {
+
+        const list =
+          await addressApi.getAll();
+
+        // luôn đảm bảo là array
+        const safeList = Array.isArray(list)
+          ? list
+          : [];
+
+        setAddresses(safeList);
+
+        // =========================
+        // DEFAULT ADDRESS
+        // =========================
+
+        if (
+          safeList.length > 0 &&
+          onDefaultAddressFound
+        ) {
+
+          const defaultAddr =
+            safeList.find(
+              (a) => a?.isDefault
+            );
+
+          onDefaultAddressFound(
+            defaultAddr ||
+              safeList[0]
+          );
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Failed to fetch address list:",
+          error
+        );
+
+        setAddresses([]);
+
+      } finally {
+
+        setLoading(false);
+
       }
-    } catch (error) {
-      console.error("Failed to fetch address list:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [onDefaultAddressFound]);
+
+    }, [onDefaultAddressFound]);
 
   useEffect(() => {
+
     fetchAddresses();
+
   }, [fetchAddresses]);
 
+  // =========================
+  // ADD ADDRESS
+  // =========================
+
   const addAddress = async (
-    data: Omit<CheckoutAddress, "addressId" | "isDefault">,
+    data: Omit<
+      CheckoutAddress,
+      "addressId" | "isDefault"
+    >,
   ) => {
+
     setSubmitting(true);
+
     try {
+
       await addressApi.create(data);
+
       await fetchAddresses();
+
       return true;
+
     } catch (error) {
-      console.error("Failed to add address:", error);
+
+      console.error(
+        "Failed to add address:",
+        error
+      );
+
       return false;
+
     } finally {
+
       setSubmitting(false);
+
     }
   };
 
-  const updateAddress = async (id: number, data: Partial<CheckoutAddress>) => {
+  // =========================
+  // UPDATE ADDRESS
+  // =========================
+
+  const updateAddress = async (
+    id: number,
+    data: Partial<CheckoutAddress>
+  ) => {
+
     setSubmitting(true);
+
     try {
-      await addressApi.update(id, data);
+
+      await addressApi.update(
+        id,
+        data
+      );
+
       await fetchAddresses();
+
       return true;
+
     } catch (error) {
-      console.error("Failed to update address:", error);
+
+      console.error(
+        "Failed to update address:",
+        error
+      );
+
       return false;
+
     } finally {
+
       setSubmitting(false);
+
     }
   };
 
-  const deleteAddress = async (id: number) => {
+  // =========================
+  // DELETE ADDRESS
+  // =========================
+
+  const deleteAddress = async (
+    id: number
+  ) => {
+
     setSubmitting(true);
 
     try {
+
       await addressApi.remove(id);
 
-      // cập nhật UI ngay lập tức
-      setAddresses((prev) => prev.filter((item) => item.addressId !== id));
+      setAddresses((prev) =>
+        prev.filter(
+          (item) =>
+            item.addressId !== id
+        )
+      );
 
       return true;
+
     } catch (error) {
-      console.error("Failed to delete address:", error);
+
+      console.error(
+        "Failed to delete address:",
+        error
+      );
 
       return false;
+
     } finally {
+
       setSubmitting(false);
+
     }
   };
-  const setAsDefault = async (id: number) => {
+
+  // =========================
+  // SET DEFAULT
+  // =========================
+
+  const setAsDefault = async (
+    id: number
+  ) => {
+
     setSubmitting(true);
+
     try {
+
       await addressApi.setDefault(id);
+
       await fetchAddresses();
+
       return true;
+
     } catch (error) {
-      console.error("Failed to set default address:", error);
+
+      console.error(
+        "Failed to set default address:",
+        error
+      );
+
       return false;
+
     } finally {
+
       setSubmitting(false);
+
     }
   };
 
   return {
+
     addresses,
+
     loading,
+
     submitting,
+
     refetch: fetchAddresses,
+
     addAddress,
+
     updateAddress,
+
     deleteAddress,
+
     setAsDefault,
   };
 };

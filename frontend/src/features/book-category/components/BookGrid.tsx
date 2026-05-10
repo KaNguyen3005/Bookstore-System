@@ -1,6 +1,6 @@
 import React from 'react';
 import ProductCard from '../../product/components/ProductCard';
-import type { Book } from '../types/book';
+import type { Book } from '../../product/types/Book';
 import './BookGrid.css';
 
 interface BookGridProps {
