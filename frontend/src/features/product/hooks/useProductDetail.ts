@@ -67,31 +67,22 @@ export const useProductDetail = (
   }, [id]);
 
   // ================= CART ITEM =================
-  const getCartItem = () => {
-    if (!book) return null;
+ const getCartItem = () => {
+  if (!book) return null;
 
-    return {
+  return {
+    book: {
       bookId: book.bookId,
-
       title: book.title,
-
-      price:
-        book.oldPrice || book.price,
-
-      salePercent:
-        book.salePercent || 0,
-
-      coverImgUrl:
-        book.coverImgUrl ||
-        `https://picsum.photos/seed/book${book.bookId}/400/600`,
-
-      quantity: quantity,
-
+      price: book.price,
+      salePercent: book.salePercent || 0,
+      coverImgUrl: book.coverImgUrl,
       stockQuantity: 100,
-
-      selected: true,
-    };
+    },
+    quantity,
+    selected: true,
   };
+};
 
   // ================= ADD TO CART =================
   const handleAddToCart =

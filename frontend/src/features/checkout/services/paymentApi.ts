@@ -1,15 +1,34 @@
 import axiosClient from "../../../services/axiosClient";
 
-const paymentApi = {
-  checkout: async (payload: { orderId: number; paymentMethod: "VNPAY" }) => {
-    const res = await axiosClient.post("/payments/checkout", payload);
-    return res.data;
+export interface CheckoutPaymentRequest {
+  orderId: number;
+  paymentMethod: "COD" | "VNPAY";
+}
+
+export interface CheckoutPaymentResponse {
+  code: number;
+  message: string;
+  result: {
+    paymentId: number;
+    paymentMethod: string;
+    redirectUrl: string | null;
+    message: string;
+  };
+}
+
+export const paymentApi = {
+  checkout: async (
+    data: CheckoutPaymentRequest,
+  ): Promise<CheckoutPaymentResponse> => {
+    const accessToken = localStorage.getItem("accessToken")
+    const response = await axiosClient.post("/payments/checkout", data,{headers: {Authorization: `Bearer ${accessToken}`}});
+    console.log("response data",response.data);
+    return response.data;
   },
 
   getStatus: async (paymentId: number) => {
-    const res = await axiosClient.get(`/payments/${paymentId}/status`);
-    return res.data;
+    const response = await axiosClient.get(`/payments/${paymentId}/status`);
+
+    return response.data;
   },
 };
-
-export default paymentApi;
