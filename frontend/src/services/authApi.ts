@@ -112,17 +112,29 @@ export const authApi = {
 
 registerComplete: async (data: any) => {
   try {
-    const res = await axiosClient.post("/auth/register/complete", {
+    const payload = {
       username: clean(data.username),
       email: clean(data.email),
       phone: clean(data.phone),
-    });
+      password: data.password,
+      name: data.name,
+      gender: data.gender,
+      dob: data.dob,
+      otp: clean(data.otp),
+    };
+
+    const res = await axiosClient.post(
+      "/auth/register/complete",
+      payload
+    );
 
     return res?.data ?? res;
   } catch (error: any) {
     console.error("REGISTER COMPLETE ERROR:", error);
+
     throw new Error(
-      error?.response?.data?.message || "Register complete failed"
+      error?.response?.data?.message ||
+      "Register complete failed"
     );
   }
 },
