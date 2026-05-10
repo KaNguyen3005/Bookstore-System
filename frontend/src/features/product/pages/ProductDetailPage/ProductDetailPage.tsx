@@ -9,6 +9,10 @@ import { categoryService } from "../../../book-category/services/categoryService
 import type { Category } from "../../../book-category/types/category";
 import "./ProductDetailPage.css";
 
+import Evaluate from "../../components/Evaluate/Evaluate";
+import { evaluateApi } from "../../../../services/evaluateApi";
+import type { Review } from "../../components/Evaluate/Evaluate";
+
 import {
   FiShoppingCart,
   FiChevronRight,
@@ -29,6 +33,33 @@ const ProductDetailPage: React.FC = () => {
   // ================= CATEGORIES =================
   const [categories, setCategories] =
     useState<Category[]>([]);
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchReviews = async () => {
+      try {
+        const data =
+          await evaluateApi.getReviewsByBookId(
+            Number(id)
+          );
+
+        setReviews(data.content || []);
+
+        console.log(data.content);
+      } catch (error) {
+        console.log(
+          "Fetch reviews failed",
+          error
+        );
+      }
+    };
+
+    fetchReviews();
+  }, [id]);
+
+    //danhgia san pham
+  const [reviews, setReviews] =
+    useState<Review[]>([]);
 
   // ================= FETCH CATEGORIES =================
   useEffect(() => {
@@ -512,7 +543,13 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </div>
         */}
+
+        {/*component danh gia san pham*/}
+        <Evaluate reviews={reviews} />
+
+
       </div>
+
 
         {/* EXPLORE */}
       <div className="mt-5 pb-5">
