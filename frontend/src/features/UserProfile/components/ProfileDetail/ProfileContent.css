@@ -1,157 +1,212 @@
-
+/* = CONTAINER =*/
 .profile-container {
   display: flex;
-  margin-top: 25px;
   gap: 40px;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 1000px;
+  padding: 24px;
+  max-width: 950px;
+  margin: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  margin-top: 20px
 }
 
+/* fade in */
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+/* ================= AVATAR ================= */
 .avatar-section {
   width: 160px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   text-align: center;
 }
 
-.avatar {
+.avatar-wrapper {
   width: 120px;
   height: 120px;
+  margin: auto;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ddd;
-  margin-bottom: 10px;
+  overflow: hidden;
+  border: 3px solid #2c5d63;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-/* username */
+.avatar-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .avatar-section p {
   margin-top: 10px;
-  font-size: 14px;
   font-weight: 600;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-
-.form-container {
+/* ================= FORM ================= */
+.form-section {
   flex: 1;
-  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .form-row {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  gap: 10px;
+  gap: 12px;
 }
 
 .form-row label {
-  width: 140px;
-  flex-shrink: 0;
-  color: #555;
+  width: 120px;
+  color: #666;
 }
 
 .form-row input {
   flex: 1;
-  min-width: 200px;
-  max-width: 100%;
-  padding: 6px;
+  padding: 10px;
+  border-radius: 10px;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  background: #fafafa;
+  outline: none;
+  transition: 0.2s;
 }
 
-.form-row span {
-  margin-left: 10px;
-  color: rgba(57, 96, 107, 1);
+.form-row input:focus {
+  border-color: #2c5d63;
+  background: #fff;
+}
+
+/* eye icon */
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   cursor: pointer;
+  color: #2c5d63;
 }
 
-
-.radio {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.radio label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-
+/* ================= MEMBER ================= */
 .member {
-  margin-top: 40px;
+  padding: 24px;
+  max-width: 950px;
+  margin: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  margin-top: 20px
 }
 
+.member h3 {
+  margin-bottom: 12px;
+  color: #2c5d63;
+  font-size:20px;
+
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  color: #666;
+  font-size: 15px;
+}
+
+.value {
+  font-weight: 600;
+  color: #2c5d63;
+}
+
+/* ================= BUTTON ================= */
 .btn-group {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-
-  width: 100%;
+  max-width: 950px;
+  margin: auto;
+   margin-top: 20px;
 }
-
 
 .save-btn,
 .cancel-btn {
-  padding: 8px 30px;
-  border-radius: 20px;
+  padding: 10px 24px;
+  border-radius: 25px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: 0.2s;
 }
 
-/* save */
 .save-btn {
   background: #2c5d63;
+  color: #fff;
   border: none;
-  color: white;
 }
 
-/* cancel */
 .cancel-btn {
-  background: white;
+  background: #fff;
   border: 1px solid #2c5d63;
   color: #2c5d63;
 }
 
-/* hover */
 .save-btn:hover,
 .cancel-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* click */
-.save-btn:active,
-.cancel-btn:active {
-  transform: scale(0.95);
 }
 
 
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* hien thi thong bao neu field con trong*/
+.input-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.error-space {
+  height: 14px;
+  margin-top: 2px;
+}
+
+.error-text {
+  color: red;
+  font-size: 12px;
+}
+
+.error-input {
+  border: 1px solid red !important;
+  background: #fff5f5;
+}
+
+
+
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
   .profile-container {
     flex-direction: column;
-    align-items: center;
-  }
-
-  .avatar-section {
-    width: 100%;
-  }
-
-  .form-container {
-    width: 100%;
   }
 
   .form-row {
@@ -161,9 +216,5 @@
 
   .form-row label {
     width: 100%;
-  }
-
-  .btn-group {
-    justify-content: center;
   }
 }

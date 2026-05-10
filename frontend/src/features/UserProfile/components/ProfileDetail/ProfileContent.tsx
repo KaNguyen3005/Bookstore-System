@@ -1,223 +1,280 @@
 import { useOutletContext } from "react-router-dom";
 import { useState, useRef } from "react";
-
-import { FaRegEye } from "react-icons/fa6";
-import { FaRegEyeSlash } from "react-icons/fa6";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import "./ProfileContent.css";
 
-export default function ProfileContent(){
-
+export default function ProfileContent() {
   const {
-
     user,
     edit,
     setEdit,
     avatar,
     handleAvatar,
     handleChange,
-    handleSave
+    handleSave,
+  }: any = useOutletContext();
 
-  }:any = useOutletContext();
+  const [showPhone, setShowPhone] = useState(false);
+  const [showDob, setShowDob] = useState(false);
+  const [errors, setErrors] = useState<any>({});
 
-    const [showPhone, setShowPhone] = useState(false);
-    const [showDob, setShowDob] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  {/*} console.log("USER:", user);*/}
+  if (!user) return <p>Loading...</p>;
 
-  if(!user){
-    return <p>Loading...</p>
-  }
+  // ================= VALIDATE =================
+  const validate = () => {
+    const err: any = {};
 
-//avatar
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    if (!user.name) err.name = "Vui lòng nhập họ tên";
+    if (!user.email) err.email = "Vui lòng nhập email";
+    if (!user.phone) err.phone = "Vui lòng nhập số điện thoại";
+    if (!user.dob) err.dob = "Vui lòng nhập ngày sinh";
 
-    const handleClickAvatar = () => {
-      fileInputRef.current?.click();
-    };
-//sdt
-    const maskPhoneVN = (phone: string ="") => {
-      if (!phone) return "";
+    setErrors(err);
+    return Object.keys(err).length === 0;
+  };
 
-      // bỏ khoảng trắng nếu có
-      const clean = phone.replace(/\s+/g, "");
+  const handleSaveClick = async () => {
+    const ok = validate();
+    if (!ok) return;
 
-      if (clean.length < 7) return phone; // tránh lỗi
+    await handleSave();
+    setEdit(false);
+  };
 
-      const first = clean.slice(0, 3);   // 090
-      const last = clean.slice(-3);      // 567
-      const middle = "*".repeat(clean.length - 6);
-
-      return `${first}${middle}${last}`;
-    };
-
-//ngay sinh
-    const maskDate = (date: string="") => {
-      if (!date) return "";
-
-      const parts = date.split("/"); // ["01","01","2006"]
-
-      if (parts.length !== 3) return date;
-
-      return `**/**/${parts[2]}`;
+    const handleCancel = () => {
+      setEdit(false);
+      setErrors({});
+      setShowPhone(false);
+      setShowDob(false);
     };
 
-  return(
+  // ================= AVATAR =================
+  const handleClickAvatar = () => {
+    fileInputRef.current?.click();
+  };
 
+  // ================= MASK =================
+  const maskPhoneVN = (phone: any = "") => {
+    const str = String(phone || "");
+    if (!str) return "";
+
+    const clean = str.replace(/\s+/g, "");
+    if (clean.length < 7) return str;
+
+    return (
+      clean.slice(0, 3) +
+      "*".repeat(clean.length - 6) +
+      clean.slice(-3)
+    );
+  };
+
+  const formatDob = (dob: string = "") => {
+    if (!dob) return "";
+    try {
+      return new Date(dob).toISOString().split("T")[0];
+    } catch {
+      return dob;
+    }
+  };
+
+  const maskDate = (date: string = "") => {
+    if (!date) return "";
+    const parts = date.split("-");
+    if (parts.length !== 3) return date;
+    return `${parts[0]}/**/**`;
+  };
+
+  return (
     <>
-
       <h2>Hồ sơ cá nhân</h2>
 
       <div className="profile-container">
 
-          <div className="avatar-section">
-              <div className="avatar-wrapper" onClick={handleClickAvatar}>
-                <img
-                  src={avatar || user.avatar || "/default-avatar.png"}
-                  className="avatar"
-                />
-              </div>
-
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleAvatar}
-                style={{ display: "none" }}
-              />
-
-              <p>{user.username}</p>
-            </div>
-
-        <div className="form-section">
-
-          <div className="form-row">
-            <label>Tên đăng nhập</label>
-            <input value={user.username} readOnly />
-          </div>
-
-          <div className="form-row">
-            <label>Họ và tên</label>
-            <input
-              name="fullname"
-              value={user.fullname}
-              onChange={handleChange}
-              readOnly={!edit}
+        {/* ================= AVATAR ================= */}
+        <div className="avatar-section">
+          <div className="avatar-wrapper" onClick={handleClickAvatar}>
+            <img
+              src={avatar || user.avatarUrl || "/default-avatar.png"}
+              className="avatar"
+              alt="avatar"
             />
           </div>
 
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleAvatar}
+            hidden
+          />
+
+          <p>{user.username}</p>
+        </div>
+
+        {/* ================= FORM ================= */}
+        <div className="form-section">
+
+          {/* USERNAME */}
+          <div className="form-row">
+            <label>Tên đăng nhập</label>
+            <div className="input-block">
+              <input value={user.username || ""} readOnly />
+            </div>
+          </div>
+
+          {/* NAME */}
+          <div className="form-row">
+            <label>Họ và tên</label>
+            <div className="input-block">
+              <input
+                name="name"
+                value={user.name || ""}
+                onChange={handleChange}
+                readOnly={!edit}
+                className={errors.name ? "error-input" : ""}
+              />
+              <div className="error-space">
+                {errors.name && (
+                  <span className="error-text">{errors.name}</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* PHONE */}
           <div className="form-row">
             <label>Số điện thoại</label>
 
-            <div style={{ position: "relative" }}>
-              <input
-                name="phone"
-                value={
-                  edit
-                    ? (user.phone || "")
-                    : showPhone
-                      ? (user.phone || "")
-                      : maskPhoneVN(user.phone || "")
-                }
-                onChange={handleChange}
-                readOnly={!edit}
-              />
+            <div className="input-block">
+              <div style={{ position: "relative" }}>
+                <input
+                  name="phone"
+                  value={
+                    edit
+                      ? user.phone || ""
+                      : showPhone
+                      ? user.phone || ""
+                      : maskPhoneVN(user.phone)
+                  }
+                  onChange={handleChange}
+                  readOnly={!edit}
+                  className={errors.phone ? "error-input" : ""}
+                />
 
-              <span
-                onClick={() => !edit && setShowPhone(!showPhone)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  userSelect: "none"
-                }}
-              >
-                {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
-              </span>
+                <span
+                  onClick={() => !edit && setShowPhone(!showPhone)}
+                  className="eye-icon"
+                >
+                  {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
+                </span>
+              </div>
+
+              <div className="error-space">
+                {errors.phone && (
+                  <span className="error-text">{errors.phone}</span>
+                )}
+              </div>
             </div>
           </div>
 
+          {/* EMAIL */}
           <div className="form-row">
             <label>Email</label>
-            <input
-              name="email"
-              value={user.email}
-              onChange={handleChange}
-              readOnly={!edit}
-            />
+            <div className="input-block">
+              <input
+                name="email"
+                value={user.email || ""}
+                onChange={handleChange}
+                readOnly={!edit}
+                className={errors.email ? "error-input" : ""}
+              />
+              <div className="error-space">
+                {errors.email && (
+                  <span className="error-text">{errors.email}</span>
+                )}
+              </div>
+            </div>
           </div>
 
+          {/* DOB */}
           <div className="form-row">
             <label>Ngày sinh</label>
 
-            <div style={{ position: "relative" }}>
-              <input
-                name="birth"
-                value={
-                  edit
-                    ? (user.birth || "")
-                    : showDob
-                      ? (user.birth || "")
-                      : maskDate(user.birth || "")
-                }
-                onChange={handleChange}
-                readOnly={!edit}
-              />
+            <div className="input-block">
+              <div style={{ position: "relative" }}>
+                <input
+                  name="dob"
+                  value={
+                    edit
+                      ? formatDob(user.dob)
+                      : showDob
+                      ? formatDob(user.dob)
+                      : maskDate(formatDob(user.dob))
+                  }
+                  onChange={handleChange}
+                  readOnly={!edit}
+                  className={errors.dob ? "error-input" : ""}
+                />
 
-              <span
-                onClick={() => !edit && setShowDob(!showDob)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  userSelect: "none"
-                }}
-              >
-                {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
-              </span>
+                <span
+                  onClick={() => !edit && setShowDob(!showDob)}
+                  className="eye-icon"
+                >
+                  {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
+                </span>
+              </div>
+
+              <div className="error-space">
+                {errors.dob && (
+                  <span className="error-text">{errors.dob}</span>
+                )}
+              </div>
             </div>
           </div>
 
         </div>
-
       </div>
 
-      <div className="member">
+      {/* ================= BUTTONS ================= */}
+      <div className="button-wrapper">
+        <div className="btn-group">
+        <button
+          className="cancel-btn"
+          onClick={() => {
+            if (edit) {
+              handleCancel();
+            } else {
+              setEdit(true);
+            }
+          }}
+        >
+          {edit ? "Hủy" : "Sửa"}
+        </button>
 
+          {edit && (
+            <button className="save-btn" onClick={handleSaveClick}>
+              Lưu
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ================= MEMBER ================= */}
+      <div className="member">
         <h3>Hạng thành viên</h3>
 
-        <p>Số điểm tích lũy: {user.point} điểm</p>
+        <div className="member-item">
+          <span className="label">Hạng:</span>
+          <span className="value">{user.tier || "BRONZE"}</span>
+        </div>
 
+        <div className="member-item">
+          <span className="label">Điểm tích lũy:</span>
+          <span className="value">{user.point || 0}</span>
+        </div>
       </div>
-
-      <div style={{marginTop:"20px"}}>
-
-    <div className="btn-group">
-
-      <button
-        className="cancel-btn"
-        onClick={() => setEdit(!edit)}
-      >
-        {edit ? "Hủy" : "Sửa"}
-      </button>
-
-      {edit && (
-        <button
-          className="save-btn"
-          onClick={handleSave}
-        >
-          Lưu
-        </button>
-      )}
-
-    </div>
-
-      </div>
-
     </>
-
-  )
+  );
 }

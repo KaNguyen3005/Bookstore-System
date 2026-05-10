@@ -1,96 +1,62 @@
 import { useEffect, useState } from "react";
-
 import type { Book } from "../../product/types/Book";
 import type { BookFilters } from "../types/bookFilter";
-
 import { searchBooks } from "../services/bookService";
 
-export const useBookSearch = (
-  filters: BookFilters
-) => {
-  const [books, setBooks] =
-    useState<Book[]>([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState<string | null>(null);
-
-  const [total, setTotal] =
-    useState(0);
+export const useBookSearch = (filters: BookFilters) => {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const abortController =
-      new AbortController();
+    let ignore = false;
 
-    setLoading(true);
-    setError(null);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
 
-    const timerId = setTimeout(
-      async () => {
-        try {
-          const response =
-            await searchBooks(filters);
+      try {
+        const res = await searchBooks(filters);
 
-          if (
-            abortController.signal.aborted
-          ) {
-            return;
-          }
+        if (ignore) return;
 
-          console.log(
-            "SEARCH RESULT:",
-            response
-          );
+        console.log("RAW SEARCH:", res);
 
-          // ✅ response đã được normalize
-          setBooks(response.data || []);
+        // 🔥 FIX CHUẨN DATA EXTRACTION
+        const data =
+          res?.data?.content ??
+          res?.data ??
+          res?.result?.content ??
+          [];
 
-          setTotal(
-            response.total || 0
-          );
-        } catch (err: any) {
-          if (
-            abortController.signal.aborted
-          ) {
-            return;
-          }
+        const total =
+          res?.data?.totalElements ??
+          res?.total ??
+          res?.result?.totalElements ??
+          0;
 
-          console.error(
-            "BOOK SEARCH ERROR:",
-            err
-          );
+        setBooks(data);
+        setTotal(total);
 
-          setError(
-            err?.message ||
-              "Failed to fetch books"
-          );
+      } catch (err: any) {
+        if (ignore) return;
 
-          setBooks([]);
-          setTotal(0);
-        } finally {
-          if (
-            !abortController.signal.aborted
-          ) {
-            setLoading(false);
-          }
-        }
-      },
-      300
-    );
+        setError(err?.message || "Failed to fetch books");
+        setBooks([]);
+        setTotal(0);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
+
+    const timer = setTimeout(fetchData, 300);
 
     return () => {
-      clearTimeout(timerId);
-
-      abortController.abort();
+      ignore = true;
+      clearTimeout(timer);
     };
   }, [filters]);
 
-  return {
-    books,
-    loading,
-    error,
-    total,
-  };
+  return { books, loading, error, total };
 };

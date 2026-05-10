@@ -3,136 +3,145 @@ import users from "../data/user1";
 
 const IS_MOCK = false;
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 export interface UserFE {
-  id: number;
   userId: number;
   username: string;
   name: string;
-  email: string;
+  email?: string;
   phone: string;
-  address?: string;
   point: number;
   avatarUrl?: string;
   dob: Date;
-  status: boolean;
+  status?: boolean;
   gender: string;
   role: string;
+  tier?: string;
 }
 
-// ===== BE → FE (snake → camel)
 const mapToFE = (u: any): UserFE => ({
-  id: u.user_id,
-  userId: u.user_id,
+  userId: u.userId,
   username: u.username,
   name: u.name,
   email: u.email,
   phone: u.phone,
-  dob: u.dob,
-  point: u.point,
+  point: u.point ?? 0,
+  avatarUrl: u.avatarUrl,
+  dob: u.dob ? new Date(u.dob) : new Date(),
   status: u.status,
   gender: u.gender,
   role: u.role,
-  avatarUrl: u.avatar_url,
-  address: u.address,
+  tier: u.tier,
 });
 
-// ===== FE → BE (camel → snake)
-const mapToDB = (u: UserFE, old: any) => {
-  const [first, ...rest] = (u.name || "").split(" ");
-  return {
-    ...old,
-    user_id: u.userId,
-    username: u.username,
-    first_name: first,
-    last_name: rest.join(" "),
-    email: u.email,
-    phone: u.phone,
-    dob: u.dob,
-    point: u.point,
-    avatar_url: u.avatarUrl,
-    address: u.address,
-    updated_at: new Date(),
-  };
-};
+const mapToUpdatePayload = (u: UserFE) => ({
+  username: u.username,
+  name: u.name,
+  phone: u.phone,
+  gender: u.gender,
+  point: u.point,
+  dob: u.dob,
+});
 
 export const userApi = {
+  // ================= GET ME =================
+
+    getMe: async (): Promise<UserFE | null> => {
+      try {
+        const res: any = await axiosClient.get("/users/me");
+
+        return mapToFE(res.data.result);
+      } catch (error) {
+        console.error("getMe failed:", error);
+        return null;
+      }
+    },
+
+      // ================= GET ALL =================
+      getAllUsers: async (): Promise<UserFE[]> => {
+        if (IS_MOCK) {
+          await delay(500);
+          return users.map(mapToFE);
+        }
+
+        const res = await axiosClient.get("/users");
+
+        return res.data.result.map(mapToFE);
+      },
+
+  // ================= GET BY ID =================
   getUserById: async (id: number): Promise<UserFE | null> => {
     if (IS_MOCK) {
       await delay(500);
-      const user = users.find((u) => u.user_id === id);
-      if (!user) return null;
-      return mapToFE(user);
-    }
 
-    const res = await axiosClient.get(`/users/${id}`);
-    return mapToFE(res);
-  },
-
-  updateUser: async (data: UserFE): Promise<UserFE> => {
-    if (IS_MOCK) {
-      await delay(500);
-      const index = users.findIndex((u) => u.user_id === data.userId);
-      if (index === -1) throw new Error("User not found");
-
-      const updated = mapToDB(data, users[index]);
-      users[index] = updated;
-
-      return mapToFE(updated);
-    }
-
-    const payload = mapToDB(data, {});
-    const res = await axiosClient.put(`/users/${data.userId}`, payload);
-    return mapToFE(res);
-  },
-  getMe: async (): Promise<UserFE | null> => {
-    if (IS_MOCK) {
-      await delay(500);
-
-      // lấy user từ localStorage để mock
-      const u = localStorage.getItem("user");
-      if (!u) return null;
-
-      const parsed = JSON.parse(u);
-      const user = users.find((x) => x.user_id === parsed.userId);
+      const user = users.find((u: any) => u.userId === id);
 
       return user ? mapToFE(user) : null;
     }
 
-    try {
-      const res: any = await axiosClient.get("/users/me");
+    const res = await axiosClient.get(`/users/${id}`);
 
-      // tùy backend trả dạng nào
-      const data = res?.data?.result || res?.data || res;
-
-      return mapToFE(data);
-    } catch (error) {
-      console.error("getMe failed:", error);
-      return null;
-    }
+    return mapToFE(res.data.result);
   },
 
-  getUsersByRole: async (roleId: number): Promise<UserFE[]> => {
+  // ================= UPDATE =================
+  updateUser: async (data: UserFE): Promise<UserFE> => {
     if (IS_MOCK) {
       await delay(500);
-      return users.filter((u) => u.role_id === roleId).map(mapToFE);
+
+      return data;
     }
 
-    const res = await axiosClient.get(`/users/role/${roleId}`);
-    return res.data.map(mapToFE);
+    const payload = mapToUpdatePayload(data);
+
+    const res = await axiosClient.patch(
+      `/users/${data.userId}`,
+      payload
+    );
+
+    return mapToFE(res.data.result);
   },
 
-  uploadAvatar: async (formData: FormData): Promise<{ url: string }> => {
-    if (IS_MOCK) {
-      await delay(500);
-      return {
-        url: URL.createObjectURL(formData.get("file") as File),
-      };
-    }
+  // ================= UPDATE ME =================
+  updateMe: async (data: Partial<UserFE>) => {
+    const res: any = await axiosClient.patch(
+      "/users/me",
+      data
+    );
 
-    return axiosClient.post("/users/upload-avatar", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return mapToFE(res.result);
+  },
+
+  // ================= DISABLE =================
+  disableUser: async (id: number) => {
+    const res: any = await axiosClient.post(
+      `/users/${id}/disable`
+    );
+
+    return res.result;
+  },
+
+  // ================= UPDATE STATUS =================
+  updateStatus: async (
+    id: number,
+    status: boolean
+  ) => {
+    const res: any = await axiosClient.put(
+      `/users/${id}/status`,
+      { status }
+    );
+
+    return res.result;
+  },
+
+  // ================= DELETE =================
+  deleteUser: async (id: number) => {
+    const res: any = await axiosClient.delete(
+      `/users/${id}`
+    );
+
+    return res.result;
   },
 };

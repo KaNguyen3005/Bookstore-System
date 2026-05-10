@@ -12,6 +12,8 @@ import { useHomeData } from "../../hooks/useHomeData";
 function Home() {
   const { homeData, loading } = useHomeData();
 
+
+
   // pagination riêng
   const [hotPage, setHotPage] = useState(1);
   const [topPage, setTopPage] = useState(1);
@@ -57,8 +59,8 @@ function Home() {
     }
   }, [topPage]);
 
-  // 5 item / page
-  const itemsPerPage = 5;
+  // item / page
+  const itemsPerPage = 10;
 
   // phải đặt sau hooks
   if (loading || !homeData) return null;
