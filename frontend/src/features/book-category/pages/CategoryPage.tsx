@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+} from "react";
+
 import { useSearchParams } from "react-router-dom";
 
 import FilterSidebar from "../components/FilterSidebar";
 import BookGrid from "../components/BookGrid";
+import Pagination from "../../home/components/Pagination/Pagination";
 
 import { useBookSearch } from "../hooks/useBookSearch";
 
@@ -20,42 +26,64 @@ import { publisherService } from "../services/publisherService";
 
 import "./CategoryPage.css";
 
-/**
- * Main container component for the Category Page.
- */
 const CategoryPage: React.FC = () => {
+
   // ================= URL PARAMS =================
+
   const [searchParams] = useSearchParams();
 
-  const categoryIdParam = searchParams.get("categoryId");
+  const categoryIdParam =
+    searchParams.get("categoryId");
+
+  // ================= PAGINATION =================
+
+  // Main books
+  const [currentPage, setCurrentPage] =
+    useState(1);
+
+  // Top selling books
+  const [topPage, setTopPage] =
+    useState(1);
+
+  const itemsPerPage = 9;
+
+  // ================= REFS =================
+
+  const topSellingRef =
+    useRef<HTMLDivElement | null>(null);
 
   // ================= FILTER STATE =================
-  const [filters, setFilters] = useState<BookFilters>({
-    page: 0,
-    sort: "asc",
 
-    // 📌 category từ URL
-    categoryId: categoryIdParam
-      ? Number(categoryIdParam)
-      : undefined,
+  const [filters, setFilters] =
+    useState<BookFilters>({
+      page: 0,
+      sort: "asc",
 
-    // 💰 price filters
-    minPrice: undefined,
-    maxPrice: undefined,
-  });
+      categoryId: categoryIdParam
+        ? Number(categoryIdParam)
+        : undefined,
+
+      minPrice: undefined,
+      maxPrice: undefined,
+    });
 
   // ================= TOP SELLING =================
-  const [topSellingBooks, setTopSellingBooks] = useState<Book[]>([]);
+
+  const [topSellingBooks, setTopSellingBooks] =
+    useState<Book[]>([]);
 
   // ================= CATEGORY STATE =================
+
   const [categories, setCategories] =
     useState<Category[]>(categoriesData);
 
   // ================= PUBLISHER STATE =================
+
   const [publishers, setPublishers] =
     useState<Publisher[]>(publishersData);
 
   // ================= BOOK SEARCH =================
+
   const {
     books,
     loading,
@@ -63,26 +91,57 @@ const CategoryPage: React.FC = () => {
     total,
   } = useBookSearch(filters);
 
+  // ================= SCROLL FUNCTION =================
+
+  const scrollToTopSelling = () => {
+
+    if (topSellingRef.current) {
+
+      const top =
+        topSellingRef.current
+          .getBoundingClientRect().top +
+        window.scrollY -
+        50;
+
+      window.scrollTo({
+        top,
+        behavior: "smooth",
+      });
+    }
+  };
+
   // ================= SYNC URL → FILTER =================
+
   useEffect(() => {
+
     if (categoryIdParam) {
+
       setFilters((prev) => ({
         ...prev,
         categoryId: Number(categoryIdParam),
         page: 0,
       }));
+
+      setCurrentPage(1);
     }
+
   }, [categoryIdParam]);
 
   // ================= TOP SELLING API =================
+
   useEffect(() => {
+
     const fetchTopSelling = async () => {
+
       try {
+
         const data =
-          await getTopSellingBooks(10);
+          await getTopSellingBooks(20);
 
         setTopSellingBooks(data);
+
       } catch (error) {
+
         console.log(
           "Top selling API failed → fallback empty"
         );
@@ -90,19 +149,26 @@ const CategoryPage: React.FC = () => {
     };
 
     fetchTopSelling();
+
   }, []);
 
   // ================= CATEGORY API =================
+
   useEffect(() => {
+
     const fetchCategories = async () => {
+
       try {
+
         const data =
           await categoryService.getCategories();
 
         if (data && data.length > 0) {
           setCategories(data);
         }
+
       } catch (error) {
+
         console.log(
           "Category API failed → fallback mock"
         );
@@ -110,19 +176,26 @@ const CategoryPage: React.FC = () => {
     };
 
     fetchCategories();
+
   }, []);
 
   // ================= PUBLISHER API =================
+
   useEffect(() => {
+
     const fetchPublishers = async () => {
+
       try {
+
         const data =
           await publisherService.getPublishers();
 
         if (data && data.length > 0) {
           setPublishers(data);
         }
+
       } catch (error) {
+
         console.log(
           "Publisher API failed → fallback mock"
         );
@@ -130,34 +203,66 @@ const CategoryPage: React.FC = () => {
     };
 
     fetchPublishers();
+
   }, []);
 
   // ================= FILTER HANDLER =================
+
   const handleFilterChange = (
     newFilters: Partial<BookFilters>
   ) => {
-    setFilters((prevFilters) => {
-      const updatedFilters = {
-        ...prevFilters,
-        ...newFilters,
 
-        // reset page khi đổi filter
-        page: 0,
-      };
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+      page: 0,
+    }));
 
-      console.log(
-        "UPDATED FILTERS:",
-        updatedFilters
-      );
+    setCurrentPage(1);
 
-      return updatedFilters;
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
   };
 
+  // ================= MAIN BOOK PAGINATION =================
+
+  const totalPages = Math.ceil(
+    books.length / itemsPerPage
+  );
+
+  const startIndex =
+    (currentPage - 1) * itemsPerPage;
+
+  const currentBooks = books.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  // ================= TOP SELLING PAGINATION =================
+
+  const topTotalPages = Math.ceil(
+    topSellingBooks.length /
+      itemsPerPage
+  );
+
+  const topStartIndex =
+    (topPage - 1) * itemsPerPage;
+
+  const currentTopBooks =
+    topSellingBooks.slice(
+      topStartIndex,
+      topStartIndex + itemsPerPage
+    );
+
   return (
     <div className="category-page">
+
       {/* ================= HEADER ================= */}
+
       <div className="category-page__header">
+
         <h1 className="category-page__title">
           Danh mục sách
         </h1>
@@ -165,43 +270,85 @@ const CategoryPage: React.FC = () => {
         <p className="category-page__subtitle">
           Tìm thấy {total} kết quả
         </p>
+
       </div>
 
       {/* ================= CONTENT ================= */}
+
       <div className="category-page__content">
+
         {/* Sidebar */}
+
         <FilterSidebar
           filters={filters}
-          onFilterChange={handleFilterChange}
+          onFilterChange={
+            handleFilterChange
+          }
           categories={categories}
           publishers={publishers}
           priceRanges={priceRangesData}
         />
 
         {/* Books */}
+
         <main className="category-page__main">
+
           <BookGrid
-            books={books}
+            books={currentBooks}
             loading={loading}
             error={error}
           />
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={(page) => {
+
+              setCurrentPage(page);
+
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            }}
+          />
+
         </main>
       </div>
 
       {/* ================= TOP SELLING ================= */}
-      <section className="category-page__top-selling">
+
+      <div
+        ref={topSellingRef}
+        className="category-page__top-selling"
+      >
+
         <h2 className="category-page__section-title">
           TOP SÁCH BÁN CHẠY NHẤT
         </h2>
 
         <div className="category-page__top-grid">
+
           <BookGrid
-            books={topSellingBooks}
+            books={currentTopBooks}
             loading={false}
             error={null}
           />
+
         </div>
-      </section>
+
+        <Pagination
+          currentPage={topPage}
+          totalPages={topTotalPages}
+          setCurrentPage={(page) => {
+
+            setTopPage(page);
+
+            scrollToTopSelling();
+          }}
+        />
+
+      </div>
     </div>
   );
 };
