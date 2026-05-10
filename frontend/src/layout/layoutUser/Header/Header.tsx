@@ -47,17 +47,43 @@ const Header: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-const [address, setAddress] = useState<Address | null>(null);
-useEffect(() => {
-  if (user) {
-    addressApi.getAll(user.user_id).then((list) => {
-      if (list.length > 0) {
-        const defaultAddr = list.find((a) => a.is_default);
-        setAddress(defaultAddr || list[0]);
+    const [address, setAddress] = useState<Address | null>(null);
+
+    useEffect(() => {
+      if (!user) {
+        setAddress(null);
+        return;
       }
-    });
-  }
-}, [user]);
+
+      const fetchAddress =
+        async () => {
+          try {
+            const list =
+              await addressApi.getAll();
+
+            console.log(list);
+
+            if (list.length > 0) {
+              const defaultAddr =
+                list.find(
+                  (a) => a.isDefault
+                );
+
+              setAddress(
+                defaultAddr ||
+                  list[0]
+              );
+            }
+          } catch (error) {
+            console.error(
+              "Lỗi lấy địa chỉ:",
+              error
+            );
+          }
+        };
+
+      fetchAddress();
+    }, [user]);
 
 const [keyword, setKeyword] = useState("");
 const [results, setResults] = useState<any[]>([]);
@@ -71,7 +97,7 @@ useEffect(() => {
 
   const delay = setTimeout(() => {
     searchApi.searchBooks(keyword).then((res) => {
-      setResults(res.slice(0, 5)); // giới hạn 5 item giống Shopee
+      setResults(res.slice(0, 5));
     });
   }, 300);
 
@@ -121,7 +147,7 @@ const handleSearch = () => {
             <p>Giao đến</p>
             <p>
               {address
-                ? `${address.district}, ${address.province}`
+                ? `${address.ward}, ${address.district}, ${address.province}`
                 : "Chưa có địa chỉ"}
             </p>
           </div>

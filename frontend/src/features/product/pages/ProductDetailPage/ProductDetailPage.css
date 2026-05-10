@@ -261,6 +261,7 @@
 .specs-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 10px;
 }
 
 .specs-table td {
@@ -326,4 +327,8 @@
   .product-detail-layout { flex-direction: column; }
   .product-detail-left-col { width: 100%; }
   .related-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.description-content{
+    margin-top:20px;
 }
