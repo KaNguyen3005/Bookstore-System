@@ -1,7 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import { useState, useRef } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
-import "./ProfileContent.css";
+import styles from "./ProfileContent.module.css";
 
 export default function ProfileContent() {
   const {
@@ -43,12 +43,12 @@ export default function ProfileContent() {
     setEdit(false);
   };
 
-    const handleCancel = () => {
-      setEdit(false);
-      setErrors({});
-      setShowPhone(false);
-      setShowDob(false);
-    };
+  const handleCancel = () => {
+    setEdit(false);
+    setErrors({});
+    setShowPhone(false);
+    setShowDob(false);
+  };
 
   // ================= AVATAR =================
   const handleClickAvatar = () => {
@@ -58,9 +58,11 @@ export default function ProfileContent() {
   // ================= MASK =================
   const maskPhoneVN = (phone: any = "") => {
     const str = String(phone || "");
+
     if (!str) return "";
 
     const clean = str.replace(/\s+/g, "");
+
     if (clean.length < 7) return str;
 
     return (
@@ -72,6 +74,7 @@ export default function ProfileContent() {
 
   const formatDob = (dob: string = "") => {
     if (!dob) return "";
+
     try {
       return new Date(dob).toISOString().split("T")[0];
     } catch {
@@ -81,23 +84,31 @@ export default function ProfileContent() {
 
   const maskDate = (date: string = "") => {
     if (!date) return "";
+
     const parts = date.split("-");
+
     if (parts.length !== 3) return date;
+
     return `${parts[0]}/**/**`;
   };
 
   return (
     <>
-      <h2>Hồ sơ cá nhân</h2>
+      <h2 className={styles.title}>Hồ sơ cá nhân</h2>
 
-      <div className="profile-container">
+      {/* ================= PROFILE ================= */}
+      <div className={styles.profileContainer}>
 
         {/* ================= AVATAR ================= */}
-        <div className="avatar-section">
-          <div className="avatar-wrapper" onClick={handleClickAvatar}>
+        <div className={styles.avatarSection}>
+
+          <div
+            className={styles.avatarWrapper}
+            onClick={handleClickAvatar}
+          >
             <img
               src={avatar || user.avatarUrl || "/default-avatar.png"}
-              className="avatar"
+              className={styles.avatar}
               alt="avatar"
             />
           </div>
@@ -110,45 +121,76 @@ export default function ProfileContent() {
             hidden
           />
 
-          <p>{user.username}</p>
+          <p className={styles.username}>
+            {user.username}
+          </p>
+
         </div>
 
         {/* ================= FORM ================= */}
-        <div className="form-section">
+        <div className={styles.formSection}>
 
           {/* USERNAME */}
-          <div className="form-row">
-            <label>Tên đăng nhập</label>
-            <div className="input-block">
-              <input value={user.username || ""} readOnly />
+          <div className={styles.formRow}>
+
+            <label className={styles.formLabel}>
+              Tên đăng nhập
+            </label>
+
+            <div className={styles.inputBlock}>
+              <input
+                value={user.username || ""}
+                readOnly
+                className={`${styles.input} ${styles.readonly}`}
+              />
             </div>
+
           </div>
 
           {/* NAME */}
-          <div className="form-row">
-            <label>Họ và tên</label>
-            <div className="input-block">
+          <div className={styles.formRow}>
+
+            <label className={styles.formLabel}>
+              Họ và tên
+            </label>
+
+            <div className={styles.inputBlock}>
+
               <input
                 name="name"
                 value={user.name || ""}
                 onChange={handleChange}
                 readOnly={!edit}
-                className={errors.name ? "error-input" : ""}
+                className={`
+                  ${styles.input}
+                  ${!edit ? styles.readonly : ""}
+                  ${errors.name ? styles.errorInput : ""}
+                `}
               />
-              <div className="error-space">
+
+              <div className={styles.errorSpace}>
                 {errors.name && (
-                  <span className="error-text">{errors.name}</span>
+                  <span className={styles.errorText}>
+                    {errors.name}
+                  </span>
                 )}
               </div>
+
             </div>
+
           </div>
 
           {/* PHONE */}
-          <div className="form-row">
-            <label>Số điện thoại</label>
+          <div className={styles.formRow}>
 
-            <div className="input-block">
-              <div style={{ position: "relative" }}>
+            <label className={styles.formLabel}>
+              Số điện thoại
+            </label>
+
+            <div className={styles.inputBlock}>
+
+              <div className={styles.inputWrapper}>
+
                 <input
                   name="phone"
                   value={
@@ -160,50 +202,82 @@ export default function ProfileContent() {
                   }
                   onChange={handleChange}
                   readOnly={!edit}
-                  className={errors.phone ? "error-input" : ""}
+                  className={`
+                    ${styles.input}
+                    ${!edit ? styles.readonly : ""}
+                    ${errors.phone ? styles.errorInput : ""}
+                  `}
                 />
 
                 <span
                   onClick={() => !edit && setShowPhone(!showPhone)}
-                  className="eye-icon"
+                  className={styles.eyeIcon}
                 >
-                  {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
+                  {showPhone ? (
+                    <FaRegEyeSlash />
+                  ) : (
+                    <FaRegEye />
+                  )}
                 </span>
+
               </div>
 
-              <div className="error-space">
+              <div className={styles.errorSpace}>
                 {errors.phone && (
-                  <span className="error-text">{errors.phone}</span>
+                  <span className={styles.errorText}>
+                    {errors.phone}
+                  </span>
                 )}
               </div>
+
             </div>
+
           </div>
 
           {/* EMAIL */}
-          <div className="form-row">
-            <label>Email</label>
-            <div className="input-block">
+          <div className={styles.formRow}>
+
+            <label className={styles.formLabel}>
+              Email
+            </label>
+
+            <div className={styles.inputBlock}>
+
               <input
                 name="email"
                 value={user.email || ""}
                 onChange={handleChange}
                 readOnly={!edit}
-                className={errors.email ? "error-input" : ""}
+                className={`
+                  ${styles.input}
+                  ${!edit ? styles.readonly : ""}
+                  ${errors.email ? styles.errorInput : ""}
+                `}
               />
-              <div className="error-space">
+
+              <div className={styles.errorSpace}>
                 {errors.email && (
-                  <span className="error-text">{errors.email}</span>
+                  <span className={styles.errorText}>
+                    {errors.email}
+                  </span>
                 )}
               </div>
+
             </div>
+
           </div>
 
           {/* DOB */}
-          <div className="form-row">
-            <label>Ngày sinh</label>
+          <div className={styles.formRow}>
 
-            <div className="input-block">
-              <div style={{ position: "relative" }}>
+            <label className={styles.formLabel}>
+              Ngày sinh
+            </label>
+
+            <div className={styles.inputBlock}>
+
+              <div className={styles.inputWrapper}>
+
                 <input
                   name="dob"
                   value={
@@ -215,65 +289,98 @@ export default function ProfileContent() {
                   }
                   onChange={handleChange}
                   readOnly={!edit}
-                  className={errors.dob ? "error-input" : ""}
+                  className={`
+                    ${styles.input}
+                    ${!edit ? styles.readonly : ""}
+                    ${errors.dob ? styles.errorInput : ""}
+                  `}
                 />
 
                 <span
                   onClick={() => !edit && setShowDob(!showDob)}
-                  className="eye-icon"
+                  className={styles.eyeIcon}
                 >
-                  {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
+                  {showDob ? (
+                    <FaRegEyeSlash />
+                  ) : (
+                    <FaRegEye />
+                  )}
                 </span>
+
               </div>
 
-              <div className="error-space">
+              <div className={styles.errorSpace}>
                 {errors.dob && (
-                  <span className="error-text">{errors.dob}</span>
+                  <span className={styles.errorText}>
+                    {errors.dob}
+                  </span>
                 )}
               </div>
+
             </div>
+
           </div>
 
         </div>
+
       </div>
 
-      {/* ================= BUTTONS ================= */}
-      <div className="button-wrapper">
-        <div className="btn-group">
-        <button
-          className="cancel-btn"
-          onClick={() => {
-            if (edit) {
-              handleCancel();
-            } else {
-              setEdit(true);
-            }
-          }}
-        >
-          {edit ? "Hủy" : "Sửa"}
-        </button>
+      {/* ================= BUTTON ================= */}
+      <div className={styles.buttonWrapper}>
+
+        <div className={styles.btnGroup}>
+
+          <button
+            className={styles.cancelBtn}
+            onClick={() => {
+              if (edit) {
+                handleCancel();
+              } else {
+                setEdit(true);
+              }
+            }}
+          >
+            {edit ? "Hủy" : "Sửa"}
+          </button>
 
           {edit && (
-            <button className="save-btn" onClick={handleSaveClick}>
+            <button
+              className={styles.saveBtn}
+              onClick={handleSaveClick}
+            >
               Lưu
             </button>
           )}
+
         </div>
+
       </div>
 
       {/* ================= MEMBER ================= */}
-      <div className="member">
-        <h3>Hạng thành viên</h3>
+      <div className={styles.member}>
 
-        <div className="member-item">
-          <span className="label">Hạng:</span>
-          <span className="value">{user.tier || "BRONZE"}</span>
+        <h3 className={styles.memberTitle}>
+          Hạng thành viên
+        </h3>
+
+        <div className={styles.memberItem}>
+          <span className={styles.label}>Hạng:</span>
+
+          <span className={styles.value}>
+            {user.tier || "BRONZE"}
+          </span>
         </div>
 
-        <div className="member-item">
-          <span className="label">Điểm tích lũy:</span>
-          <span className="value">{user.point || 0}</span>
+        <div className={styles.memberItem}>
+          <span className={styles.label}>
+            Điểm tích lũy:
+          </span>
+
+          <span className={styles.value}>
+            {user.point || 0}
+          </span>
         </div>
+
       </div>
     </>
   );

@@ -86,7 +86,7 @@ const Register = () => {
       password: form.password,
       username: form.username,
       name: `${form.firstName} ${form.lastName}`.trim(),
-      phone: "+84901234567",
+      phone: "+84008938116",
       gender: genderMap[form.gender] || "OTHER",
       dob: `${form.year}-${String(form.month).padStart(2, "0")}-${String(form.day).padStart(2, "0")}`
     };
@@ -96,6 +96,8 @@ const Register = () => {
       console.log("FINAL GENDER:", payload.gender);
 
     await authApi.registerInit(payload);
+
+    await authApi.sendOtp(form.email);
 
     // lưu payload đầy đủ
     sessionStorage.setItem(
