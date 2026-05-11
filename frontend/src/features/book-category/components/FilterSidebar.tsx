@@ -11,11 +11,6 @@ interface FilterSidebarProps {
   priceRanges: PriceRange[];
 }
 
-/**
- * Pure UI component for the filtering sidebar.
- * It renders categories, price ranges, and publishers using checkboxes.
- * Triggers realtime filtering via onFilterChange.
- */
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
   filters,
   onFilterChange,
@@ -30,26 +25,60 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       {/* Categories Section */}
       <div className="filter-sidebar__section">
         <h3 className="filter-sidebar__section-title">Danh mục</h3>
+
         <ul className="filter-sidebar__list">
           {categories.map((cat) => (
-            <li key={cat.categoryId} className="filter-sidebar__item">
-              <label className="filter-sidebar__label">
-                <input
-                  type="checkbox"
-                  className="filter-sidebar__checkbox"
-                  checked={filters.categoryId === cat.categoryId}
-                  onChange={() => {
-                    // Realtime filtering: no Apply button, updates immediately
-                    onFilterChange({
-                      categoryId:
-                        filters.categoryId === cat.categoryId
-                          ? undefined
-                          : cat.categoryId,
-                    });
-                  }}
-                />
-                <span>{cat.categoryName}</span>
-              </label>
+            <li key={cat.categoryId}>
+              {/* Category cha */}
+              <div className="filter-sidebar__item">
+                <label className="filter-sidebar__label">
+                  <input
+                    type="checkbox"
+                    className="filter-sidebar__checkbox"
+                    checked={filters.categoryId === cat.categoryId}
+                    onChange={() => {
+                      onFilterChange({
+                        categoryId:
+                          filters.categoryId === cat.categoryId
+                            ? undefined
+                            : cat.categoryId,
+                      });
+                    }}
+                  />
+
+                  <span>{cat.categoryName}</span>
+                </label>
+              </div>
+
+              {/* Category con */}
+              {cat.children && cat.children.length > 0 && (
+                <ul className="filter-sidebar__sublist">
+                  {cat.children.map((child) => (
+                    <li
+                      key={child.categoryId}
+                      className="filter-sidebar__subitem"
+                    >
+                      <label className="filter-sidebar__label">
+                        <input
+                          type="checkbox"
+                          className="filter-sidebar__checkbox"
+                          checked={filters.categoryId === child.categoryId}
+                          onChange={() => {
+                            onFilterChange({
+                              categoryId:
+                                filters.categoryId === child.categoryId
+                                  ? undefined
+                                  : child.categoryId,
+                            });
+                          }}
+                        />
+
+                        <span>{child.categoryName}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
@@ -73,7 +102,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     className="filter-sidebar__checkbox"
                     checked={isChecked}
                     onChange={() => {
-                      // ✅ clear filter
                       if (isChecked) {
                         onFilterChange({
                           minPrice: undefined,
@@ -83,10 +111,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                         return;
                       }
 
-                      // ✅ apply filter
                       onFilterChange({
                         minPrice: range.minPrice,
-
                         maxPrice: range.maxPrice,
                       });
                     }}
@@ -99,9 +125,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           })}
         </ul>
       </div>
+
       {/* Publishers Section */}
       <div className="filter-sidebar__section">
-        <h3 className="filter-sidebar__section-title">Nhà xuất bản</h3>
+        <h3 className="filter-sidebar__section-title">
+          Nhà xuất bản
+        </h3>
+
         <ul className="filter-sidebar__list">
           {publishers.map((pub) => (
             <li key={pub.publisherId} className="filter-sidebar__item">
@@ -111,7 +141,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   className="filter-sidebar__checkbox"
                   checked={filters.publisherId === pub.publisherId}
                   onChange={() => {
-                    // Realtime filtering: no Apply button, updates immediately
                     onFilterChange({
                       publisherId:
                         filters.publisherId === pub.publisherId
@@ -120,6 +149,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     });
                   }}
                 />
+
                 <span>{pub.publisherName}</span>
               </label>
             </li>
