@@ -208,6 +208,12 @@ const handleSearch = () => {
                     setOpen(false);
                     navigate("/profile");
                   }}
+
+                  onPurchaseOrder ={()=> {
+                      scrollToTop();
+                      setOpen(false);
+                      navigate("/profile/purchaseOrder");
+                      }}
                 />
               )}
             </div>

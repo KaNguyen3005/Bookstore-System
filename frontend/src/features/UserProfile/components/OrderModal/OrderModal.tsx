@@ -9,6 +9,12 @@ export default function OrderModal({
 }) {
   if (!order) return null;
 
+const totalQuantity =
+  order.items?.reduce(
+    (sum: number, item: any) => sum + (item.quantity || 0),
+    0
+  ) || 0;
+
   return (
     <div className={styles.modal} onClick={onClose}>
       <div
@@ -88,6 +94,10 @@ export default function OrderModal({
         {/* ===== SẢN PHẨM ===== */}
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Sản phẩm</div>
+
+          <div className={styles.itemTotal}>
+            Tổng số sản phẩm: {totalQuantity}
+          </div>
 
           {order.items?.map((item: any) => (
             <div key={item.bookId} className={styles.item}>
