@@ -1,6 +1,4 @@
-
 import axiosClient from "../../../../services/axiosClient";
-
 export const productService = {
   // ================= GET PRODUCTS (FILTER FULL) =================
   async getProducts(params: {
@@ -13,15 +11,23 @@ export const productService = {
     sort?: string;
     publisherId?: number;
   }) {
-    const response = await axiosClient.get("/books", {
+    const hasSearch =
+      params.keyword ||
+      params.categoryId ||
+      params.minPrice ||
+      params.maxPrice ||
+      params.sort ||
+      params.publisherId;
+
+    const endpoint = hasSearch ? "/books/search" : "/books";
+
+    const response = await axiosClient.get(endpoint, {
       params,
     });
 
     return response.data.result;
   },
 
-  // ❌ OPTIONAL: có thể giữ hoặc bỏ
-  // (KHÔNG CẦN NỮA nếu dùng getProducts filter)
   async searchProducts(keyword: string) {
     const response = await axiosClient.get("/books/search", {
       params: { keyword },
