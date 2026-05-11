@@ -1,101 +1,158 @@
-import { useState, useEffect, useMemo } from 'react';
-import type { Order } from '../types/order';
-import { orderService } from '../services/orderService';
+import { useState, useEffect, useCallback } from 'react';
+import type { Order, OrderStatus } from '../types/order';
+import { orderService, type OrdersResponse } from '../services/orderService';
 
 export const useOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  // ================= STATES =================
+  const [data, setData] = useState<OrdersResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Pagination
+  const [page, setPage] = useState<number>(0);
+  const [size, setSize] = useState<number>(10);
+
+  // Filters
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('Tất cả');
-  const [dateRange, setDateRange] = useState<{ startDate: Date | null, endDate: Date | null }>({
+  const [dateRange, setDateRange] = useState<{
+    startDate: Date | null;
+    endDate: Date | null;
+  }>({
     startDate: null,
-    endDate: null
+    endDate: null,
   });
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
-      try {
-        const data = await orderService.getOrders();
-        setOrders(data);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
-
-  // Helper: Parse date string "DD/MM/YYYY" to Date object
-  const parseDate = (dateStr: string): Date => {
-    const [day, month, year] = dateStr.split('/').map(Number);
-    return new Date(year, month - 1, day);
-  };
-
-  // Helper: Map UI labels to internal data status
-  const mapStatusToData = (uiStatus: string): string | null => {
+  // ================= MAPPERS =================
+  const mapStatusToData = (uiStatus: string): string | undefined => {
     switch (uiStatus) {
-      case 'Tất cả': return null;
-      case 'Đang xử lý': return 'Đã xác nhận';
-      case 'Thành công': return 'Đã giao';
-      default: return uiStatus;
+      case 'Chờ xác nhận': return 'PENDING';
+      case 'Đang xử lý': return 'PROCESSING';
+      case 'Đang giao': return 'SHIPPING';
+      case 'Thành công': return 'DELIVERED';
+      case 'Đã hủy': return 'CANCELLED';
+      default: return undefined;
     }
   };
 
-  // Logic: Filter and Search (Business logic in Hook)
-  const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      // 1. Search Filter
-      const matchesSearch = 
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.phoneNumber.includes(searchTerm);
-      
-      // 2. Status Filter
-      const dataStatus = mapStatusToData(statusFilter);
-      const matchesStatus = !dataStatus || order.status === dataStatus;
+  // ================= FETCH LOGIC =================
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await orderService.getOrders({
+        page,
+        size,
+        keyword: searchTerm || undefined,
+        status: mapStatusToData(statusFilter),
+        startDate: dateRange.startDate?.toISOString().split('T')[0],
+        endDate: dateRange.endDate?.toISOString().split('T')[0],
+      });
 
-      // 3. Date Filter
-      let matchesDate = true;
-      if (dateRange.startDate || dateRange.endDate) {
-        const orderDateObj = parseDate(order.orderDate);
-        
-        if (dateRange.startDate) {
-          const start = new Date(dateRange.startDate);
-          start.setHours(0, 0, 0, 0);
-          if (orderDateObj < start) matchesDate = false;
-        }
-        
-        if (dateRange.endDate) {
-          const end = new Date(dateRange.endDate);
-          end.setHours(23, 59, 59, 999);
-          if (orderDateObj > end) matchesDate = false;
-        }
-      }
+      console.log('ORDER API RESPONSE:', response);
+      setData(response);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setError('Đã xảy ra lỗi khi tải danh sách đơn hàng');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, size, searchTerm, statusFilter, dateRange]);
 
-      return matchesSearch && matchesStatus && matchesDate;
-    });
-  }, [orders, searchTerm, statusFilter, dateRange]);
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  // Helper để lấy danh sách orders an toàn
+  const safeOrders = Array.isArray(data) ? data : (data?.content ?? []);
+
+  // ================= HANDLERS =================
+  const handleApprove = async (id: number) => {
+    try {
+      await orderService.approveOrder(id);
+      // Optimistic update
+      setData(prev => {
+        if (!prev) return prev;
+        if (Array.isArray(prev)) {
+          return prev.map(o => o.orderId === id ? { ...o, status: 'CONFIRMED' as OrderStatus } : o);
+        }
+        return {
+          ...prev,
+          content: prev.content.map(o => o.orderId === id ? { ...o, status: 'CONFIRMED' as OrderStatus } : o)
+        };
+      });
+      alert('Đã phê duyệt đơn hàng thành công');
+    } catch (err) {
+      alert('Lỗi khi phê duyệt đơn hàng');
+    }
+  };
+
+  const handleUpdateStatus = async (id: number, status: OrderStatus) => {
+    try {
+      await orderService.updateOrderStatus(id, status);
+      // Optimistic update
+      setData(prev => {
+        if (!prev) return prev;
+        if (Array.isArray(prev)) {
+          return prev.map(o => o.orderId === id ? { ...o, status } : o);
+        }
+        return {
+          ...prev,
+          content: prev.content.map(o => o.orderId === id ? { ...o, status } : o)
+        };
+      });
+      alert('Cập nhật trạng thái thành công');
+    } catch (err) {
+      alert('Lỗi khi cập nhật trạng thái');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await orderService.exportOrders();
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `orders_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (err) {
+      alert('Lỗi khi xuất file Excel');
+    }
+  };
 
   return {
-    orders: filteredOrders,
+    // Data
+    orders: safeOrders,
+    totalOrders: Array.isArray(data) ? data.length : (data?.totalElements ?? 0),
+    totalPages: Array.isArray(data) ? 1 : (data?.totalPages ?? 0),
+    currentPage: page,
+    pageSize: size,
     loading,
+    error,
+
+    // Stats
+    pendingCount: safeOrders.filter(o => o.status === 'PENDING').length,
+    shippingCount: safeOrders.filter(o => o.status === 'SHIPPING').length,
+    deliveredCount: safeOrders.filter(o => o.status === 'DELIVERED').length,
+    cancelledCount: safeOrders.filter(o => o.status === 'CANCELLED').length,
+    totalRevenue: safeOrders.reduce((sum, o) => o.status === 'DELIVERED' ? sum + o.totalAmount : sum, 0),
+
+    // Controls
+    setPage,
+    setSize,
     searchTerm,
     setSearchTerm,
     statusFilter,
     setStatusFilter,
     dateRange,
     setDateRange,
-    totalOrders: orders.length,
-    pendingCount: orders.filter(o => o.status === 'Chờ xác nhận').length,
-    shippingCount: orders.filter(o => o.status === 'Đang giao').length,
-    deliveredCount: orders.filter(o => o.status === 'Đã giao').length,
-    cancelledCount: orders.filter(o => o.status === 'Đã hủy').length,
-    totalRevenue: orders.reduce((sum, o) => {
-      if (o.status === 'Đã giao') return sum + o.totalAmount;
-      return sum;
-    }, 0)
+
+    // Actions
+    handleApprove,
+    handleUpdateStatus,
+    handleExport,
+    refresh: fetchOrders,
   };
 };

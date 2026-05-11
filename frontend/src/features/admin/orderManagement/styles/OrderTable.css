@@ -143,3 +143,42 @@
 .order-table__action-btn:hover {
   color: #0d9488;
 }
+
+.order-table__action-btn--approve:hover {
+  color: #22c55e;
+}
+
+.order-table__status-select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  outline: none;
+  width: 120px;
+}
+
+.order-table__payment-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.order-table__payment-status--paid { color: #16a34a; }
+.order-table__payment-status--pending { color: #f97316; }
+.order-table__payment-status--failed { color: #ef4444; }
+
+.order-table__loading {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.order-table__td--empty {
+  padding: 40px;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}
