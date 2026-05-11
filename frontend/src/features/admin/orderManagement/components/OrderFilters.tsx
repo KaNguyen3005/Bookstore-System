@@ -24,9 +24,10 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   const statusTabs = [
     'Tất cả', 
     'Chờ xác nhận', 
-    'Đang xử lý', 
+    'Đã duyệt', 
     'Đang giao', 
-    'Thành công', 
+    'Đã giao',
+    'Hoàn thành', 
     'Đã hủy'
   ];
 

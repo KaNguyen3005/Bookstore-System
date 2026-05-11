@@ -2,9 +2,21 @@
 
 .order-stats {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   margin-bottom: 24px;
+}
+
+@media (max-width: 1200px) {
+  .order-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .order-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .order-stats__card {
@@ -48,8 +60,10 @@
 }
 
 .order-stats__icon-wrapper--pending { background-color: #fff7ed; }
+.order-stats__icon-wrapper--confirmed { background-color: #f5f3ff; }
 .order-stats__icon-wrapper--shipping { background-color: #eff6ff; }
 .order-stats__icon-wrapper--delivered { background-color: #f0fdf4; }
+.order-stats__icon-wrapper--completed { background-color: #ecfeff; }
 .order-stats__icon-wrapper--cancelled { background-color: #fef2f2; }
 
 .order-stats__info {

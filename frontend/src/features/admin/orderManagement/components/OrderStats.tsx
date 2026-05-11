@@ -1,9 +1,10 @@
-import React from 'react';
 import {
   ShoppingBag,
   Clock,
+  ClipboardCheck,
   Truck,
   CheckCircle,
+  ShieldCheck,
   XCircle,
   DollarSign,
 } from 'lucide-react';
@@ -14,8 +15,10 @@ interface OrderStatsProps {
   stats: {
     totalOrders: number;
     pendingCount: number;
+    confirmedCount: number;
     shippingCount: number;
     deliveredCount: number;
+    completedCount: number;
     cancelledCount: number;
     totalRevenue: number;
   };
@@ -82,6 +85,24 @@ export const OrderStats: React.FC<
     },
 
     {
+      title: 'Đã xác nhận',
+      value: stats.confirmedCount,
+
+      icon: (
+        <ClipboardCheck
+          className="icon"
+          size={20}
+          style={{
+            color: '#8b5cf6',
+          }}
+        />
+      ),
+
+      modifier: '',
+      iconModifier: 'confirmed',
+    },
+
+    {
       title: 'Đang giao',
       value: stats.shippingCount,
 
@@ -115,6 +136,24 @@ export const OrderStats: React.FC<
 
       modifier: '',
       iconModifier: 'delivered',
+    },
+
+    {
+      title: 'Hoàn thành',
+      value: stats.completedCount,
+
+      icon: (
+        <ShieldCheck
+          className="icon"
+          size={20}
+          style={{
+            color: '#06b6d4',
+          }}
+        />
+      ),
+
+      modifier: '',
+      iconModifier: 'completed',
     },
 
     {

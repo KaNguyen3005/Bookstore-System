@@ -34,7 +34,18 @@ export const orderService = {
   // ================= APPROVE ORDER =================
   approveOrder: async (id: number): Promise<Order> => {
     try {
-      const response = await axiosClient.put(`/orders/${id}/approve`);
+      const token = localStorage.getItem("token"); // hoặc sessionStorage
+
+      const response = await axiosClient.put(
+        `/orders/${id}/approve`,
+        {}, // body rỗng
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
       return response.data.result;
     } catch (error: any) {
       console.error(
@@ -44,7 +55,6 @@ export const orderService = {
       throw error;
     }
   },
-
   // ================= CANCEL ORDER =================
   cancelOrder: async (id: number): Promise<Order> => {
     try {
