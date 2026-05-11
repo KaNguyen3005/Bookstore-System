@@ -31,7 +31,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // ✅ load từ localStorage trước (tránh loading lâu)
+  // load từ localStorage trước (tránh loading lâu)
   const [user, setUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem("user");
@@ -43,35 +43,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        // ❗ nếu chưa login thì bỏ qua
-        if (!localStorage.getItem("user")) {
-          setLoading(false);
-          return;
-        }
+    useEffect(() => {
+      const initAuth = async () => {
+        try {
+          const saved = localStorage.getItem("user");
 
-        const me = await userApi.getMe();
+          if (!saved) {
+            setLoading(false);
+            return;
+          }
 
-        if (me) {
-          setUser(me);
-          localStorage.setItem("user", JSON.stringify(me)); // sync lại
-        } else {
+          const parsed = JSON.parse(saved);
+          setUser(parsed); // load ngay từ storage
+
+        } catch (e) {
           setUser(null);
           localStorage.removeItem("user");
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error("fetchUser error:", err);
-        setUser(null);
-        localStorage.removeItem("user");
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchUser();
-  }, []);
+      initAuth();
+    }, []);
 
   const isAuthenticated = !!user;
 

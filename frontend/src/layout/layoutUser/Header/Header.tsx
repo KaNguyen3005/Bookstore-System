@@ -26,7 +26,7 @@ import SearchItem from "../../../features/Search/components/SearchItem/SearchIte
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const { cartItems } = useCart();
 
   const [open, setOpen] = useState(false);
@@ -89,6 +89,7 @@ const [keyword, setKeyword] = useState("");
 const [results, setResults] = useState<any[]>([]);
 const searchRef = useRef<HTMLDivElement>(null);
 
+
 useEffect(() => {
   if (!keyword.trim()) {
     setResults([]);
@@ -134,6 +135,9 @@ const handleSearch = () => {
   setResults([]);
 };
 
+if (loading) {
+  return null; // hoặc skeleton
+}
   return (
     <header className="header">
       <div className="header-top">
@@ -227,17 +231,17 @@ const handleSearch = () => {
       </div>
 
       <div className="header-menu">
-        <button onClick={() => navigate("/")}>
+        <button onClick={() => navigate("/")} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <IoHomeOutline /> BOOKS
         </button>
-        <button onClick={() => navigate("/category")}>
+        <button onClick={() => navigate("/category")} style={{ display: "flex", alignItems: "center", gap: "6px" }} >
           <GiHamburgerMenu /> Xem tất cả
         </button>
-        <button><GoBook /> Ebook</button>
-        <button><FaHotjar /> Bán chạy</button>
-        <button><MdCardMembership /> Thành viên</button>
-        <button><TbBrandBlogger /> Blog</button>
-        <button><RiUserCommunityLine /> Cộng đồng</button>
+        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><GoBook /> Ebook</button>
+        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><FaHotjar /> Bán chạy</button>
+        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><MdCardMembership /> Thành viên</button>
+        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><TbBrandBlogger /> Blog</button>
+        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><RiUserCommunityLine /> Cộng đồng</button>
       </div>
     </header>
   );

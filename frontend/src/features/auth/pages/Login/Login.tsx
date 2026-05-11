@@ -31,7 +31,6 @@ const Login = () => {
     setAccountError(false);
     setPasswordError(false);
 
-    // ================= VALIDATE =================
     if (!account.trim()) {
       setAccountError(true);
       setError("Vui lòng nhập tài khoản");
@@ -47,7 +46,6 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // 🔥 AUTH API ĐÃ TRẢ FULL USER + TOKEN
       const user = await authApi.login({
         account,
         password,
@@ -55,38 +53,32 @@ const Login = () => {
 
       console.log("LOGIN SUCCESS:", user);
 
-      if (!user || !user.id) {
-        setAccountError(true);
-        setPasswordError(true);
+      //  FIX QUAN TRỌNG
+      if (!user?.token) {
         setError("Sai tài khoản hoặc mật khẩu");
         return;
       }
 
-      // ================= SAVE AUTH =================
+      login({
+        ...user,
+        token: user.token
+      });
+      const role = user.role?.trim?.().toUpperCase();
 
-      login(user);
-console.log(user)
-      setTimeout(() => {
-        const role = user.role?.trim().toUpperCase();
+      navigate(role === "ADMIN" ? "/admin" : from, {
+        replace: true,
+      });
 
-        navigate(role === "ADMIN" ? "/admin" : from, {
-          replace: true,
-        });
-      }, 0);
     } catch (error: any) {
       console.error("LOGIN ERROR:", error);
 
       const msg = error?.message;
 
-      // backend error mapping (từ authApi throw Error)
       const mapError: Record<string, string> = {
         "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
         "Login failed": "Sai tài khoản hoặc mật khẩu",
         "Token not found": "Sai tài khoản hoặc mật khẩu",
       };
-
-      setAccountError(true);
-      setPasswordError(true);
 
       setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
     } finally {

@@ -105,3 +105,13 @@
     justify-content: flex-start;
   }
 }
+.footer-social a {
+  font-size: 20px;
+  color: white;
+  transition: 0.2s;
+}
+
+.footer-social a:hover {
+  color: #2c6f7b;
+  transform: scale(1.1);
+}
