@@ -25,6 +25,7 @@ export const OrderManagement: React.FC = () => {
     handleApprove,
     handleUpdateStatus,
     handleExport,
+    allowedTransitions,
     ...stats
   } = useOrders();
 
@@ -65,6 +66,7 @@ export const OrderManagement: React.FC = () => {
         <OrderTable 
           orders={orders} 
           loading={loading} 
+          allowedTransitions={allowedTransitions}
           onViewDetail={setSelectedOrderId}
           onApprove={handleApprove}
           onUpdateStatus={handleUpdateStatus}

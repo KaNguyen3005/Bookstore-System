@@ -2,9 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Order, OrderStatus } from '../types/order';
 import { orderService, type OrdersResponse } from '../services/orderService';
 
+export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  PENDING: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['SHIPPING'],
+  PROCESSING: ['SHIPPING'],
+  SHIPPING: ['DELIVERED'],
+  DELIVERED: [],
+  CANCELLED: [],
+};
+
 export const useOrders = () => {
-  // ================= STATES =================
-  const [data, setData] = useState<OrdersResponse | null>(null);
+  // ... (states)
+  const [data, setData] = useState<OrdersResponse | Order[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,32 +87,46 @@ export const useOrders = () => {
         }
         return {
           ...prev,
-          content: prev.content.map(o => o.orderId === id ? { ...o, status: 'CONFIRMED' as OrderStatus } : o)
-        };
+          content: (prev as OrdersResponse).content.map(o => o.orderId === id ? { ...o, status: 'CONFIRMED' as OrderStatus } : o)
+        } as OrdersResponse;
       });
       alert('Đã phê duyệt đơn hàng thành công');
+      return true;
     } catch (err) {
       alert('Lỗi khi phê duyệt đơn hàng');
+      return false;
     }
   };
 
-  const handleUpdateStatus = async (id: number, status: OrderStatus) => {
+  const handleUpdateStatus = async (id: number, currentStatus: OrderStatus, newStatus: OrderStatus) => {
+    // Safety check
+    if (!ALLOWED_TRANSITIONS[currentStatus].includes(newStatus)) {
+      alert('Chuyển đổi trạng thái không hợp lệ');
+      return false;
+    }
+
     try {
-      await orderService.updateOrderStatus(id, status);
+      if (newStatus === 'CANCELLED') {
+        await orderService.cancelOrder(id);
+      } else {
+        await orderService.updateOrderStatus(id, newStatus);
+      }
+      
       // Optimistic update
       setData(prev => {
         if (!prev) return prev;
         if (Array.isArray(prev)) {
-          return prev.map(o => o.orderId === id ? { ...o, status } : o);
+          return prev.map(o => o.orderId === id ? { ...o, status: newStatus } : o);
         }
         return {
           ...prev,
-          content: prev.content.map(o => o.orderId === id ? { ...o, status } : o)
-        };
+          content: (prev as OrdersResponse).content.map(o => o.orderId === id ? { ...o, status: newStatus } : o)
+        } as OrdersResponse;
       });
-      alert('Cập nhật trạng thái thành công');
+      return true;
     } catch (err) {
       alert('Lỗi khi cập nhật trạng thái');
+      return false;
     }
   };
 
@@ -122,6 +145,41 @@ export const useOrders = () => {
     }
   };
 
+  // ================= GLOBAL STATS =================
+  const [globalStats, setGlobalStats] = useState({
+    pending: 0,
+    shipping: 0,
+    delivered: 0,
+    cancelled: 0,
+    totalRevenue: 0
+  });
+
+  const fetchGlobalStats = useCallback(async () => {
+    try {
+      // Chỉ gọi API 1 lần duy nhất để lấy toàn bộ dữ liệu (tối đa 100 đơn để thống kê)
+      const response = await orderService.getOrders({ size: 100 });
+      const allOrders = Array.isArray(response) ? response : (response.content || []);
+
+      setGlobalStats({
+        pending: allOrders.filter((o: any) => 
+          ['PENDING', 'CONFIRMED', 'PROCESSING'].includes(o.status)
+        ).length,
+        shipping: allOrders.filter((o: any) => o.status === 'SHIPPING').length,
+        delivered: allOrders.filter((o: any) => o.status === 'DELIVERED').length,
+        cancelled: allOrders.filter((o: any) => o.status === 'CANCELLED').length,
+        totalRevenue: allOrders.reduce((sum: number, o: any) => 
+          o.status === 'DELIVERED' ? sum + o.totalAmount : sum, 0
+        )
+      });
+    } catch (err) {
+      console.error('Error fetching global stats:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchGlobalStats();
+  }, [fetchGlobalStats, data]); // Refresh stats when data changes (e.g. after approval)
+
   return {
     // Data
     orders: safeOrders,
@@ -133,10 +191,10 @@ export const useOrders = () => {
     error,
 
     // Stats
-    pendingCount: safeOrders.filter(o => o.status === 'PENDING').length,
-    shippingCount: safeOrders.filter(o => o.status === 'SHIPPING').length,
-    deliveredCount: safeOrders.filter(o => o.status === 'DELIVERED').length,
-    cancelledCount: safeOrders.filter(o => o.status === 'CANCELLED').length,
+    pendingCount: globalStats.pending,
+    shippingCount: globalStats.shipping,
+    deliveredCount: globalStats.delivered,
+    cancelledCount: globalStats.cancelled,
     totalRevenue: safeOrders.reduce((sum, o) => o.status === 'DELIVERED' ? sum + o.totalAmount : sum, 0),
 
     // Controls
@@ -154,5 +212,6 @@ export const useOrders = () => {
     handleUpdateStatus,
     handleExport,
     refresh: fetchOrders,
+    allowedTransitions: ALLOWED_TRANSITIONS,
   };
 };
