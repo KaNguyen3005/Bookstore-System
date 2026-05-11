@@ -1,127 +1,178 @@
 import { useEffect, useState } from "react";
-import { getOrdersByStatus } from "../../../../services/orderApi";
-import "./PurchaseOrder.css";
+
+import { getMyOrdersByStatus } from "../../../../services/orderApi";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
-import type { Order, OrderStatus } from "../../../../data/purchaseOrder";
+
+import styles from "./PurchaseOrder.module.css";
+import OrderModal from "../OrderModal/OrderModal";
+
+
 
 export default function Orders() {
   const { user } = useAuth();
 
-  const [active, setActive] = useState<OrderStatus>("pending");
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [active, setActive] = useState("PENDING");
+  const [orders, setOrders] = useState<any[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
-  const tabs: { key: OrderStatus; label: string }[] = [
-    { key: "pending", label: "Chờ xác nhận" },
-    { key: "pickup", label: "Chờ lấy hàng" },
-    { key: "shipping", label: "Chờ giao hàng" },
-    { key: "delivered", label: "Đã giao" },
-    { key: "return", label: "Trả hàng" },
-    { key: "cancel", label: "Đã hủy" },
+  const [showSad, setShowSad] = useState(false);
+
+  const tabs = [
+    { key: "PENDING", label: "Chờ xác nhận" },
+    { key: "PICKING_UP", label: "Chờ lấy hàng" },
+    { key: "SHIPPING", label: "Chờ giao hàng" },
+    { key: "DELIVERED", label: "Đã giao" },
+    { key: "RETURNED", label: "Trả hàng" },
+    { key: "CANCELLED", label: "Đã hủy" },
   ];
 
-  const loadOrders = async (status: OrderStatus, userId: number) => {
-    const data = await getOrdersByStatus(status, userId);
-    setOrders(data);
+  // LOAD ORDERS (FIXED)
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+
+      const result = await getMyOrdersByStatus(active);
+
+      setOrders(result || []);
+    } catch (error) {
+      console.error("Load orders failed:", error);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // INIT + reload when tab changes (FIXED IMPORTANT)
   useEffect(() => {
-    if (!user?.userId) return;
+    if (!user) return;
+    loadOrders();
+  }, [user, active]);
 
-    loadOrders(active, user.userId);
-  }, [user?.userId, active]);
+  // FILTER (GIỮ NGUYÊN LOGIC)
+  useEffect(() => {
+    const filtered = orders.filter((o) => o.status === active);
+    setFilteredOrders(filtered);
+  }, [orders, active]);
 
-  const renderActions = (status: OrderStatus) => {
-    switch (status) {
-      case "pending":
-        return <button>Hủy đơn</button>;
+  // ACTION BUTTONS (GIỮ NGUYÊN)
+  const renderActions = (order: any) => {
+    switch (order.status) {
+      case "PENDING":
+        return (
+          <>
+            <button className={styles.cancelBtn}>
+              Hủy đơn
+            </button>
 
-      case "pickup":
-      case "shipping":
-        return null;
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
+            </button>
+          </>
+        );
 
-      case "delivered":
+      case "DELIVERED":
         return (
           <>
             <button>Đánh giá</button>
             <button>Mua lại</button>
-            <button>Trả hàng/Hoàn tiền</button>
+            <button>Hoàn tiền</button>
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
+            </button>
           </>
         );
 
-      case "return":
-      case "cancel":
-        return <button>Mua lại</button>;
+      case "RETURNED":
+      case "CANCELLED":
+        return (
+          <>
+            <button>Mua lại</button>
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
+            </button>
+          </>
+        );
 
       default:
-        return null;
+        return (
+          <button onClick={() => setSelectedOrder(order)}>
+            Xem chi tiết
+          </button>
+        );
     }
   };
 
   return (
-    <div className="order-page">
-      <div className="order-header">
-        <h3>Đơn mua</h3>
+    <>
+      <div className={styles.orderPage}>
+        {/* HEADER */}
+        <div className={styles.orderHeader}>
+          <h3>Đơn mua</h3>
 
-        <div className="order-tabs">
-          {tabs.map((tab) => (
-            <span
-              key={tab.key}
-              className={`tab ${active === tab.key ? "active" : ""}`}
-              onClick={() => setActive(tab.key)}
-            >
-              {tab.label}
-            </span>
-          ))}
+          <div className={styles.orderTabs}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                className={`${styles.tab} ${
+                  active === tab.key ? styles.active : ""
+                }`}
+                onClick={() => setActive(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* CONTENT */}
+        <div className={styles.orderBox}>
+          {loading ? (
+            <p className={styles.emptyOrder}>Đang tải đơn hàng...</p>
+          ) : filteredOrders.length === 0 ? (
+            <div className={styles.emptyOrder}>
+              <p>Không có đơn hàng nào</p>
+            </div>
+          ) : (
+            <div className={styles.orderList}>
+              {filteredOrders.map((o) => (
+                <div key={o.orderId} className={styles.orderItem}>
+                  {o.items?.map((item: any) => (
+                    <div key={item.bookId} className={styles.orderTop}>
+                      <img src="/images/book.png" alt={item.bookTitle} />
+
+                      <div className={styles.orderInfo}>
+                        <h4>{item.bookTitle}</h4>
+                        <span>Số lượng: {item.quantity}</span>
+                      </div>
+
+                      <div className={styles.orderPrice}>
+                        <p>{(item.price || 0).toLocaleString()} đ</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className={styles.orderBottom}>
+                    <strong>
+                      {(o.totalAmount || 0).toLocaleString()} đ
+                    </strong>
+
+                    <div className={styles.orderActions}>
+                      {renderActions(o)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="order-box">
-        {orders.length === 0 ? (
-          <div>
-            <p>Bạn chưa có đơn hàng nào</p>
-            <button>Mua sắm ngay</button>
-          </div>
-        ) : (
-          <div className="order-list">
-            {orders.map((o) => (
-              <div key={`${o.id}-${o.userId}`} className="order-item">
-                {/* TOP */}
-                <div className="order-top">
-                  <img src={o.image} alt={o.name} className="order-img" />
-
-                  <div className="order-info">
-                    <h4>{o.name}</h4>
-                    <span>x{o.quantity}</span>
-                  </div>
-
-                  <div className="order-price">
-                    <p className="new-price">
-                      {o.price.toLocaleString()}đ
-                    </p>
-                    <p className="old-price">
-                      {(o.price + 30000).toLocaleString()}đ
-                    </p>
-                  </div>
-                </div>
-
-                {/* BOTTOM */}
-                <div className="order-bottom">
-                  <p>
-                    Tổng tiền:{" "}
-                    <strong>
-                      {(o.price * o.quantity).toLocaleString()}đ
-                    </strong>
-                  </p>
-
-                  <div className="order-actions">
-                    {renderActions(o.status)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <OrderModal
+      order={selectedOrder}
+      onClose={() => setSelectedOrder(null)}
+    />
+    </>
   );
 }
