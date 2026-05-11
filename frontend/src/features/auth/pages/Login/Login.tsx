@@ -13,33 +13,48 @@ const Login = () => {
 
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const [accountError, setAccountError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
+  const [errors, setErrors] = useState({
+    account: "",
+    password: "",
+    common: "",
+  });
 
   const from = location.state?.from?.pathname || "/";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (loading) return;
 
-    setError("");
-    setAccountError(false);
-    setPasswordError(false);
+    // reset lỗi
+    setErrors({
+      account: "",
+      password: "",
+      common: "",
+    });
 
+    let hasError = false;
+    const newErrors = {
+      account: "",
+      password: "",
+      common: "",
+    };
+
+    // ===== VALIDATE =====
     if (!account.trim()) {
-      setAccountError(true);
-      setError("Vui lòng nhập tài khoản");
-      return;
+      newErrors.account = "Vui lòng nhập tài khoản";
+      hasError = true;
     }
 
     if (!password.trim()) {
-      setPasswordError(true);
-      setError("Vui lòng nhập mật khẩu");
+      newErrors.password = "Vui lòng nhập mật khẩu";
+      hasError = true;
+    }
+
+    if (hasError) {
+      newErrors.common = newErrors.account || newErrors.password;
+      setErrors(newErrors);
       return;
     }
 
@@ -51,36 +66,31 @@ const Login = () => {
         password,
       });
 
-      console.log("LOGIN SUCCESS:", user);
-
-      //  FIX QUAN TRỌNG
       if (!user?.token) {
-        setError("Sai tài khoản hoặc mật khẩu");
+        setErrors({
+          account: "Sai tài khoản hoặc mật khẩu",
+          password: "Sai tài khoản hoặc mật khẩu",
+          common: "Sai tài khoản hoặc mật khẩu",
+        });
         return;
       }
 
       login({
         ...user,
-        token: user.token
+        token: user.token,
       });
+
       const role = user.role?.trim?.().toUpperCase();
 
       navigate(role === "ADMIN" ? "/admin" : from, {
         replace: true,
       });
-
-    } catch (error: any) {
-      console.error("LOGIN ERROR:", error);
-
-      const msg = error?.message;
-
-      const mapError: Record<string, string> = {
-        "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
-        "Login failed": "Sai tài khoản hoặc mật khẩu",
-        "Token not found": "Sai tài khoản hoặc mật khẩu",
-      };
-
-      setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
+    } catch (err) {
+      setErrors({
+        account: "Sai tài khoản hoặc mật khẩu",
+        password: "Sai tài khoản hoặc mật khẩu",
+        common: "Sai tài khoản hoặc mật khẩu",
+      });
     } finally {
       setLoading(false);
     }
@@ -92,30 +102,41 @@ const Login = () => {
         <h1 className="logo">KATIIA BOOKSTORE</h1>
         <p className="subtitle">Đăng nhập tài khoản</p>
 
-        {error && <div className="error-message">{error}</div>}
+        {/* ===== ERROR TOP ===== */}
+        {errors.common && (
+          <div className="error-message">{errors.common}</div>
+        )}
 
         <form className="login-form" onSubmit={handleLogin}>
+          {/* ACCOUNT */}
           <input
             type="text"
             placeholder="Email hoặc tên đăng nhập"
             value={account}
-            className={accountError ? "input error" : "input"}
+            className={errors.account ? "input error" : "input"}
             onChange={(e) => {
               setAccount(e.target.value);
-              setAccountError(false);
-              setError("");
+              setErrors((prev) => ({
+                ...prev,
+                account: "",
+                common: "",
+              }));
             }}
           />
 
+          {/* PASSWORD */}
           <input
             type="password"
             placeholder="Mật khẩu"
             value={password}
-            className={passwordError ? "input error" : "input"}
+            className={errors.password ? "input error" : "input"}
             onChange={(e) => {
               setPassword(e.target.value);
-              setPasswordError(false);
-              setError("");
+              setErrors((prev) => ({
+                ...prev,
+                password: "",
+                common: "",
+              }));
             }}
           />
 
