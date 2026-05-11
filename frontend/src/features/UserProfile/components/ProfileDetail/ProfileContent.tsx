@@ -43,12 +43,12 @@ export default function ProfileContent() {
     setEdit(false);
   };
 
-    const handleCancel = () => {
-      setEdit(false);
-      setErrors({});
-      setShowPhone(false);
-      setShowDob(false);
-    };
+  const handleCancel = () => {
+    setEdit(false);
+    setErrors({});
+    setShowPhone(false);
+    setShowDob(false);
+  };
 
   // ================= AVATAR =================
   const handleClickAvatar = () => {
@@ -58,9 +58,11 @@ export default function ProfileContent() {
   // ================= MASK =================
   const maskPhoneVN = (phone: any = "") => {
     const str = String(phone || "");
+
     if (!str) return "";
 
     const clean = str.replace(/\s+/g, "");
+
     if (clean.length < 7) return str;
 
     return (
@@ -72,6 +74,7 @@ export default function ProfileContent() {
 
   const formatDob = (dob: string = "") => {
     if (!dob) return "";
+
     try {
       return new Date(dob).toISOString().split("T")[0];
     } catch {
@@ -81,23 +84,26 @@ export default function ProfileContent() {
 
   const maskDate = (date: string = "") => {
     if (!date) return "";
+
     const parts = date.split("-");
+
     if (parts.length !== 3) return date;
+
     return `${parts[0]}/**/**`;
   };
 
   return (
     <>
-      <h2>Hồ sơ cá nhân</h2>
+      <h2 className={styles.title}>Hồ sơ cá nhân</h2>
 
-      <div className={styles["profile-container"]}>
+      <div className="profile-container">
 
         {/* ================= AVATAR ================= */}
-        <div className={styles["avatar-section"]}>
-          <div className={styles["avatar-wrapper"]} onClick={handleClickAvatar}>
+        <div className="avatar-section">
+          <div className="avatar-wrapper" onClick={handleClickAvatar}>
             <img
               src={avatar || user.avatarUrl || "/default-avatar.png"}
-              className={styles["avatar"]}
+              className="avatar"
               alt="avatar"
             />
           </div>
@@ -110,44 +116,50 @@ export default function ProfileContent() {
             hidden
           />
 
-          <p>{user.username}</p>
+          <p className={styles.username}>
+            {user.username}
+          </p>
+
         </div>
 
         {/* ================= FORM ================= */}
-        <div className={styles["form-section"]}>
+        <div className="form-section">
 
           {/* USERNAME */}
-          <div className={styles["form-row"]}>
+          <div className="form-row">
             <label>Tên đăng nhập</label>
-            <div className={styles["input-block"]}>
+            <div className="input-block">
               <input value={user.username || ""} readOnly />
             </div>
+
           </div>
 
           {/* NAME */}
-          <div className={styles["form-row"]}>
+          <div className="form-row">
             <label>Họ và tên</label>
-            <div className={styles["input-block"]}>
+            <div className="input-block">
               <input
                 name="name"
                 value={user.name || ""}
                 onChange={handleChange}
                 readOnly={!edit}
-                className={errors.name ? styles["error-input"] : ""}
+                className={errors.name ? "error-input" : ""}
               />
-              <div className={styles["error-space"]}>
+              <div className="error-space">
                 {errors.name && (
-                  <span className={styles["error-text"]}>{errors.name}</span>
+                  <span className="error-text">{errors.name}</span>
                 )}
               </div>
+
             </div>
+
           </div>
 
           {/* PHONE */}
-          <div className={styles["form-row"]}>
+          <div className="form-row">
             <label>Số điện thoại</label>
 
-            <div className={styles["input-block"]}>
+            <div className="input-block">
               <div style={{ position: "relative" }}>
                 <input
                   name="phone"
@@ -160,49 +172,58 @@ export default function ProfileContent() {
                   }
                   onChange={handleChange}
                   readOnly={!edit}
-                  className={errors.phone ? styles["error-input"] : ""}
+                  className={errors.phone ? "error-input" : ""}
                 />
 
                 <span
                   onClick={() => !edit && setShowPhone(!showPhone)}
-                  className={styles["eye-icon"]}
+                  className="eye-icon"
                 >
-                  {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
+                  {showPhone ? (
+                    <FaRegEyeSlash />
+                  ) : (
+                    <FaRegEye />
+                  )}
                 </span>
+
               </div>
 
-              <div className={styles["error-space"]}>
+              <div className="error-space">
                 {errors.phone && (
-                  <span className={styles["error-text"]}>{errors.phone}</span>
+                  <span className="error-text">{errors.phone}</span>
                 )}
               </div>
+
             </div>
+
           </div>
 
           {/* EMAIL */}
-          <div className={styles["form-row"]}>
+          <div className="form-row">
             <label>Email</label>
-            <div className={styles["input-block"]}>
+            <div className="input-block">
               <input
                 name="email"
                 value={user.email || ""}
                 onChange={handleChange}
                 readOnly={!edit}
-                className={errors.email ? styles["error-input"] : ""}
+                className={errors.email ? "error-input" : ""}
               />
-              <div className={styles["error-space"]}>
+              <div className="error-space">
                 {errors.email && (
-                  <span className={styles["error-text"]}>{errors.email}</span>
+                  <span className="error-text">{errors.email}</span>
                 )}
               </div>
+
             </div>
+
           </div>
 
           {/* DOB */}
-          <div className={styles["form-row"]}>
+          <div className="form-row">
             <label>Ngày sinh</label>
 
-            <div className={styles["input-block"]}>
+            <div className="input-block">
               <div style={{ position: "relative" }}>
                 <input
                   name="dob"
@@ -215,33 +236,41 @@ export default function ProfileContent() {
                   }
                   onChange={handleChange}
                   readOnly={!edit}
-                  className={errors.dob ? styles["error-input"] : ""}
+                  className={errors.dob ? "error-input" : ""}
                 />
 
                 <span
                   onClick={() => !edit && setShowDob(!showDob)}
-                  className={styles["eye-icon"]}
+                  className="eye-icon"
                 >
-                  {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
+                  {showDob ? (
+                    <FaRegEyeSlash />
+                  ) : (
+                    <FaRegEye />
+                  )}
                 </span>
+
               </div>
 
-              <div className={styles["error-space"]}>
+              <div className="error-space">
                 {errors.dob && (
-                  <span className={styles["error-text"]}>{errors.dob}</span>
+                  <span className="error-text">{errors.dob}</span>
                 )}
               </div>
+
             </div>
+
           </div>
 
         </div>
+
       </div>
 
       {/* ================= BUTTONS ================= */}
-      <div className={styles["button-wrapper"]}>
-        <div className={styles["btn-group"]}>
+      <div className="button-wrapper">
+        <div className="btn-group">
         <button
-          className={styles["cancel-btn"]}
+          className="cancel-btn"
           onClick={() => {
             if (edit) {
               handleCancel();
@@ -254,26 +283,29 @@ export default function ProfileContent() {
         </button>
 
           {edit && (
-            <button className={styles["save-btn"]} onClick={handleSaveClick}>
+            <button className="save-btn" onClick={handleSaveClick}>
               Lưu
             </button>
           )}
+
         </div>
+
       </div>
 
       {/* ================= MEMBER ================= */}
-      <div className={styles["member"]}>
+      <div className="member">
         <h3>Hạng thành viên</h3>
 
-        <div className={styles["member-item"]}>
-          <span className={styles["label"]}>Hạng:</span>
-          <span className={styles["value"]}>{user.tier || "BRONZE"}</span>
+        <div className="member-item">
+          <span className="label">Hạng:</span>
+          <span className="value">{user.tier || "BRONZE"}</span>
         </div>
 
-        <div className={styles["member-item"]}>
-          <span className={styles["label"]}>Điểm tích lũy:</span>
-          <span className={styles["value"]}>{user.point || 0}</span>
+        <div className="member-item">
+          <span className="label">Điểm tích lũy:</span>
+          <span className="value">{user.point || 0}</span>
         </div>
+
       </div>
     </>
   );
