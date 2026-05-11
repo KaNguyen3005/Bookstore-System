@@ -5,7 +5,7 @@
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
 }
 
-
+/* HEADER */
 .orderHeader {
   display: flex;
   flex-direction: column;
@@ -14,12 +14,12 @@
 }
 
 .orderHeader h3 {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
-  color: #222;
+  color: #111;
 }
 
-
+/* TABS */
 .orderTabs {
   display: flex;
   flex-wrap: wrap;
@@ -39,67 +39,73 @@
 
 .tab:hover {
   background: rgba(57, 96, 107, 0.23);
-  border-color: #c7d2fe;
 }
 
 .active {
   background: rgba(57, 96, 107, 1);
   color: #fff;
-  border-color: #2563eb;
 }
 
-
+/* BOX */
 .orderBox {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+/* LIST CENTER */
 .orderList {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  align-items: center;
 }
 
-.emptyOrder {
-  text-align: center;
-  padding: 40px;
-  background: #fff;
-  border-radius: 12px;
-  color: #888;
-}
-
-
+/* CARD */
 .orderItem {
+  width: 90%;
+  max-width: 1000px;
+
   background: #fff;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 18px;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
   transition: 0.2s;
 }
 
 .orderItem:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
-/* item row */
+/* STATUS */
+.shippingStatus {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 10px;
+}
+
+/* TOP */
 .orderTop {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 10px 0;
+
+  padding: 12px 0;
   border-bottom: 1px solid #f1f1f1;
 }
 
 .orderTop img {
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
   object-fit: cover;
   border-radius: 10px;
   background: #f3f4f6;
 }
 
-/* info */
+/* INFO */
 .orderInfo {
   flex: 1;
 }
@@ -107,8 +113,8 @@
 .orderInfo h4 {
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 4px;
   color: #111;
+  margin-bottom: 4px;
 }
 
 .orderInfo span {
@@ -116,26 +122,34 @@
   color: #666;
 }
 
-/* price */
+/* PRICE */
 .orderPrice p {
-  font-weight: 600;
+  font-weight: 700;
   color: #ef4444;
+  font-size: 15px;
 }
 
-/* bottom */
+/* BOTTOM */
 .orderBottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
+/* TOTAL */
 .orderBottom strong {
-  font-size: 16px;
+  font-size: 15px;
   color: #111;
 }
 
-/* actions */
+.totalPrice {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+/* ACTIONS */
 .orderActions {
   display: flex;
   gap: 8px;
@@ -143,11 +157,13 @@
 }
 
 .orderActions button {
-  padding: 6px 10px;
+  padding: 6px 12px;
   font-size: 13px;
   border-radius: 8px;
+
   border: 1px solid #e5e7eb;
   background: #fff;
+
   cursor: pointer;
   transition: 0.2s;
 }
@@ -156,43 +172,21 @@
   background: #f3f4f6;
 }
 
-
-
-@media (max-width: 640px) {
-  .orderTop {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .orderBottom {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .orderActions {
-    width: 100%;
-  }
-
-  .modalContent {
-    max-width: 100%;
-    border-radius: 16px 16px 0 0;
-  }
-}
-
+/* CANCEL */
 .cancelBtn {
   position: relative;
-  padding: 6px 10px;
+  padding: 6px 12px;
   font-size: 13px;
   border-radius: 8px;
+
   border: 1px solid #fecaca;
   background: #fee2e2;
   color: #dc2626;
+
   cursor: pointer;
-  transition: 0.2s;
 }
 
-/* tooltip */
+/* TOOLTIP */
 .cancelBtn::after {
   content: "🥺 Đừng màaaa";
   position: absolute;
@@ -207,28 +201,52 @@
   font-size: 12px;
 
   white-space: nowrap;
-
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.2s;
-}
-
-/* mũi tên tooltip */
-.cancelBtn::before {
-  content: "";
-  position: absolute;
-  bottom: 110%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #111;
-
   opacity: 0;
   transition: 0.2s;
 }
 
-/* hover */
-.cancelBtn:hover::after,
-.cancelBtn:hover::before {
+.cancelBtn:hover::after {
   opacity: 1;
+}
+
+/* EMPTY */
+.emptyOrder {
+  text-align: center;
+  padding: 40px;
+  background: #fff;
+  border-radius: 12px;
+  color: #888;
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .orderItem {
+    width: 95%;
+  }
+
+  .orderTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .orderBottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+.blue {
+  color: #1677ff;
+  font-weight: 600;
+}
+
+.red {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.green {
+  color: #52c41a;
+  font-weight: 600;
 }

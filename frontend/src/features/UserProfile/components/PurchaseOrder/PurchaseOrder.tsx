@@ -28,6 +28,15 @@ export default function Orders() {
     { key: "CANCELLED", label: "Đã hủy" },
   ];
 
+const statusMap: Record<string, string> = {
+  PENDING: "Chờ xác nhận",
+  PICKING_UP: "Chờ lấy hàng",
+  SHIPPING: "Đang giao hàng",
+  DELIVERED: "Đã giao",
+  RETURNED: "Trả hàng",
+  CANCELLED: "Đã hủy",
+};
+
   // LOAD ORDERS (FIXED)
   const loadOrders = async () => {
     try {
@@ -66,6 +75,10 @@ export default function Orders() {
               Hủy đơn
             </button>
 
+            <button>
+                Liên hệ
+            </button>
+
             <button onClick={() => setSelectedOrder(order)}>
               Xem chi tiết
             </button>
@@ -78,6 +91,9 @@ export default function Orders() {
             <button>Đánh giá</button>
             <button>Mua lại</button>
             <button>Hoàn tiền</button>
+            <button>
+                Liên hệ
+            </button>
             <button onClick={() => setSelectedOrder(order)}>
               Xem chi tiết
             </button>
@@ -89,6 +105,9 @@ export default function Orders() {
         return (
           <>
             <button>Mua lại</button>
+            <button>
+                Liên hệ
+            </button>
             <button onClick={() => setSelectedOrder(order)}>
               Xem chi tiết
             </button>
@@ -97,9 +116,15 @@ export default function Orders() {
 
       default:
         return (
+           <>
+            <button>
+                Liên hệ
+            </button>
+
           <button onClick={() => setSelectedOrder(order)}>
             Xem chi tiết
           </button>
+          </>
         );
     }
   };
@@ -135,36 +160,68 @@ export default function Orders() {
               <p>Không có đơn hàng nào</p>
             </div>
           ) : (
-            <div className={styles.orderList}>
-              {filteredOrders.map((o) => (
-                <div key={o.orderId} className={styles.orderItem}>
-                  {o.items?.map((item: any) => (
-                    <div key={item.bookId} className={styles.orderTop}>
-                      <img src="/images/book.png" alt={item.bookTitle} />
+                <div className={styles.orderList}>
+                  {filteredOrders.map((o) => {
+                    const firstItem = o.items?.[0];
 
-                      <div className={styles.orderInfo}>
-                        <h4>{item.bookTitle}</h4>
-                        <span>Số lượng: {item.quantity}</span>
+                    return (
+                      <div key={o.orderId} className={styles.orderItem}>
+
+                        <span
+                          className={`${styles.shippingStatus} ${
+                            o.status === "SHIPPING"
+                              ? styles.blue
+                              : o.status === "CANCELLED"
+                              ? styles.red
+                              : o.status === "DELIVERED"
+                              ? styles.green
+                              : ""
+                          }`}
+                        >
+                          Trạng thái: {statusMap[o.status] || o.status}
+                        </span>
+
+                        {/* PREVIEW 1 SẢN PHẨM */}
+                        {firstItem && (
+                          <div className={styles.orderTop}>
+                            <img src="/images/book.png" alt={firstItem.bookTitle} />
+
+                            <div className={styles.orderInfo}>
+                              <h4>{firstItem.bookTitle}</h4>
+
+                              {/* nếu có nhiều sp */}
+                              {o.items.length > 1 ? (
+                                <span>
+                                  Số lượng: {firstItem.quantity} (+{o.items.length - 1} sản phẩm khác)
+                                </span>
+                              ) : (
+                                <span>Số lượng: {firstItem.quantity}</span>
+                              )}
+                            </div>
+
+                            <div className={styles.orderPrice}>
+                              <p>{(firstItem.price || 0).toLocaleString()} đ</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* BOTTOM */}
+                        <div className={styles.orderBottom}>
+                          <strong>
+                            Thành tiền:{" "}
+                            <span className={styles.totalPrice}>
+                              {(o.totalAmount || 0).toLocaleString()} đ
+                            </span>
+                          </strong>
+
+                          <div className={styles.orderActions}>
+                            {renderActions(o)}
+                          </div>
+                        </div>
                       </div>
-
-                      <div className={styles.orderPrice}>
-                        <p>{(item.price || 0).toLocaleString()} đ</p>
-                      </div>
-                    </div>
-                  ))}
-
-                  <div className={styles.orderBottom}>
-                    <strong>
-                      {(o.totalAmount || 0).toLocaleString()} đ
-                    </strong>
-
-                    <div className={styles.orderActions}>
-                      {renderActions(o)}
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
           )}
         </div>
       </div>

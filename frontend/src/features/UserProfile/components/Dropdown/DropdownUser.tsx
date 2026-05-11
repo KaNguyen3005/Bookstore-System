@@ -4,13 +4,18 @@ import "./DropdownUser.css";
 type Props = {
   onLogout: () => void;
   onProfile?: () => void;
+  onPurchaseOrder?: () => void;
 };
 
-const DropdownUser: React.FC<Props> = ({ onLogout, onProfile }) => {
+const DropdownUser: React.FC<Props> = ({ onLogout, onProfile, onPurchaseOrder }) => {
   return (
     <div className="dropdown-user">
       <div className="dropdown-item" onClick={onProfile}>
         Thông tin cá nhân
+      </div>
+
+      <div className="dropdown-item" onClick={onPurchaseOrder}>
+        Đơn mua
       </div>
 
       <div className="dropdown-item">Cài đặt</div>

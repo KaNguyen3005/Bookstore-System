@@ -5,10 +5,32 @@
   --border-color-input: #ddd;
   --focus-border-color: var(--primary-color);
   --cart-badge-bg: #ff3b30;
-  --font-logo: "Urban Jungle", "Helvetica Neue", Helvetica, Arial, sans-serif; /* Font logo với các dự phòng mạnh mẽ hơn */
+  --font-logo: "Urban Jungle", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-body: Arial, sans-serif;
 }
 
+/* SCALE BASE */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 1200px) {
+  html { font-size: 15px; }
+}
+
+@media (max-width: 992px) {
+  html { font-size: 14px; }
+}
+
+@media (max-width: 768px) {
+  html { font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 12px; }
+}
+
+/* RESET */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -24,48 +46,50 @@
   z-index: 1000;
 }
 
-/* trên của Header */
+/* HEADER TOP */
 .header-top {
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  height: 70px;
-  gap: 20px;
+  padding: 0 clamp(10px, 2vw, 20px);
+  height: clamp(60px, 8vh, 70px);
+  gap: clamp(10px, 2vw, 20px);
 }
 
+/* LOGO */
 .logo-header {
-  font-size: 32px;
+  font-size: clamp(20px, 2vw, 32px);
   font-family: var(--font-logo);
   color: var(--text-color-light);
   text-decoration: none;
   white-space: nowrap;
-  margin-right: 30px;
+  margin-right: 20px;
 }
 
 .logo-img {
-  height: 40px; /* chỉnh theo UI của bạn */
+  height: clamp(30px, 4vw, 40px);
   object-fit: contain;
 }
 
-
+/* DELIVERY */
 .delivery {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
+/* SEARCH */
 .search {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 36px;
+  position: relative;
 }
 
 .search input {
   width: 100%;
-  max-width: 480px;
+  max-width: clamp(280px, 40vw, 480px);
   height: 34px;
   padding: 0 12px;
   border-radius: 20px;
@@ -78,10 +102,23 @@
   box-shadow: 0 0 0 2px rgba(44, 111, 123, 0.2);
 }
 
+/* SEARCH DROPDOWN */
+.search-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+/* ACTIONS */
 .actions {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: clamp(12px, 2vw, 40px);
 }
 
 .action-item {
@@ -90,67 +127,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 48px;
+  min-width: clamp(40px, 4vw, 48px);
   font-size: 12px;
-  line-height: 1.1;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
   color: var(--text-color-light);
 }
 
 .action-item svg {
-  font-size: 25px;
-  margin-bottom: 2px;
+  font-size: clamp(20px, 2vw, 25px);
 }
 
-.action-item:hover svg,
-.action-item:hover p {
+.action-item:hover {
   opacity: 0.8;
 }
 
-.l-link {
-  text-decoration: none;
-  color: var(--text-color-light);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* menu dưới */
-.header-menu {
-  display: flex;
-  gap: 10px;
-  padding: 6px 30px;
-  background: rgba(116, 169, 162, 1);
-  flex-wrap: wrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: 0 1px 2px #74a9a2;
-}
-
-.header-menu button {
-  cursor: pointer;
-  border: none;
-  padding: 4px 10px;
-  background: var(--text-color-light);
-  border-radius: 4px;
-  transition: background 0.2s ease;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.header-menu button:hover {
-  background: #f1f1f1;
-}
-
-
-.cart-icon-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* CART BADGE */
 .cart-badge {
   position: absolute;
   top: -4px;
@@ -165,9 +156,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 9px;
-  padding: 0 4px;
 }
 
+/* USER */
 .user-trigger-us {
   display: flex;
   flex-direction: column;
@@ -176,41 +167,41 @@
   cursor: pointer;
 }
 
-.user-trigger-us svg {
-  font-size: 25px;
-}
-
 .user-name-text {
   font-weight: 600;
-  max-width: 100px;
+  max-width: clamp(60px, 10vw, 100px);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.header a {
-  text-decoration: none;
-  color: inherit;
+/* MENU */
+.header-menu {
+  display: flex;
+  gap: 10px;
+  padding: 6px 20px;
+  background: rgba(116, 169, 162, 1);
+
+  flex-wrap: wrap; /* ✔ cho phép xuống dòng */
+  overflow-x: hidden; /* bỏ scroll ngang */
 }
 
-
-.search {
-  position: relative;
-
+.header-menu button {
+  cursor: pointer;
+  border: none;
+  padding: 4px 10px;
+  background: var(--text-color-light);
+  border-radius: 4px;
+  font-size: clamp(12px, 1.2vw, 14px);
+  white-space: nowrap;
+  transition: 0.2s;
 }
 
-.search-dropdown {
-  position: absolute;
-  top: 110%;
-  left: 0;
-  width: 100%;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  z-index: 10;
+.header-menu button:hover {
+  background: #f1f1f1;
 }
 
-/* item */
+/* SEARCH ITEM */
 .search-item {
   display: flex;
   gap: 10px;
@@ -229,11 +220,35 @@
   object-fit: cover;
 }
 
-/* category */
-.category-tag {
-  font-size: 11px;
-  background: #eee;
-  padding: 2px 6px;
-  margin-right: 4px;
-  border-radius: 6px;
+/* RESPONSIVE FIX */
+@media (max-width: 1024px) {
+  .delivery {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-top {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px;
+  }
+
+  .search {
+    order: 3;
+    width: 100%;
+  }
+
+  .actions {
+    gap: 12px;
+  }
+
+  .action-item p {
+    display: none;
+  }
+}
+
+.action-item {
+  text-decoration: none;
+  color: inherit;
 }
