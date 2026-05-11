@@ -3,26 +3,33 @@ import { useEffect, useState } from "react";
 import "./Profile.Sidebar.css";
 
 import Sidebar from "./Sidebar";
-
 import { userApi } from "../../../../services/userApi";
 
+type User = {
+  id?: string;
+  name?: string;
+  email?: string;
+  avatarUrl?: string;
+};
+
 export default function Profile() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [edit, setEdit] = useState(false);
+
   const [avatar, setAvatar] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   // ================= FETCH USER =================
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await userApi.getMe();
+        const res = await userApi.getMe();
+        const data = res?.data ?? res;
 
         console.log("PROFILE USER:", data);
 
-        if (data) {
-          setUser(data);
-          setAvatar(data.avatarUrl || "");
-        }
+        setUser(data);
+        setAvatar(data?.avatarUrl || "");
       } catch (error) {
         console.error("FETCH USER ERROR:", error);
       }
@@ -31,19 +38,21 @@ export default function Profile() {
     fetchUser();
   }, []);
 
-  // ================= HANDLE AVATAR =================
-  const handleAvatar = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
+  // ================= CLEAN OBJECT URL =================
+  useEffect(() => {
+    return () => {
+      if (avatar.startsWith("blob:")) {
+        URL.revokeObjectURL(avatar);
+      }
+    };
+  }, [avatar]);
 
+  // ================= HANDLE AVATAR =================
+  const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    const validTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-    ];
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
 
     if (!validTypes.includes(file.type)) {
       alert("Chỉ chấp nhận file JPG, PNG!");
@@ -58,56 +67,59 @@ export default function Profile() {
     const preview = URL.createObjectURL(file);
 
     setAvatar(preview);
-
-    setUser((prev: any) => ({
-      ...prev,
-      avatarFile: file,
-    }));
+    setAvatarFile(file);
 
     e.target.value = "";
   };
 
   // ================= HANDLE CHANGE =================
-  const handleChange = (e: any) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
 
-    setUser((prev: any) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]: value,
+          }
+        : prev
+    );
   };
 
   // ================= HANDLE SAVE =================
   const handleSave = async () => {
     try {
+      if (!user) return;
+
       let avatarUrl = user.avatarUrl;
 
-      // upload avatar first
-      if (user.avatarFile) {
+      // upload avatar nếu có
+      if (avatarFile) {
         const formData = new FormData();
+        formData.append("file", avatarFile);
 
-        formData.append("file", user.avatarFile);
+        const uploadRes = await userApi.uploadAvatar(formData);
+        const uploadData = uploadRes?.data ?? uploadRes;
 
-        const uploadRes =
-          await userApi.uploadAvatar(formData);
-
-        avatarUrl = uploadRes.url;
+        avatarUrl = uploadData.url;
       }
 
-      // update user
-      const updatedUser = {
-        ...user,
+      // loại bỏ file khỏi payload
+      const { ...cleanUser } = user;
+
+      const updatedPayload = {
+        ...cleanUser,
         avatarUrl,
       };
 
-      const updated =
-        await userApi.updateMe(updatedUser);
+      const res = await userApi.updateMe(updatedPayload);
+      const updated = res?.data ?? res;
 
       setUser(updated);
-
-      if (updated.avatarUrl) {
-        setAvatar(updated.avatarUrl);
-      }
+      setAvatar(updated.avatarUrl || "");
+      setAvatarFile(null);
 
       setEdit(false);
 
