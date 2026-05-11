@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus, Download } from 'lucide-react';
 
 import { useProducts } from '../hooks/useProducts';
@@ -7,11 +7,19 @@ import { ProductStats } from '../components/ProductStats';
 import { ProductFilters } from '../components/ProductFilters';
 import { ProductTable } from '../components/ProductTable';
 
+// Popup thêm sản phẩm
+import { CreateProductModal } from '../components/CreateProductModal';
+
 import { Button } from '../../../../components/ui/Button';
 
 import '../styles/ProductManagement.css';
 
 const ProductManagementPage: React.FC = () => {
+
+  // ================= MODAL STATE =================
+  const [openCreateModal, setOpenCreateModal] =
+    useState(false);
+
   const {
     products,
     categories,
@@ -21,6 +29,8 @@ const ProductManagementPage: React.FC = () => {
     handleFilterChange,
     handleDeleteProduct,
     handleUpdateStatus,
+    handleCreateProduct,
+    createLoading,
   } = useProducts();
 
   return (
@@ -44,6 +54,7 @@ const ProductManagementPage: React.FC = () => {
             gap: '12px',
           }}
         >
+          {/* EXPORT */}
           <Button
             variant="outline"
             className="ui-btn-excel"
@@ -52,10 +63,14 @@ const ProductManagementPage: React.FC = () => {
             Xuất Excel
           </Button>
 
+          {/* CREATE PRODUCT */}
           <Button
             variant="primary"
             className="ui-btn-teal"
             icon={<Plus size={18} />}
+            onClick={() =>
+              setOpenCreateModal(true)
+            }
           >
             Thêm sản phẩm
           </Button>
@@ -85,6 +100,16 @@ const ProductManagementPage: React.FC = () => {
           }
         />
       </div>
+
+      {/* ================= CREATE PRODUCT MODAL ================= */}
+      <CreateProductModal
+        open={openCreateModal}
+        onClose={() =>
+          setOpenCreateModal(false)
+        }
+        onCreate={handleCreateProduct}
+        loading={createLoading}
+      />
     </div>
   );
 };

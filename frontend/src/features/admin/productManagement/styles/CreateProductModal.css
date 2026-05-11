@@ -1,0 +1,256 @@
+/* ================= MODAL ================= */
+
+.create-product-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+.create-product-modal__overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.create-product-modal__content {
+  position: relative;
+
+  width: 1000px;
+  max-width: 95%;
+
+  max-height: 92vh;
+  overflow-y: auto;
+
+  margin: 30px auto;
+
+  background: #ffffff;
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.18);
+
+  z-index: 2;
+
+  animation: modalFade 0.25s ease;
+}
+
+/* ================= ANIMATION ================= */
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= HEADER ================= */
+
+.create-product-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 28px 32px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.create-product-modal__header h2 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.create-product-modal__header p {
+  margin-top: 6px;
+
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.create-product-modal__close {
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: #f3f4f6;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.create-product-modal__close:hover {
+  background: #e5e7eb;
+  transform: rotate(90deg);
+}
+
+/* ================= BODY ================= */
+
+.create-product-modal__body {
+  padding: 32px;
+}
+
+/* ================= FORM ================= */
+
+.create-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ================= ROW ================= */
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ================= GROUP ================= */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #374151;
+}
+
+/* ================= INPUT ================= */
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 16px;
+
+  background: #fff;
+
+  font-size: 14px;
+  color: #111827;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ================= FOCUS ================= */
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #14b8a6;
+
+  box-shadow:
+    0 0 0 4px rgba(20, 184, 166, 0.12);
+
+  transform: translateY(-1px);
+}
+
+/* ================= FILE INPUT ================= */
+
+.form-group input[type="file"] {
+  padding: 12px;
+  cursor: pointer;
+}
+
+/* ================= PLACEHOLDER ================= */
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* ================= FOOTER ================= */
+
+.create-product-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+
+  padding: 24px 32px;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ================= SCROLLBAR ================= */
+
+.create-product-modal__content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.create-product-modal__content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+
+.create-product-modal__content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+  .create-product-modal__content {
+    width: 95%;
+    margin: 20px auto;
+
+    border-radius: 22px;
+  }
+
+  .create-product-modal__header {
+    padding: 22px;
+  }
+
+  .create-product-modal__body {
+    padding: 22px;
+  }
+
+  .create-product-modal__footer {
+    padding: 22px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .create-product-modal__header h2 {
+    font-size: 22px;
+  }
+}
