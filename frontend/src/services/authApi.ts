@@ -134,7 +134,7 @@ export const authApi = {
         name: data.name,
         gender: data.gender,
         dob: data.dob,
-        otp: data.otp,
+
       });
 
       return res?.data ?? res;
@@ -163,9 +163,11 @@ export const authApi = {
       );
 
       return res?.data ?? res;
+
     } catch (error: any) {
       throw new Error(
-        error?.response?.data?.message || "Register complete failed"
+        error?.response?.data?.message ||
+        "Register complete failed"
       );
     }
   },
