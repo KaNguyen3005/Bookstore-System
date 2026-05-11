@@ -4,6 +4,7 @@ export type OrderStatus =
   | 'PROCESSING'
   | 'SHIPPING'
   | 'DELIVERED'
+  | 'COMPLETED'
   | 'CANCELLED';
 
 export type ShippingStatus =

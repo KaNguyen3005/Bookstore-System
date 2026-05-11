@@ -36,44 +36,47 @@ export const useOrders = () => {
   const mapStatusToData = (uiStatus: string): string | undefined => {
     switch (uiStatus) {
       case 'Chờ xác nhận': return 'PENDING';
-      case 'Đang xử lý': return 'PROCESSING';
+      case 'Đã duyệt': return 'CONFIRMED';
       case 'Đang giao': return 'SHIPPING';
-      case 'Thành công': return 'DELIVERED';
+      case 'Đã giao': return 'DELIVERED';
+      case 'Hoàn thành': return 'COMPLETED';
       case 'Đã hủy': return 'CANCELLED';
       default: return undefined;
     }
   };
 
-  // ================= FETCH LOGIC =================
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const response = await orderService.getOrders({
         page,
         size,
-        keyword: searchTerm || undefined,
-        status: mapStatusToData(statusFilter),
-        startDate: dateRange.startDate?.toISOString().split('T')[0],
-        endDate: dateRange.endDate?.toISOString().split('T')[0],
+        status: statusFilter === 'Tất cả' ? undefined : mapStatusToData(statusFilter),
+        keyword: searchTerm,
+        startDate: dateRange.startDate?.toISOString(),
+        endDate: dateRange.endDate?.toISOString(),
       });
-
-      console.log('ORDER API RESPONSE:', response);
       setData(response);
     } catch (err) {
-      console.error('Error fetching orders:', err);
-      setError('Đã xảy ra lỗi khi tải danh sách đơn hàng');
+      setError('Không thể tải danh sách đơn hàng');
     } finally {
       setLoading(false);
     }
-  }, [page, size, searchTerm, statusFilter, dateRange]);
+  }, [page, size, statusFilter, searchTerm, dateRange]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Helper để lấy danh sách orders an toàn
-  const safeOrders = Array.isArray(data) ? data : (data?.content ?? []);
+  // ================= DATA PREPARATION =================
+  const rawOrders = Array.isArray(data) ? data : (data?.content ?? []);
+  
+  // Lọc dữ liệu tại Frontend để đảm bảo chính xác tuyệt đối (phòng trường hợp Backend chưa lọc chuẩn)
+  const safeOrders = rawOrders.filter((order: Order) => {
+    if (statusFilter === 'Tất cả') return true;
+    const mappedStatus = mapStatusToData(statusFilter);
+    return order.status === mappedStatus;
+  });
 
   // ================= HANDLERS =================
   const handleApprove = async (id: number) => {
@@ -148,27 +151,28 @@ export const useOrders = () => {
   // ================= GLOBAL STATS =================
   const [globalStats, setGlobalStats] = useState({
     pending: 0,
+    confirmed: 0,
     shipping: 0,
     delivered: 0,
+    completed: 0,
     cancelled: 0,
     totalRevenue: 0
   });
 
   const fetchGlobalStats = useCallback(async () => {
     try {
-      // Chỉ gọi API 1 lần duy nhất để lấy toàn bộ dữ liệu (tối đa 100 đơn để thống kê)
       const response = await orderService.getOrders({ size: 100 });
       const allOrders = Array.isArray(response) ? response : (response.content || []);
 
       setGlobalStats({
-        pending: allOrders.filter((o: any) => 
-          ['PENDING', 'CONFIRMED', 'PROCESSING'].includes(o.status)
-        ).length,
+        pending: allOrders.filter((o: any) => o.status === 'PENDING').length,
+        confirmed: allOrders.filter((o: any) => o.status === 'CONFIRMED').length,
         shipping: allOrders.filter((o: any) => o.status === 'SHIPPING').length,
         delivered: allOrders.filter((o: any) => o.status === 'DELIVERED').length,
+        completed: allOrders.filter((o: any) => o.status === 'COMPLETED').length,
         cancelled: allOrders.filter((o: any) => o.status === 'CANCELLED').length,
         totalRevenue: allOrders.reduce((sum: number, o: any) => 
-          o.status === 'DELIVERED' ? sum + o.totalAmount : sum, 0
+          (o.status === 'DELIVERED' || o.status === 'COMPLETED') ? sum + o.totalAmount : sum, 0
         )
       });
     } catch (err) {
@@ -192,10 +196,12 @@ export const useOrders = () => {
 
     // Stats
     pendingCount: globalStats.pending,
+    confirmedCount: globalStats.confirmed,
     shippingCount: globalStats.shipping,
     deliveredCount: globalStats.delivered,
+    completedCount: globalStats.completed,
     cancelledCount: globalStats.cancelled,
-    totalRevenue: safeOrders.reduce((sum, o) => o.status === 'DELIVERED' ? sum + o.totalAmount : sum, 0),
+    totalRevenue: globalStats.totalRevenue,
 
     // Controls
     setPage,
