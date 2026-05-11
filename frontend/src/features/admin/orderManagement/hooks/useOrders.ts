@@ -7,7 +7,8 @@ export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CONFIRMED: ['SHIPPING'],
   PROCESSING: ['SHIPPING'],
   SHIPPING: ['DELIVERED'],
-  DELIVERED: [],
+  DELIVERED: ['COMPLETED'],
+  COMPLETED: [],
   CANCELLED: [],
 };
 

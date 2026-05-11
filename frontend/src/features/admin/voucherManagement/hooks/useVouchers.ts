@@ -6,58 +6,95 @@ type StatusFilter = 'all' | 'active' | 'inactive';
 
 export const useVouchers = () => {
   const [allVouchers, setAllVouchers] = useState<Voucher[]>([]);
-  const [stats, setStats] = useState<VoucherStats>({ total: 0, active: 0, used: 0, expiringSoon: 0 });
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [stats, setStats] = useState<VoucherStats>({
+    total: 0,
+    active: 0,
+    used: 0,
+    expiringSoon: 0,
+  });
 
-  const fetchData = useCallback(async () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] =
+    useState<StatusFilter>('all');
+
+  // ================= FETCH BY FILTER =================
+  const fetchData = useCallback(async (filter: StatusFilter) => {
     try {
       setLoading(true);
       setError(null);
-      const vouchers = await voucherService.getVouchers();
+
+      let vouchers: Voucher[] = [];
+
+      if (filter === 'active') {
+        vouchers = await voucherService.getActiveVouchers();
+      } 
+      else if (filter === 'inactive') {
+        vouchers = await voucherService.getInactiveVouchers();
+      } 
+      else {
+        vouchers = await voucherService.getVouchers();
+      }
+
       setAllVouchers(vouchers);
-      const computedStats = await voucherService.getStats(vouchers);
-      setStats(computedStats);
+
+      const statsData = await voucherService.getStats(vouchers);
+      setStats(statsData);
+
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tải danh sách voucher.';
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Lỗi khi tải voucher';
+
       setError(message);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // load lại khi đổi tab
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData(statusFilter);
+  }, [statusFilter, fetchData]);
 
-  // Logic: Filter by status (in Hook)
-  const filteredVouchers = useMemo(() => {
-    if (statusFilter === 'all') return allVouchers;
-    if (statusFilter === 'active') return allVouchers.filter((v) => v.status === 'active');
-    if (statusFilter === 'inactive') return allVouchers.filter((v) => v.status === 'inactive');
-    return allVouchers;
-  }, [allVouchers, statusFilter]);
+  // ================= DELETE =================
+  const handleDeleteVoucher = useCallback(
+    async (id: string) => {
+      const ok = window.confirm(
+        'Bạn có chắc chắn muốn xóa voucher này?'
+      );
+      if (!ok) return;
 
-  const handleDeleteVoucher = async (id: string) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa voucher này?')) return;
-    try {
-      await voucherService.deleteVoucher(id);
-      setAllVouchers((prev) => prev.filter((v) => v.id !== id));
-      fetchData();
-    } catch {
-      alert('Đã xảy ra lỗi khi xóa voucher.');
-    }
-  };
+      const previous = allVouchers;
 
-  const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code).then(() => {
-      alert(`Đã sao chép mã: ${code}`);
-    });
-  };
+      setAllVouchers(prev =>
+        prev.filter(v => v.id !== id)
+      );
+
+      try {
+        await voucherService.deleteVoucher(id);
+
+        setStats(prev => ({
+          ...prev,
+          total: prev.total - 1,
+        }));
+      } catch {
+        setAllVouchers(previous);
+        alert('Xóa voucher thất bại');
+      }
+    },
+    [allVouchers]
+  );
+
+  // ================= COPY =================
+  const handleCopyCode = useCallback((code: string) => {
+    navigator.clipboard.writeText(code);
+    alert(`Đã sao chép: ${code}`);
+  }, []);
 
   return {
-    vouchers: filteredVouchers,
+    vouchers: allVouchers,
     stats,
     loading,
     error,
@@ -65,6 +102,6 @@ export const useVouchers = () => {
     setStatusFilter,
     handleDeleteVoucher,
     handleCopyCode,
-    refreshData: fetchData,
+    refreshData: () => fetchData(statusFilter),
   };
 };

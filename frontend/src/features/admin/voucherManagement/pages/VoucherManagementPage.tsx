@@ -16,58 +16,77 @@ const VoucherManagementPage: React.FC = () => {
     setStatusFilter,
     handleDeleteVoucher,
     handleCopyCode,
+    refreshData,
   } = useVouchers();
+
+  // ================= LOADING =================
+  if (loading) {
+    return (
+      <div className="voucher-mgmt__empty">
+        ⏳ Đang tải danh sách voucher...
+      </div>
+    );
+  }
+
+  // ================= ERROR =================
+  if (error) {
+    return (
+      <div
+        className="voucher-mgmt__empty"
+        style={{ color: '#ef4444' }}
+      >
+        ❌ {error}
+      </div>
+    );
+  }
 
   return (
     <div className="voucher-mgmt">
-      {/* Header */}
+
+      {/* HEADER */}
       <div className="voucher-mgmt__header">
         <div className="voucher-mgmt__header-info">
           <h1>Quản lý voucher</h1>
           <p>Tạo và quản lý các mã giảm giá cho khách hàng</p>
         </div>
-        <button className="voucher-mgmt__btn-create">
+
+        <button
+          className="voucher-mgmt__btn-create"
+          onClick={() => {
+            console.log('Open create voucher modal');
+          }}
+        >
           <Plus size={18} />
           + Tạo voucher mới
         </button>
       </div>
 
-      {/* Stats */}
+      {/* STATS */}
       <VoucherStats stats={stats} />
 
-      {/* Filters */}
+      {/* FILTERS */}
       <VoucherFilters
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
       />
 
-      {/* Voucher Grid */}
-      {loading && (
-        <div className="voucher-mgmt__empty">Đang tải danh sách voucher...</div>
-      )}
-
-      {error && (
-        <div className="voucher-mgmt__empty" style={{ color: '#ef4444' }}>
-          Lỗi: {error}
-        </div>
-      )}
-
-      {!loading && !error && (
-        <div className="voucher-mgmt__grid">
-          {vouchers.length === 0 ? (
-            <div className="voucher-mgmt__empty">Không tìm thấy voucher nào.</div>
-          ) : (
-            vouchers.map((voucher) => (
-              <VoucherCard
-                key={voucher.id}
-                voucher={voucher}
-                onDelete={handleDeleteVoucher}
-                onCopy={handleCopyCode}
-              />
-            ))
-          )}
-        </div>
-      )}
+      {/* GRID */}
+      <div className="voucher-mgmt__grid">
+        {vouchers.length === 0 ? (
+          <div className="voucher-mgmt__empty">
+            Không tìm thấy voucher nào.
+          </div>
+        ) : (
+          vouchers.map((voucher) => (
+            <VoucherCard
+              key={voucher.id}
+              voucher={voucher}
+              onDelete={handleDeleteVoucher}
+              onCopy={handleCopyCode}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

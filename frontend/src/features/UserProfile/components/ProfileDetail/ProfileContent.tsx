@@ -1,7 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import { useState, useRef } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
-import "./ProfileContent.css";
+import styles from "./ProfileContent.module.css";
 
 export default function ProfileContent() {
   const {
@@ -90,14 +90,14 @@ export default function ProfileContent() {
     <>
       <h2>Hồ sơ cá nhân</h2>
 
-      <div className="profile-container">
+      <div className={styles["profile-container"]}>
 
         {/* ================= AVATAR ================= */}
-        <div className="avatar-section">
-          <div className="avatar-wrapper" onClick={handleClickAvatar}>
+        <div className={styles["avatar-section"]}>
+          <div className={styles["avatar-wrapper"]} onClick={handleClickAvatar}>
             <img
               src={avatar || user.avatarUrl || "/default-avatar.png"}
-              className="avatar"
+              className={styles["avatar"]}
               alt="avatar"
             />
           </div>
@@ -114,40 +114,40 @@ export default function ProfileContent() {
         </div>
 
         {/* ================= FORM ================= */}
-        <div className="form-section">
+        <div className={styles["form-section"]}>
 
           {/* USERNAME */}
-          <div className="form-row">
+          <div className={styles["form-row"]}>
             <label>Tên đăng nhập</label>
-            <div className="input-block">
+            <div className={styles["input-block"]}>
               <input value={user.username || ""} readOnly />
             </div>
           </div>
 
           {/* NAME */}
-          <div className="form-row">
+          <div className={styles["form-row"]}>
             <label>Họ và tên</label>
-            <div className="input-block">
+            <div className={styles["input-block"]}>
               <input
                 name="name"
                 value={user.name || ""}
                 onChange={handleChange}
                 readOnly={!edit}
-                className={errors.name ? "error-input" : ""}
+                className={errors.name ? styles["error-input"] : ""}
               />
-              <div className="error-space">
+              <div className={styles["error-space"]}>
                 {errors.name && (
-                  <span className="error-text">{errors.name}</span>
+                  <span className={styles["error-text"]}>{errors.name}</span>
                 )}
               </div>
             </div>
           </div>
 
           {/* PHONE */}
-          <div className="form-row">
+          <div className={styles["form-row"]}>
             <label>Số điện thoại</label>
 
-            <div className="input-block">
+            <div className={styles["input-block"]}>
               <div style={{ position: "relative" }}>
                 <input
                   name="phone"
@@ -160,49 +160,49 @@ export default function ProfileContent() {
                   }
                   onChange={handleChange}
                   readOnly={!edit}
-                  className={errors.phone ? "error-input" : ""}
+                  className={errors.phone ? styles["error-input"] : ""}
                 />
 
                 <span
                   onClick={() => !edit && setShowPhone(!showPhone)}
-                  className="eye-icon"
+                  className={styles["eye-icon"]}
                 >
                   {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
                 </span>
               </div>
 
-              <div className="error-space">
+              <div className={styles["error-space"]}>
                 {errors.phone && (
-                  <span className="error-text">{errors.phone}</span>
+                  <span className={styles["error-text"]}>{errors.phone}</span>
                 )}
               </div>
             </div>
           </div>
 
           {/* EMAIL */}
-          <div className="form-row">
+          <div className={styles["form-row"]}>
             <label>Email</label>
-            <div className="input-block">
+            <div className={styles["input-block"]}>
               <input
                 name="email"
                 value={user.email || ""}
                 onChange={handleChange}
                 readOnly={!edit}
-                className={errors.email ? "error-input" : ""}
+                className={errors.email ? styles["error-input"] : ""}
               />
-              <div className="error-space">
+              <div className={styles["error-space"]}>
                 {errors.email && (
-                  <span className="error-text">{errors.email}</span>
+                  <span className={styles["error-text"]}>{errors.email}</span>
                 )}
               </div>
             </div>
           </div>
 
           {/* DOB */}
-          <div className="form-row">
+          <div className={styles["form-row"]}>
             <label>Ngày sinh</label>
 
-            <div className="input-block">
+            <div className={styles["input-block"]}>
               <div style={{ position: "relative" }}>
                 <input
                   name="dob"
@@ -215,20 +215,20 @@ export default function ProfileContent() {
                   }
                   onChange={handleChange}
                   readOnly={!edit}
-                  className={errors.dob ? "error-input" : ""}
+                  className={errors.dob ? styles["error-input"] : ""}
                 />
 
                 <span
                   onClick={() => !edit && setShowDob(!showDob)}
-                  className="eye-icon"
+                  className={styles["eye-icon"]}
                 >
                   {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
                 </span>
               </div>
 
-              <div className="error-space">
+              <div className={styles["error-space"]}>
                 {errors.dob && (
-                  <span className="error-text">{errors.dob}</span>
+                  <span className={styles["error-text"]}>{errors.dob}</span>
                 )}
               </div>
             </div>
@@ -238,10 +238,10 @@ export default function ProfileContent() {
       </div>
 
       {/* ================= BUTTONS ================= */}
-      <div className="button-wrapper">
-        <div className="btn-group">
+      <div className={styles["button-wrapper"]}>
+        <div className={styles["btn-group"]}>
         <button
-          className="cancel-btn"
+          className={styles["cancel-btn"]}
           onClick={() => {
             if (edit) {
               handleCancel();
@@ -254,7 +254,7 @@ export default function ProfileContent() {
         </button>
 
           {edit && (
-            <button className="save-btn" onClick={handleSaveClick}>
+            <button className={styles["save-btn"]} onClick={handleSaveClick}>
               Lưu
             </button>
           )}
@@ -262,17 +262,17 @@ export default function ProfileContent() {
       </div>
 
       {/* ================= MEMBER ================= */}
-      <div className="member">
+      <div className={styles["member"]}>
         <h3>Hạng thành viên</h3>
 
-        <div className="member-item">
-          <span className="label">Hạng:</span>
-          <span className="value">{user.tier || "BRONZE"}</span>
+        <div className={styles["member-item"]}>
+          <span className={styles["label"]}>Hạng:</span>
+          <span className={styles["value"]}>{user.tier || "BRONZE"}</span>
         </div>
 
-        <div className="member-item">
-          <span className="label">Điểm tích lũy:</span>
-          <span className="value">{user.point || 0}</span>
+        <div className={styles["member-item"]}>
+          <span className={styles["label"]}>Điểm tích lũy:</span>
+          <span className={styles["value"]}>{user.point || 0}</span>
         </div>
       </div>
     </>

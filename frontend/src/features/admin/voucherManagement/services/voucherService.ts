@@ -1,60 +1,104 @@
-import axiosClient from '../../../../services/axiosClient';
-import type { Voucher, VoucherStats } from '../types/voucher';
-import { mockVouchers } from '../data/mockVouchers';
+import axiosClient from "../../../../services/axiosClient";
+import type { Voucher, VoucherStats } from "../types/voucher";
 
-const IS_MOCK = true;
+const IS_MOCK = false;
+
+const mapVoucher = (item: any): Voucher => ({
+  id: String(item.voucherId),
+  code: item.voucherCode,
+  title: item.title,
+  description: item.description,
+  discountType:
+    item.type === "PERCENTAGE"
+      ? "percent"
+      : item.type === "FIXED"
+        ? "fixed"
+        : "freeship",
+  value: item.discountValue,
+  minOrder: item.minOrderValue,
+  maxDiscount: item.maxDiscountAmount || undefined,
+  startDate: item.startDate,
+  endDate: item.endDate,
+  usageLimit: item.totalLimit,
+  usedCount: item.usedCount,
+  status: item.isActive ? "active" : "inactive",
+});
 
 export const voucherService = {
+  // ================= GET ALL =================
   getVouchers: async (): Promise<Voucher[]> => {
-    if (IS_MOCK) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return mockVouchers;
-    }
-    const response = await axiosClient.get('/admin/vouchers');
-    return response as unknown as Voucher[];
+    const res = await axiosClient.get("/vouchers");
+    const items = res.data.result || [];
+    return items.map(mapVoucher);
   },
 
-  getStats: async (vouchers: Voucher[]): Promise<VoucherStats> => {
-    if (IS_MOCK) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      const now = new Date();
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-      const parseDate = (dateStr: string): Date => {
-        const [day, month, year] = dateStr.split('/').map(Number);
-        return new Date(year, month - 1, day);
-      };
-
-      return {
-        total: vouchers.length,
-        active: vouchers.filter((v) => v.status === 'active').length,
-        used: vouchers.reduce((sum, v) => sum + v.usedCount, 0),
-        expiringSoon: vouchers.filter((v) => {
-          const endDate = parseDate(v.endDate);
-          return v.status === 'active' && endDate <= sevenDaysFromNow && endDate >= now;
-        }).length,
-      };
-    }
-    const response = await axiosClient.get('/admin/vouchers/stats');
-    return response as unknown as VoucherStats;
+  // ================= ACTIVE =================
+  getActiveVouchers: async (): Promise<Voucher[]> => {
+    const res = await axiosClient.get("/vouchers/active");
+    const items = res.data.result || [];
+    return items.map(mapVoucher);
   },
 
-  createVoucher: async (voucher: Omit<Voucher, 'id'>): Promise<Voucher> => {
-    if (IS_MOCK) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      return { ...voucher, id: `V${Date.now()}` };
-    }
-    const response = await axiosClient.post('/admin/vouchers', voucher);
-    return response as unknown as Voucher;
+  // ================= INACTIVE (NEW) =================
+  getInactiveVouchers: async (): Promise<Voucher[]> => {
+    const res = await axiosClient.get("/vouchers/inactive");
+    const items = res.data.result || [];
+    return items.map(mapVoucher);
   },
 
+  // ================= GET BY ID =================
+  getVoucherById: async (id: string): Promise<Voucher> => {
+    const res = await axiosClient.get(`/vouchers/${id}`);
+    return mapVoucher(res.data.result);
+  },
+
+  // ================= GET BY CODE =================
+  getVoucherByCode: async (code: string): Promise<Voucher> => {
+    const res = await axiosClient.get(`/vouchers/code/${code}`);
+    return mapVoucher(res.data.result);
+  },
+
+  // ================= CREATE =================
+  createVoucher: async (voucher: Omit<Voucher, "id">): Promise<Voucher> => {
+    const res = await axiosClient.post("/vouchers", voucher);
+    return mapVoucher(res.data.result);
+  },
+
+  // ================= UPDATE =================
+  updateVoucher: async (
+    id: string,
+    data: Partial<Voucher>,
+  ): Promise<Voucher> => {
+    const res = await axiosClient.patch(`/vouchers/${id}`, data);
+    return mapVoucher(res.data.result);
+  },
+
+  // ================= DELETE =================
   deleteVoucher: async (id: string): Promise<void> => {
-    if (IS_MOCK) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      return;
-    }
-    await axiosClient.delete(`/admin/vouchers/${id}`);
+    await axiosClient.delete(`/vouchers/${id}`);
+  },
+
+  // ================= STATS =================
+  getStats: async (vouchers: Voucher[]): Promise<VoucherStats> => {
+    const total = vouchers.length;
+    const active = vouchers.filter((v) => v.status === "active").length;
+    const used = vouchers.reduce((sum, v) => sum + v.usedCount, 0);
+
+    const now = new Date();
+    const sevenDaysLater = new Date();
+    sevenDaysLater.setDate(now.getDate() + 7);
+
+    const expiringSoon = vouchers.filter((v) => {
+      if (v.status !== "active") return false;
+      const end = new Date(v.endDate);
+      return end > now && end <= sevenDaysLater;
+    }).length;
+
+    return {
+      total,
+      active,
+      used,
+      expiringSoon,
+    };
   },
 };
-
-export default voucherService;
