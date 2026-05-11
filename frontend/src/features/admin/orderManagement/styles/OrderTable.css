@@ -148,15 +148,16 @@
   color: #22c55e;
 }
 
-.order-table__status-select {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  border: 1px solid transparent;
-  cursor: pointer;
-  outline: none;
-  width: 120px;
+.order-table__action-btn--teal:hover {
+  color: #0d9488;
+}
+
+.order-table__action-btn--success:hover {
+  color: #16a34a;
+}
+
+.order-table__action-btn--danger:hover {
+  color: #ef4444;
 }
 
 .order-table__payment-status {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Printer, CheckCircle } from 'lucide-react';
+import { Eye, Printer, CheckCircle, Truck, Ban } from 'lucide-react';
 
 import type {
   Order,
@@ -11,14 +11,15 @@ import '../styles/OrderTable.css';
 interface OrderTableProps {
   orders: Order[];
   loading: boolean;
+  allowedTransitions: Record<OrderStatus, OrderStatus[]>;
   onViewDetail: (id: number) => void;
   onApprove: (id: number) => void;
-  onUpdateStatus: (id: number, status: OrderStatus) => void;
+  onUpdateStatus: (id: number, current: OrderStatus, next: OrderStatus) => void;
 }
 
 export const OrderTable: React.FC<
   OrderTableProps
-> = ({ orders, loading, onViewDetail, onApprove, onUpdateStatus }) => {
+> = ({ orders, loading, allowedTransitions, onViewDetail, onApprove, onUpdateStatus }) => {
   // ================= FORMAT MONEY =================
   const formatCurrency = (
     amount: number
@@ -97,6 +98,13 @@ export const OrderTable: React.FC<
     }
   };
 
+  // ================= ACTIONS =================
+  const handleAction = (orderId: number, current: OrderStatus, next: OrderStatus, label: string) => {
+    if (window.confirm(`Bạn có chắc muốn chuyển đơn hàng sang trạng thái "${label}"?`)) {
+      onUpdateStatus(orderId, current, next);
+    }
+  };
+
   // ================= LOADING =================
   if (loading) {
     return (
@@ -153,117 +161,152 @@ export const OrderTable: React.FC<
         </thead>
 
         <tbody className="order-table__tbody">
-          {orders.map((order) => (
-            <tr
-              key={order.orderId}
-              className="order-table__tr"
-            >
-              <td className="order-table__td">
-                <input
-                  type="checkbox"
-                  className="order-table__checkbox"
-                />
-              </td>
+          {orders.map((order) => {
+            const possibleNext = allowedTransitions[order.status] || [];
 
-              {/* ORDER ID */}
-              <td className="order-table__td order-table__id">
-                #{order.orderId || (order as any).id}
-              </td>
+            return (
+              <tr
+                key={order.orderId}
+                className="order-table__tr"
+              >
+                <td className="order-table__td">
+                  <input
+                    type="checkbox"
+                    className="order-table__checkbox"
+                  />
+                </td>
 
-              {/* CUSTOMER */}
-              <td className="order-table__td">
-                <div className="order-table__customer">
-                  {order.customerName}
-                </div>
-              </td>
+                {/* ORDER ID */}
+                <td className="order-table__td order-table__id">
+                  #{order.orderId || (order as any).id}
+                </td>
 
-              {/* PRODUCTS */}
-              <td className="order-table__td">
-                <div className="order-table__products">
-                  <span className="order-table__product-icon">
-                    📦
+                {/* CUSTOMER */}
+                <td className="order-table__td">
+                  <div className="order-table__customer">
+                    {order.customerName}
+                  </div>
+                </td>
+
+                {/* PRODUCTS */}
+                <td className="order-table__td">
+                  <div className="order-table__products">
+                    <span className="order-table__product-icon">
+                      📦
+                    </span>
+
+                    <span>
+                      {
+                        order.items?.length ?? 0
+                      }{' '}
+                      sản phẩm
+                    </span>
+                  </div>
+                </td>
+
+                {/* TOTAL */}
+                <td className="order-table__td order-table__amount">
+                  {(() => {
+                    const subtotal = order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) ?? 0;
+                    const totalAmount = subtotal * (1 + (order.vatRate || 0));
+                    return formatCurrency(totalAmount);
+                  })()}
+                </td>
+
+                {/* PAYMENT */}
+                <td className="order-table__td">
+                  <span className={`order-table__payment-status order-table__payment-status--${order.paymentStatus?.toLowerCase() ?? 'pending'}`}>
+                    {order.paymentStatus ?? 'PENDING'}
                   </span>
+                </td>
 
-                  <span>
-                    {
-                      order.items?.length ?? 0
-                    }{' '}
-                    sản phẩm
-                  </span>
-                </div>
-              </td>
-
-              {/* TOTAL */}
-              <td className="order-table__td order-table__amount">
-                {formatCurrency(
-                  order.totalAmount
-                )}
-              </td>
-
-              {/* PAYMENT */}
-              <td className="order-table__td">
-                <span className={`order-table__payment-status order-table__payment-status--${order.paymentStatus?.toLowerCase() ?? 'pending'}`}>
-                  {order.paymentStatus ?? 'PENDING'}
-                </span>
-              </td>
-
-              {/* DATE */}
-              <td className="order-table__td">
-                {formatDate(
-                  order.createdAt
-                )}
-              </td>
-
-              {/* STATUS */}
-              <td className="order-table__td">
-                <select 
-                  className={`order-table__status-select ${getStatusBadgeClass(order.status)}`}
-                  value={order.status}
-                  onChange={(e) => onUpdateStatus(order.orderId, e.target.value as OrderStatus)}
-                >
-                  <option value="PENDING">Chờ xác nhận</option>
-                  <option value="CONFIRMED">Đã xác nhận</option>
-                  <option value="PROCESSING">Đang xử lý</option>
-                  <option value="SHIPPING">Đang giao</option>
-                  <option value="DELIVERED">Đã giao</option>
-                  <option value="CANCELLED">Đã hủy</option>
-                </select>
-              </td>
-
-              {/* ACTIONS */}
-              <td className="order-table__td">
-                <div className="order-table__actions">
-                  {order.status === 'PENDING' && (
-                    <button 
-                      className="order-table__action-btn order-table__action-btn--approve"
-                      title="Phê duyệt"
-                      onClick={() => onApprove(order.orderId)}
-                    >
-                      <CheckCircle size={16} />
-                    </button>
+                {/* DATE */}
+                <td className="order-table__td">
+                  {formatDate(
+                    order.createdAt
                   )}
-                  
-                  <button 
-                    className="order-table__action-btn"
-                    title="Xem chi tiết"
-                    onClick={() => onViewDetail(order.orderId)}
-                  >
-                    <Eye
-                      size={16}
-                      strokeWidth={2.5}
-                    />
-                  </button>
+                </td>
 
-                  <button className="order-table__action-btn" title="In hóa đơn">
-                    <Printer
-                      size={16}
-                      strokeWidth={2.5}
-                    />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+                {/* STATUS */}
+                <td className="order-table__td">
+                  <span className={`order-table__badge ${getStatusBadgeClass(order.status)}`}>
+                    {getStatusLabel(order.status)}
+                  </span>
+                </td>
+
+                {/* ACTIONS */}
+                <td className="order-table__td">
+                  <div className="order-table__actions">
+                    {/* CONFIRM / APPROVE */}
+                    {possibleNext.includes('CONFIRMED') && (
+                      <button 
+                        className="order-table__action-btn order-table__action-btn--approve"
+                        title="Xác nhận đơn hàng"
+                        onClick={() => {
+                          if (window.confirm('Bạn có chắc muốn phê duyệt đơn hàng này?')) {
+                            onApprove(order.orderId);
+                          }
+                        }}
+                      >
+                        <CheckCircle size={16} />
+                      </button>
+                    )}
+
+                    {/* MARK AS SHIPPING */}
+                    {possibleNext.includes('SHIPPING') && (
+                      <button 
+                        className="order-table__action-btn order-table__action-btn--teal"
+                        title="Bắt đầu giao hàng"
+                        onClick={() => handleAction(order.orderId, order.status, 'SHIPPING', 'Đang giao')}
+                      >
+                        <Truck size={16} />
+                      </button>
+                    )}
+
+                    {/* MARK AS DELIVERED */}
+                    {possibleNext.includes('DELIVERED') && (
+                      <button 
+                        className="order-table__action-btn order-table__action-btn--success"
+                        title="Đã giao hàng"
+                        onClick={() => handleAction(order.orderId, order.status, 'DELIVERED', 'Hoàn thành')}
+                      >
+                        <CheckCircle size={16} />
+                      </button>
+                    )}
+
+                    {/* CANCEL */}
+                    {possibleNext.includes('CANCELLED') && (
+                      <button 
+                        className="order-table__action-btn order-table__action-btn--danger"
+                        title="Hủy đơn hàng"
+                        onClick={() => handleAction(order.orderId, order.status, 'CANCELLED', 'Hủy bỏ')}
+                      >
+                        <Ban size={16} />
+                      </button>
+                    )}
+                    
+                    <button 
+                      className="order-table__action-btn"
+                      title="Xem chi tiết"
+                      onClick={() => onViewDetail(order.orderId)}
+                    >
+                      <Eye
+                        size={16}
+                        strokeWidth={2.5}
+                      />
+                    </button>
+
+                    <button className="order-table__action-btn" title="In hóa đơn">
+                      <Printer
+                        size={16}
+                        strokeWidth={2.5}
+                      />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
 
           {/* EMPTY */}
           {orders.length === 0 && (

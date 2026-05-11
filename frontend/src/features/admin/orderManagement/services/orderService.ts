@@ -1,5 +1,5 @@
-import axiosClient from '../../../../services/axiosClient';
-import type { Order, OrderStatus } from '../types/order';
+import axiosClient from "../../../../services/axiosClient";
+import type { Order, OrderStatus } from "../types/order";
 
 export interface OrdersResponse {
   content: Order[];
@@ -19,7 +19,9 @@ export const orderService = {
     startDate?: string;
     endDate?: string;
   }): Promise<OrdersResponse> => {
-    const response = await axiosClient.get('/orders', { params });
+    const response = await axiosClient.get("/orders", {
+      params,
+    });
     return response.data.result;
   },
 
@@ -31,25 +33,48 @@ export const orderService = {
 
   // ================= APPROVE ORDER =================
   approveOrder: async (id: number): Promise<Order> => {
-    const response = await axiosClient.put(`/orders/${id}/approve`);
-    return response.data.result;
+    try {
+      const response = await axiosClient.put(`/orders/${id}/approve`);
+      return response.data.result;
+    } catch (error: any) {
+      console.error(
+        "APPROVE ORDER ERROR:",
+        error.response?.data || error.message,
+      );
+      throw error;
+    }
   },
 
-  // ================= UPDATE STATUS =================
+  // ================= CANCEL ORDER =================
+  cancelOrder: async (id: number): Promise<Order> => {
+    try {
+      const response = await axiosClient.post(`/orders/${id}/cancel`);
+      return response.data.result;
+    } catch (error: any) {
+      console.error(
+        "CANCEL ORDER ERROR:",
+        error.response?.data || error.message,
+      );
+      throw error;
+    }
+  },
+
+  // ================= UPDATE ORDER STATUS =================
   updateOrderStatus: async (
     id: number,
-    status: OrderStatus
+    status: OrderStatus,
   ): Promise<Order> => {
     const response = await axiosClient.patch(`/orders/${id}`, {
       status,
     });
+
     return response.data.result;
   },
 
   // ================= EXPORT EXCEL =================
   exportOrders: async (): Promise<Blob> => {
-    const response = await axiosClient.get('/orders/export', {
-      responseType: 'blob',
+    const response = await axiosClient.get("/orders/export", {
+      responseType: "blob",
     });
 
     return response.data;

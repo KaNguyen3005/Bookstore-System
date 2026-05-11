@@ -114,18 +114,28 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               </div>
 
               <div className="order-detail-modal__summary">
-                <div className="order-detail-modal__summary-row">
-                  <span>Tạm tính:</span>
-                  <span>{formatCurrency(order.subtotal)}</span>
-                </div>
-                <div className="order-detail-modal__summary-row">
-                  <span>VAT ({order.vatRate * 100}%):</span>
-                  <span>{formatCurrency(order.vatAmount)}</span>
-                </div>
-                <div className="order-detail-modal__summary-row order-detail-modal__summary-row--total">
-                  <span>Tổng cộng:</span>
-                  <span>{formatCurrency(order.totalAmount)}</span>
-                </div>
+                {(() => {
+                  const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                  const vatAmount = subtotal * order.vatRate;
+                  const totalAmount = subtotal + vatAmount;
+
+                  return (
+                    <>
+                      <div className="order-detail-modal__summary-row">
+                        <span>Tạm tính:</span>
+                        <span>{formatCurrency(subtotal)}</span>
+                      </div>
+                      <div className="order-detail-modal__summary-row">
+                        <span>VAT ({order.vatRate * 100}%):</span>
+                        <span>{formatCurrency(vatAmount)}</span>
+                      </div>
+                      <div className="order-detail-modal__summary-row order-detail-modal__summary-row--total">
+                        <span>Tổng cộng:</span>
+                        <span>{formatCurrency(totalAmount)}</span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </>
           ) : (
