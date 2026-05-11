@@ -1,18 +1,17 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-
-import type { Book } from "../../../product/types/Book";
+import { useState, useEffect, useCallback } from "react";
 
 import type { Category } from "../../../book-category/types/category";
-
-import type { ProductFilters, ProductsResponse, ProductSummary } from "../types/product";
+import type {
+  ProductFilters,
+  ProductsResponse,
+  ProductSummary,
+} from "../types/product";
 
 import { productService } from "../services/productService";
-
 
 export const useProducts = () => {
   // ================= STATES =================
   const [allProducts, setAllProducts] = useState<ProductsResponse>();
-
   const [categories, setCategories] = useState<Category[]>([]);
 
   const [summary, setSummary] = useState<ProductSummary>({
@@ -21,12 +20,12 @@ export const useProducts = () => {
     outOfStock: 0,
   });
 
-  const [loading, setLoading] = useState<boolean>(true);
-
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // ================= FILTERS =================
   const [filters, setFilters] = useState<ProductFilters>({
-    category: "Tất cả thể loại",
+    category: "all",
     status: "Tất cả trạng thái",
     search: "",
   });
@@ -35,98 +34,55 @@ export const useProducts = () => {
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-
       setError(null);
 
-      const [productsData, categoriesData] = await Promise.all([
-        productService.getProducts(0, 10000),
-        productService.getCategories(),
-      ]);
+      const data = await productService.getProducts({
+        page: 0,
+        size: 10000,
+        keyword: filters.search || undefined,
+        categoryId:
+          filters.category !== "all" ? Number(filters.category) : undefined,
+      });
 
+      setAllProducts(data);
 
-      setAllProducts(productsData);
-
-      setCategories(categoriesData);
+      // categories chỉ load 1 lần (tối ưu)
+      if (categories.length === 0) {
+        const categoriesData = await productService.getCategories();
+        setCategories(categoriesData);
+      }
     } catch (err: any) {
       setError(err.message || "Đã xảy ra lỗi khi tải sản phẩm");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filters.search, filters.category]);
 
+  // ================= AUTO FETCH =================
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
   // ================= SUMMARY =================
   useEffect(() => {
+    const content = allProducts?.content ?? [];
+
     const total = allProducts?.totalElements || 0;
 
-    const inStock = allProducts?.content.filter(
+    const inStock = content.filter(
       (book) => book.isActive && book.stockQuantity > 0,
-    ).length || 0;
+    ).length;
 
-    const outOfStock = allProducts?.content?.filter(
+    const outOfStock = content.filter(
       (book) => !book.isActive || book.stockQuantity <= 0,
-    ).length || 0;
+    ).length;
 
-    
     setSummary({
       total,
       inStock,
       outOfStock,
     });
-    console.log(summary)
   }, [allProducts]);
-
-  // ================= FILTER =================
-  const filteredProducts = useMemo(() => {
-    let result = [...allProducts?.content || []];
-
-    // SEARCH
-    if (filters.search) {
-      const keyword = filters.search.toLowerCase();
-
-      result = result.filter(
-        (book) =>
-          book.title.toLowerCase().includes(keyword) ||
-          book.bookId.toString().includes(keyword),
-      );
-    }
-
-    // CATEGORY
-    if (filters.category !== "Tất cả thể loại") {
-      result = result.filter((book) =>
-        book.categories?.some(
-          (category) => category.categoryName === filters.category,
-        ),
-      );
-    }
-
-    // STATUS
-    if (filters.status !== "Tất cả trạng thái") {
-      result = result.filter((book) => {
-        // Đang bán
-        if (filters.status === "Đang bán") {
-          return book.isActive && book.stockQuantity > 0;
-        }
-
-        // Hết hàng
-        if (filters.status === "Hết hàng") {
-          return book.isActive && book.stockQuantity <= 0;
-        }
-
-        // Tạm ngưng
-        if (filters.status === "Tạm ngưng") {
-          return !book.isActive;
-        }
-
-        return true;
-      });
-    }
-
-    return result;
-  }, [allProducts, filters]);
 
   // ================= FILTER CHANGE =================
   const handleFilterChange = (key: keyof ProductFilters, value: string) => {
@@ -137,101 +93,60 @@ export const useProducts = () => {
   };
 
   // ================= DELETE =================
-const handleDeleteProduct = async (
-  bookId: number
-) => {
-  const confirmDelete =
-    window.confirm(
-      "Bạn có chắc muốn xóa sản phẩm?"
-    );
+  const handleDeleteProduct = async (bookId: number) => {
+    const confirmDelete = window.confirm("Bạn có chắc muốn xóa sản phẩm?");
+    if (!confirmDelete) return;
 
-  if (!confirmDelete) return;
+    try {
+      await productService.deleteProduct(bookId);
 
-  try {
-    await productService.deleteProduct(
-      bookId
-    );
+      setAllProducts((prev) => {
+        if (!prev) return prev;
 
-    setAllProducts((prev) => {
-      if (!prev) return prev;
+        return {
+          ...prev,
+          content: prev.content.filter((book) => book.bookId !== bookId),
+          totalElements: prev.totalElements - 1,
+        };
+      });
 
-      return {
-        ...prev,
+      alert("Xóa thành công");
+    } catch {
+      alert("Đã xảy ra lỗi khi xóa sản phẩm");
+    }
+  };
 
-        content: prev.content.filter(
-          (book) =>
-            book.bookId !== bookId
-        ),
+  // ================= UPDATE STATUS =================
+  const handleUpdateStatus = async (bookId: number, isActive: boolean) => {
+    try {
+      await productService.updateProduct(bookId, { isActive });
 
-        totalElements:
-          prev.totalElements - 1,
-      };
-    });
+      setAllProducts((prev) => {
+        if (!prev) return prev;
 
-    alert("Xóa thành công");
+        return {
+          ...prev,
+          content: prev.content.map((book) =>
+            book.bookId === bookId ? { ...book, isActive } : book,
+          ),
+        };
+      });
+    } catch {
+      alert("Lỗi khi cập nhật trạng thái");
+    }
+  };
 
-  } catch (error) {
-    alert(
-      "Đã xảy ra lỗi khi xóa sản phẩm"
-    );
-  }
-};
-
-// ================= UPDATE STATUS =================
-const handleUpdateStatus = async (
-  bookId: number,
-  isActive: boolean
-) => {
-  try {
-    await productService.updateProduct(
-      bookId,
-      { isActive }
-    );
-
-    setAllProducts((prev) => {
-      if (!prev) return prev;
-
-      return {
-        ...prev,
-
-        content: prev.content.map(
-          (book) =>
-            book.bookId === bookId
-              ? {
-                  ...book,
-                  isActive,
-                }
-              : book
-        ),
-      };
-    });
-
-  } catch (error) {
-    alert(
-      "Lỗi khi cập nhật trạng thái"
-    );
-  }
-};
-
+  // ================= RETURN =================
   return {
-    products: filteredProducts,
-
+    products: allProducts?.content ?? [],
     categories,
-
     summary,
-
     loading,
-
     error,
-
     filters,
-
     handleFilterChange,
-
     handleDeleteProduct,
-
     handleUpdateStatus,
-
     refreshData: fetchProducts,
   };
 };
