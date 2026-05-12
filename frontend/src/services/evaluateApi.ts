@@ -1,8 +1,7 @@
 import axiosClient from "./axiosClient";
 
 const getAuthHeader = () => {
-  const token =
-    localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   return {
     headers: {
@@ -31,20 +30,60 @@ export interface ReviewResponse {
   last: boolean;
   empty: boolean;
   content: ReviewItem[];
-}
+};
 
 export const evaluateApi = {
+  // ================= GET REVIEWS =================
   getReviewsByBookId: async (
     bookId: number | string,
     page: number = 0,
     size: number = 10
   ): Promise<ReviewResponse> => {
-    const response =
-      await axiosClient.get(
-        `/books/${bookId}/reviews?page=${page}&size=${size}`,
-        getAuthHeader()
-      );
+    const response = await axiosClient.get(
+      `/books/${bookId}/reviews?page=${page}&size=${size}`,
+      getAuthHeader()
+    );
 
     return response.data.result;
   },
+
+  // ================= MY REVIEW =================
+  getMyReview: async (
+    bookId: number,
+    orderId: number,
+    itemId: number
+  ) => {
+    const response = await axiosClient.get(
+      `/reviews/my?bookId=${bookId}&orderId=${orderId}&itemId=${itemId}`,
+      getAuthHeader()
+    );
+
+    return response.data.result;
+  },
+
+  // ================= ORDER DETAIL =================
+  getOrderById: async (orderId: number) => {
+    const response = await axiosClient.get(
+      `/orders/my/${orderId}`,
+      getAuthHeader()
+    );
+
+    return response.data.result;
+  },
+
+    createReview: async (data: {
+      bookId: number;
+      orderId: number;
+      itemId: number;
+      rate: number;
+      content: string;
+    }) => {
+      const response = await axiosClient.post(
+        `/reviews`,
+        data,
+        getAuthHeader()
+      );
+
+      return response.data.result;
+    },
 };

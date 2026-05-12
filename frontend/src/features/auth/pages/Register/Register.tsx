@@ -100,7 +100,7 @@ const Register = () => {
 
     await authApi.registerInit(payload);
 
-    await authApi.sendOtp(form.email);
+    //await authApi.sendOtp(form.email);
 
     // lưu payload đầy đủ
     sessionStorage.setItem(

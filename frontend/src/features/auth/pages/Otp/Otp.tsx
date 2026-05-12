@@ -11,7 +11,8 @@ const OTP = () => {
   const [loading, setLoading] = useState(false);
 
   // 5 phút
-  const [timeLeft, setTimeLeft] = useState(300);
+  const OTP_DURATION = 300;
+  const [timeLeft, setTimeLeft] = useState(OTP_DURATION);
 
   const email = sessionStorage.getItem("registerEmail");
 
@@ -20,15 +21,42 @@ const OTP = () => {
   );
 
   // ================= COUNTDOWN =================
-  useEffect(() => {
-    if (timeLeft <= 0) return;
+useEffect(() => {
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
+  let otpExpireTime =
+    sessionStorage.getItem("otpExpireTime");
 
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+  // chưa có thì tạo mới
+  if (!otpExpireTime) {
+
+    const expire =
+      Date.now() + OTP_DURATION * 1000;
+
+    sessionStorage.setItem(
+      "otpExpireTime",
+      String(expire)
+    );
+
+    otpExpireTime = String(expire);
+  }
+
+  const updateTimer = () => {
+
+    const remain =
+      Math.floor(
+        (Number(otpExpireTime) - Date.now()) / 1000
+      );
+
+    setTimeLeft(remain > 0 ? remain : 0);
+  };
+
+  updateTimer();
+
+  const timer = setInterval(updateTimer, 1000);
+
+  return () => clearInterval(timer);
+
+}, []);
 
   // ================= FORMAT TIME =================
   const formatTime = (sec: number) => {
@@ -97,8 +125,10 @@ const OTP = () => {
       console.log("REGISTER COMPLETE:", data);
 
       // clear session
+      // clear session
       sessionStorage.removeItem("registerEmail");
       sessionStorage.removeItem("registerPayload");
+      sessionStorage.removeItem("otpExpireTime");
 
       navigate("/login");
 
@@ -116,6 +146,44 @@ const OTP = () => {
     }
   };
 
+const handleResendOtp = async () => {
+  try {
+
+    if (!email) {
+      return setError("Không tìm thấy email");
+    }
+
+    setLoading(true);
+    setError("");
+
+    await authApi.sendOtp(email);
+
+    // tạo thời gian hết hạn mới
+    const newExpire =
+      Date.now() + OTP_DURATION * 1000;
+
+    sessionStorage.setItem(
+      "otpExpireTime",
+      String(newExpire)
+    );
+
+    // reset UI
+    setTimeLeft(OTP_DURATION);
+
+    setOtp("");
+
+  } catch (err: any) {
+
+    setError(
+      err?.response?.data?.message ||
+      err?.message ||
+      "Gửi lại OTP thất bại"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="otp-page">
       <div className="otp-container">
@@ -154,9 +222,24 @@ const OTP = () => {
           </div>
 
           {timeLeft <= 0 && (
-            <p style={{ color: "red" }}>
-              OTP đã hết hạn, vui lòng gửi lại mã
-            </p>
+            <div className="otp-expired">
+
+              <p style={{ color: "red" }}>
+                 OTP đã hết hạn, vui lòng gửi lại mã
+              </p>
+
+              <button
+                type="button"
+                className="resend-btn"
+                onClick={handleResendOtp}
+                disabled={loading}
+              >
+                {loading
+                  ? "Đang gửi..."
+                  : "Gửi lại OTP"}
+              </button>
+
+            </div>
           )}
 
           {error && (

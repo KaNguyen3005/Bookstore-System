@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
 import logo from "../../../assets/images/logo.png";
+import aiLogo from "../../../assets/images/ai-logo.png";
 
 import { addressApi } from "../../../services/addressApi";
 import type {Address } from "../../../data/address";
@@ -236,6 +237,10 @@ if (loading) {
         </button>
         <button onClick={() => navigate("/category")} style={{ display: "flex", alignItems: "center", gap: "6px" }} >
           <GiHamburgerMenu /> Xem tất cả
+        </button>
+        <button style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <img src={aiLogo} alt="AI" style={{ width: "18px", height: "18px" }} />
+          Gợi Ý Hôm Nay
         </button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><GoBook /> Ebook</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><FaHotjar /> Bán chạy</button>
