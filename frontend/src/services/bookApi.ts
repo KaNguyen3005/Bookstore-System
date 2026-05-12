@@ -49,8 +49,8 @@ export const bookApi = {
 
     return {
       suggestionBooks: books.slice(0, 10),
-      hotSearchBooks: books.slice(10, 20),
-      topSellingBooks: books.slice(20, 30),
+      hotSearchBooks: books,
+      topSellingBooks: books,
       featuredBook: books[0] ?? null,
       categories,
     };

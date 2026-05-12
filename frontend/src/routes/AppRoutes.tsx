@@ -1,14 +1,17 @@
 import { Routes, Route } from "react-router-dom";
 
+//home user
 import Layout from "../layout/layoutUser/MainLayout/Layout";
 
 import Home from "../features/home/pages/Home/Home";
 import CategoryPage from "../features/book-category/pages/CategoryPage";
+import VoucherPage from "../features/voucher/pages/VoucherPage/VoucherPage";
 import ProductDetailPage from "../features/product/pages/ProductDetailPage/ProductDetailPage";
 import Cart from "../features/cart/pages/Cart/Cart";
 
 import ProtectedRoute from "../features/auth/routes/ProtectedRoute";
 
+//thanhtoan dat hang
 import CheckoutPage from "../features/checkout/pages/CheckoutPage/CheckoutPage";
 
 import PaymentCallbackPage from "../features/checkout/pages/PaymentCallbackPage/PaymentCallbackPage";
@@ -16,6 +19,7 @@ import PaymentSuccessPage from "../features/checkout/pages/PaymentSuccessPage/Pa
 import PaymentFailPage from "../features/checkout/pages/PaymentFailPage/PaymentFailPage";
 import OrderSuccessPage from "../features/checkout/pages/OrderSuccessPage/orderSuccessPage";
 
+/*UserProflie*/
 import Profile from "../features/UserProfile/pages/ProfileUser/Profile";
 import ProfileContent from "../features/UserProfile/components/ProfileDetail/ProfileContent";
 
@@ -26,12 +30,14 @@ import Address from "../features/UserProfile/components/Address/Address";
 import Voucher from "../features/UserProfile/components/Voucher/Voucher";
 import MemberRank from "../features/UserProfile/components/MemberRank/MemberRank";
 
+/*auth*/
 import Login from "../features/auth/pages/Login/Login";
 import Register from "../features/auth/pages/Register/Register";
 import Otp from "../features/auth/pages/Otp/Otp";
 
+/*admin*/
 import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
-
+import AdminHome from "../layout/layoutAdmin/AdminHome/AdminHome";
 import { CustomerManagement } from "../features/admin/customerManagement";
 import { StatisticalReportManagement } from "../features/admin/reportManagement";
 import { AuthorManagement } from "../features/admin/authorManagement";
@@ -40,9 +46,9 @@ import { Dashboard } from "../features/admin/dashboardManagement";
 import { OrderManagement } from "../features/admin/orderManagement";
 import { VoucherManagement } from "../features/admin/voucherManagement";
 
+/*search*/
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
 
-import AdminHome from "../layout/layoutAdmin/AdminHome/AdminHome";
 
 export default function AppRoutes() {
 
@@ -70,6 +76,8 @@ export default function AppRoutes() {
           path="category"
           element={<CategoryPage />}
         />
+
+        <Route path ="voucherPage" element ={<VoucherPage/>} />
 
         <Route
           path="product/:id"

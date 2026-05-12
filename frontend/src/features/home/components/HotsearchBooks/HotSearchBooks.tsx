@@ -6,13 +6,13 @@ interface HotSearchBooksProps {
   books: Book[];
 }
 
-const HotSearchBooks = ({ books }: HotSearchBooksProps) => {
+const HotSearchBooks = ({ books = [] }: HotSearchBooksProps) => {
   return (
     <div className="hot-search container">
       <h2 className="hot-search__title">HOT SEARCH BOOKS</h2>
 
       <div className="hot-search__grid">
-        {books.map((book) => (
+        {(books ?? []).map((book) => (
           <ProductCard key={book.bookId} book={book} />
         ))}
       </div>
