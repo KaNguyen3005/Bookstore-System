@@ -2,6 +2,7 @@ import type { Book } from "../../../product/types/Book";
 import ProductCard from "../../../product/components/ProductCard";
 import "./TopSellingBooks.css";
 
+
 interface TopSellingBooksProps {
   books: Book[];
 }

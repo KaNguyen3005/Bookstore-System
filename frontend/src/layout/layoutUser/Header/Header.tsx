@@ -243,7 +243,7 @@ if (loading) {
           <img src={aiLogo} alt="AI" style={{ width: "18px", height: "18px" }} />
           Gợi Ý Hôm Nay
         </button>
-        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><LuTickets /> Kho Voucher</button>
+        <button onClick ={() => navigate("/voucherPage")} style={{ display: "flex", alignItems: "center", gap: "6px" }} ><LuTickets /> Kho Voucher</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><GoBook /> Ebook</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><FaHotjar /> Bán chạy</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><MdCardMembership /> Thành viên</button>

@@ -3,13 +3,9 @@ import React, { useState } from "react";
 import { Plus } from "lucide-react";
 
 import { useVouchers } from "../hooks/useVouchers";
-
 import { VoucherStats } from "../components/VoucherStats";
-
 import { VoucherFilters } from "../components/VoucherFilters";
-
 import { VoucherCard } from "../components/VoucherCard";
-
 import VoucherCreateModal from "../components/VoucherCreateModal";
 
 import "../styles/VoucherManagement.css";
