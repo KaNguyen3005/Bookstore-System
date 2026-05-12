@@ -17,6 +17,8 @@ import ProductDelivery from "../../components/ProductDelivery/ProductDelivery";
 import ProductDescription from "../../components/ProductDescription/ProductDescription";
 import ProductPolicy from "../../components/ProductPolicy/ProductPolicy";
 
+import RelatedBooks from "../../../AI/components/RelatedBooks/RelatedBooks";
+
 const ProductDetailPage: React.FC = () => {
   // ================= PARAMS =================
   const {
@@ -137,12 +139,22 @@ const ProductDetailPage: React.FC = () => {
         </div>
 
         {/* REVIEWS */}
-        <Evaluate
-          reviews={reviews}
-          myReview={myReview}
-          orderStatus={orderStatus}
-          onSuccess={fetchReviews}
-        />
+        <div className="mt-4">
+          <Evaluate
+            reviews={reviews}
+            myReview={myReview}
+            orderStatus={orderStatus}
+            onSuccess={fetchReviews}
+          />
+        </div>
+
+        {/* RELATED BOOKS (AI / recommendation theo sach tuong tu) */}
+        <div className="mt-5">
+          {book?.bookId && (
+            <RelatedBooks bookId={book.bookId} />
+          )}
+        </div>
+
       </div>
 
       {/* EXPLORE */}

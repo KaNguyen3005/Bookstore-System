@@ -358,3 +358,35 @@
   color: white;
 }
 
+/* ================= LOAD MORE ================= */
+
+.loadMoreWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.loadMoreBtn {
+  min-width: 200px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid #111827;
+  background: #fff;
+  color: #111827;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.loadMoreBtn:hover {
+  background: #111827;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.loadMoreBtn:active {
+  transform: translateY(0px);
+}
+

@@ -1,21 +1,28 @@
 import { Link } from "react-router-dom";
+import type { MouseEvent } from "react";
+
 import { useCartActions } from "../../cart/hooks/useCartActions";
 import type { Book } from "../types/Book";
-import "./ProductCard.css";
 import type { CartItemType } from "../../cart/types/cartItemType";
+
+import "./ProductCard.css";
 
 interface ProductCardProps {
   book: Book;
 }
 
 const ProductCard = ({ book }: ProductCardProps) => {
-  // console.log("BOOK:", book);
   const { onAddToCart } = useCartActions();
 
-  const rating = book.avgRating || 0;
-  const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
+  // ================= SAFE DATA =================
+  const rating = book.avgRating ?? 0;
+  const roundedRating = Math.round(rating);
+  const price = book.price ?? 0;
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const stars = Array.from({ length: 5 }, (_, i) => i < roundedRating);
+
+  // ================= HANDLER =================
+  const handleAddToCart = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -23,10 +30,10 @@ const ProductCard = ({ book }: ProductCardProps) => {
       book: {
         bookId: book.bookId,
         title: book.title,
-        price: book.price,
-        salePercent: book.salePercent || 0,
+        price: book.price ?? 0,
+        salePercent: book.salePercent ?? 0,
         coverImgUrl: book.coverImgUrl,
-        stockQuantity: book.stockQuantity || 100,
+        stockQuantity: book.stockQuantity ?? 0,
       },
       quantity: 1,
       selected: true,
@@ -38,6 +45,7 @@ const ProductCard = ({ book }: ProductCardProps) => {
   return (
     <div className="product-card">
       <Link to={`/product/${book.bookId}`} className="product-card__link">
+        {/* ================= COVER ================= */}
         <div className="product-card__cover">
           <img
             src={
@@ -46,19 +54,15 @@ const ProductCard = ({ book }: ProductCardProps) => {
             }
             alt={book.title}
           />
-
-          {/* {book.salePercent && (
-            <span className="product-card__badge">
-              -{book.salePercent}%
-            </span>
-          )} */}
         </div>
 
+        {/* ================= CONTENT ================= */}
         <div className="product-card__content">
           <h3 className="product-card__title" title={book.title}>
             {book.title}
           </h3>
 
+          {/* ================= RATING ================= */}
           <div className="product-card__rating">
             {rating > 0 ? (
               <>
@@ -72,28 +76,25 @@ const ProductCard = ({ book }: ProductCardProps) => {
                     ★
                   </span>
                 ))}
-                {book.reviewCount && (
+
+                {book.reviewCount !== undefined && (
                   <span className="product-card__review-count">
                     ({book.reviewCount})
                   </span>
                 )}
               </>
             ) : (
-              <>
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <span key={index} className="product-card__star">
-                    ★
-                  </span>
-                ))}
-                <span className="product-card__review-count"></span>
-              </>
+              <span className="product-card__no-rating">
+                Chưa có đánh giá
+              </span>
             )}
           </div>
 
+          {/* ================= PRICE ================= */}
           <div className="product-card__price-container">
             <div className="product-card__price">
               <span className="product-card__price-current">
-                {book.price.toLocaleString("vi-VN")} đ
+                {price.toLocaleString("vi-VN")} đ
               </span>
 
               {book.oldPrice && (
@@ -106,6 +107,7 @@ const ProductCard = ({ book }: ProductCardProps) => {
         </div>
       </Link>
 
+      {/* ================= ADD TO CART ================= */}
       <button className="product-card__btn" onClick={handleAddToCart}>
         <svg
           width="18"
@@ -115,9 +117,9 @@ const ProductCard = ({ book }: ProductCardProps) => {
           stroke="currentColor"
           strokeWidth="2"
         >
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
         </svg>
         Thêm vào giỏ
       </button>
