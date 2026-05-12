@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-import HeroBanner from "../../components/HeroBanner/HeroBanner";
+import Suggestion from "../../../AI/components/SuggestionAI/suggestionAI";
 import HotSearchBooks from "../../components/HotsearchBooks/HotSearchBooks";
 import TopSellingBooks from "../../components/TopsellingBooks/TopSellingBooks";
 import ExploreCategories from "../../components/ExploreCategories/ExploreCategories";
@@ -8,93 +8,91 @@ import Banner from "../../components/Banner/Banner";
 import Pagination from "../../components/Pagination/Pagination";
 
 import { useHomeData } from "../../hooks/useHomeData";
+import { useAISuggestion } from "../../../AI/hooks/useAISuggestion";
 
 function Home() {
+    /*hooks*/
   const { homeData, loading } = useHomeData();
+  const { books: aiSuggestions, loading: aiLoading } = useAISuggestion();
 
-
-
-  // pagination riêng
+  /* ───────── PAGINATION STATES ───────── */
+  const [suggestionPage, setSuggestionPage] = useState(1);
   const [hotPage, setHotPage] = useState(1);
   const [topPage, setTopPage] = useState(1);
 
-  // ref section
-  const hotSectionRef =
-    useRef<HTMLDivElement | null>(null);
+  /* ───────── LIMITS ───────── */
+  const SUGGESTION_LIMIT = 10;
+  const HOT_LIMIT = 10;
+  const TOP_LIMIT = 10;
 
-  const topSectionRef =
-    useRef<HTMLDivElement | null>(null);
+  /* ───────── REFS ───────── */
+  const hotSectionRef = useRef<HTMLDivElement | null>(null);
+  const topSectionRef = useRef<HTMLDivElement | null>(null);
 
-  // scroll hot section
+  /* ───────── SCROLL HOT ───────── */
   useEffect(() => {
     if (hotSectionRef.current) {
-
       const top =
-        hotSectionRef.current
-          .getBoundingClientRect().top +
+        hotSectionRef.current.getBoundingClientRect().top +
         window.scrollY -
         120;
 
-      window.scrollTo({
-        top,
-        behavior: "smooth",
-      });
+      window.scrollTo({ top, behavior: "smooth" });
     }
   }, [hotPage]);
 
-  // scroll top section
+  /* ───────── SCROLL TOP ───────── */
   useEffect(() => {
     if (topSectionRef.current) {
-
       const top =
-        topSectionRef.current
-          .getBoundingClientRect().top +
+        topSectionRef.current.getBoundingClientRect().top +
         window.scrollY -
         30;
 
-      window.scrollTo({
-        top,
-        behavior: "smooth",
-      });
+      window.scrollTo({ top, behavior: "smooth" });
     }
   }, [topPage]);
 
-  // item / page
-  const itemsPerPage = 15;
-
-  // phải đặt sau hooks
+  /* ───────── LOADING GUARD ───────── */
   if (loading || !homeData) return null;
 
-  /* ───────── HOT SEARCH ───────── */
+  /* ───────── SUGGESTION ───────── */
+  const suggestionBooks = aiSuggestions || [];
 
-  const hotBooks = homeData.hotSearchBooks;
-
-  const hotTotalPages = Math.ceil(
-    hotBooks.length / itemsPerPage
+  const suggestionTotalPages = Math.ceil(
+    suggestionBooks.length / SUGGESTION_LIMIT
   );
 
-  const hotStart =
-    (hotPage - 1) * itemsPerPage;
+  const suggestionStart =
+    (suggestionPage - 1) * SUGGESTION_LIMIT;
+
+  const suggestionCurrent = suggestionBooks.slice(
+    suggestionStart,
+    suggestionStart + SUGGESTION_LIMIT
+  );
+
+  /* ───────── HOT SEARCH ───────── */
+  const hotBooks = homeData.hotSearchBooks || [];
+
+  const hotTotalPages = Math.ceil(hotBooks.length / HOT_LIMIT);
+
+  const hotStart = (hotPage - 1) * HOT_LIMIT;
 
   const hotCurrentBooks = hotBooks.slice(
     hotStart,
-    hotStart + itemsPerPage
+    hotStart + HOT_LIMIT
   );
 
   /* ───────── TOP SELLING ───────── */
+  const topBooks = homeData.topSellingBooks || [];
 
-  const topBooks = homeData.topSellingBooks;
+  const topTotalPages = Math.ceil(topBooks.length / TOP_LIMIT);
 
-  const topTotalPages = Math.ceil(
-    topBooks.length / itemsPerPage
-  );
-
-  const topStart =
-    (topPage - 1) * itemsPerPage;
+  const topStart = (topPage - 1) * TOP_LIMIT;
 
   const topCurrentBooks = topBooks.slice(
     topStart,
-    topStart + itemsPerPage
+    topStart + TOP_LIMIT
   );
 
   return (
@@ -106,11 +104,19 @@ function Home() {
           <Banner />
         </div>
 
-        {/* Hot Search Books */}
-        <div
-          ref={hotSectionRef}
-          className="section"
-        >
+        {/* SUGGESTION */}
+        <div className="section">
+          <Suggestion books={suggestionCurrent} />
+
+          <Pagination
+            currentPage={suggestionPage}
+            totalPages={suggestionTotalPages}
+            setCurrentPage={setSuggestionPage}
+          />
+        </div>
+
+        {/* HOT SEARCH */}
+        <div ref={hotSectionRef} className="section">
           <HotSearchBooks books={hotCurrentBooks} />
 
           <Pagination
@@ -120,11 +126,8 @@ function Home() {
           />
         </div>
 
-        {/* Top Selling Books */}
-        <div
-          ref={topSectionRef}
-          className="section"
-        >
+        {/* TOP SELLING */}
+        <div ref={topSectionRef} className="section">
           <TopSellingBooks books={topCurrentBooks} />
 
           <Pagination
@@ -134,11 +137,9 @@ function Home() {
           />
         </div>
 
-        {/* Categories */}
+        {/* CATEGORIES */}
         <div className="section">
-          <ExploreCategories
-            categories={homeData.categories}
-          />
+          <ExploreCategories categories={homeData.categories} />
         </div>
 
       </div>

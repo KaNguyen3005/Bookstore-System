@@ -2,71 +2,57 @@ import axiosClient from "./axiosClient";
 import type { Book } from "../features/product/types/Book";
 import type { Category } from "../features/book-category/types/category";
 
+const unwrap = (res: any) => res?.data?.result ?? res?.data;
+
 export const bookApi = {
-  // ================= GET ALL BOOKS (FULL FIX) =================
-  getBooks: async (params?: any): Promise<{
-    data: Book[];
-    total: number;
-  }> => {
-    const res: any = await axiosClient.get("/books", {
+  // ================= GET BOOKS =================
+  getBooks: async (params?: any): Promise<{ data: Book[]; total: number }> => {
+    const res = await axiosClient.get("/books", {
       params: {
         ...params,
-        size: params?.size ?? 1000, //lấy full or tăng limit
+        size: params?.size ?? 1000,
       },
     });
 
+    const data = unwrap(res);
+
     return {
-      data:
-        res?.data?.result?.content ??
-        res?.data?.content ??
-        [],
-      total:
-        res?.data?.result?.totalElements ??
-        res?.data?.totalElements ??
-        0,
+      data: data?.content ?? [],
+      total: data?.totalElements ?? 0,
     };
   },
 
-  // ================= GET BOOK BY ID =================
+  // ================= GET BY ID =================
   getBookById: async (id: number): Promise<Book> => {
-    const res: any = await axiosClient.get(`/books/${id}`);
-
-    return res?.data?.result ?? res?.data;
+    const res = await axiosClient.get(`/books/${id}`);
+    return unwrap(res);
   },
 
   // ================= CATEGORIES =================
   getCategories: async (): Promise<Category[]> => {
-    const res: any = await axiosClient.get("/categories");
-
-    return res?.data?.result ?? [];
+    const res = await axiosClient.get("/categories");
+    return unwrap(res) ?? [];
   },
 
   // ================= HOME DATA =================
-    getHomeData: async () => {
-      const [booksRes, categoriesRes] = await Promise.all([
-        axiosClient.get("/books", {
-          params: { size: 1000 },
-        }),
-        axiosClient.get("/categories"),
-      ]);
+  getHomeData: async () => {
+    const [booksRes, categoriesRes] = await Promise.all([
+      axiosClient.get("/books", { params: { size: 1000 } }),
+      axiosClient.get("/categories"),
+    ]);
 
-      console.log("BOOK RESPONSE:", booksRes);
+    const booksData = unwrap(booksRes);
+    const categoriesData = unwrap(categoriesRes);
 
-      const books =
-        booksRes?.data?.result?.content ??
-        booksRes?.data?.content ??
-        [];
+    const books = booksData?.content ?? [];
+    const categories = categoriesData ?? [];
 
-      const categories =
-        categoriesRes?.data?.result ??
-        categoriesRes?.data ??
-        [];
-
-      return {
-        hotSearchBooks: books,
-        topSellingBooks: books,
-        featuredBook: books[0],
-        categories,
-      };
-    },
+    return {
+      suggestionBooks: books.slice(0, 10),
+      hotSearchBooks: books.slice(10, 20),
+      topSellingBooks: books.slice(20, 30),
+      featuredBook: books[0] ?? null,
+      categories,
+    };
+  },
 };

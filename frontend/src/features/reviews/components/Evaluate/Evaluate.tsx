@@ -1,6 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import styles from "./Evaluate.module.css";
-
 import { Star, ThumbsUp, MessageCircle, Filter } from "lucide-react";
 
 export interface Review {
@@ -27,36 +26,63 @@ const Evaluate: React.FC<EvaluateProps> = ({
   myReview = null,
   orderStatus = null,
 }) => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+
   const [selectedFilter, setSelectedFilter] = useState("Tất cả");
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
 
-  // ================= ORDER LOGIC =================
+  const [visibleCount, setVisibleCount] = useState(4);
+
   const hasOrder = orderStatus !== null;
   const canReview = orderStatus === "DELIVERED";
 
-  // ================= SUBMIT =================
+  // reset khi đổi filter
+  useEffect(() => {
+    setVisibleCount(4);
+  }, [selectedFilter]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     console.log({ rating, content });
   };
 
-  // ================= AVG =================
+  // AVG
   const averageRating = useMemo(() => {
     if (!reviews.length) return "0.0";
     const total = reviews.reduce((sum, item) => sum + item.rate, 0);
     return (total / reviews.length).toFixed(1);
   }, [reviews]);
 
-  // ================= FILTER =================
+  // FILTER
   const filteredReviews = useMemo(() => {
     if (selectedFilter === "Tất cả") return reviews;
     const star = Number(selectedFilter.replace(" sao", ""));
     return reviews.filter((item) => item.rate === star);
   }, [reviews, selectedFilter]);
 
-  // ================= STARS =================
+  // VISIBLE
+  const visibleReviews = useMemo(() => {
+    return filteredReviews.slice(0, visibleCount);
+  }, [filteredReviews, visibleCount]);
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 4);
+  };
+
+  const handleShowLess = () => {
+    setVisibleCount(4);
+
+    // FIX SCROLL
+    setTimeout(() => {
+      sectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 50);
+  };
+
+  // STARS
   const renderStars = (rating: number) =>
     Array.from({ length: 5 }).map((_, index) => (
       <Star
@@ -68,9 +94,9 @@ const Evaluate: React.FC<EvaluateProps> = ({
     ));
 
   return (
-    <section className={styles.container}>
+    <section ref={sectionRef} className={styles.container}>
 
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
       <div className={styles.header}>
         <div>
           <h2 className={styles.title}>Đánh giá sản phẩm</h2>
@@ -111,55 +137,34 @@ const Evaluate: React.FC<EvaluateProps> = ({
         </div>
       </div>
 
-      {/* ================= FORM / STATUS ================= */}
-
+      {/* FORM */}
       {!hasOrder ? (
-        // 👉 CHƯA MUA: không form, không status
         myReview && (
           <div className={styles.myReviewBox}>
             <h3>Đánh giá của bạn</h3>
-
             <div className={styles.myReviewStars}>
               {renderStars(myReview.rate)}
             </div>
-
-            <p className={styles.myReviewText}>
-              {myReview.content}
-            </p>
-
-            <button className={styles.editBtn}>
-              Chỉnh sửa đánh giá
-            </button>
+            <p className={styles.myReviewText}>{myReview.content}</p>
+            <button className={styles.editBtn}>Chỉnh sửa đánh giá</button>
           </div>
         )
       ) : !canReview ? (
-        // 👉 ĐÃ MUA NHƯNG CHƯA GIAO
         <div className={styles.empty}>
           Đơn hàng của bạn đang được xử lý / chưa giao.
         </div>
       ) : myReview ? (
-        // 👉 ĐÃ GIAO + ĐÃ REVIEW
         <div className={styles.myReviewBox}>
           <h3>Đánh giá của bạn</h3>
-
           <div className={styles.myReviewStars}>
             {renderStars(myReview.rate)}
           </div>
-
-          <p className={styles.myReviewText}>
-            {myReview.content}
-          </p>
-
-          <button className={styles.editBtn}>
-            Chỉnh sửa đánh giá
-          </button>
+          <p className={styles.myReviewText}>{myReview.content}</p>
+          <button className={styles.editBtn}>Chỉnh sửa đánh giá</button>
         </div>
       ) : (
-        // 👉 ĐÃ GIAO + CHƯA REVIEW
         <form className={styles.formReview} onSubmit={handleSubmit}>
-          <h3 className={styles.formTitle}>
-            Viết đánh giá của bạn
-          </h3>
+          <h3 className={styles.formTitle}>Viết đánh giá của bạn</h3>
 
           <div className={styles.starSelect}>
             <label>Chọn số sao</label>
@@ -190,44 +195,38 @@ const Evaluate: React.FC<EvaluateProps> = ({
         </form>
       )}
 
-      {/* ================= REVIEW LIST (LUÔN HIỂN THỊ) ================= */}
+      {/* LIST */}
       <div className={styles.reviewList}>
         {filteredReviews.length === 0 ? (
           <div className={styles.empty}>Chưa có đánh giá nào.</div>
         ) : (
-          filteredReviews.map((review, index) => (
+          visibleReviews.map((review, index) => (
             <div key={index} className={styles.reviewCard}>
 
               <div className={styles.reviewTop}>
                 <div className={styles.reviewInfo}>
-
                   <div className={styles.avatar}>
                     {review.rate}★
                   </div>
 
-                  <div className={styles.contentWrap}>
-
+                  <div>
                     <div className={styles.userRow}>
                       <h4 className={styles.userName}>
                         Khách hàng đã mua
                       </h4>
-
-                      <span className={styles.badge}>
-                        Đã xác minh
-                      </span>
+                      <span className={styles.badge}>Đã xác minh</span>
                     </div>
 
                     <div className={styles.stars}>
                       {renderStars(review.rate)}
                     </div>
 
-                    <p className={styles.comment}>
-                      {review.content}
-                    </p>
+                    <p className={styles.comment}>{review.content}</p>
 
                     <div className={styles.extraInfo}>
                       <span>
-                        Đã mua: <strong>{review.quantity}</strong> {review.unit}
+                        Đã mua: <strong>{review.quantity}</strong>{" "}
+                        {review.unit}
                       </span>
 
                       <span>
@@ -239,24 +238,18 @@ const Evaluate: React.FC<EvaluateProps> = ({
                         </strong>
                       </span>
                     </div>
-
                   </div>
                 </div>
 
-                <span className={styles.date}>
-                  Đánh giá sản phẩm
-                </span>
+                <span className={styles.date}>12/05/2026</span>
               </div>
 
               <div className={styles.actions}>
                 <button className={styles.actionBtn}>
-                  <ThumbsUp size={16} />
-                  Hữu ích
+                  <ThumbsUp size={16} /> Hữu ích
                 </button>
-
                 <button className={styles.actionBtn}>
-                  <MessageCircle size={16} />
-                  Phản hồi
+                  <MessageCircle size={16} /> Phản hồi
                 </button>
               </div>
 
@@ -264,6 +257,33 @@ const Evaluate: React.FC<EvaluateProps> = ({
           ))
         )}
       </div>
+
+      {/* LOAD MORE */}
+      {filteredReviews.length > 4 && (
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 20 }}>
+
+          {visibleCount < filteredReviews.length && (
+            <button
+              onClick={handleLoadMore}
+              className={styles.submitBtn}
+              style={{ width: 160 }}
+            >
+              Xem thêm
+            </button>
+          )}
+
+          {visibleCount > 4 && (
+            <button
+              onClick={handleShowLess}
+              className={styles.submitBtn}
+              style={{ width: 160 }}
+            >
+              Ẩn bớt
+            </button>
+          )}
+
+        </div>
+      )}
 
     </section>
   );
