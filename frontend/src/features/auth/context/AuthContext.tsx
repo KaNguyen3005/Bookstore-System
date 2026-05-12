@@ -14,6 +14,8 @@ export interface User {
   username: string;
   name: string;
   role: string;
+  avatarUrl?: string;
+  token?: string;
 }
 
 interface AuthContextType {
@@ -41,20 +43,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   });
 
+  const [hasToken, setHasToken] = useState(
+    () => Boolean(localStorage.getItem("access_token")),
+  );
+
   const [loading, setLoading] = useState(true);
 
     useEffect(() => {
       const initAuth = async () => {
         try {
           const saved = localStorage.getItem("user");
+          const token = localStorage.getItem("access_token");
 
           if (!saved) {
+            if (!token) {
+              setHasToken(false);
+              setLoading(false);
+              return;
+            }
+
+            setHasToken(true);
+            const fetchedUser = await userApi.getMe();
+
+            if (fetchedUser) {
+              localStorage.setItem("user", JSON.stringify(fetchedUser));
+              setUser(fetchedUser);
+            }
+
             setLoading(false);
             return;
           }
 
           const parsed = JSON.parse(saved);
           setUser(parsed); // load ngay từ storage
+          setHasToken(Boolean(token || parsed?.token));
 
         } catch (e) {
           setUser(null);
@@ -67,15 +89,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       initAuth();
     }, []);
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!user || hasToken;
 
   const login = useCallback((userData: User) => {
     localStorage.setItem("user", JSON.stringify(userData));
+    setHasToken(Boolean(localStorage.getItem("access_token") || userData.token));
     setUser(userData);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
+    setHasToken(false);
     setUser(null);
   }, []);
 

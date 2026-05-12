@@ -1,5 +1,7 @@
 import styles from "./OrderModal.module.css";
 
+const FALLBACK_BOOK_IMAGE = "/images/book-placeholder.svg";
+
 export default function OrderModal({
   order,
   onClose,
@@ -9,11 +11,27 @@ export default function OrderModal({
 }) {
   if (!order) return null;
 
+const items = Array.isArray(order.items) ? order.items : [];
 const totalQuantity =
-  order.items?.reduce(
+  items.reduce(
     (sum: number, item: any) => sum + (item.quantity || 0),
     0
   ) || 0;
+const customerName =
+  order.customerName || order.shipping?.receiverName || "Chưa có";
+const phone =
+  order.phone || order.shipping?.receiverPhone || "N/A";
+const address =
+  order.address ||
+  [
+    order.shipping?.line1,
+    order.shipping?.ward,
+    order.shipping?.district,
+    order.shipping?.city,
+  ]
+    .filter(Boolean)
+    .join(", ") ||
+  "N/A";
 
   return (
     <div className={styles.modal} onClick={onClose}>
@@ -36,7 +54,7 @@ const totalQuantity =
 
           <div className={styles.row}>
             <span>Khách hàng</span>
-            <span>{order.customerName || "Chưa có"}</span>
+            <span>{customerName}</span>
           </div>
 
           <div className={styles.row}>
@@ -51,12 +69,12 @@ const totalQuantity =
 
           <div className={styles.row}>
             <span>Thanh toán</span>
-            <span>{order.paymentStatus}</span>
+            <span>{order.paymentStatus || order.payment?.status || "N/A"}</span>
           </div>
 
           <div className={styles.row}>
             <span>Vận chuyển</span>
-            <span>{order.shippingStatus}</span>
+            <span>{order.shippingStatus || "N/A"}</span>
           </div>
 
           <div className={styles.row}>
@@ -77,17 +95,17 @@ const totalQuantity =
 
           <div className={styles.row}>
             <span>Họ tên</span>
-            <span>{order.customerName || "N/A"}</span>
+            <span>{customerName}</span>
           </div>
 
           <div className={styles.row}>
             <span>Số điện thoại</span>
-            <span>{order.phone || "N/A"}</span>
+            <span>{phone}</span>
           </div>
 
           <div className={styles.row}>
             <span>Địa chỉ</span>
-            <span>{order.address || "N/A"}</span>
+            <span>{address}</span>
           </div>
         </div>
 
@@ -99,9 +117,21 @@ const totalQuantity =
             Tổng số sản phẩm: {totalQuantity}
           </div>
 
-          {order.items?.map((item: any) => (
-            <div key={item.bookId} className={styles.item}>
-              <img src="/images/book.png" alt={item.bookTitle} />
+          {items.length === 0 && (
+            <div className={styles.emptyItems}>
+              Đang cập nhật thông tin sản phẩm
+            </div>
+          )}
+
+          {items.map((item: any, index: number) => (
+            <div key={item.itemId || `${item.bookId}-${index}`} className={styles.item}>
+              <img
+                src={item.coverImgUrl || FALLBACK_BOOK_IMAGE}
+                alt={item.bookTitle}
+                onError={(event) => {
+                  event.currentTarget.src = FALLBACK_BOOK_IMAGE;
+                }}
+              />
 
               <div className={styles.itemInfo}>
                 <div className={styles.itemTitle}>

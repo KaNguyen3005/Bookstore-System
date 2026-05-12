@@ -222,7 +222,7 @@ if (loading) {
                   onPurchaseOrder ={()=> {
                       scrollToTop();
                       setOpen(false);
-                      navigate("/profile/purchaseOrder");
+                      navigate("/profile/purchaseorder");
                       }}
                 />
               )}

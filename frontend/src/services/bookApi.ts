@@ -2,7 +2,7 @@ import axiosClient from "./axiosClient";
 import type { Book } from "../features/product/types/Book";
 import type { Category } from "../features/book-category/types/category";
 
-const unwrap = (res: any) => res?.data?.result ?? res?.data;
+const unwrap = (res: any) => res?.data?.result ?? res?.data?.data ?? res?.data;
 
 export const bookApi = {
   // ================= GET BOOKS =================
@@ -16,9 +16,17 @@ export const bookApi = {
 
     const data = unwrap(res);
 
+    const books = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.content)
+      ? data.content
+      : Array.isArray(data?.data)
+      ? data.data
+      : [];
+
     return {
-      data: data?.content ?? [],
-      total: data?.totalElements ?? 0,
+      data: books,
+      total: data?.totalElements ?? data?.meta?.totalElements ?? books.length,
     };
   },
 
@@ -44,7 +52,9 @@ export const bookApi = {
     const booksData = unwrap(booksRes);
     const categoriesData = unwrap(categoriesRes);
 
-    const books = booksData?.content ?? [];
+    const books = Array.isArray(booksData)
+      ? booksData
+      : booksData?.content ?? booksData?.data ?? [];
     const categories = categoriesData ?? [];
 
     return {

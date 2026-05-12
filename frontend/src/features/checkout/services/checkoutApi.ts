@@ -15,7 +15,13 @@ const checkoutApi = {
 
     const response = await axiosClient.post("/orders", mappedPayload);
 
-    return response.data.result;
+    const source = response.data.result ?? response.data.data ?? response.data;
+    const order = source?.data ?? source;
+
+    return {
+      ...order,
+      orderId: order.orderId ?? order.id,
+    };
   },
 };
 

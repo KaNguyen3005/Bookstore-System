@@ -1,22 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getMyOrdersByStatus } from "../../../../services/orderApi";
+import { getMyOrders } from "../../../../services/orderApi";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
 
 import styles from "./PurchaseOrder.module.css";
 import OrderModal from "../OrderModal/OrderModal";
 
+const FALLBACK_BOOK_IMAGE = "/images/book-placeholder.svg";
+
 export default function Orders() {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const [active, setActive] = useState("PENDING");
+  const [active, setActive] = useState("ALL");
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   const tabs = [
+    { key: "ALL", label: "Tất cả" },
     { key: "PENDING", label: "Chờ xác nhận" },
     { key: "PICKING_UP", label: "Chờ lấy hàng" },
     { key: "SHIPPING", label: "Chờ giao hàng" },
@@ -26,12 +29,30 @@ export default function Orders() {
   ];
 
   const statusMap: Record<string, string> = {
+    CREATED: "Chờ xác nhận",
     PENDING: "Chờ xác nhận",
+    CONFIRMED: "Chờ lấy hàng",
     PICKING_UP: "Chờ lấy hàng",
+    PROCESSING: "Chờ lấy hàng",
+    PENDING_PAYMENT: "Chờ thanh toán",
+    PAID: "Đã thanh toán",
     SHIPPING: "Đang giao hàng",
+    COMPLETED: "Đã giao",
     DELIVERED: "Đã giao",
+    REFUNDED: "Đã hoàn tiền",
+    FAILED: "Thanh toán thất bại",
     RETURNED: "Trả hàng",
     CANCELLED: "Đã hủy",
+    UNKNOWN: "Đang cập nhật",
+  };
+
+  const statusGroups: Record<string, string[]> = {
+    PENDING: ["CREATED", "PENDING", "PENDING_PAYMENT"],
+    PICKING_UP: ["CONFIRMED", "PROCESSING", "PICKING_UP", "PAID"],
+    SHIPPING: ["SHIPPING"],
+    DELIVERED: ["DELIVERED", "COMPLETED"],
+    RETURNED: ["RETURNED", "REFUNDED", "FAILED"],
+    CANCELLED: ["CANCELLED"],
   };
 
   // ================= LOAD ORDERS =================
@@ -39,9 +60,14 @@ export default function Orders() {
     try {
       setLoading(true);
 
-      const result = await getMyOrdersByStatus(active);
+      const result = await getMyOrders();
+      const nextOrders = Array.isArray(result?.content)
+        ? result.content
+        : Array.isArray(result)
+        ? result
+        : [];
 
-      setOrders(result?.content || result || []);
+      setOrders(nextOrders);
     } catch (error) {
       console.error("Load orders failed:", error);
       setOrders([]);
@@ -51,9 +77,12 @@ export default function Orders() {
   };
 
   useEffect(() => {
-    if (!user) return;
+    const hasToken = Boolean(localStorage.getItem("access_token"));
+
+    if (!isAuthenticated && !hasToken) return;
+
     loadOrders();
-  }, [user, active]);
+  }, [isAuthenticated]);
 
   // ================= ACTIONS =================
   const renderActions = (order: any) => {
@@ -61,6 +90,8 @@ export default function Orders() {
 
     switch (status) {
       case "PENDING":
+      case "CREATED":
+      case "PENDING_PAYMENT":
         return (
           <>
             <button className={styles.cancelBtn}>Hủy đơn</button>
@@ -72,6 +103,9 @@ export default function Orders() {
         );
 
       case "PICKING_UP":
+      case "CONFIRMED":
+      case "PROCESSING":
+      case "PAID":
       case "SHIPPING":
         return (
           <>
@@ -83,6 +117,7 @@ export default function Orders() {
         );
 
       case "DELIVERED":
+      case "COMPLETED":
         return (
           <>
             {order.items?.map((item: any) => (
@@ -121,6 +156,8 @@ export default function Orders() {
         );
 
       case "RETURNED":
+      case "REFUNDED":
+      case "FAILED":
       case "CANCELLED":
         return (
           <>
@@ -133,13 +170,23 @@ export default function Orders() {
         );
 
       default:
-        return null;
+        return (
+          <button onClick={() => setSelectedOrder(order)}>
+            Xem chi tiết
+          </button>
+        );
     }
   };
 
   // ================= FILTER BY TAB (IMPORTANT FIX) =================
   const filteredOrders = useMemo(() => {
-    return orders.filter((o) => o.status === active);
+    if (active === "ALL") {
+      return orders;
+    }
+
+    const group = statusGroups[active] || [active];
+
+    return orders.filter((o) => group.includes(o.status));
   }, [orders, active]);
 
   // ================= UI =================
@@ -173,11 +220,14 @@ export default function Orders() {
             </div>
           ) : (
             <div className={styles.orderList}>
-              {filteredOrders.map((o) => {
+              {filteredOrders.map((o, index) => {
                 const firstItem = o.items?.[0];
+                const orderTitle =
+                  firstItem?.bookTitle || `Đơn hàng #${o.orderId || index + 1}`;
+                const orderImage = firstItem?.coverImgUrl || FALLBACK_BOOK_IMAGE;
 
                 return (
-                  <div key={o.orderId} className={styles.orderItem}>
+                  <div key={o.orderId || index} className={styles.orderItem}>
                     {/* STATUS */}
                     <span
                       className={`${styles.shippingStatus} ${
@@ -185,7 +235,7 @@ export default function Orders() {
                           ? styles.blue
                           : o.status === "CANCELLED"
                           ? styles.red
-                          : o.status === "DELIVERED"
+                          : o.status === "DELIVERED" || o.status === "COMPLETED"
                           ? styles.green
                           : ""
                       }`}
@@ -194,27 +244,35 @@ export default function Orders() {
                     </span>
 
                     {/* ITEM */}
-                    {firstItem && (
-                      <div className={styles.orderTop}>
-                        <img src="/images/book.png" alt={firstItem.bookTitle} />
+                    <div className={styles.orderTop}>
+                      <img
+                        src={orderImage}
+                        alt={orderTitle}
+                        onError={(event) => {
+                          event.currentTarget.src = FALLBACK_BOOK_IMAGE;
+                        }}
+                      />
 
-                        <div className={styles.orderInfo}>
-                          <h4>{firstItem.bookTitle}</h4>
+                      <div className={styles.orderInfo}>
+                        <h4>{orderTitle}</h4>
 
-                          {o.items.length > 1 ? (
+                        {firstItem ? (
+                          o.items.length > 1 ? (
                             <span>
                               Số lượng: {firstItem.quantity} (+{o.items.length - 1} sản phẩm khác)
                             </span>
                           ) : (
                             <span>Số lượng: {firstItem.quantity}</span>
-                          )}
-                        </div>
-
-                        <div className={styles.orderPrice}>
-                          <p>{(firstItem.price || 0).toLocaleString()} đ</p>
-                        </div>
+                          )
+                        ) : (
+                          <span>Đang cập nhật thông tin sản phẩm</span>
+                        )}
                       </div>
-                    )}
+
+                      <div className={styles.orderPrice}>
+                        <p>{(firstItem?.price || 0).toLocaleString()} đ</p>
+                      </div>
+                    </div>
 
                     {/* FOOTER */}
                     <div className={styles.orderBottom}>
