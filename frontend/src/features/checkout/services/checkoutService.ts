@@ -117,13 +117,17 @@ export const createOrder = async (
       source: "WEBSITE",
 
       addressId: payload.addressId,
+      shippingAddressId: payload.addressId,
 
       items: payload.items.map((item: any) => ({
         bookId: item.bookId || item.book_id,
         quantity: item.quantity,
       })),
 
-      paymentMethod: payload.paymentMethod || payload.payment_method,
+      paymentMethod:
+        (payload.paymentMethod || payload.payment_method) === "VNPAY"
+          ? "ONLINE"
+          : payload.paymentMethod || payload.payment_method,
 
       voucherCode: payload.voucherCode || "",
     };

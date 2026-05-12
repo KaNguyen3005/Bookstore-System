@@ -3,6 +3,7 @@ import "./orderSuccessPage.css";
 import {
   Link,
   useLocation,
+  useSearchParams,
 } from "react-router-dom";
 
 import { FiPackage } from "react-icons/fi";
@@ -10,9 +11,12 @@ const OrderSuccessPage: React.FC = () => {
 
   const location =
     useLocation();
+  const [searchParams] =
+    useSearchParams();
 
   const orderId =
-    location.state?.orderId;
+    location.state?.orderId ??
+    searchParams.get("orderId");
 
   return (
 

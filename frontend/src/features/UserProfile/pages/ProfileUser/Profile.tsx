@@ -4,16 +4,22 @@ import "./Profile.Sidebar.css";
 
 import Sidebar from "./Sidebar";
 import { userApi } from "../../../../services/userApi";
+import { useAuth } from "../../../auth/hooks/useAuth";
 
 type User = {
-  id?: string;
+  id?: string | number;
+  userId?: number;
+  username?: string;
   name?: string;
   email?: string;
+  phone?: string;
+  role?: string;
   avatarUrl?: string;
 };
 
 export default function Profile() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user: authUser } = useAuth();
+  const [user, setUser] = useState<User | null>(() => authUser);
   const [edit, setEdit] = useState(false);
 
   const [avatar, setAvatar] = useState("");
@@ -21,22 +27,46 @@ export default function Profile() {
 
   // ================= FETCH USER =================
   useEffect(() => {
+    let isMounted = true;
+
     const fetchUser = async () => {
       try {
+        if (authUser) {
+          setUser((prev) => prev ?? authUser);
+          setAvatar((prev) => prev || authUser.avatarUrl || "");
+        }
+
         const res = await userApi.getMe();
         const data = res?.data ?? res;
 
         console.log("PROFILE USER:", data);
 
-        setUser(data);
-        setAvatar(data?.avatarUrl || "");
+        if (!isMounted) return;
+
+        if (data) {
+          setUser(data);
+          setAvatar(data?.avatarUrl || "");
+          return;
+        }
+
+        if (authUser) {
+          setUser(authUser);
+        }
       } catch (error) {
         console.error("FETCH USER ERROR:", error);
+
+        if (isMounted && authUser) {
+          setUser(authUser);
+        }
       }
     };
 
     fetchUser();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authUser]);
 
   // ================= CLEAN OBJECT URL =================
   useEffect(() => {

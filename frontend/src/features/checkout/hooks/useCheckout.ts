@@ -30,6 +30,7 @@ import type {
 import type { CartItemType } from "../../cart/types/cartItemType";
 
 import { paymentApi } from "../services/paymentApi";
+import { saveLocalOrderFallback } from "../../../services/orderApi";
 
 interface UseCheckoutReturn {
 
@@ -463,6 +464,13 @@ export const useCheckout = (
 
           }
 
+          saveLocalOrderFallback({
+            order,
+            items: selectedItems,
+            totals,
+            paymentMethod,
+          });
+
           // =========================
           // COD FLOW
           // =========================
@@ -549,10 +557,12 @@ export const useCheckout = (
         } catch (err) {
 
           const error =
-            err as Error;
+            err as any;
 
           setOrderError(
-            error.message ||
+            error?.response?.data?.message ||
+              error?.response?.data?.error ||
+              error.message ||
               "Đặt hàng thất bại"
           );
 

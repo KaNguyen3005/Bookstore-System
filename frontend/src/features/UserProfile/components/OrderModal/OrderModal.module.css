@@ -128,3 +128,14 @@
   color: #666;
   margin: 6px 0 12px;
 }
+
+.emptyItems {
+  padding: 12px;
+  margin-top: 10px;
+  background: #fff;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  color: #666;
+  font-size: 13px;
+  text-align: center;
+}
