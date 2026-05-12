@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { Order, OrderStatus } from '../types/order';
-import { orderService, type OrdersResponse } from '../services/orderService';
+import { useState, useEffect, useCallback } from "react";
+import type { Order, OrderStatus } from "../types/order";
+import { orderService, type OrdersResponse } from "../services/orderService";
 
 export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  PENDING: ['CONFIRMED', 'CANCELLED'],
-  CONFIRMED: ['SHIPPING'],
-  PROCESSING: ['SHIPPING'],
-  SHIPPING: ['DELIVERED'],
-  DELIVERED: ['COMPLETED'],
+  PENDING: ["CONFIRMED", "CANCELLED"],
+  CONFIRMED: ["SHIPPING"],
+  PROCESSING: ["SHIPPING"],
+  SHIPPING: ["DELIVERED"],
+  DELIVERED: ["COMPLETED"],
   COMPLETED: [],
   CANCELLED: [],
 };
@@ -23,8 +23,8 @@ export const useOrders = () => {
   const [size, setSize] = useState<number>(10);
 
   // Filters
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('Tất cả');
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("Tất cả");
   const [dateRange, setDateRange] = useState<{
     startDate: Date | null;
     endDate: Date | null;
@@ -36,13 +36,20 @@ export const useOrders = () => {
   // ================= MAPPERS =================
   const mapStatusToData = (uiStatus: string): string | undefined => {
     switch (uiStatus) {
-      case 'Chờ xác nhận': return 'PENDING';
-      case 'Đã duyệt': return 'CONFIRMED';
-      case 'Đang giao': return 'SHIPPING';
-      case 'Đã giao': return 'DELIVERED';
-      case 'Hoàn thành': return 'COMPLETED';
-      case 'Đã hủy': return 'CANCELLED';
-      default: return undefined;
+      case "Chờ xác nhận":
+        return "PENDING";
+      case "Đã duyệt":
+        return "CONFIRMED";
+      case "Đang giao":
+        return "SHIPPING";
+      case "Đã giao":
+        return "DELIVERED";
+      case "Hoàn thành":
+        return "COMPLETED";
+      case "Đã hủy":
+        return "CANCELLED";
+      default:
+        return undefined;
     }
   };
 
@@ -52,14 +59,15 @@ export const useOrders = () => {
       const response = await orderService.getOrders({
         page,
         size,
-        status: statusFilter === 'Tất cả' ? undefined : mapStatusToData(statusFilter),
+        status:
+          statusFilter === "Tất cả" ? undefined : mapStatusToData(statusFilter),
         keyword: searchTerm,
         startDate: dateRange.startDate?.toISOString(),
         endDate: dateRange.endDate?.toISOString(),
       });
       setData(response);
     } catch (err) {
-      setError('Không thể tải danh sách đơn hàng');
+      setError("Không thể tải danh sách đơn hàng");
     } finally {
       setLoading(false);
     }
@@ -71,10 +79,10 @@ export const useOrders = () => {
 
   // ================= DATA PREPARATION =================
   const rawOrders = Array.isArray(data) ? data : (data?.content ?? []);
-  
+
   // Lọc dữ liệu tại Frontend để đảm bảo chính xác tuyệt đối (phòng trường hợp Backend chưa lọc chuẩn)
   const safeOrders = rawOrders.filter((order: Order) => {
-    if (statusFilter === 'Tất cả') return true;
+    if (statusFilter === "Tất cả") return true;
     const mappedStatus = mapStatusToData(statusFilter);
     return order.status === mappedStatus;
   });
@@ -84,52 +92,96 @@ export const useOrders = () => {
     try {
       await orderService.approveOrder(id);
       // Optimistic update
-      setData(prev => {
+      setData((prev) => {
         if (!prev) return prev;
         if (Array.isArray(prev)) {
-          return prev.map(o => o.orderId === id ? { ...o, status: 'CONFIRMED' as OrderStatus } : o);
+          return prev.map((o) =>
+            o.orderId === id ? { ...o, status: "CONFIRMED" as OrderStatus } : o,
+          );
         }
         return {
           ...prev,
-          content: (prev as OrdersResponse).content.map(o => o.orderId === id ? { ...o, status: 'CONFIRMED' as OrderStatus } : o)
+          content: (prev as OrdersResponse).content.map((o) =>
+            o.orderId === id ? { ...o, status: "CONFIRMED" as OrderStatus } : o,
+          ),
         } as OrdersResponse;
       });
-      alert('Đã phê duyệt đơn hàng thành công');
+      alert("Đã phê duyệt đơn hàng thành công");
       return true;
     } catch (err) {
-      alert('Lỗi khi phê duyệt đơn hàng');
+      alert("Lỗi khi phê duyệt đơn hàng");
       return false;
     }
   };
 
-  const handleUpdateStatus = async (id: number, currentStatus: OrderStatus, newStatus: OrderStatus) => {
+  const handleUpdateStatus = async (
+    id: number,
+    currentStatus: OrderStatus,
+    newStatus: OrderStatus,
+  ) => {
+    console.log("UPDATE STATUS:", {
+      id,
+      currentStatus,
+      newStatus,
+    });
+
     // Safety check
     if (!ALLOWED_TRANSITIONS[currentStatus].includes(newStatus)) {
-      alert('Chuyển đổi trạng thái không hợp lệ');
+      console.log("INVALID TRANSITION");
+
+      alert("Chuyển đổi trạng thái không hợp lệ");
+
       return false;
     }
 
     try {
-      if (newStatus === 'CANCELLED') {
+      if (newStatus === "CANCELLED") {
+        console.log("CALL CANCEL API");
+
         await orderService.cancelOrder(id);
       } else {
+        console.log("CALL PATCH API WITH:", {
+          status: newStatus,
+        });
+
         await orderService.updateOrderStatus(id, newStatus);
       }
-      
+
       // Optimistic update
-      setData(prev => {
+      setData((prev) => {
         if (!prev) return prev;
+
         if (Array.isArray(prev)) {
-          return prev.map(o => o.orderId === id ? { ...o, status: newStatus } : o);
+          return prev.map((o) =>
+            o.orderId === id
+              ? {
+                  ...o,
+                  status: newStatus,
+                }
+              : o,
+          );
         }
+
         return {
           ...prev,
-          content: (prev as OrdersResponse).content.map(o => o.orderId === id ? { ...o, status: newStatus } : o)
+
+          content: (prev as OrdersResponse).content.map((o) =>
+            o.orderId === id
+              ? {
+                  ...o,
+                  status: newStatus,
+                }
+              : o,
+          ),
         } as OrdersResponse;
       });
+
       return true;
     } catch (err) {
-      alert('Lỗi khi cập nhật trạng thái');
+      console.error("UPDATE STATUS ERROR:", err);
+
+      alert("Lỗi khi cập nhật trạng thái");
+
       return false;
     }
   };
@@ -138,14 +190,14 @@ export const useOrders = () => {
     try {
       const blob = await orderService.exportOrders();
       const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', `orders_${new Date().getTime()}.xlsx`);
+      link.setAttribute("download", `orders_${new Date().getTime()}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
     } catch (err) {
-      alert('Lỗi khi xuất file Excel');
+      alert("Lỗi khi xuất file Excel");
     }
   };
 
@@ -157,27 +209,37 @@ export const useOrders = () => {
     delivered: 0,
     completed: 0,
     cancelled: 0,
-    totalRevenue: 0
+    totalRevenue: 0,
   });
 
   const fetchGlobalStats = useCallback(async () => {
     try {
       const response = await orderService.getOrders({ size: 100 });
-      const allOrders = Array.isArray(response) ? response : (response.content || []);
+      const allOrders = Array.isArray(response)
+        ? response
+        : response.content || [];
 
       setGlobalStats({
-        pending: allOrders.filter((o: any) => o.status === 'PENDING').length,
-        confirmed: allOrders.filter((o: any) => o.status === 'CONFIRMED').length,
-        shipping: allOrders.filter((o: any) => o.status === 'SHIPPING').length,
-        delivered: allOrders.filter((o: any) => o.status === 'DELIVERED').length,
-        completed: allOrders.filter((o: any) => o.status === 'COMPLETED').length,
-        cancelled: allOrders.filter((o: any) => o.status === 'CANCELLED').length,
-        totalRevenue: allOrders.reduce((sum: number, o: any) => 
-          (o.status === 'DELIVERED' || o.status === 'COMPLETED') ? sum + o.totalAmount : sum, 0
-        )
+        pending: allOrders.filter((o: any) => o.status === "PENDING").length,
+        confirmed: allOrders.filter((o: any) => o.status === "CONFIRMED")
+          .length,
+        shipping: allOrders.filter((o: any) => o.status === "SHIPPING").length,
+        delivered: allOrders.filter((o: any) => o.status === "DELIVERED")
+          .length,
+        completed: allOrders.filter((o: any) => o.status === "COMPLETED")
+          .length,
+        cancelled: allOrders.filter((o: any) => o.status === "CANCELLED")
+          .length,
+        totalRevenue: allOrders.reduce(
+          (sum: number, o: any) =>
+            o.status === "DELIVERED" || o.status === "COMPLETED"
+              ? sum + o.totalAmount
+              : sum,
+          0,
+        ),
       });
     } catch (err) {
-      console.error('Error fetching global stats:', err);
+      console.error("Error fetching global stats:", err);
     }
   }, []);
 
