@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import CreatableSelect from "react-select/creatable";
 
-import { Button } from '../../../../components/ui/Button';
-import type { CreateBookPayload } from '../services/productService';
+import { Button } from "../../../../components/ui/Button";
+import type { CreateBookPayload } from "../services/productService";
 
-import '../styles/CreateProductModal.css';
+import { getAuthors } from "../../../../services/authorApi";
+import { categoryService } from "../../../../features/book-category/services/categoryService";
+import { publisherService } from "../../../../features/book-category/services/publisherService";
+
+import "../styles/CreateProductModal.css";
 
 interface CreateProductModalProps {
   open: boolean;
@@ -13,61 +18,111 @@ interface CreateProductModalProps {
   loading: boolean;
 }
 
-export const CreateProductModal: React.FC<
-  CreateProductModalProps
-> = ({
+type Option = {
+  value: number;
+  label: string;
+};
+
+export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   open,
   onClose,
   onCreate,
   loading,
 }) => {
-
+  // ================= FORM =================
   const [formData, setFormData] = useState({
-    title: '',
-    authorIds: '',
-    publisherId: '',
-    isbn: '',
-    language: 'Tiếng Việt',
-    description: '',
-    pageCount: '',
-    coverType: '',
-    stockQuantity: '0',
-    price: '',
-    avgRating: '5.0',
-    salePercent: '0',
-    categoryIds: '',
+    title: "",
+    isbn: "",
+    language: "Tiếng Việt",
+    description: "",
+    pageCount: "",
+    coverType: "",
+    stockQuantity: "0",
+    price: "",
+    avgRating: "5.0",
+    salePercent: "0",
+    coverImageUrl: "", // ✅ thêm URL ảnh
   });
 
   const [coverImgFile, setCoverImgFile] = useState<File | null>(null);
 
+  // ================= SELECT =================
+  const [selectedAuthors, setSelectedAuthors] = useState<Option[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
+  const [selectedPublisher, setSelectedPublisher] = useState<Option | null>(
+    null,
+  );
+
+  // ================= OPTIONS =================
+  const [authorOptions, setAuthorOptions] = useState<Option[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<Option[]>([]);
+  const [publisherOptions, setPublisherOptions] = useState<Option[]>([]);
+
+  // ================= LOAD DATA =================
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchData = async () => {
+      try {
+        const [authors, categories, publishers] = await Promise.all([
+          getAuthors(),
+          categoryService.getCategories(),
+          publisherService.getPublishers(),
+        ]);
+
+        setAuthorOptions(
+          authors.map((a: any) => ({
+            value: a.authorId,
+            label: a.authorName,
+          })),
+        );
+
+        setCategoryOptions(
+          categories.map((c: any) => ({
+            value: c.categoryId,
+            label: c.categoryName,
+          })),
+        );
+
+        setPublisherOptions(
+          publishers.map((p: any) => ({
+            value: p.publisherId,
+            label: p.publisherName,
+          })),
+        );
+      } catch (error) {
+        console.error("Load dropdown error:", error);
+      }
+    };
+
+    fetchData();
+  }, [open]);
+
   if (!open) return null;
 
+  // ================= HANDLERS =================
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (e.target.files && e.target.files[0]) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
       setCoverImgFile(e.target.files[0]);
     }
   };
 
+  // ================= SUBMIT =================
   const handleSubmit = async () => {
-    // Basic validation
     if (
       !formData.title ||
-      !formData.authorIds ||
       !formData.isbn ||
       !formData.coverType ||
       !formData.price ||
-      !formData.categoryIds
+      selectedAuthors.length === 0 ||
+      selectedCategories.length === 0
     ) {
       alert("Vui lòng điền đầy đủ các trường bắt buộc (*)");
       return;
@@ -75,21 +130,17 @@ export const CreateProductModal: React.FC<
 
     const payload: CreateBookPayload = {
       title: formData.title,
-      authorIds: formData.authorIds
-        .split(',')
-        .map((id) => parseInt(id.trim()))
-        .filter((id) => !isNaN(id)),
-      publisherId: formData.publisherId
-        ? parseInt(formData.publisherId)
-        : undefined,
+      authorIds: selectedAuthors.map((a) => a.value),
+      publisherId: selectedPublisher?.value,
       isbn: formData.isbn,
       language: formData.language,
       description: formData.description,
-      pageCount: formData.pageCount
-        ? parseInt(formData.pageCount)
-        : undefined,
+      pageCount: formData.pageCount ? parseInt(formData.pageCount) : undefined,
       coverType: formData.coverType,
-      coverImgFile: coverImgFile || undefined,
+
+      coverImgFile: coverImgFile || undefined, // upload file
+      coverImgUrl: formData.coverImgUrl || undefined, // URL
+
       stockQuantity: formData.stockQuantity
         ? parseInt(formData.stockQuantity)
         : undefined,
@@ -100,301 +151,148 @@ export const CreateProductModal: React.FC<
       salePercent: formData.salePercent
         ? parseFloat(formData.salePercent)
         : undefined,
-      categoryIds: formData.categoryIds
-        .split(',')
-        .map((id) => parseInt(id.trim()))
-        .filter((id) => !isNaN(id)),
+      categoryIds: selectedCategories.map((c) => c.value),
     };
 
     const success = await onCreate(payload);
+
     if (success) {
       onClose();
-      // Reset form
+
       setFormData({
-        title: '',
-        authorIds: '',
-        publisherId: '',
-        isbn: '',
-        language: 'Tiếng Việt',
-        description: '',
-        pageCount: '',
-        coverType: '',
-        stockQuantity: '0',
-        price: '',
-        avgRating: '5.0',
-        salePercent: '0',
-        categoryIds: '',
+        title: "",
+        isbn: "",
+        language: "Tiếng Việt",
+        description: "",
+        pageCount: "",
+        coverType: "",
+        stockQuantity: "0",
+        price: "",
+        avgRating: "5.0",
+        salePercent: "0",
+        coverImageUrl: "",
       });
+
+      setSelectedAuthors([]);
+      setSelectedCategories([]);
+      setSelectedPublisher(null);
       setCoverImgFile(null);
     }
   };
 
+  // ================= UI =================
   return (
     <div className="create-product-modal">
+      <div className="create-product-modal__overlay" onClick={onClose} />
 
-      {/* Overlay */}
-      <div
-        className="create-product-modal__overlay"
-        onClick={onClose}
-      />
-
-      {/* Content */}
       <div className="create-product-modal__content">
-
-        {/* Header */}
+        {/* HEADER */}
         <div className="create-product-modal__header">
-
           <div>
-            <h2>
-              Thêm sản phẩm
-            </h2>
-
-            <p>
-              Tạo mới sách trong hệ thống
-            </p>
+            <h2>Thêm sản phẩm</h2>
+            <p>Tạo mới sách trong hệ thống</p>
           </div>
 
-          <button
-            className="create-product-modal__close"
-            onClick={onClose}
-          >
+          <button onClick={onClose} className="create-product-modal__close">
             <X size={20} />
           </button>
         </div>
 
-        {/* Body */}
+        {/* BODY */}
         <div className="create-product-modal__body">
-
           <div className="create-product-form">
 
             {/* TITLE */}
             <div className="form-group">
               <label>Tên sách *</label>
-
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Nhập tên sách..."
-              />
+              <input name="title" value={formData.title} onChange={handleChange} />
             </div>
 
-            {/* AUTHOR IDS + PUBLISHER */}
-            <div className="form-row">
-
-              <div className="form-group">
-                <label>Author IDs *</label>
-
-                <input
-                  type="text"
-                  name="authorIds"
-                  value={formData.authorIds}
-                  onChange={handleChange}
-                  placeholder="Ví dụ: 1,2"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Publisher ID</label>
-
-                <input
-                  type="number"
-                  name="publisherId"
-                  value={formData.publisherId}
-                  onChange={handleChange}
-                  placeholder="Nhập publisher id"
-                />
-              </div>
-
-            </div>
-
-            {/* ISBN + LANGUAGE */}
-            <div className="form-row">
-
-              <div className="form-group">
-                <label>ISBN *</label>
-
-                <input
-                  type="text"
-                  name="isbn"
-                  value={formData.isbn}
-                  onChange={handleChange}
-                  placeholder="978..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Ngôn ngữ *</label>
-
-                <input
-                  type="text"
-                  name="language"
-                  value={formData.language}
-                  onChange={handleChange}
-                  placeholder="Tiếng Việt"
-                />
-              </div>
-
-            </div>
-
-            {/* DESCRIPTION */}
+            {/* IMAGE FILE */}
             <div className="form-group">
-              <label>Mô tả</label>
-
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={5}
-                placeholder="Nhập mô tả sản phẩm..."
-              />
+              <label>Ảnh bìa (Upload file)</label>
+              <input type="file" accept="image/*" onChange={handleFileChange} />
             </div>
 
-            {/* PAGE COUNT + COVER TYPE */}
-            <div className="form-row">
-
-              <div className="form-group">
-                <label>Số trang</label>
-
-                <input
-                  type="number"
-                  name="pageCount"
-                  value={formData.pageCount}
-                  onChange={handleChange}
-                  placeholder="300"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Loại bìa *</label>
-
-                <select
-                  name="coverType"
-                  value={formData.coverType}
-                  onChange={handleChange}
-                >
-                  <option value="">
-                    Chọn loại bìa
-                  </option>
-
-                  <option value="Bìa mềm">
-                    Bìa mềm
-                  </option>
-
-                  <option value="Bìa cứng">
-                    Bìa cứng
-                  </option>
-                </select>
-              </div>
-
-            </div>
-
-            {/* IMAGE */}
+            {/* IMAGE URL */}
             <div className="form-group">
-              <label>Ảnh bìa</label>
-
+              <label>Hoặc nhập URL ảnh</label>
               <input
-                type="file"
-                onChange={handleFileChange}
-                accept="image/*"
-              />
-            </div>
-
-            {/* STOCK + PRICE */}
-            <div className="form-row">
-
-              <div className="form-group">
-                <label>Số lượng</label>
-
-                <input
-                  type="number"
-                  name="stockQuantity"
-                  value={formData.stockQuantity}
-                  onChange={handleChange}
-                  placeholder="0"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Giá *</label>
-
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  placeholder="100000"
-                />
-              </div>
-
-            </div>
-
-            {/* RATING + SALE */}
-            <div className="form-row">
-
-              <div className="form-group">
-                <label>Đánh giá</label>
-
-                <input
-                  type="number"
-                  name="avgRating"
-                  value={formData.avgRating}
-                  onChange={handleChange}
-                  step="0.1"
-                  placeholder="5.0"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Giảm giá (%)</label>
-
-                <input
-                  type="number"
-                  name="salePercent"
-                  value={formData.salePercent}
-                  onChange={handleChange}
-                  placeholder="10"
-                />
-              </div>
-
-            </div>
-
-            {/* CATEGORY IDS */}
-            <div className="form-group">
-              <label>Category IDs *</label>
-
-              <input
-                type="text"
-                name="categoryIds"
-                value={formData.categoryIds}
+                name="coverImageUrl"
+                value={formData.coverImageUrl}
                 onChange={handleChange}
-                placeholder="Ví dụ: 1,2,3"
+                placeholder="https://..."
               />
+            </div>
+
+            {/* AUTHORS */}
+            <div className="form-group">
+              <label>Tác giả *</label>
+              <CreatableSelect
+                isMulti
+                value={selectedAuthors}
+                options={authorOptions}
+                onChange={(val) => setSelectedAuthors((val as Option[]) || [])}
+              />
+            </div>
+
+            {/* CATEGORY */}
+            <div className="form-group">
+              <label>Danh mục *</label>
+              <CreatableSelect
+                isMulti
+                value={selectedCategories}
+                options={categoryOptions}
+                onChange={(val) =>
+                  setSelectedCategories((val as Option[]) || [])
+                }
+              />
+            </div>
+
+            {/* PUBLISHER */}
+            <div className="form-group">
+              <label>Nhà xuất bản</label>
+              <CreatableSelect
+                value={selectedPublisher}
+                options={publisherOptions}
+                onChange={(val) => setSelectedPublisher(val as Option)}
+              />
+            </div>
+
+            {/* ISBN */}
+            <div className="form-group">
+              <label>ISBN *</label>
+              <input name="isbn" value={formData.isbn} onChange={handleChange} />
+            </div>
+
+            {/* PRICE */}
+            <div className="form-group">
+              <label>Giá *</label>
+              <input name="price" value={formData.price} onChange={handleChange} />
+            </div>
+
+            {/* COVER TYPE */}
+            <div className="form-group">
+              <label>Loại bìa *</label>
+              <select name="coverType" value={formData.coverType} onChange={handleChange}>
+                <option value="">Chọn loại bìa</option>
+                <option value="Bìa mềm">Bìa mềm</option>
+                <option value="Bìa cứng">Bìa cứng</option>
+              </select>
             </div>
 
           </div>
         </div>
 
-        {/* Footer */}
+        {/* FOOTER */}
         <div className="create-product-modal__footer">
-
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={loading}>
             Hủy
           </Button>
 
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
+          <Button variant="primary" onClick={handleSubmit} disabled={loading}>
             {loading ? "Đang thêm..." : "Thêm sản phẩm"}
           </Button>
-
         </div>
       </div>
     </div>

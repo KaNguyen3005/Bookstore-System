@@ -1,56 +1,41 @@
-import { authorsMock, type Author } from "../data/author";
-export type { Author };
+import axiosClient from "./axiosClient";
+import type { Author } from "../data/author";
 
-
-let authorsDB: Author[] = [...authorsMock];
-
-
+// GET all
 export const getAuthors = async (): Promise<Author[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([...authorsDB]);
-    }, 300);
-  });
+  const res = await axiosClient.get("/authors");
+  return res.data.result;
 };
 
+// GET by id
+export const getAuthorById = async (id: number): Promise<Author> => {
+  const res = await axiosClient.get(`/authors/${id}`);
+  return res.data.result;
+};
+
+// CREATE
+export const createAuthor = async (
+  data: Omit<Author, "author_id">,
+): Promise<Author> => {
+  const res = await axiosClient.post("/authors", data);
+  return res.data.result;
+};
+
+// DELETE
+export const deleteAuthor = async (id: number): Promise<void> => {
+  await axiosClient.delete(`/authors/${id}`);
+};
+
+// PATCH / UPDATE
+export const updateAuthor = async (
+  id: number,
+  data: Partial<Author>,
+): Promise<Author> => {
+  const res = await axiosClient.patch(`/authors/${id}`, data);
+  return res.data.result;
+};
 
 export const getTotalAuthors = async (): Promise<number> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(authorsDB.length);
-    }, 200);
-  });
-};
-
-export const getAuthorById = async (id: number): Promise<Author | undefined> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(authorsDB.find((a) => a.author_id === id));
-    }, 200);
-  });
-};
-
-
-export const createAuthor = async (
-  data: Omit<Author, "author_id">
-): Promise<Author> => {
-  return new Promise((resolve) => {
-    const newAuthor: Author = {
-      ...data,
-      author_id: authorsDB.length + 1,
-    };
-
-    authorsDB.push(newAuthor);
-
-    setTimeout(() => resolve(newAuthor), 300);
-  });
-};
-
-
-export const deleteAuthor = async (id: number): Promise<void> => {
-  authorsDB = authorsDB.filter((a) => a.author_id !== id);
-
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), 200);
-  });
+  const res = await axiosClient.get("/authors");
+  return res.data.result.length;
 };
