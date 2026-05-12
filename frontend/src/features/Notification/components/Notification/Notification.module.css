@@ -1,0 +1,106 @@
+.wrapper {
+  position: relative;
+}
+
+.bellButton {
+  position: relative;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: red;
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 360px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+.header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.header h4 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.list {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: #f5f7fb;
+}
+
+.unread {
+  background: #eef4ff;
+}
+
+.read {
+  background: white;
+}
+
+.content p {
+  margin: 0;
+  font-size: 14px;
+  color: #222;
+  line-height: 1.5;
+}
+
+.content span {
+  font-size: 12px;
+  color: #888;
+}
+
+.check {
+  color: #22c55e;
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

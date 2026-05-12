@@ -252,3 +252,47 @@ html {
   text-decoration: none;
   color: inherit;
 }
+
+.notification-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.notification-trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* dropdown */
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 50%;
+  transform: translateX(50%);
+
+  width: 360px;
+  background: #fff;
+  border-radius: 12px;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+
+  animation: dropFade 0.15s ease;
+}
+
+/* animation nhẹ, không giật UI */
+@keyframes dropFade {
+  from {
+    opacity: 0;
+    transform: translateX(50%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(50%) translateY(0);
+  }
+}
+
