@@ -62,7 +62,7 @@ export const VoucherCard: React.FC<VoucherCardProps> = ({
     discountType === 'freeship'
       ? 'Freeship'
       : discountType === 'percent'
-      ? `Giảm giá ${value}%`
+      ? `Giảm ${value}%`
       : `Giảm ${formatCurrency(value)}`;
 
   // ================= CALLBACKS =================
@@ -104,12 +104,6 @@ export const VoucherCard: React.FC<VoucherCardProps> = ({
 
           <div className="voucher-card__value">
             {displayValue}
-            {discountType === 'percent' && (
-              <span className="voucher-card__unit">
-                {' '}
-                giảm giá
-              </span>
-            )}
           </div>
 
           <div className="voucher-card__min-order">
