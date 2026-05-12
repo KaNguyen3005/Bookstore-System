@@ -78,18 +78,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   const selectedItems = cartItems.filter((item) => item.selected);
 
   const addToCart = async (newItem: CartItemType) => {
-    if (isAuthenticated) {
-      try {
-        await cartApi.addToCart(newItem);
-      } catch (error) {
-        console.error("Failed to add to server cart:", error);
-      }
-    }
-
     setCartItems((prev) => {
       const existing = prev.find(
         (item) => item.book.bookId === newItem.book.bookId,
       );
+
       if (existing) {
         return prev.map((item) =>
           item.book.bookId === newItem.book.bookId
@@ -97,8 +90,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
             : item,
         );
       }
+
       return [...prev, { ...newItem, selected: true }];
     });
+
+    if (isAuthenticated) {
+      try {
+        await cartApi.addToCart(newItem);
+      } catch (error) {
+        console.error("Failed to add to server cart:", error);
+      }
+    }
   };
 
   const updateQuantity = async (bookId: number, quantity: number) => {

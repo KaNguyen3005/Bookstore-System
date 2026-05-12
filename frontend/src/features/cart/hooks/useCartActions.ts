@@ -2,17 +2,18 @@ import { useCart } from './useCart';
 import { useRequireAuth } from '../../auth/hooks/useRequireAuth';
 import { useNavigate } from 'react-router-dom';
 import type { CartItemType } from '../types/cartItemType';
+import { useToast } from '../../../shared/components/Toast/ToastProvider';
 
 export const useCartActions = () => {
   const { addToCart } = useCart();
   const { handleProtectedAction } = useRequireAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const onAddToCart = (item: CartItemType) => {
     handleProtectedAction(() => {
       addToCart(item);
-      // No alert here as per PR requirement
-      console.log('Product added to cart');
+      showToast('Đã thêm vào giỏ hàng thành công!');
     }, { type: 'ADD_TO_CART', payload: item });
   };
 
