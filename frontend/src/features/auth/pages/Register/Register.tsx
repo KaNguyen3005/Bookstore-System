@@ -81,6 +81,8 @@ const Register = () => {
       OTHER: "OTHER",
     };
 
+    const now = new Date();
+
     const payload = {
       email: form.email,
       password: form.password,
@@ -88,7 +90,8 @@ const Register = () => {
       name: `${form.firstName} ${form.lastName}`.trim(),
       phone: "+84008938116",
       gender: genderMap[form.gender] || "OTHER",
-      dob: `${form.year}-${String(form.month).padStart(2, "0")}-${String(form.day).padStart(2, "0")}`
+
+      dob: `${form.year}-${String(form.month).padStart(2, "0")}-${String(form.day).padStart(2, "0")}T${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
     };
 
       //  CALL REGISTER INIT
