@@ -69,7 +69,8 @@
 .button-actions-horizontal {
   display: flex;
   gap: 12px;
-  margin-bottom: 25px;
+  margin: 25px;
+
 }
 
 .btn-flex {
