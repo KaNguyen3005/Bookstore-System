@@ -30,6 +30,10 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
   const { cartItems } = useCart();
+  const cartQuantity = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
 
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -187,8 +191,8 @@ if (loading) {
 
           <Link to="/cart" className="action-item">
             <FiShoppingCart size={24} />
-            {cartItems.length > 0 && (
-              <span className="cart-badge">{cartItems.length}</span>
+            {cartQuantity > 0 && (
+              <span className="cart-badge">{cartQuantity}</span>
             )}
             <p>Giỏ hàng</p>
           </Link>

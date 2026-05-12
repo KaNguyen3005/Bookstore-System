@@ -3,11 +3,13 @@ import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../../cart/hooks/useCart';
 import { useNavigate } from 'react-router-dom';
 import { type PendingAction } from '../hooks/useRequireAuth';
+import { useToast } from '../../../shared/components/Toast/ToastProvider';
 
 export const PendingActionGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -19,6 +21,7 @@ export const PendingActionGuard: React.FC<{ children: React.ReactNode }> = ({ ch
           // Execute based on type
           if (action.type === 'ADD_TO_CART') {
             addToCart(action.payload);
+            showToast('Đã thêm vào giỏ hàng thành công!');
             console.log('Post-login: Executed pending ADD_TO_CART');
           } else if (action.type === 'BUY_NOW') {
             // Do NOT add to general cart
@@ -36,7 +39,7 @@ export const PendingActionGuard: React.FC<{ children: React.ReactNode }> = ({ ch
         }
       }
     }
-  }, [isAuthenticated, addToCart, navigate]);
+  }, [isAuthenticated, addToCart, navigate, showToast]);
 
   return <>{children}</>;
 };
