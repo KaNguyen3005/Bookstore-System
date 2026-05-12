@@ -20,6 +20,7 @@ import { GoBook } from "react-icons/go";
 import { MdCardMembership } from "react-icons/md";
 import { TbBrandBlogger, TbTruckDelivery } from "react-icons/tb";
 import { RiUserCommunityLine } from "react-icons/ri";
+import { LuTickets } from "react-icons/lu";
 
 
 import {searchApi } from "../../../services/searchApi";
@@ -242,6 +243,7 @@ if (loading) {
           <img src={aiLogo} alt="AI" style={{ width: "18px", height: "18px" }} />
           Gợi Ý Hôm Nay
         </button>
+        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><LuTickets /> Kho Voucher</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><GoBook /> Ebook</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><FaHotjar /> Bán chạy</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><MdCardMembership /> Thành viên</button>
