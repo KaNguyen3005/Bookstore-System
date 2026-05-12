@@ -261,3 +261,100 @@
   }
 }
 
+/* ================= WRITE REVIEW ================= */
+
+.formReview {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.starSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 14px;
+}
+
+.textarea {
+  min-height: 120px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.textarea:focus,
+.select:focus {
+  border-color: #111827;
+}
+
+.submitBtn {
+  background: #111827;
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.submitBtn:hover {
+  opacity: 0.9;
+}
+
+/* ================= MY REVIEW ================= */
+
+.myReviewBox {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.myReviewStars {
+  margin: 10px 0;
+}
+
+.myReviewText {
+  color: #4b5563;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.editBtn {
+  background: #f3f4f6;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.editBtn:hover {
+  background: #111827;
+  color: white;
+}
+

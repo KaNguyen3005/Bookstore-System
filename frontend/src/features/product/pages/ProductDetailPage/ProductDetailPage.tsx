@@ -2,14 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useProductDetail } from "../../hooks/useProductDetail";
-
-// import ProductCard from "../../components/ProductCard";
 import ExploreCategories from "../../../home/components/ExploreCategories/ExploreCategories";
 import { categoryService } from "../../../book-category/services/categoryService";
 import type { Category } from "../../../book-category/types/category";
 import "./ProductDetailPage.css";
 
-import Evaluate from "../../components/Evaluate/Evaluate";
+import Evaluate from "../../../reviews/components/Evaluate/Evaluate";
 import { evaluateApi } from "../../../../services/evaluateApi";
 import type { Review } from "../../components/Evaluate/Evaluate";
 
@@ -26,123 +24,145 @@ import {
 import { TbTruckDelivery } from "react-icons/tb";
 
 const ProductDetailPage: React.FC = () => {
-  const { id } = useParams<{
-    id: string;
-  }>();
+  const { id } = useParams<{ id: string }>();
+
+  // ================= STATE =================
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [myReview, setMyReview] = useState<Review | null>(null);
+  const [orderStatus, setOrderStatus] = useState<string | null>(null);
+
+  // ================= SAFE QUERY PARAMS (FIX NaN BUG) =================
+  const query = new URLSearchParams(window.location.search);
+
+  const orderIdRaw = query.get("orderId");
+  const itemIdRaw = query.get("itemId");
+  const view = query.get("view");
+
+  const orderId = orderIdRaw ? Number(orderIdRaw) : null;
+  const itemId = itemIdRaw ? Number(itemIdRaw) : null;
+
+  const validReviewParams =
+    !!id &&
+    orderId !== null &&
+    itemId !== null &&
+    !isNaN(orderId) &&
+    !isNaN(itemId);
+
+  // ================= PRODUCT =================
+  const {
+    book,
+    loading,
+    quantity,
+    setQuantity,
+    isAdding,
+    isBuying,
+    handleAddToCart,
+    handleBuyNow,
+  } = useProductDetail(id);
+
+  // ================= REVIEWS =================
+const fetchReviews = async () => {
+  if (!id) return;
+
+  try {
+    const data = await evaluateApi.getReviewsByBookId(Number(id));
+    setReviews(data?.content ?? []);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+useEffect(() => {
+  if (!id) return;
+  fetchReviews();
+}, [id]);
 
   // ================= CATEGORIES =================
-  const [categories, setCategories] =
-    useState<Category[]>([]);
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchReviews = async () => {
-      try {
-        const data =
-          await evaluateApi.getReviewsByBookId(
-            Number(id)
-          );
-
-        setReviews(data.content || []);
-
-        console.log(data.content);
-      } catch (error) {
-        console.log(
-          "Fetch reviews failed",
-          error
-        );
-      }
-    };
-
-    fetchReviews();
-  }, [id]);
-
-    //danhgia san pham
-  const [reviews, setReviews] =
-    useState<Review[]>([]);
-
-  // ================= FETCH CATEGORIES =================
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data =
-          await categoryService.getCategories();
-
+        const data = await categoryService.getCategories();
         setCategories(data || []);
       } catch (error) {
-        console.log(
-          "Fetch categories failed"
-        );
+        console.log("Fetch categories failed");
       }
     };
 
     fetchCategories();
   }, []);
 
-  const {
-    book,
+  // ================= MY REVIEW (FIXED) =================
+  useEffect(() => {
+    if (!validReviewParams) return;
 
-    loading,
+    const fetchMyReview = async () => {
+      try {
+        const data = await evaluateApi.getMyReview(
+          Number(id),
+          orderId!,
+          itemId!
+        );
 
-    quantity,
-    setQuantity,
+        setMyReview(data || null);
+      } catch (err) {
+        console.log("Fetch my review failed", err);
+      }
+    };
 
-    isAdding,
-    isBuying,
+    fetchMyReview();
+  }, [id, orderId, itemId, view]);
 
-    handleAddToCart,
-    handleBuyNow,
-  } = useProductDetail(id);
+  // ================= ORDER STATUS =================
+  useEffect(() => {
+    if (!orderId || isNaN(orderId)) return;
+
+    setOrderStatus(null);
+
+    const fetchOrderStatus = async () => {
+      try {
+        const order = await evaluateApi.getOrderById(orderId);
+        setOrderStatus(order.status);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchOrderStatus();
+  }, [orderId]);
+
   // ================= LOADING =================
   if (loading) {
     return (
       <div className="product-detail-loading">
         <div className="loader"></div>
-
-        <p>
-          Đang tải thông tin sản phẩm...
-        </p>
+        <p>Đang tải thông tin sản phẩm...</p>
       </div>
     );
   }
 
-  // ================= NOT FOUND =================
+  // ================= NOT FOUND (FIX NULL SAFE) =================
   if (!book) {
     return (
       <div className="product-detail-error">
-        <h2>
-          Không tìm thấy sản phẩm
-        </h2>
-
-        <p>
-          Sản phẩm bạn đang tìm kiếm
-          không tồn tại hoặc đã bị
-          xóa.
-        </p>
+        <h2>Không tìm thấy sản phẩm</h2>
+        <p>Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
       </div>
     );
   }
 
   // ================= RATING =================
-  const renderRating = (
-    rating: number = 0
-  ) => {
+  const renderRating = (rating: number = 0) => {
     const stars = [];
 
     for (let i = 1; i <= 5; i++) {
       if (i <= Math.round(rating)) {
         stars.push(
-          <AiFillStar
-            key={i}
-            className="star filled"
-          />
+          <AiFillStar key={i} className="star filled" />
         );
       } else {
         stars.push(
-          <AiOutlineStar
-            key={i}
-            className="star"
-          />
+          <AiOutlineStar key={i} className="star" />
         );
       }
     }
@@ -545,7 +565,12 @@ const ProductDetailPage: React.FC = () => {
         */}
 
         {/*component danh gia san pham*/}
-        <Evaluate reviews={reviews} />
+        <Evaluate
+          reviews={reviews}
+          myReview={myReview}
+          orderStatus={orderStatus}
+          onSuccess={fetchReviews}
+        />
 
 
       </div>
