@@ -33,7 +33,7 @@ public class BookOrder {
     @ManyToOne
     @JoinColumn(name = "order_id")
     Order order;
-    int quantity;
+    Integer quantity;
     String unit;
     Integer rate;
     String content;

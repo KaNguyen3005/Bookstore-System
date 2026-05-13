@@ -45,23 +45,16 @@ public class OrderService {
     GHNService ghnService;
     VoucherMapper voucherMapper;
     BookOrderRepository bookOrderRepository;
-    private final BookOrderMapper bookOrderMapper;
-    private final InteractEventService interactEventService;
+    BookOrderMapper bookOrderMapper;
+    InteractEventService interactEventService;
 
     public List<OrderResponse> getAll() {
 
-        List<Order> orders = orderRepository.findAll();
+        List<Order> orders = orderRepository.findByDeletedAtIsNull();
 
         List<Long> orderIds = orders.stream()
                 .map(Order::getOrderId)
                 .toList();
-
-        Map<Long, Shipment> shipmentMap = shipmentRepository.findByOrderIds(orderIds)
-                .stream()
-                .collect(Collectors.toMap(
-                        s -> s.getOrder().getOrderId(),
-                        s -> s
-                ));
         Map<Long, Payment> paymentMap = paymentRepository.findByOrderIds(orderIds)
                 .stream()
                 .collect(Collectors.toMap(
@@ -73,10 +66,7 @@ public class OrderService {
                 .map(order -> {
                     OrderResponse response = orderMapper.toResponse(order);
 
-                    Shipment shipment = shipmentMap.get(order.getOrderId());
-                    if (shipment != null) {
-                        response.setShippingStatus(shipment.getStatus());
-                    }
+                    // ShippingStatus đã nằm trong response.getShipment().getStatus() (map từ Order.shipment)
                     Payment payment = paymentMap.get(order.getOrderId());
                     if (payment != null) {
                         response.setPaymentStatus(payment.getStatus());
@@ -102,6 +92,7 @@ public class OrderService {
 
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
 
         return orderMapper.toResponse(order);
     }
@@ -521,14 +512,14 @@ public class OrderService {
     private ShipmentDimensions calculateShipmentDimensions(List<BookOrder> bookOrders) {
         if (bookOrders == null || bookOrders.isEmpty()) {
             return ShipmentDimensions.builder()
-                    .weight(0.0)
+                    .weight(0)
                     .length(10)      // Default 10cm
                     .width(10)       // Default 10cm
                     .height(5)       // Default 5cm
                     .build();
         }
 
-        double totalWeight = 0.0;
+        int totalWeight = 0;
         int maxLength = 0;
         int maxWidth = 0;
         int totalHeight = 0;
@@ -560,7 +551,7 @@ public class OrderService {
         if (maxLength == 0) maxLength = 20;  // Default 20cm
         if (maxWidth == 0) maxWidth = 15;   // Default 15cm
         if (totalHeight == 0) totalHeight = 5; // Default 5cm
-        if (totalWeight == 0) totalWeight = 1.0; // Default 1kg
+        if (totalWeight == 0) totalWeight = 1; // Default 1kg
 
         return ShipmentDimensions.builder()
                 .weight(totalWeight)
@@ -820,11 +811,13 @@ public class OrderService {
     public OrderItemResponse updateOrderItem(Long orderId, Long itemId, UpdateOrderItemRequest request){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        if(!order.getStatus().equals(OrderStatus.COMPLETED)){
+        // Chỉ cho phép đánh giá khi đơn đã giao hoặc đã hoàn thành
+        if (order.getStatus() != OrderStatus.DELIVERED && order.getStatus() != OrderStatus.COMPLETED) {
             throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
         }
 
-        BookOrder bookOrder = bookOrderRepository.findByBookOrderIdAndOrder_OrderId(orderId, itemId)
+        // NOTE: method signature is (itemId, orderId)
+        BookOrder bookOrder = bookOrderRepository.findByBookOrderIdAndOrder_OrderId(itemId, orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_ITEM_NOT_FOUND));
 
         if(bookOrder.getContent() != null || bookOrder.getRate() != null){

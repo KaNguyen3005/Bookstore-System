@@ -116,4 +116,38 @@ public class RecommendationService {
 
         return mapToBookResponses(response);
     }
+
+    public List<BookResponse> getRelatedBooks(Integer bookId, int limit) {
+        RecommendationServiceResponse response =
+                recommendationClient.getRelatedBooks(bookId, limit);
+
+        return mapToBookResponses(response);
+    }
+
+    public List<BookResponse> getRelatedBooksSimple(Integer bookId, int limit) {
+        RecommendationServiceResponse response =
+                recommendationClient.getRelatedBooksSimple(bookId, limit);
+
+        return mapToBookResponses(response);
+    }
+
+    public Map<String, Object> getBookInfo(Integer bookId) {
+        return recommendationClient.getBookInfo(bookId);
+    }
+
+    public Map<String, Object> searchBooks(String title, int limit) {
+        return recommendationClient.searchByTitle(title, limit);
+    }
+
+    public Map<String, Object> trainRecommendationModels(boolean retrainCollaborative, boolean retrainContent) {
+        return recommendationClient.trainModels(retrainCollaborative, retrainContent);
+    }
+
+    public Map<String, Object> getRecommendationStats() {
+        return recommendationClient.getStats();
+    }
+
+    public Map<String, Object> checkRecommendationServiceHealth() {
+        return recommendationClient.healthCheck();
+    }
 }

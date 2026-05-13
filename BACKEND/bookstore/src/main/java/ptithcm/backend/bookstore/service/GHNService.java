@@ -11,6 +11,10 @@ import ptithcm.backend.bookstore.configuration.GHNConfig;
 import ptithcm.backend.bookstore.dto.request.GHNCreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.GHNItemRequest;
 import ptithcm.backend.bookstore.dto.response.GHNCreateOrderResponse;
+import ptithcm.backend.bookstore.dto.response.ghn.GHNApiResponse;
+import ptithcm.backend.bookstore.dto.response.ghn.GHNDistrictResponse;
+import ptithcm.backend.bookstore.dto.response.ghn.GHNProvinceResponse;
+import ptithcm.backend.bookstore.dto.response.ghn.GHNWardResponse;
 import ptithcm.backend.bookstore.entity.Order;
 import ptithcm.backend.bookstore.entity.Shipment;
 import ptithcm.backend.bookstore.enums.ShippingStatus;
@@ -18,8 +22,8 @@ import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.repository.ShipmentRepository;
 
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -132,35 +136,44 @@ public class GHNService {
         shipment.setStatus(newStatus);
     }
 
-    public List<Map<String, Object>> getProvinces() {
-        Map<String, Object> response = restClient.get()
+    public List<GHNProvinceResponse> getProvinces() {
+        GHNApiResponse<List<GHNProvinceResponse>> response = restClient.get()
                 .uri(BASE_URL + "/province")
                 .header("Token", ghnConfig.getToken())
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+                .body(new ParameterizedTypeReference<GHNApiResponse<List<GHNProvinceResponse>>>() {});
 
-        return (List<Map<String, Object>>) response.get("data");
+        if (response == null || response.getData() == null) {
+            return List.of();
+        }
+        return response.getData();
     }
 
-    public List<Map<String, Object>> getDistricts(Integer provinceId) {
-        Map<String, Object> response = restClient.post()
+    public List<GHNDistrictResponse> getDistricts(Integer provinceId) {
+        GHNApiResponse<List<GHNDistrictResponse>> response = restClient.post()
                 .uri(BASE_URL + "/district")
                 .header("Token", ghnConfig.getToken())
                 .body(Map.of("province_id", provinceId))
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+                .body(new ParameterizedTypeReference<GHNApiResponse<List<GHNDistrictResponse>>>() {});
 
-        return (List<Map<String, Object>>) response.get("data");
+        if (response == null || response.getData() == null) {
+            return List.of();
+        }
+        return response.getData();
     }
 
-    public List<Map<String, Object>> getWards(Integer districtId) {
-        Map<String, Object> response = restClient.post()
+    public List<GHNWardResponse> getWards(Integer districtId) {
+        GHNApiResponse<List<GHNWardResponse>> response = restClient.post()
                 .uri(BASE_URL + "/ward")
                 .header("Token", ghnConfig.getToken())
                 .body(Map.of("district_id", districtId))
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+                .body(new ParameterizedTypeReference<GHNApiResponse<List<GHNWardResponse>>>() {});
 
-        return (List<Map<String, Object>>) response.get("data");
+        if (response == null || response.getData() == null) {
+            return List.of();
+        }
+        return response.getData();
     }
 }

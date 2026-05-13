@@ -17,6 +17,8 @@ import ptithcm.backend.bookstore.enums.PaymentMethod;
 import ptithcm.backend.bookstore.enums.PaymentStatus;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
+import ptithcm.backend.bookstore.repository.BookCartRepository;
+import ptithcm.backend.bookstore.repository.CartRepository;
 import ptithcm.backend.bookstore.repository.OrderRepository;
 import ptithcm.backend.bookstore.repository.PaymentRepository;
 import ptithcm.backend.bookstore.utils.VNPayUtil;
@@ -24,10 +26,10 @@ import ptithcm.backend.bookstore.utils.VNPayUtil;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,8 @@ public class PaymentService {
     PaymentRepository paymentRepository;
     OrderRepository orderRepository;
     VNPayUtil vnPayUtil;
+    CartRepository cartRepository;
+    BookCartRepository bookCartRepository;
 
     /**
      * Tạo session thanh toán
@@ -80,8 +84,22 @@ public class PaymentService {
             log.info("No payment method specified, using default: COD");
         }
 
-        // 4. Tạo Payment record
+        // 4. Lấy (hoặc tạo) Payment record
+        // NOTE: OrderService.create() thường đã tạo payment, nhưng để an toàn vẫn xử lý trường hợp null
         Payment payment = paymentRepository.findByOrder_OrderId(order.getOrderId());
+        if (payment == null) {
+            payment = Payment.builder()
+                    .order(order)
+                    .method(paymentMethod)
+                    .status(PaymentStatus.PENDING)
+                    .amount(order.getTotalAmount())
+                    .build();
+            payment = paymentRepository.save(payment);
+        } else {
+            // Cập nhật method theo request hiện tại (VD: user chọn COD/VNPAY ở bước checkout)
+            payment.setMethod(paymentMethod);
+            payment = paymentRepository.save(payment);
+        }
         // 5. Tạo response
         CheckoutSessionResponse response = CheckoutSessionResponse.builder()
                 .paymentId(payment.getPaymentId())
@@ -89,8 +107,11 @@ public class PaymentService {
                 .build();
 
          // 6. Tạo URL redirect nếu là online payment
-         switch (paymentMethod) {
+
+
+        switch (paymentMethod) {
              case VNPAY:
+                 log.error("Đã vào");
                  String vnpayUrl = generateVNPayUrl(order, httpRequest);
                  response.setRedirectUrl(vnpayUrl);
                  log.info("Generated VNPAY URL: {}", vnpayUrl);
@@ -98,6 +119,10 @@ public class PaymentService {
             case COD:
                 response.setMessage("Thanh toán khi nhận hàng - COD");
                 log.info("COD payment selected");
+
+                // Với COD không có callback online để biết "thành công".
+                // Thực tế nghiệp vụ: khi user đã xác nhận đặt hàng COD thì nên clear cart ngay.
+                cleanCartAfterPaymentSuccess(order);
                 break;
             default:
                 log.error("Unexpected payment method: {}", paymentMethod);
@@ -270,6 +295,9 @@ public class PaymentService {
                 payment.setPaidAt(parseVNPayPayDate(payDate));
 
                 order.setStatus(OrderStatus.CONFIRMED);
+
+                // 9. Clean cart sau khi thanh toán thành công
+                cleanCartAfterPaymentSuccess(order);
             } else {
                 log.warn("Payment failed for orderId={}, responseCode={}, transactionStatus={}",
                         orderId, responseCode, transactionStatus);
@@ -332,6 +360,60 @@ public class PaymentService {
         } catch (Exception e) {
             log.warn("Cannot parse vnp_PayDate={}, fallback to now()", payDate);
             return LocalDateTime.now();
+        }
+    }
+
+    /**
+     * Xóa / giảm số lượng các item trong giỏ sau khi thanh toán thành công.
+     * - Nếu trong cart có số lượng > số lượng mua -> giảm quantity
+     * - Nếu <= số lượng mua -> xóa item khỏi cart
+     */
+    private void cleanCartAfterPaymentSuccess(Order order) {
+        try {
+            if (order == null || order.getCustomer() == null || order.getCustomer().getUserId() == null) {
+                return;
+            }
+
+            var cartOpt = cartRepository.findByUser_UserId(order.getCustomer().getUserId());
+            if (cartOpt.isEmpty()) {
+                log.info("Cart not found for userId={}, skip clean cart", order.getCustomer().getUserId());
+                return;
+            }
+
+            var cart = cartOpt.get();
+            if (order.getBookOrders() == null || order.getBookOrders().isEmpty()) {
+                return;
+            }
+
+            // Gom số lượng mua theo bookId (đề phòng đơn có nhiều dòng trùng book)
+            Map<Integer, Integer> purchasedQtyByBookId = order.getBookOrders().stream()
+                    .filter(bo -> bo != null && bo.getBook() != null && bo.getBook().getBookId() != null)
+                    .collect(Collectors.toMap(
+                            bo -> bo.getBook().getBookId(),
+                            bo -> bo.getQuantity() == null ? 0 : bo.getQuantity(),
+                            Integer::sum
+                    ));
+
+            for (Map.Entry<Integer, Integer> entry : purchasedQtyByBookId.entrySet()) {
+                Integer bookId = entry.getKey();
+                int purchasedQty = entry.getValue() == null ? 0 : entry.getValue();
+                if (purchasedQty <= 0) continue;
+
+                var bookCartOpt = bookCartRepository.findByCart_CartIdAndBook_BookId(cart.getCartId(), bookId);
+                if (bookCartOpt.isEmpty()) continue;
+
+                var bookCart = bookCartOpt.get();
+                int remaining = bookCart.getQuantity() - purchasedQty;
+                if (remaining > 0) {
+                    bookCart.setQuantity(remaining);
+                    bookCartRepository.save(bookCart);
+                } else {
+                    bookCartRepository.delete(bookCart);
+                }
+            }
+        } catch (Exception e) {
+            // Không để clean cart làm fail flow thanh toán
+            log.warn("Clean cart failed for orderId={}, reason={}", order != null ? order.getOrderId() : null, e.getMessage());
         }
     }
 

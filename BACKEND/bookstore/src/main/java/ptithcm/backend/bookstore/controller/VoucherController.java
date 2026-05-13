@@ -46,6 +46,13 @@ public class VoucherController {
                 .build();
     }
 
+    @GetMapping("/inactive")
+    ApiResponse<List<VoucherResponse>> getAllInactive(){
+        return ApiResponse.<List<VoucherResponse>>builder()
+                .result(voucherService.getAllInactive())
+                .build();
+    }
+
     @GetMapping("/{id}")
     ApiResponse<VoucherResponse> getById(@PathVariable("id") Long id){
         return ApiResponse.<VoucherResponse>builder()

@@ -62,6 +62,14 @@ public class SecurityConfig {
 
             // Recommendations
             "/api/v1/recommendations/**",
+
+            // Payment
+            "/api/v1/payments/callback",
+
+            // GHN master-data (Address picker)
+            "/api/v1/addresses/provinces",
+            "/api/v1/addresses/districts/**",
+            "/api/v1/addresses/wards/**"
     };
 
     // Static resources - không cần JWT

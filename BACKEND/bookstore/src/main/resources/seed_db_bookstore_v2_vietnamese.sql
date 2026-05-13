@@ -245,6 +245,63 @@ INSERT INTO `books` (`book_id`, `title`, `isbn`, `language`, `description`, `pag
 (50, 'Tự Do Là Một Lựa Chọn', '978-0062701828', 'Tiếng Anh', 'Một cuốn sách triết lý về tự do và trách nhiệm', 400, 'Bìa cứng', 50, 407760, 4.4, 7, 1, 0.8, 24, 18, 4, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778055119/7c27baf5-2948-4275-8e02-fb472cee8195_cmfbjx.jpg', 'book_default', 2, NOW());
 
 -- =====================================================
+-- BOOK_IMGS (HÌNH ẢNH SÁCH)
+-- Tất cả ảnh đều trỏ về ảnh mặc định trong resources/static/imgs/books/book_default.jpg
+-- Khi chạy app (context-path=/bookstore), ảnh này sẽ được serve tại: /bookstore/imgs/books/book_default.jpg
+-- =====================================================
+INSERT INTO `book_imgs` (`book_img_id`, `img_url`, `public_id`, `book_id`, `created_at`) VALUES
+(1,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 1,  NOW()),
+(2,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 2,  NOW()),
+(3,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 3,  NOW()),
+(4,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 4,  NOW()),
+(5,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 5,  NOW()),
+(6,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 6,  NOW()),
+(7,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 7,  NOW()),
+(8,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 8,  NOW()),
+(9,  '/bookstore/imgs/books/book_default.jpg', 'book_default', 9,  NOW()),
+(10, '/bookstore/imgs/books/book_default.jpg', 'book_default', 10, NOW()),
+(11, '/bookstore/imgs/books/book_default.jpg', 'book_default', 11, NOW()),
+(12, '/bookstore/imgs/books/book_default.jpg', 'book_default', 12, NOW()),
+(13, '/bookstore/imgs/books/book_default.jpg', 'book_default', 13, NOW()),
+(14, '/bookstore/imgs/books/book_default.jpg', 'book_default', 14, NOW()),
+(15, '/bookstore/imgs/books/book_default.jpg', 'book_default', 15, NOW()),
+(16, '/bookstore/imgs/books/book_default.jpg', 'book_default', 16, NOW()),
+(17, '/bookstore/imgs/books/book_default.jpg', 'book_default', 17, NOW()),
+(18, '/bookstore/imgs/books/book_default.jpg', 'book_default', 18, NOW()),
+(19, '/bookstore/imgs/books/book_default.jpg', 'book_default', 19, NOW()),
+(20, '/bookstore/imgs/books/book_default.jpg', 'book_default', 20, NOW()),
+(21, '/bookstore/imgs/books/book_default.jpg', 'book_default', 21, NOW()),
+(22, '/bookstore/imgs/books/book_default.jpg', 'book_default', 22, NOW()),
+(23, '/bookstore/imgs/books/book_default.jpg', 'book_default', 23, NOW()),
+(24, '/bookstore/imgs/books/book_default.jpg', 'book_default', 24, NOW()),
+(25, '/bookstore/imgs/books/book_default.jpg', 'book_default', 25, NOW()),
+(26, '/bookstore/imgs/books/book_default.jpg', 'book_default', 26, NOW()),
+(27, '/bookstore/imgs/books/book_default.jpg', 'book_default', 27, NOW()),
+(28, '/bookstore/imgs/books/book_default.jpg', 'book_default', 28, NOW()),
+(29, '/bookstore/imgs/books/book_default.jpg', 'book_default', 29, NOW()),
+(30, '/bookstore/imgs/books/book_default.jpg', 'book_default', 30, NOW()),
+(31, '/bookstore/imgs/books/book_default.jpg', 'book_default', 31, NOW()),
+(32, '/bookstore/imgs/books/book_default.jpg', 'book_default', 32, NOW()),
+(33, '/bookstore/imgs/books/book_default.jpg', 'book_default', 33, NOW()),
+(34, '/bookstore/imgs/books/book_default.jpg', 'book_default', 34, NOW()),
+(35, '/bookstore/imgs/books/book_default.jpg', 'book_default', 35, NOW()),
+(36, '/bookstore/imgs/books/book_default.jpg', 'book_default', 36, NOW()),
+(37, '/bookstore/imgs/books/book_default.jpg', 'book_default', 37, NOW()),
+(38, '/bookstore/imgs/books/book_default.jpg', 'book_default', 38, NOW()),
+(39, '/bookstore/imgs/books/book_default.jpg', 'book_default', 39, NOW()),
+(40, '/bookstore/imgs/books/book_default.jpg', 'book_default', 40, NOW()),
+(41, '/bookstore/imgs/books/book_default.jpg', 'book_default', 41, NOW()),
+(42, '/bookstore/imgs/books/book_default.jpg', 'book_default', 42, NOW()),
+(43, '/bookstore/imgs/books/book_default.jpg', 'book_default', 43, NOW()),
+(44, '/bookstore/imgs/books/book_default.jpg', 'book_default', 44, NOW()),
+(45, '/bookstore/imgs/books/book_default.jpg', 'book_default', 45, NOW()),
+(46, '/bookstore/imgs/books/book_default.jpg', 'book_default', 46, NOW()),
+(47, '/bookstore/imgs/books/book_default.jpg', 'book_default', 47, NOW()),
+(48, '/bookstore/imgs/books/book_default.jpg', 'book_default', 48, NOW()),
+(49, '/bookstore/imgs/books/book_default.jpg', 'book_default', 49, NOW()),
+(50, '/bookstore/imgs/books/book_default.jpg', 'book_default', 50, NOW());
+
+-- =====================================================
 -- BOOK_AUTHOR (GÁN TÁC GIẢ CHO SÁCH)
 -- =====================================================
 INSERT INTO `book_author` (`book_id`, `author_id`) VALUES
@@ -320,66 +377,131 @@ INSERT INTO `orders` (`order_id`, `status`, `vat_rate`, `total_amount`, `custome
 (20, 'COMPLETED', 0.05, 8800000, 17, NOW());
 
 -- =====================================================
+-- SHIPMENTS (VẬN CHUYỂN)
+-- Lưu ý: server.servlet.context-path=/bookstore nên img_url ở book_imgs đã có prefix /bookstore
+-- Ở đây seed tối giản: gán shipment cho từng order + địa chỉ của customer (address_id = customer_id - 1)
+-- =====================================================
+INSERT INTO `shipments` (`shipment_id`, `status`, `order_id`, `address_id`, `weight`, `length`, `width`, `height`, `created_at`) VALUES
+(1,  'PENDING',  1,  11, 1.0, 25, 18, 10, NOW()),
+(2,  'PENDING',  2,  12, 1.0, 25, 18, 10, NOW()),
+(3,  'READY_TO_SHIP', 3,  13, 1.0, 25, 18, 10, NOW()),
+(4,  'READY_TO_SHIP', 4,  14, 1.0, 25, 18, 10, NOW()),
+(5,  'IN_TRANSIT', 5,  15, 1.0, 25, 18, 10, NOW()),
+(6,  'IN_TRANSIT', 6,  16, 1.0, 25, 18, 10, NOW()),
+(7,  'DELIVERED', 7,  17, 1.0, 25, 18, 10, NOW()),
+(8,  'DELIVERED', 8,  18, 1.0, 25, 18, 10, NOW()),
+(9,  'DELIVERED', 9,  19, 1.0, 25, 18, 10, NOW()),
+(10, 'DELIVERED', 10, 20, 1.0, 25, 18, 10, NOW()),
+(11, 'PENDING',  11, 21, 1.0, 25, 18, 10, NOW()),
+(12, 'READY_TO_SHIP', 12, 22, 1.0, 25, 18, 10, NOW()),
+(13, 'IN_TRANSIT', 13, 23, 1.0, 25, 18, 10, NOW()),
+(14, 'DELIVERED', 14, 24, 1.0, 25, 18, 10, NOW()),
+(15, 'DELIVERED', 15, 11, 1.0, 25, 18, 10, NOW()),
+(16, 'PENDING',  16, 12, 1.0, 25, 18, 10, NOW()),
+(17, 'READY_TO_SHIP', 17, 13, 1.0, 25, 18, 10, NOW()),
+(18, 'IN_TRANSIT', 18, 14, 1.0, 25, 18, 10, NOW()),
+(19, 'DELIVERED', 19, 15, 1.0, 25, 18, 10, NOW()),
+(20, 'DELIVERED', 20, 16, 1.0, 25, 18, 10, NOW());
+
+-- =====================================================
+-- PAYMENTS (THANH TOÁN)
+-- Seed tối giản: mỗi order có 1 payment COD với amount = total_amount
+-- =====================================================
+INSERT INTO `payments` (`payment_id`, `amount`, `method`, `status`, `order_id`, `created_at`) VALUES
+(1,  6000000, 'COD', 'PENDING',   1,  NOW()),
+(2,  5500000, 'COD', 'PENDING',   2,  NOW()),
+(3,  7200000, 'COD', 'PENDING',   3,  NOW()),
+(4,  6800000, 'COD', 'PENDING',   4,  NOW()),
+(5,  9000000, 'COD', 'PENDING',   5,  NOW()),
+(6,  5400000, 'COD', 'PENDING',   6,  NOW()),
+(7,  11000000,'COD', 'SUCCESS',   7,  NOW()),
+(8,  6200000, 'COD', 'SUCCESS',   8,  NOW()),
+(9,  8500000, 'COD', 'SUCCESS',   9,  NOW()),
+(10, 7100000, 'COD', 'SUCCESS',   10, NOW()),
+(11, 6500000, 'COD', 'PENDING',   11, NOW()),
+(12, 5900000, 'COD', 'PENDING',   12, NOW()),
+(13, 9500000, 'COD', 'PENDING',   13, NOW()),
+(14, 8000000, 'COD', 'SUCCESS',   14, NOW()),
+(15, 10200000,'COD', 'SUCCESS',   15, NOW()),
+(16, 6300000, 'COD', 'PENDING',   16, NOW()),
+(17, 7800000, 'COD', 'PENDING',   17, NOW()),
+(18, 5600000, 'COD', 'PENDING',   18, NOW()),
+(19, 9200000, 'COD', 'SUCCESS',   19, NOW()),
+(20, 8800000, 'COD', 'SUCCESS',   20, NOW());
+
+-- =====================================================
 -- BOOK_ORDER (CHI TIẾT ĐƠN HÀNG - CÓ ĐÁNH GIÁ)
 -- =====================================================
 INSERT INTO `book_order` (`book_order_id`, `quantity`, `unit`, `rate`, `content`, `book_id`, `order_id`, `created_at`) VALUES
-(1, 2, 'quyển', 5, 'Sách rất hay, người bán tuyệt vời!', 1, 1, NOW()),
-(2, 1, 'quyển', 4, 'Nội dung hay nhưng hơi dài.', 15, 1, NOW()),
-(3, 3, 'quyển', 5, 'Một trong những tiểu thuyết hay nhất từng đọc!', 25, 2, NOW()),
-(4, 1, 'quyển', 4, 'Ngon lành nhưng triết lý hơi khó hiểu.', 35, 2, NOW()),
-(5, 2, 'quyển', 5, 'Luyệt tuyệt! Tôi yêu cuốn này!', 5, 3, NOW()),
-(6, 1, 'quyển', 4, 'Tốt, nhưng tôi mong đợi thêm chi tiết.', 10, 3, NOW()),
-(7, 1, 'quyển', 5, 'Siêu kì diệu, tôi không thể đặt nó xuống!', 20, 4, NOW()),
-(8, 2, 'quyển', 4, 'Khác, nhưng đáng để đọc.', 30, 5, NOW()),
-(9, 3, 'quyển', 5, 'Câu chuyện tuyệt vời từ đầu đến cuối!', 40, 6, NOW()),
-(10, 1, 'quyển', 4, 'Hay, nhưng hơi buồn.', 45, 7, NOW()),
-(11, 2, 'quyển', 5, 'Một bộ kiệt tác! Rất nên đọc!', 7, 8, NOW()),
-(12, 1, 'quyển', 4, 'Hay nhưng không như tôi mong đợi.', 17, 9, NOW()),
-(13, 2, 'quyển', 5, 'Tuyệt vời! Tôi sẽ đọc lại nó!', 27, 10, NOW()),
-(14, 1, 'quyển', 4, 'Hay, nhưng hơi dài.', 37, 11, NOW()),
-(15, 3, 'quyển', 5, 'Tuyệt vời cho cả gia đình!', 47, 12, NOW()),
-(16, 1, 'quyển', 5, 'Tôi thích mọi thứ về cuốn sách này!', 2, 13, NOW()),
-(17, 2, 'quyển', 4, 'Tốt nhưng có thể tốt hơn.', 12, 14, NOW()),
-(18, 1, 'quyển', 5, 'Một bộ kiệt tác về suy nghĩ triết học!', 22, 15, NOW()),
-(19, 2, 'quyển', 4, 'Hay, nhưng tôi mong đợi một kết thúc khác.', 32, 16, NOW()),
-(20, 1, 'quyển', 5, 'Câu chuyện bạch dạ tuyệt vời!', 42, 17, NOW());
+-- 1 STAR (Rất không hài lòng) - 2 items`
+(1, 2, 'quyển', NULL, NULL, 1, 1, NOW()),
+(2, 1, 'quyển', NULL, NULL, 15, 1, NOW()),
+-- 2 STARS (Không hài lòng) - 3 items
+(3, 3, 'quyển', NULL, NULL, 25, 2, NOW()),
+(4, 1, 'quyển', NULL, NULL, 35, 2, NOW()),
+(5, 2, 'quyển', NULL, NULL, 5, 3, NOW()),
+-- 3 STARS (Bình thường) - 4 items
+(6, 1, 'quyển', NULL, NULL, 10, 3, NOW()),
+(7, 1, 'quyển', NULL, NULL, 20, 4, NOW()),
+(8, 2, 'quyển', NULL, NULL, 30, 5, NOW()),
+(9, 3, 'quyển', NULL, NULL, 40, 6, NOW()),
+-- 4 STARS (Hài lòng) - 5 items
+(10, 1, 'quyển', 4, 'Hay, nhân vật thú vị, mặc dù kết thúc hơi nhanh!', 45, 7, NOW()),
+(11, 2, 'quyển', 4, 'Rất hay, tôi thích nó nhưng có nhược điểm nhỏ!', 7, 8, NOW()),
+(12, 1, 'quyển', 4, 'Tốt, nội dung hấp dẫn nhưng hơi dài một chút!', 17, 9, NOW()),
+(13, 2, 'quyển', 4, 'Hay lắm, tôi sẽ giới thiệu cho bạn bè!', 27, 10, NOW()),
+(14, 1, 'quyển', NULL, NULL, 37, 11, NOW()),
+-- 5 STARS (Rất hài lòng) - 6 items
+(15, 3, 'quyển', NULL, NULL, 47, 12, NOW()),
+(16, 1, 'quyển', NULL, NULL, 2, 13, NOW()),
+(17, 2, 'quyển', 5, 'Tuyệt tác! Một trong những tiểu thuyết hay nhất từng đọc!', 12, 14, NOW()),
+(18, 1, 'quyển', 5, 'Siêu kì diệu! Tôi không thể đặt nó xuống!', 22, 15, NOW()),
+(19, 2, 'quyển', NULL, NULL, 32, 16, NOW()),
+(20, 1, 'quyển', NULL, NULL, 42, 17, NOW()),
+-- Thêm 5 đánh giá cho sách book_id = 1
+(21, 1, 'quyển', 5, 'Một cuốn sách kinh điển, càng đọc càng thấm. Rất đáng tiền!', 1, 7, NOW()),
+(22, 1, 'quyển', 4, 'Nội dung hay, hơi nặng đô nhưng rất cuốn. Sẽ giới thiệu cho bạn bè.', 1, 8, NOW()),
+(23, 2, 'quyển', 4, 'Bản dịch ổn, câu chuyện hấp dẫn, có vài đoạn hơi chậm nhưng vẫn rất tốt.', 1, 9, NOW()),
+(24, 1, 'quyển', 3, 'Đọc ổn, ý tưởng hay nhưng cần tập trung mới theo kịp.', 1, 10, NOW()),
+(25, 1, 'quyển', 2, 'Không hợp gu của tôi, hơi khó đọc và u ám, nhưng vẫn có giá trị.', 1, 15, NOW());
 
 -- =====================================================
 -- INTERACT_EVENTS (SỰ KIỆN TƯƠNG TÁC)
+-- INTERACT_WEIGHTS: VIEW=1, ADD_CART=3, PURCHASE=8
 -- =====================================================
 INSERT INTO `interact_events` (`interact_event_id`, `event_type`, `value`, `book_id`, `user_id`, `created_at`) VALUES
 (1, 'VIEW', 1, 1, 12, NOW()),
-(2, 'ADD_CART', 1, 1, 12, NOW()),
+(2, 'ADD_CART', 3, 1, 12, NOW()),
 (3, 'VIEW', 1, 15, 12, NOW()),
-(4, 'PURCHASE', 1, 1, 12, NOW()),
+(4, 'PURCHASE', 8, 1, 12, NOW()),
 (5, 'VIEW', 1, 25, 13, NOW()),
-(6, 'ADD_CART', 1, 25, 13, NOW()),
-(7, 'PURCHASE', 1, 25, 13, NOW()),
+(6, 'ADD_CART', 3, 25, 13, NOW()),
+(7, 'PURCHASE', 8, 25, 13, NOW()),
 (8, 'VIEW', 1, 5, 14, NOW()),
 (9, 'VIEW', 1, 10, 14, NOW()),
-(10, 'PURCHASE', 1, 5, 14, NOW()),
+(10, 'PURCHASE', 8, 5, 14, NOW()),
 (11, 'VIEW', 1, 20, 15, NOW()),
-(12, 'PURCHASE', 1, 20, 15, NOW()),
+(12, 'PURCHASE', 8, 20, 15, NOW()),
 (13, 'VIEW', 1, 30, 16, NOW()),
-(14, 'ADD_CART', 1, 30, 16, NOW()),
-(15, 'PURCHASE', 1, 30, 16, NOW()),
+(14, 'ADD_CART', 3, 30, 16, NOW()),
+(15, 'PURCHASE', 8, 30, 16, NOW()),
 (16, 'VIEW', 1, 40, 17, NOW()),
-(17, 'PURCHASE', 1, 40, 17, NOW()),
+(17, 'PURCHASE', 8, 40, 17, NOW()),
 (18, 'VIEW', 1, 45, 18, NOW()),
-(19, 'ADD_CART', 1, 45, 18, NOW()),
-(20, 'PURCHASE', 1, 45, 18, NOW()),
+(19, 'ADD_CART', 3, 45, 18, NOW()),
+(20, 'PURCHASE', 8, 45, 18, NOW()),
 (21, 'VIEW', 1, 7, 19, NOW()),
-(22, 'PURCHASE', 1, 7, 19, NOW()),
+(22, 'PURCHASE', 8, 7, 19, NOW()),
 (23, 'VIEW', 1, 17, 20, NOW()),
-(24, 'PURCHASE', 1, 17, 20, NOW()),
+(24, 'PURCHASE', 8, 17, 20, NOW()),
 (25, 'VIEW', 1, 27, 21, NOW()),
-(26, 'ADD_CART', 1, 27, 21, NOW()),
-(27, 'PURCHASE', 1, 27, 21, NOW()),
+(26, 'ADD_CART', 3, 27, 21, NOW()),
+(27, 'PURCHASE', 8, 27, 21, NOW()),
 (28, 'VIEW', 1, 37, 22, NOW()),
-(29, 'PURCHASE', 1, 37, 22, NOW()),
+(29, 'PURCHASE', 8, 37, 22, NOW()),
 (30, 'VIEW', 1, 47, 23, NOW()),
-(31, 'ADD_CART', 1, 47, 23, NOW()),
-(32, 'PURCHASE', 1, 47, 23, NOW());
+(31, 'ADD_CART', 3, 47, 23, NOW()),
+(32, 'PURCHASE', 8, 47, 23, NOW());
 
 SET FOREIGN_KEY_CHECKS=1;
 

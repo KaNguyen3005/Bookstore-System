@@ -66,7 +66,7 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     Set<Category> categories = new HashSet<>();
-    boolean isActive;
+    Boolean isActive;
     Integer width;
     Integer length;
     Integer height;
@@ -81,6 +81,8 @@ public class Book {
     @OneToMany(mappedBy = "book")
     List<InteractEvent> interactEvents;
 
+    @OneToMany(mappedBy = "book")
+    List<BookImg> bookImgs;
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -72,7 +72,7 @@ public class GHNCreateOrderRequest {
 
     @NotNull(message = "VALIDATION_ERROR")
     @Min(value = 1, message = "VALIDATION_ERROR")
-    Double weight;
+    Integer weight;
 
     @NotNull(message = "VALIDATION_ERROR")
     @Min(value = 1, message = "VALIDATION_ERROR")

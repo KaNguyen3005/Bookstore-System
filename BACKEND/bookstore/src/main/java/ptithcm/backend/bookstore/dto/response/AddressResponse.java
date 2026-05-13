@@ -9,10 +9,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 public class AddressResponse {
+    Long addressId;
     String province;
     String district;
     String ward;
     String detailAddress;
     String customerName;
     String customerPhone;
+    Boolean isDefault;
 }

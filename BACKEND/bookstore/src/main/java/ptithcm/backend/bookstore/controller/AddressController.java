@@ -12,11 +12,13 @@ import ptithcm.backend.bookstore.dto.request.CreateAddressRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateAddressRequest;
 import ptithcm.backend.bookstore.dto.response.AddressResponse;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
+import ptithcm.backend.bookstore.dto.response.ghn.GHNDistrictResponse;
+import ptithcm.backend.bookstore.dto.response.ghn.GHNProvinceResponse;
+import ptithcm.backend.bookstore.dto.response.ghn.GHNWardResponse;
 import ptithcm.backend.bookstore.service.AddressService;
 import ptithcm.backend.bookstore.service.GHNService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,18 +67,24 @@ public class AddressController {
     }
 
     @GetMapping("/provinces")
-    public ApiResponse<List<Map<String, Object>>> getProvinces() {
-        return ApiResponse.<List<Map<String,Object>>>builder().result(ghnAddressService.getProvinces()).build();
+    public ApiResponse<List<GHNProvinceResponse>> getProvinces() {
+        return ApiResponse.<List<GHNProvinceResponse>>builder()
+                .result(ghnAddressService.getProvinces())
+                .build();
     }
 
 
     @GetMapping("/districts/{provinceId}")
-    public ApiResponse<List<Map<String, Object>>> getDistricts(@PathVariable Integer provinceId) {
-        return ApiResponse.<List<Map<String,Object>>>builder().result(ghnAddressService.getDistricts(provinceId)).build();
+    public ApiResponse<List<GHNDistrictResponse>> getDistricts(@PathVariable Integer provinceId) {
+        return ApiResponse.<List<GHNDistrictResponse>>builder()
+                .result(ghnAddressService.getDistricts(provinceId))
+                .build();
     }
 
     @GetMapping("/wards/{districtId}")
-    public ApiResponse<List<Map<String, Object>>> getWards(@PathVariable Integer districtId) {
-        return ApiResponse.<List<Map<String,Object>>>builder().result(ghnAddressService.getWards(districtId)).build();
+    public ApiResponse<List<GHNWardResponse>> getWards(@PathVariable Integer districtId) {
+        return ApiResponse.<List<GHNWardResponse>>builder()
+                .result(ghnAddressService.getWards(districtId))
+                .build();
     }
 }

@@ -15,7 +15,7 @@ public class ShipmentDimensions {
     /**
      * Trọng lượng tổng (kg)
      */
-    Double weight;
+    Integer weight;
 
     /**
      * Chiều dài (cm) - lớn nhất giữa các sách

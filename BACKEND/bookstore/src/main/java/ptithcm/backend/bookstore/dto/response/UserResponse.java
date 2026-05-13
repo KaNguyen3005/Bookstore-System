@@ -23,4 +23,5 @@ public class UserResponse {
     String avatarUrl;
     String tier;
     Long point;
+    String email;
 }

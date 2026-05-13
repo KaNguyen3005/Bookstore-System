@@ -140,4 +140,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Long countTotalOrders();
 
     Optional<List<Order>> findByCustomer_UserId(Long userId);
+
+    List<Order> findByDeletedAtIsNull();
+
 }

@@ -1,0 +1,16 @@
+package ptithcm.backend.bookstore.dto.response.ghn;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class GHNApiResponse<T> {
+    Integer code;
+    String message;
+    T data;
+}
+
