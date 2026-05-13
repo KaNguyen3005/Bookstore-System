@@ -17,6 +17,10 @@ export type PaymentStatus =
   | 'PAID'
   | 'FAILED';
 
+export type PaymentMethod =
+  | 'COD'
+  | 'VNPAY';
+
 export interface Voucher {
   voucherId: number;
   voucherCode: string;
@@ -29,6 +33,7 @@ export interface OrderItem {
   bookTitle: string;
   quantity: number;
   price: number;
+  lineTotal: number;
   rate: number;
   content: string;
   unit: string;

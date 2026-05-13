@@ -206,11 +206,7 @@ export const OrderTable: React.FC<
 
                 {/* TOTAL */}
                 <td className="order-table__td order-table__amount">
-                  {(() => {
-                    const subtotal = order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) ?? 0;
-                    const totalAmount = subtotal * (1 + (order.vatRate || 0));
-                    return formatCurrency(totalAmount);
-                  })()}
+                  {formatCurrency(order.totalAmount)}
                 </td>
 
                 {/* PAYMENT */}
