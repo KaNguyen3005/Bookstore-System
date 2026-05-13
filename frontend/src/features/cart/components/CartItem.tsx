@@ -35,8 +35,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     }
   };
 
-  const currentPrice = item.book.price * (1 - item.book.salePercent / 100);
-  const totalItemPrice = currentPrice * item.quantity;
+  const totalItemPrice = item.book.price * item.quantity;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -63,14 +62,8 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <h3 className="cart-item-title">{item.book.title}</h3>
         <div className="cart-item-price-info">
           <span className="cart-item-current-price">
-            {formatPrice(currentPrice)}
+            {formatPrice(item.book.price)}
           </span>
-
-          {item.book.salePercent > 0 && (
-            <span className="cart-item-original-price">
-              {formatPrice(item.book.price)}
-            </span>
-          )}
         </div>
       </div>
 
