@@ -680,14 +680,74 @@ export const createOrder = async (orderData: any): Promise<any> => {
 
 /* ================= ADMIN: RECENT ORDERS ================= */
 export const getRecentOrders = async (): Promise<any[]> => {
-  const res = await axiosClient.get("/admin/recent-orders");
-  return res.data ?? [];
+  const res = await axiosClient.get("/orders", {
+    params: {
+      page: 0,
+      size: 5,
+    },
+  });
+
+  const normalized = normalizeOrdersResponse(res.data);
+  const orders = getOrdersFromNormalized(normalized);
+
+  return sortOrdersByCreatedAt(orders)
+    .slice(0, 5)
+    .map((order: any) => ({
+      order_id: order.orderId,
+      date: order.createdAt
+        ? new Date(order.createdAt).toLocaleDateString("vi-VN")
+        : "",
+      total: Number(order.totalAmount ?? order.total ?? 0),
+      status: order.status,
+    }));
 };
 
 /* ================= ADMIN: REVENUE ================= */
 export const getRevenueData = async (): Promise<any[]> => {
-  const res = await axiosClient.get("/admin/revenue");
-  return res.data ?? [];
+  const res = await axiosClient.get("/orders", {
+    params: {
+      page: 0,
+      size: 100,
+    },
+  });
+
+  const normalized = normalizeOrdersResponse(res.data);
+  const orders = getOrdersFromNormalized(normalized);
+  const buckets = new Map<string, number>();
+  const today = new Date();
+
+  for (let i = 6; i >= 0; i -= 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    buckets.set(date.toLocaleDateString("vi-VN"), 0);
+  }
+
+  orders.forEach((order: any) => {
+    const status = normalizeOrderStatus(order.status);
+
+    if (status !== "DELIVERED" && status !== "COMPLETED") {
+      return;
+    }
+
+    const createdAt = order.createdAt ? new Date(order.createdAt) : null;
+
+    if (!createdAt || Number.isNaN(createdAt.getTime())) {
+      return;
+    }
+
+    const key = createdAt.toLocaleDateString("vi-VN");
+
+    if (!buckets.has(key)) {
+      return;
+    }
+
+    buckets.set(
+      key,
+      (buckets.get(key) ?? 0) + Number(order.totalAmount ?? order.total ?? 0),
+    );
+  });
+
+  return Array.from(buckets, ([name, value]) => ({ name, value }));
 };
 
 /* ================= EXPORT API OBJECT ================= */

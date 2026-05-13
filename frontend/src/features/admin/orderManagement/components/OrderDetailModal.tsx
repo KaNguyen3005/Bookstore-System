@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Package, Clock, User, Calendar, CreditCard } from 'lucide-react';
+import { X, Package, Clock, User, CreditCard } from 'lucide-react';
 import type { Order } from '../types/order';
 import { orderService } from '../services/orderService';
 import './OrderDetailModal.css';
@@ -38,6 +38,13 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount).replace('₫', 'đ');
   };
+
+  const itemsSubtotal =
+    order?.items.reduce((sum, item) => sum + item.lineTotal, 0) ?? 0;
+  const subtotal = itemsSubtotal > 0 ? itemsSubtotal : order?.subtotal || 0;
+  const vatAmount = subtotal * (order?.vatRate || 0);
+  const totalAmount = subtotal + vatAmount;
+  const vatPercent = (order?.vatRate || 0) * 100;
 
   return (
     <div className="order-detail-modal">
@@ -101,41 +108,39 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {order.items.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{item.bookTitle}</td>
-                        <td className="text-center">{item.quantity}</td>
-                        <td className="text-right">{formatCurrency(item.price)}</td>
-                        <td className="text-right">{formatCurrency(item.price * item.quantity)}</td>
+                    {order.items.length > 0 ? (
+                      order.items.map((item, idx) => (
+                        <tr key={idx}>
+                          <td>{item.bookTitle}</td>
+                          <td className="text-center">{item.quantity}</td>
+                          <td className="text-right">{formatCurrency(item.price)}</td>
+                          <td className="text-right">{formatCurrency(item.lineTotal)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center">
+                          Chưa có dữ liệu sản phẩm từ API
+                        </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
 
               <div className="order-detail-modal__summary">
-                {(() => {
-                  const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                  const vatAmount = subtotal * order.vatRate;
-                  const totalAmount = subtotal + vatAmount;
-
-                  return (
-                    <>
-                      <div className="order-detail-modal__summary-row">
-                        <span>Tạm tính:</span>
-                        <span>{formatCurrency(subtotal)}</span>
-                      </div>
-                      <div className="order-detail-modal__summary-row">
-                        <span>VAT ({order.vatRate * 100}%):</span>
-                        <span>{formatCurrency(vatAmount)}</span>
-                      </div>
-                      <div className="order-detail-modal__summary-row order-detail-modal__summary-row--total">
-                        <span>Tổng cộng:</span>
-                        <span>{formatCurrency(totalAmount)}</span>
-                      </div>
-                    </>
-                  );
-                })()}
+                <div className="order-detail-modal__summary-row">
+                  <span>Tạm tính:</span>
+                  <span>{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="order-detail-modal__summary-row">
+                  <span>VAT ({vatPercent}%):</span>
+                  <span>{formatCurrency(vatAmount)}</span>
+                </div>
+                <div className="order-detail-modal__summary-row order-detail-modal__summary-row--total">
+                  <span>Tổng cộng:</span>
+                  <span>{formatCurrency(totalAmount)}</span>
+                </div>
               </div>
             </>
           ) : (

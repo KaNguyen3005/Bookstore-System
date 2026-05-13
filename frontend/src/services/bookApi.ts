@@ -65,4 +65,24 @@ export const bookApi = {
       categories,
     };
   },
+
+  getTopSellingBooks: async (limit = 4): Promise<Book[]> => {
+    const res = await axiosClient.get("/orders/top-selling-books", {
+      params: {
+        limit,
+        size: limit,
+      },
+    });
+
+    const data = unwrap(res);
+    const books = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.content)
+      ? data.content
+      : Array.isArray(data?.data)
+      ? data.data
+      : [];
+
+    return books.slice(0, limit);
+  },
 };
