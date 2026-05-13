@@ -50,6 +50,12 @@ public class Order {
     @OneToMany(mappedBy = "order")
     List<BookOrder> bookOrders;
 
+    @OneToOne(mappedBy = "order")
+    Shipment shipment;
+
+    @OneToOne(mappedBy = "order")
+    Payment payment;
+
     @ManyToOne
     @JoinColumn(name = "staff_id")
     User staff;
@@ -70,7 +76,7 @@ public class Order {
     @Column(updatable = false)
     LocalDateTime createdAt;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     OrderStatus status;
 
 

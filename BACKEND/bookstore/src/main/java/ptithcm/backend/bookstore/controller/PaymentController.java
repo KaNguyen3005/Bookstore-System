@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 import ptithcm.backend.bookstore.dto.request.CheckoutSessionRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 import ptithcm.backend.bookstore.dto.response.CheckoutSessionResponse;
@@ -62,23 +63,45 @@ public class PaymentController {
 
             // Xác thực callback từ VNPay
             boolean isValid = paymentService.verifyVNPayCallback(params);
-            
+
             if (!isValid) {
                 log.error("VNPAY callback signature verification failed!");
-                // Trả về trang lỗi cho user
-                return buildErrorResponse("invalid_signature" + "Chữ ký không hợp lệ");
+
+                return new RedirectView(
+                        "http://localhost:3000/payment-failed?message=invalid_signature"
+                );
             }
 
             // Xử lý callback
-            VNPayCallbackResponse response = paymentService.processVNPayCallback(params);
+            VNPayCallbackResponse response =
+                    paymentService.processVNPayCallback(params);
+
             log.info("=== END VNPAY CALLBACK - SUCCESS ===");
-            
-            // Redirect user đến trang kết quả thanh toán trên frontend
-            return buildSuccessResponse(response);
+
+            String frontendUrl;
+
+            if ("00".equals(response.getResponseCode())) {
+
+                frontendUrl =
+                        "http://localhost:5173/payment/success"
+                                + "?orderId=" + response.getOrderId()
+                                + "&amount=" + response.getAmount();
+
+            } else {
+
+                frontendUrl =
+                        "http://localhost:5173/payment/fail"
+                                + "?message=" + response.getMessage();
+            }
+
+            return new RedirectView(frontendUrl);
 
         } catch (Exception e) {
             log.error("Error processing VNPAY callback: ", e);
-            return buildErrorResponse(e.getMessage());
+
+            return new RedirectView(
+                    "http://localhost:3000/payment-failed?message=server_error"
+            );
         }
     }
 

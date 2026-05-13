@@ -32,4 +32,5 @@ public class BookResponse {
     Set<String> categories = new HashSet<>();
     List<BookImgResponse> bookImgs;
     Integer bookId;
+    Boolean isActive;
 }

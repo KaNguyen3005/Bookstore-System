@@ -5,8 +5,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.CreateVoucherRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateVoucherRequest;
@@ -29,6 +27,17 @@ public class VoucherService {
     VoucherRepository voucherRepository;
     VoucherMapper voucherMapper;
 
+    private boolean isVoucherActiveNow(Voucher voucher, LocalDateTime now) {
+        if (voucher == null) return false;
+        if (voucher.getDeletedAt() != null) return false;
+        if (!Boolean.TRUE.equals(voucher.getIsActive())) return false;
+
+        if (voucher.getStartDate() != null && voucher.getStartDate().isAfter(now)) return false;
+        if (voucher.getEndDate() != null && voucher.getEndDate().isBefore(now)) return false;
+
+        return true;
+    }
+
     @Transactional
     public VoucherResponse create(CreateVoucherRequest request){
         // Kiểm tra voucher code đã tồn tại chưa
@@ -50,13 +59,24 @@ public class VoucherService {
     }
 
     public List<VoucherResponse> getAll(){
-        return voucherRepository.findAll().stream()
+        return voucherRepository.findByDeletedAtIsNull().stream()
                 .map(voucherMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     public List<VoucherResponse> getAllActive(){
-        return voucherRepository.findByIsActiveTrue().stream()
+        LocalDateTime now = LocalDateTime.now();
+        return voucherRepository.findByDeletedAtIsNull().stream()
+                .filter(v -> isVoucherActiveNow(v, now))
+                .map(voucherMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<VoucherResponse> getAllInactive(){
+        LocalDateTime now = LocalDateTime.now();
+        return voucherRepository.findByDeletedAtIsNull().stream()
+                .filter(v -> v.getDeletedAt() == null)
+                .filter(v -> !isVoucherActiveNow(v, now))
                 .map(voucherMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -130,6 +150,8 @@ public class VoucherService {
                 .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_NOT_FOUND));
 
         voucher.setDeletedAt(LocalDateTime.now());
+
+        voucherRepository.save(voucher);
     }
 }
 

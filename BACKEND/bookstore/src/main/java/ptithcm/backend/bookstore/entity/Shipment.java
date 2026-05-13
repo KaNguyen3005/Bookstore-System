@@ -27,16 +27,18 @@ public class Shipment {
 
     String trackingNumber;
     String carrierName;
+
+    @Enumerated(EnumType.STRING)
     ShippingStatus status;
     LocalDateTime estimatedDeliveryDate;
     LocalDateTime actualDeliveryDate;
 
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "address_id")
     Address address;
 
-    Double weight;
+    Integer weight;
     Integer length;
     Integer width;
     Integer height;

@@ -20,4 +20,7 @@ public class OrderItemResponse {
     Integer rate;
     String content;
     String unit;
+    List<BookImgResponse> bookImgs;
 }
+
+

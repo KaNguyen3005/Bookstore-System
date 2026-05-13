@@ -128,5 +128,92 @@ public class RecommendationController {
                 .result(recommendationService.recommendHybrid(limit))
                 .build();
     }
+
+    @Operation(
+            summary = "Lấy sách liên quan",
+            description = "Trả về danh sách sách liên quan với một cuốn sách cụ thể (khác với similar books)."
+    )
+    @GetMapping("/books/{bookId}/related")
+    public ApiResponse<List<BookResponse>> getRelatedBooks(
+            @Parameter(description = "ID của sách", example = "1")
+            @PathVariable Integer bookId,
+
+            @Parameter(description = "Số lượng sách trả về", example = "10")
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<BookResponse>>builder()
+                .result(recommendationService.getRelatedBooks(bookId, limit))
+                .build();
+    }
+
+    @Operation(
+            summary = "Lấy thông tin chi tiết sách từ AI Service",
+            description = "Trả về thông tin chi tiết của một cuốn sách từ recommendation service."
+    )
+    @GetMapping("/books/{bookId}/info")
+    public ApiResponse<Object> getBookInfo(
+            @Parameter(description = "ID của sách", example = "1")
+            @PathVariable Integer bookId
+    ) {
+        return ApiResponse.builder()
+                .result(recommendationService.getBookInfo(bookId))
+                .build();
+    }
+
+    @Operation(
+            summary = "Tìm kiếm sách theo tiêu đề",
+            description = "Tìm kiếm sách trong recommendation service theo tiêu đề."
+    )
+    @GetMapping("/books/search")
+    public ApiResponse<Object> searchBooks(
+            @Parameter(description = "Tiêu đề sách cần tìm", example = "Python")
+            @RequestParam String title,
+
+            @Parameter(description = "Số lượng kết quả tối đa", example = "10")
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        return ApiResponse.builder()
+                .result(recommendationService.searchBooks(title, limit))
+                .build();
+    }
+
+    @Operation(
+            summary = "Huấn luyện recommendation models",
+            description = "Huấn luyện lại các collaborative filtering và content-based models. Thao tác này có thể mất vài phút."
+    )
+    @PostMapping("/train")
+    public ApiResponse<Object> trainModels(
+            @Parameter(description = "Có huấn luyện lại collaborative engine không?", example = "true")
+            @RequestParam(defaultValue = "true") boolean retrainCollaborative,
+
+            @Parameter(description = "Có huấn luyện lại content-based engine không?", example = "true")
+            @RequestParam(defaultValue = "true") boolean retrainContent
+    ) {
+        return ApiResponse.builder()
+                .result(recommendationService.trainRecommendationModels(retrainCollaborative, retrainContent))
+                .build();
+    }
+
+    @Operation(
+            summary = "Lấy thống kê của AI Service",
+            description = "Trả về thống kê về các recommendation engines."
+    )
+    @GetMapping("/stats")
+    public ApiResponse<Object> getStats() {
+        return ApiResponse.builder()
+                .result(recommendationService.getRecommendationStats())
+                .build();
+    }
+
+    @Operation(
+            summary = "Kiểm tra trạng thái AI Service",
+            description = "Kiểm tra xem recommendation service có hoạt động bình thường không."
+    )
+    @GetMapping("/health")
+    public ApiResponse<Object> healthCheck() {
+        return ApiResponse.builder()
+                .result(recommendationService.checkRecommendationServiceHealth())
+                .build();
+    }
 }
 

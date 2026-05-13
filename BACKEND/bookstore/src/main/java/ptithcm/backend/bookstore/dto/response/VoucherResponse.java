@@ -30,5 +30,6 @@ public class VoucherResponse {
     Boolean isActive;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }
 

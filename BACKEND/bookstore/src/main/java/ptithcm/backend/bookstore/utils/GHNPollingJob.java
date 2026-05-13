@@ -68,7 +68,7 @@ public class GHNPollingJob {
                 }
 
             } catch (Exception e) {
-                log.error("Error polling shipment {}: {}", shipment.getShipmentId(), e.getMessage());
+//                log.error("Error polling shipment {}: {}", shipment.getShipmentId(), e.getMessage());
             }
         }
 

@@ -13,7 +13,18 @@ import java.util.Optional;
 @Repository
 public interface BookOrderRepository extends JpaRepository<BookOrder, Long> {
     // Get all BookOrder entries with reviews for a specific book
-    @Query("SELECT bo FROM BookOrder bo WHERE bo.book.bookId = :bookId")
+    @Query("""
+            SELECT bo
+            FROM BookOrder bo
+            WHERE bo.book.bookId = :bookId
+              AND bo.rate IS NOT NULL
+              AND bo.content IS NOT NULL
+              AND bo.order.status IN (
+                    ptithcm.backend.bookstore.enums.OrderStatus.DELIVERED,
+                    ptithcm.backend.bookstore.enums.OrderStatus.COMPLETED
+              )
+            ORDER BY bo.createdAt DESC
+            """)
     Page<BookOrder> findAllByBook_BookId(@Param("bookId") Integer bookId, Pageable pageable);
     Optional<BookOrder> findByBookOrderIdAndOrder_OrderId(Long itemId, Long orderId);
 }

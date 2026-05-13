@@ -33,7 +33,7 @@ public class Address {
     String detailAddress;
     String customerName;
     String customerPhone;
-    boolean isDefault;
+    Boolean isDefault;
 
     @CreationTimestamp
     @Column(updatable = false)
