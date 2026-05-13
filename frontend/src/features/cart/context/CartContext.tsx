@@ -151,21 +151,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 
   const calculateTotal = () => {
     let subtotal = 0;
-    let discount = 0;
 
     selectedItems.forEach((item) => {
       const itemSubtotal = item.book.price * item.quantity;
-      const itemDiscount =
-        ((item.book.price * item.book.salePercent) / 100) * item.quantity;
 
       subtotal += itemSubtotal;
-      discount += itemDiscount;
     });
 
     return {
       subtotal,
-      discount,
-      total: subtotal - discount,
+      discount: 0,
+      total: subtotal,
     };
   };
 

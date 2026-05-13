@@ -10,8 +10,7 @@ const formatPrice = (price: number): string =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
 const CheckoutCartItem: React.FC<CheckoutCartItemProps> = ({ item }) => {
-  const discountedPrice = item.book.price * (1 - item.book.salePercent / 100);
-  const totalItemPrice = discountedPrice * item.quantity;
+  const totalItemPrice = item.book.price * item.quantity;
 
   return (
     <div className="cco-item">
@@ -27,10 +26,7 @@ const CheckoutCartItem: React.FC<CheckoutCartItemProps> = ({ item }) => {
       <div className="cco-item__info">
         <p className="cco-item__title">{item.book.title}</p>
         <div className="cco-item__prices">
-          <span className="cco-item__price-current">{formatPrice(discountedPrice)}</span>
-          {item.book.salePercent > 0 && (
-            <span className="cco-item__price-original">{formatPrice(item.book.price)}</span>
-          )}
+          <span className="cco-item__price-current">{formatPrice(item.book.price)}</span>
         </div>
         <p className="cco-item__meta">SL: {item.quantity}</p>
       </div>

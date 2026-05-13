@@ -560,8 +560,7 @@ export const saveLocalOrderFallback = ({
   const orderId = source.orderId ?? source.id ?? `local_${Date.now()}`;
   const createdAt = source.createdAt ?? new Date().toISOString();
   const orderItems = items.map((item: any) => {
-    const price =
-      item.book.price * (1 - (item.book.salePercent || 0) / 100);
+    const price = item.book.price;
 
     return {
       itemId: item.bookCartId ?? item.book.bookId,

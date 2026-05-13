@@ -21,8 +21,7 @@ const SHIPPING_FEE_PICKUP = 0;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const getItemPrice = (item: CartItemType): number =>
-  item.book.price * (1 - item.book.salePercent / 100);
+const getItemPrice = (item: CartItemType): number => item.book.price;
 
 const calcSubtotal = (items: CartItemType[]): number =>
   items.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
