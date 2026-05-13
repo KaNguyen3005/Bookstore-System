@@ -1,41 +1,84 @@
 import axiosClient from "./axiosClient";
-import type { Author } from "../data/author";
 
-// GET all
+export type Author = {
+  authorId: string;
+  authorName: string;
+  alias: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+};
+
+export type AuthorPayload = {
+  authorName: string;
+  alias: string;
+};
+
+const unwrap = (data: any) => data?.result ?? data?.data ?? data;
+
+const normalizeAuthor = (author: any): Author => ({
+  ...author,
+  authorId: String(author.authorId ?? author.author_id ?? author.id ?? ""),
+  authorName:
+    author.authorName ??
+    author.author_name ??
+    author.name ??
+    "",
+  alias: author.alias ?? author.penName ?? author.nickname ?? "",
+  createdAt: author.createdAt ?? author.created_at,
+  updatedAt: author.updatedAt ?? author.updated_at,
+  deletedAt: author.deletedAt ?? author.deleted_at,
+});
+
+const normalizeAuthorsResponse = (data: any): Author[] => {
+  const source = unwrap(data);
+  const content = Array.isArray(source)
+    ? source
+    : source?.content ?? source?.data ?? [];
+
+  return Array.isArray(content) ? content.map(normalizeAuthor) : [];
+};
+
+// GET /api/v1/authors
 export const getAuthors = async (): Promise<Author[]> => {
   const res = await axiosClient.get("/authors");
-  return res.data.result;
+
+  return normalizeAuthorsResponse(res.data);
 };
 
-// GET by id
-export const getAuthorById = async (id: number): Promise<Author> => {
+// GET /api/v1/authors/{id}
+export const getAuthorById = async (id: string | number): Promise<Author> => {
   const res = await axiosClient.get(`/authors/${id}`);
-  return res.data.result;
+
+  return normalizeAuthor(unwrap(res.data));
 };
 
-// CREATE
+// POST /api/v1/authors
 export const createAuthor = async (
-  data: Omit<Author, "author_id">,
+  data: AuthorPayload,
 ): Promise<Author> => {
   const res = await axiosClient.post("/authors", data);
-  return res.data.result;
+
+  return normalizeAuthor(unwrap(res.data));
 };
 
-// DELETE
-export const deleteAuthor = async (id: number): Promise<void> => {
+// PATCH /api/v1/authors/{id}
+export const updateAuthor = async (
+  id: string | number,
+  data: Partial<AuthorPayload>,
+): Promise<Author> => {
+  const res = await axiosClient.patch(`/authors/${id}`, data);
+
+  return normalizeAuthor(unwrap(res.data));
+};
+
+// DELETE /api/v1/authors/{id}
+export const deleteAuthor = async (id: string | number): Promise<void> => {
   await axiosClient.delete(`/authors/${id}`);
 };
 
-// PATCH / UPDATE
-export const updateAuthor = async (
-  id: number,
-  data: Partial<Author>,
-): Promise<Author> => {
-  const res = await axiosClient.patch(`/authors/${id}`, data);
-  return res.data.result;
-};
-
 export const getTotalAuthors = async (): Promise<number> => {
-  const res = await axiosClient.get("/authors");
-  return res.data.result.length;
+  const authors = await getAuthors();
+
+  return authors.length;
 };
