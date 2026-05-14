@@ -21,6 +21,7 @@ import { MdCardMembership } from "react-icons/md";
 import { TbBrandBlogger, TbTruckDelivery } from "react-icons/tb";
 import { RiUserCommunityLine } from "react-icons/ri";
 import { LuTickets } from "react-icons/lu";
+import { CgHomeAlt } from "react-icons/cg";
 
 
 import {searchApi } from "../../../services/searchApi";
@@ -243,16 +244,18 @@ if (loading) {
         <button onClick={() => navigate("/category")} style={{ display: "flex", alignItems: "center", gap: "6px" }} >
           <GiHamburgerMenu /> Xem tất cả
         </button>
-        <button style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        {/*}<button style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <img src={aiLogo} alt="AI" style={{ width: "18px", height: "18px" }} />
           Gợi Ý Hôm Nay
-        </button>
+        </button> */}
         <button onClick ={() => navigate("/voucherPage")} style={{ display: "flex", alignItems: "center", gap: "6px" }} ><LuTickets /> Kho Voucher</button>
-        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><GoBook /> Ebook</button>
+        <button onClick ={() => navigate("/ebookPage")}   style={{ display: "flex", alignItems: "center", gap: "6px" }} ><GoBook /> Ebook</button>
         <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><FaHotjar /> Bán chạy</button>
-        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><MdCardMembership /> Thành viên</button>
-        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><TbBrandBlogger /> Blog</button>
-        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><RiUserCommunityLine /> Cộng đồng</button>
+        <button onClick ={() => navigate("/memberPage")} style={{ display: "flex", alignItems: "center", gap: "6px" }} ><MdCardMembership /> Thành viên</button>
+        <button onClick ={() => navigate("/companiesPage")} style={{ display: "flex", alignItems: "center", gap: "6px" }}> <CgHomeAlt /> Giới thiệu KATIIA </button>
+        <button onClick ={() => navigate("/blogPage")}  style={{ display: "flex", alignItems: "center", gap: "6px" }} ><TbBrandBlogger /> Blog</button>
+        <button onClick ={() => navigate("/communityPage")}  style={{ display: "flex", alignItems: "center", gap: "6px" }}><RiUserCommunityLine /> Cộng đồng</button>
+
       </div>
     </header>
   );

@@ -13,18 +13,18 @@ const BannerVoucher = () => {
       <div className={styles.content}>
         <div className={styles.badge}>
           <Sparkles size={16} />
-          Voucher độc quyền
+          Ưu đãi giới hạn hôm nay
         </div>
 
         <h1 className={styles.title}>
-          Săn voucher
-          <span> giảm giá cực hot</span>
+          Mã giảm giá
+          <span> siêu hot cho bạn</span>
         </h1>
 
         <p className={styles.description}>
-          Thu thập voucher freeship,
-          giảm giá và ưu đãi thành viên
-          dành riêng cho bạn.
+          Khám phá hàng loạt voucher hấp dẫn với ưu đãi cực sốc.
+          Chỉ cần sao chép mã và sử dụng ngay khi thanh toán để
+          tiết kiệm nhiều hơn cho đơn hàng của bạn.
         </p>
 
         <div className={styles.actions}>
@@ -32,7 +32,7 @@ const BannerVoucher = () => {
             className={styles.primaryBtn}
           >
             <Gift size={18} />
-            Thu thập ngay
+            Mua sắm ngay
           </button>
 
           <button
@@ -41,7 +41,7 @@ const BannerVoucher = () => {
             }
           >
             <TicketPercent size={18} />
-            Xem ưu đãi
+            Xem tất cả ưu đãi
           </button>
         </div>
       </div>

@@ -6,8 +6,13 @@ import Layout from "../layout/layoutUser/MainLayout/Layout";
 import Home from "../features/home/pages/Home/Home";
 import CategoryPage from "../features/book-category/pages/CategoryPage";
 import VoucherPage from "../features/voucher/pages/VoucherPage/VoucherPage";
+import EbookPage from "../features/ebook/pages/EbookPage/EbookPage"
 import ProductDetailPage from "../features/product/pages/ProductDetailPage/ProductDetailPage";
 import Cart from "../features/cart/pages/Cart/Cart";
+import BlogPage from "../features/blog/pages/BlogPage/BlogPage";
+import CommunityPage from "../features/community/pages/CommunityPage/CommunityPage";
+import CompaniesPage from "../features/companies/pages/CompaniesPage/CompaniesPage";
+import MemberPage from "../features/member/pages/MemberPage/memberPage";
 
 import ProtectedRoute from "../features/auth/routes/ProtectedRoute";
 
@@ -78,7 +83,11 @@ export default function AppRoutes() {
         />
 
         <Route path ="voucherPage" element ={<VoucherPage/>} />
-
+        <Route path ="ebookPage" element ={<EbookPage/> } />
+         <Route path="blogPage" element={<BlogPage />} />
+         <Route path="communityPage" element={<CommunityPage />} />
+         <Route path="companiesPage" element={<CompaniesPage />} />
+         <Route path="memberPage" element={<MemberPage/>} />
         <Route
           path="product/:id"
           element={<ProductDetailPage />}
