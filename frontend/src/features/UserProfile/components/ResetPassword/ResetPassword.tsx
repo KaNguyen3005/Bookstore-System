@@ -8,7 +8,7 @@ import {
 } from "../../../../services/resetPasswordApi";
 
 export default function ResetPassword() {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState(1);
 
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -21,6 +21,12 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  // BACK STEP
+  const handleBack = () => {
+    setStep((prev) => Math.max(prev - 1, 1));
+    setMessage("");
+  };
+
   const handleSendEmail = async () => {
     try {
       setLoading(true);
@@ -29,7 +35,7 @@ export default function ResetPassword() {
       await initResetPassword(email);
 
       setStep(2);
-    } catch (err: any) {
+    } catch (err) {
       setMessage(err?.response?.data?.message || "Lỗi gửi email");
     } finally {
       setLoading(false);
@@ -45,7 +51,7 @@ export default function ResetPassword() {
       setResetToken(res?.result);
 
       setStep(3);
-    } catch (err: any) {
+    } catch (err) {
       setMessage(err?.response?.data?.message || "OTP không hợp lệ");
     } finally {
       setLoading(false);
@@ -64,8 +70,8 @@ export default function ResetPassword() {
 
       await completeResetPassword(resetToken, newPassword);
 
-      setMessage("Đổi mật khẩu thành công ");
-    } catch (err: any) {
+      setMessage("Đổi mật khẩu thành công 🎉");
+    } catch (err) {
       setMessage(err?.response?.data?.message || "Lỗi đặt lại mật khẩu");
     } finally {
       setLoading(false);
@@ -78,7 +84,7 @@ export default function ResetPassword() {
 
       {message && <p className={styles.message}>{message}</p>}
 
-      {/* STEP 1 */}
+      {/* ================= STEP 1 ================= */}
       {step === 1 && (
         <div className={styles.box}>
           <input
@@ -87,6 +93,7 @@ export default function ResetPassword() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <button
             className={styles.button}
             onClick={handleSendEmail}
@@ -97,7 +104,7 @@ export default function ResetPassword() {
         </div>
       )}
 
-      {/* STEP 2 */}
+      {/* ================= STEP 2 ================= */}
       {step === 2 && (
         <div className={styles.box}>
           <input
@@ -106,6 +113,7 @@ export default function ResetPassword() {
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
           />
+
           <button
             className={styles.button}
             onClick={handleVerifyOtp}
@@ -113,10 +121,18 @@ export default function ResetPassword() {
           >
             Xác minh
           </button>
+
+          {/* BACK */}
+          <button
+            className={styles.backButton}
+            onClick={handleBack}
+          >
+            ← Quay lại
+          </button>
         </div>
       )}
 
-      {/* STEP 3 */}
+      {/* ================= STEP 3 ================= */}
       {step === 3 && (
         <div className={styles.box}>
           <input
@@ -141,6 +157,14 @@ export default function ResetPassword() {
             disabled={loading}
           >
             Đổi mật khẩu
+          </button>
+
+          {/* BACK */}
+          <button
+            className={styles.backButton}
+            onClick={handleBack}
+          >
+            ← Quay lại
           </button>
         </div>
       )}
