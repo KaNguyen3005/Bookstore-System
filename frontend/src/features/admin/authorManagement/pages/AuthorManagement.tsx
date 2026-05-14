@@ -15,9 +15,33 @@ const emptyForm: AuthorPayload = {
   alias: "",
 };
 
+type AuthorFormErrors = Partial<Record<keyof AuthorPayload, string>>;
+
+const getBackendError = (err: unknown): { code?: number; message?: string } => {
+  const apiError = err as {
+    response?: {
+      data?: {
+        code?: number;
+        message?: string;
+        error?: string;
+      };
+    };
+    message?: string;
+  };
+
+  return {
+    code: apiError.response?.data?.code,
+    message:
+      apiError.response?.data?.message ??
+      apiError.response?.data?.error ??
+      apiError.message,
+  };
+};
+
 export default function AuthorManagement() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [formData, setFormData] = useState<AuthorPayload>(emptyForm);
+  const [formErrors, setFormErrors] = useState<AuthorFormErrors>({});
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null);
@@ -48,6 +72,7 @@ export default function AuthorManagement() {
 
   const resetForm = () => {
     setFormData(emptyForm);
+    setFormErrors({});
     setEditingAuthor(null);
     setIsFormOpen(false);
   };
@@ -59,12 +84,17 @@ export default function AuthorManagement() {
     const alias = formData.alias.trim();
 
     if (!authorName || !alias) {
-      setError("Vui lòng nhập đầy đủ tên tác giả và bí danh");
+      setFormErrors({
+        authorName: !authorName ? "Vui lòng nhập tên tác giả" : undefined,
+        alias: !alias ? "Vui lòng nhập bí danh" : undefined,
+      });
+      setError(null);
       return;
     }
 
     setSaving(true);
     setError(null);
+    setFormErrors({});
 
     try {
       const payload = { authorName, alias };
@@ -79,7 +109,31 @@ export default function AuthorManagement() {
       await loadAuthors();
     } catch (err) {
       console.error("Save author failed:", err);
-      setError("Không thể lưu thông tin tác giả");
+      const backendError = getBackendError(err);
+      const errorMessageMap: Record<string, string> = {
+        "Name must be between 6 and 100 characters":
+          "Bí danh phải từ 6 đến 100 ký tự",
+
+        "Author already exists": "Tác giả đã tồn tại",
+
+        "Author name already exists": "Tên tác giả đã tồn tại",
+      };
+
+      const translatedMessage =
+        errorMessageMap[backendError.message ?? ""] ??
+        backendError.message ??
+        "Không thể lưu thông tin tác giả";
+
+      if (
+        backendError.code === 2012 ||
+        backendError.message === "Name must be between 6 and 100 characters"
+      ) {
+        setFormErrors({
+          alias: translatedMessage,
+        });
+      } else {
+        setError(translatedMessage);
+      }
     } finally {
       setSaving(false);
     }
@@ -87,6 +141,8 @@ export default function AuthorManagement() {
 
   const handleEdit = (author: Author) => {
     setSelectedAuthor(null);
+    setFormErrors({});
+    setError(null);
     setEditingAuthor(author);
     setIsFormOpen(true);
     setFormData({
@@ -98,7 +154,21 @@ export default function AuthorManagement() {
   const handleOpenCreate = () => {
     setEditingAuthor(null);
     setFormData(emptyForm);
+    setFormErrors({});
+    setError(null);
     setIsFormOpen(true);
+  };
+
+  const handleFormChange = (field: keyof AuthorPayload, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    setFormErrors((prev) => ({
+      ...prev,
+      [field]: undefined,
+    }));
   };
 
   const handleDelete = async (author: Author) => {
@@ -301,30 +371,36 @@ export default function AuthorManagement() {
               <label>
                 <span>Tên tác giả</span>
                 <input
+                  className={formErrors.authorName ? "has-error" : undefined}
                   value={formData.authorName}
                   onChange={(event) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      authorName: event.target.value,
-                    }))
+                    handleFormChange("authorName", event.target.value)
                   }
                   placeholder="Nhập tên tác giả"
                   autoFocus
                 />
+                {formErrors.authorName && (
+                  <span className="author-form-modal__field-error">
+                    {formErrors.authorName}
+                  </span>
+                )}
               </label>
 
               <label>
                 <span>Bí danh</span>
                 <input
+                  className={formErrors.alias ? "has-error" : undefined}
                   value={formData.alias}
                   onChange={(event) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      alias: event.target.value,
-                    }))
+                    handleFormChange("alias", event.target.value)
                   }
                   placeholder="Nhập bí danh"
                 />
+                {formErrors.alias && (
+                  <span className="author-form-modal__field-error">
+                    {formErrors.alias}
+                  </span>
+                )}
               </label>
             </div>
 
@@ -337,8 +413,8 @@ export default function AuthorManagement() {
                 {saving
                   ? "Đang lưu..."
                   : editingAuthor
-                  ? "Cập nhật"
-                  : "Thêm tác giả"}
+                    ? "Cập nhật"
+                    : "Thêm tác giả"}
               </button>
             </div>
           </form>

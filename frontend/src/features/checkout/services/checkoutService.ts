@@ -125,7 +125,7 @@ export const createOrder = async (
 
       paymentMethod:
         (payload.paymentMethod || payload.payment_method) === "VNPAY"
-          ? "ONLINE"
+          ? "VNPAY"
           : payload.paymentMethod || payload.payment_method,
 
       voucherCode: payload.voucherCode || "",

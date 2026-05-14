@@ -30,7 +30,6 @@ import type {
 import type { CartItemType } from "../../cart/types/cartItemType";
 
 import { paymentApi } from "../services/paymentApi";
-import { saveLocalOrderFallback } from "../../../services/orderApi";
 
 interface UseCheckoutReturn {
 
@@ -463,13 +462,6 @@ export const useCheckout = (
             );
 
           }
-
-          saveLocalOrderFallback({
-            order,
-            items: selectedItems,
-            totals,
-            paymentMethod,
-          });
 
           // =========================
           // COD FLOW
