@@ -15,84 +15,81 @@ const Login = () => {
 
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const [errors, setErrors] = useState({
-    account: "",
-    password: "",
-    common: "",
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [accountError, setAccountError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const from = location.state?.from?.pathname || "/";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (loading) return;
 
-    // reset lỗi
-    setErrors({
-      account: "",
-      password: "",
-      common: "",
-    });
+    setError("");
+    setAccountError(false);
+    setPasswordError(false);
 
-    let hasError = false;
-    const newErrors = {
-      account: "",
-      password: "",
-      common: "",
-    };
-
-    // ===== VALIDATE =====
+    // ================= VALIDATE =================
     if (!account.trim()) {
-      newErrors.account = "Vui lòng nhập tài khoản";
-      hasError = true;
+      setAccountError(true);
+      setError("Vui lòng nhập tài khoản");
+      return;
     }
 
     if (!password.trim()) {
-      newErrors.password = "Vui lòng nhập mật khẩu";
-      hasError = true;
-    }
-
-    if (hasError) {
-      newErrors.common = newErrors.account || newErrors.password;
-      setErrors(newErrors);
+      setPasswordError(true);
+      setError("Vui lòng nhập mật khẩu");
       return;
     }
 
     setLoading(true);
 
     try {
+      // 🔥 AUTH API ĐÃ TRẢ FULL USER + TOKEN
       const user = await authApi.login({
         account,
         password,
       });
 
-      if (!user?.token) {
-        setErrors({
-          account: "Sai tài khoản hoặc mật khẩu",
-          password: "Sai tài khoản hoặc mật khẩu",
-          common: "Sai tài khoản hoặc mật khẩu",
-        });
+      console.log("LOGIN SUCCESS:", user);
+
+      if (!user || !user.id) {
+        setAccountError(true);
+        setPasswordError(true);
+        setError("Sai tài khoản hoặc mật khẩu");
         return;
       }
 
-      login({
-        ...user,
-        token: user.token,
-      });
+      // ================= SAVE AUTH =================
 
-      const role = user.role?.trim?.().toUpperCase();
+      login(user);
+      setTimeout(() => {
+        const role = user.role?.trim().toUpperCase();
 
-      navigate(role === "ADMIN" ? "/admin" : from, {
-        replace: true,
-      });
-    } catch (err) {
-      setErrors({
-        account: "Sai tài khoản hoặc mật khẩu",
-        password: "Sai tài khoản hoặc mật khẩu",
-        common: "Sai tài khoản hoặc mật khẩu",
-      });
+        navigate(role === "ADMIN" ? "/admin" : from, {
+          replace: true,
+        });
+      }, 0);
+    } catch (error: any) {
+      console.error("LOGIN ERROR:", error);
+
+      const msg = error?.message;
+
+      // backend error mapping (từ authApi throw Error)
+      const mapError: Record<string, string> = {
+        "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
+        "Login failed": "Sai tài khoản hoặc mật khẩu",
+        "Token not found": "Sai tài khoản hoặc mật khẩu",
+      };
+
+      setAccountError(true);
+      setPasswordError(true);
+
+      setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
     } finally {
       setLoading(false);
     }
@@ -104,41 +101,30 @@ const Login = () => {
         <img src={logo} alt="KATIIA BOOKSTORE" className="logo-img-auth-login" />
         <p className="subtitle">Đăng nhập tài khoản</p>
 
-        {/* ===== ERROR TOP ===== */}
-        {errors.common && (
-          <div className="error-message">{errors.common}</div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         <form className="login-form" onSubmit={handleLogin}>
-          {/* ACCOUNT */}
           <input
             type="text"
             placeholder="Email hoặc tên đăng nhập"
             value={account}
-            className={errors.account ? "input error" : "input"}
+            className={accountError ? "input error" : "input"}
             onChange={(e) => {
               setAccount(e.target.value);
-              setErrors((prev) => ({
-                ...prev,
-                account: "",
-                common: "",
-              }));
+              setAccountError(false);
+              setError("");
             }}
           />
 
-          {/* PASSWORD */}
           <input
             type="password"
             placeholder="Mật khẩu"
             value={password}
-            className={errors.password ? "input error" : "input"}
+            className={passwordError ? "input error" : "input"}
             onChange={(e) => {
               setPassword(e.target.value);
-              setErrors((prev) => ({
-                ...prev,
-                password: "",
-                common: "",
-              }));
+              setPasswordError(false);
+              setError("");
             }}
           />
 

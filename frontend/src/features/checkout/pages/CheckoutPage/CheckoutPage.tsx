@@ -216,7 +216,6 @@ const CheckoutPage: React.FC = () => {
     async () => {
       const result =
         await placeOrder();
-      console.log(result);
       // =========================
       // COD SUCCESS
       // =========================
