@@ -30,7 +30,9 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const skipAuthRedirect = Boolean(error.config?.skipAuthRedirect);
+
+    if (error.response?.status === 401 && !skipAuthRedirect) {
       localStorage.removeItem("access_token");
 
       if (window.location.pathname !== "/login") {
