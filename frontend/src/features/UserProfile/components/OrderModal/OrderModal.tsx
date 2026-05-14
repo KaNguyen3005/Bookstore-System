@@ -2,6 +2,67 @@ import styles from "./OrderModal.module.css";
 
 const FALLBACK_BOOK_IMAGE = "/images/book-placeholder.svg";
 
+const getItemId = (item: any) =>
+  item?.itemId ?? item?.orderItemId ?? item?.id ?? item?.bookId;
+
+const getItemBookId = (item: any) =>
+  item?.bookId ?? item?.book_id ?? item?.book?.bookId ?? item?.book?.id;
+
+const getItemTitle = (item: any) =>
+  item?.bookTitle ??
+  item?.title ??
+  item?.book_title ??
+  item?.book?.title ??
+  "Sản phẩm";
+
+const getItemPrice = (item: any) =>
+  Number(item?.price ?? item?.unitPrice ?? item?.unit_price ?? 0);
+
+const getOrderTotal = (order: any) =>
+  Number(order?.totalAmount ?? order?.total ?? order?.amount?.total ?? 0);
+
+const getOrderSubtotal = (order: any) =>
+  Number(order?.subtotal ?? order?.amount?.subtotal ?? 0);
+
+const unwrapApiData = (data: any): any => {
+  let source = data;
+
+  while (
+    source &&
+    typeof source === "object" &&
+    !Array.isArray(source) &&
+    (source.result !== undefined || source.data !== undefined)
+  ) {
+    source = source.result ?? source.data;
+  }
+
+  return source;
+};
+
+const getOrderItems = (order: any) => {
+  const items =
+    order?.items ??
+    order?.orderItems ??
+    order?.order_items ??
+    order?.orderDetails ??
+    order?.orderItemResponses ??
+    order?.orderItemResponseList ??
+    order?.orderDetailResponses ??
+    order?.orderDetailResponseList ??
+    order?.details ??
+    order?.bookItems ??
+    order?.books ??
+    [];
+
+  const source = unwrapApiData(items);
+
+  return Array.isArray(source)
+    ? source
+    : Array.isArray(source?.content)
+    ? source.content
+    : [];
+};
+
 export default function OrderModal({
   order,
   onClose,
@@ -11,7 +72,7 @@ export default function OrderModal({
 }) {
   if (!order) return null;
 
-const items = Array.isArray(order.items) ? order.items : [];
+const items = getOrderItems(order);
 const totalQuantity =
   items.reduce(
     (sum: number, item: any) => sum + (item.quantity || 0),
@@ -49,7 +110,7 @@ const address =
 
           <div className={styles.row}>
             <span>Mã đơn hàng</span>
-            <span>{order.orderId}</span>
+            <span>{order.orderId ?? order.order_id ?? order.id}</span>
           </div>
 
           <div className={styles.row}>
@@ -124,10 +185,10 @@ const address =
           )}
 
           {items.map((item: any, index: number) => (
-            <div key={item.itemId || `${item.bookId}-${index}`} className={styles.item}>
+            <div key={getItemId(item) || `${getItemBookId(item)}-${index}`} className={styles.item}>
               <img
                 src={item.coverImgUrl || FALLBACK_BOOK_IMAGE}
-                alt={item.bookTitle}
+                alt={getItemTitle(item)}
                 onError={(event) => {
                   event.currentTarget.src = FALLBACK_BOOK_IMAGE;
                 }}
@@ -135,7 +196,7 @@ const address =
 
               <div className={styles.itemInfo}>
                 <div className={styles.itemTitle}>
-                  {item.bookTitle}
+                  {getItemTitle(item)}
                 </div>
                 <div className={styles.itemQty}>
                   SL: {item.quantity}
@@ -143,7 +204,7 @@ const address =
               </div>
 
               <div className={styles.itemPrice}>
-                {(item.price || 0).toLocaleString()} đ
+                {getItemPrice(item).toLocaleString()} đ
               </div>
             </div>
           ))}
@@ -154,7 +215,7 @@ const address =
           <div className={styles.summaryRow}>
             <span>Tổng tiền hàng</span>
             <span>
-              {(order.subtotal || 0).toLocaleString()} đ
+              {getOrderSubtotal(order).toLocaleString()} đ
             </span>
           </div>
 
@@ -175,7 +236,7 @@ const address =
           <div className={styles.summaryRow}>
             <strong>Thành tiền</strong>
             <strong>
-              {(order.totalAmount || 0).toLocaleString()} đ
+              {getOrderTotal(order).toLocaleString()} đ
             </strong>
           </div>
         </div>
