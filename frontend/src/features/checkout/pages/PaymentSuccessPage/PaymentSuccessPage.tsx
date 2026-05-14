@@ -62,7 +62,7 @@ const PaymentSuccessPage: React.FC = () => {
           </Link>
 
           <Link
-            to={`/profile/purchaseorder/${orderId}`}
+            to="/profile/purchaseorder"
             className="payment-result__btn payment-result__btn--primary"
           >
             Xem đơn hàng
