@@ -109,10 +109,9 @@ export default function AppRoutes() {
 
           <Route path="address" element={<Address />} />
 
-          <Route
-            path="/profile/purchaseorder/:orderId"
-            element={<PurchaseOrder />}
-          />
+          <Route path="purchaseorder" element={<PurchaseOrder />} />
+
+          <Route path="purchaseorder/:orderId" element={<PurchaseOrder />} />
 
           <Route path="voucher" element={<Voucher />} />
 
