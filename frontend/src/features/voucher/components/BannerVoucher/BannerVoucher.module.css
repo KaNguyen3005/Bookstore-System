@@ -1,20 +1,18 @@
 .banner {
   position: relative;
   width: 70%;
-  margin: 24px auto;
+  margin: 10px auto;
   padding: 56px;
   border-radius: 28px;
   overflow: hidden;
-  background: linear-gradient(
-    135deg,
-    #111827,
-    #1f2937
-  );
+
+  background: #ffffff; /* đổi sang trắng sạch */
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 40px;
 }
 
@@ -31,18 +29,22 @@
 
   padding: 10px 16px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+
+  background: #f3f4f6;
+  color: #111827;
+
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 20px;
+
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .title {
   font-size: 54px;
   line-height: 1.1;
   font-weight: 800;
-  color: white;
+  color: #111827;
   max-width: 620px;
 }
 
@@ -55,9 +57,8 @@
   max-width: 520px;
   font-size: 17px;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(17, 24, 39, 0.7);
 }
-
 
 .actions {
   display: flex;
@@ -81,29 +82,24 @@
 }
 
 .primaryBtn {
-  background: linear-gradient(
-    135deg,
-    #e11d48,
-    #f43f5e
-  );
+  background: linear-gradient(135deg, #e11d48, #f43f5e);
   color: white;
 }
 
 .primaryBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px
-    rgba(244, 63, 94, 0.3);
+  box-shadow: 0 12px 24px rgba(244, 63, 94, 0.25);
 }
 
 .secondaryBtn {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .secondaryBtn:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: #e5e7eb;
 }
-
 
 .visual {
   position: relative;
@@ -118,11 +114,13 @@
   height: 110px;
   border-radius: 24px;
   padding: 20px;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
+
   color: white;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
 
   animation: floatY 4s ease-in-out infinite;
   will-change: transform;
@@ -131,7 +129,7 @@
 .card span {
   font-size: 13px;
   font-weight: 700;
-  opacity: 0.8;
+  opacity: 0.9;
   letter-spacing: 1px;
 }
 
@@ -145,7 +143,7 @@
   --r: 8deg;
   top: 0;
   right: 30px;
-  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   animation-delay: 0s;
 }
 
@@ -153,7 +151,7 @@
   --r: -10deg;
   left: 0;
   top: 95px;
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: linear-gradient(135deg, #fb923c, #f97316);
   animation-delay: 0.6s;
 }
 
@@ -161,11 +159,23 @@
   --r: 6deg;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #34d399, #10b981);
   animation-delay: 1.2s;
 }
 
+@keyframes floatY {
+  0% {
+    transform: translateY(0px) rotate(var(--r));
+  }
+  50% {
+    transform: translateY(-10px) rotate(var(--r));
+  }
+  100% {
+    transform: translateY(0px) rotate(var(--r));
+  }
+}
 
+/* responsive */
 @media (max-width: 1200px) {
   .banner {
     width: 90%;
@@ -201,17 +211,5 @@
   .secondaryBtn {
     width: 100%;
     justify-content: center;
-  }
-}
-
-@keyframes floatY {
-  0% {
-    transform: translateY(0px) rotate(var(--r));
-  }
-  50% {
-    transform: translateY(-10px) rotate(var(--r));
-  }
-  100% {
-    transform: translateY(0px) rotate(var(--r));
   }
 }

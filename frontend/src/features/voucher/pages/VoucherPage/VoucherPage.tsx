@@ -35,11 +35,11 @@ const VoucherPage = () => {
   //  scroll ref
   const voucherTopRef = useRef<HTMLDivElement | null>(null);
 
-  //HOME DATA 
+  //HOME DATA
   const { homeData } = useHomeData();
   const topBooks = (homeData?.topSellingBooks || []).slice(0, 10);
 
-  //  LOAD VOUCHERS 
+  //  LOAD VOUCHERS
   useEffect(() => {
     const fetchVouchers = async () => {
       try {
@@ -58,7 +58,7 @@ const VoucherPage = () => {
     fetchVouchers();
   }, []);
 
-  // FILTER 
+  // FILTER
   const filteredVouchers = useMemo(() => {
     return vouchers.filter(
       (v) =>
@@ -70,7 +70,7 @@ const VoucherPage = () => {
   // visible list
   const visibleVouchers = filteredVouchers.slice(0, visibleCount);
 
-  // COPY 
+  // COPY
   const handleCopy = async (code: string) => {
     try {
       await navigator.clipboard.writeText(code);
@@ -80,13 +80,13 @@ const VoucherPage = () => {
     }
   };
 
-  // COLLECT 
+  // COLLECT
   const handleCollect = (voucher: Voucher) => {
     console.log("Collect:", voucher);
     alert(`Đã thu thập voucher ${voucher.code}`);
   };
 
-  //  FORMAT 
+  //  FORMAT
   const formatDiscount = (voucher: Voucher) => {
     switch (voucher.discountType) {
       case "percent":
@@ -100,7 +100,7 @@ const VoucherPage = () => {
     }
   };
 
-  //  TOGGLE LOAD MORE / HIDE 
+  //  TOGGLE LOAD MORE / HIDE
   const handleToggle = () => {
     const isExpanded = visibleCount > 10;
 
@@ -237,10 +237,10 @@ const VoucherPage = () => {
 
                     <button
                       className={styles.collectBtn}
-                      onClick={() => handleCollect(voucher)}
+                      onClick={() => navigate("/")}
                     >
                       <Gift size={15} />
-                      Thu thập
+                      Mua sắm ngay
                     </button>
                   </div>
                 </div>

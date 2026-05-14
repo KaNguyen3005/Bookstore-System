@@ -10,7 +10,7 @@ const Suggestion = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>
-        GỢI Ý CHO BẠN <span className={styles.robot}>🤖</span>
+        AI GỢI Ý CHO BẠN <span className={styles.robot}>🤖</span>
       </h2>
 
       <div className={styles.grid}>
