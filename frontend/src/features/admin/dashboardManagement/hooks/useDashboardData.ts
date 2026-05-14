@@ -19,8 +19,8 @@ export const useDashboardData = () => {
       try {
         const [summaryRes, ordersRes, revenueRes, booksRes] = await Promise.all([
           adminApi.getDashboardSummary(),
-          orderApi.getRecentOrders(),
-          orderApi.getRevenueData(),
+          orderApi.getOrders({ page: 0, size: 5 }),
+          orderApi.getOrders({ page: 0, size: 100 }),
           bookApi.getTopSellingBooks(4),
         ]);
 

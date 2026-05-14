@@ -28,8 +28,8 @@ const PaymentFailPage: React.FC = () => {
           <Link to="/" className="payment-result__btn payment-result__btn--secondary">
             Về trang chủ
           </Link>
-          <Link to="/checkout" className="payment-result__btn payment-result__btn--primary">
-            Thử lại thanh toán
+          <Link to="/profile/purchaseorder" className="payment-result__btn payment-result__btn--primary">
+            Xem đơn hàng
           </Link>
         </div>
       </div>

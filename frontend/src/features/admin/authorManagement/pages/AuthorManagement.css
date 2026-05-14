@@ -220,6 +220,22 @@
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
 }
 
+.author-form-modal__body input.has-error {
+  border-color: #dc2626;
+}
+
+.author-form-modal__body input.has-error:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.author-form-modal__field-error {
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .author-form-modal__footer {
   display: flex;
   justify-content: flex-end;
