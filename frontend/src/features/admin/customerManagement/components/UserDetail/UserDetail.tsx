@@ -146,18 +146,37 @@ export default function UserDetail({ user, onClose }: Props) {
         aria-label="Chi tiết người dùng"
       >
         <header className="user-detail-header">
-          <div className="user-detail-avatar">
-            {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={displayName} />
-            ) : (
-              <UserRound size={34} />
-            )}
+          <div className="user-detail-header-main">
+            <div className="user-detail-avatar">
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={displayName} />
+              ) : (
+                <UserRound size={34} />
+              )}
+            </div>
+
+            <div className="user-detail-title">
+              <span>Hồ sơ khách hàng</span>
+              <h3>{displayName}</h3>
+              <p>{user.username || "Chưa cập nhật tên đăng nhập"}</p>
+            </div>
           </div>
 
-          <div className="user-detail-title">
-            <span>ID #{user.userId}</span>
-            <h3>{displayName}</h3>
-            <p>{user.username || "Chưa cập nhật tên đăng nhập"}</p>
+          <div className="user-detail-header-meta">
+            <span className="user-detail-id">ID #{user.userId}</span>
+            <div className="user-detail-badges">
+              <span
+                className={
+                  user.status ? "status-badge active" : "status-badge inactive"
+                }
+              >
+                {user.status ? "Hoạt động" : "Ngừng hoạt động"}
+              </span>
+              <span className="role-badge">
+                <ShieldCheck size={15} />
+                {user.role || "CUSTOMER"}
+              </span>
+            </div>
           </div>
 
           <button
@@ -169,20 +188,6 @@ export default function UserDetail({ user, onClose }: Props) {
             <X size={18} />
           </button>
         </header>
-
-        <div className="user-detail-badges">
-          <span
-            className={
-              user.status ? "status-badge active" : "status-badge inactive"
-            }
-          >
-            {user.status ? "Hoạt động" : "Ngừng hoạt động"}
-          </span>
-          <span className="role-badge">
-            <ShieldCheck size={15} />
-            {user.role || "CUSTOMER"}
-          </span>
-        </div>
 
         <div className="user-detail-body" ref={scrollRef}>
           <section className="user-detail-section">
@@ -266,6 +271,11 @@ export default function UserDetail({ user, onClose }: Props) {
         </div>
 
         <footer className="user-detail-actions">
+          <div>
+            <span>Tài khoản</span>
+            <strong>#{user.userId}</strong>
+          </div>
+
           <button type="button" onClick={onClose}>
             Đóng
           </button>

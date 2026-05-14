@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Header.css";
 
 import logo from "../../../assets/images/logo.png";
-import aiLogo from "../../../assets/images/ai-logo.png";
 
 import { addressApi } from "../../../services/addressApi";
 import type {Address } from "../../../data/address";
@@ -29,6 +28,7 @@ import SearchItem from "../../../features/Search/components/SearchItem/SearchIte
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, loading } = useAuth();
   const { cartItems } = useCart();
   const cartQuantity = cartItems.reduce(
@@ -142,6 +142,26 @@ const handleSearch = () => {
   setResults([]);
 };
 
+const menuItems = [
+  { label: "BOOKS", icon: <IoHomeOutline />, path: "/" },
+  { label: "Xem tất cả", icon: <GiHamburgerMenu />, path: "/category" },
+  { label: "Kho Voucher", icon: <LuTickets />, path: "/voucherPage" },
+  { label: "Ebook", icon: <GoBook />, path: "/ebookPage" },
+  { label: "Bán chạy", icon: <FaHotjar />, path: "/category" },
+  { label: "Thành viên", icon: <MdCardMembership />, path: "/memberPage" },
+  { label: "Giới thiệu KATIIA", icon: <CgHomeAlt />, path: "/companiesPage" },
+  { label: "Blog", icon: <TbBrandBlogger />, path: "/blogPage" },
+  { label: "Cộng đồng", icon: <RiUserCommunityLine />, path: "/communityPage" },
+];
+
+const isMenuActive = (path: string, label: string) => {
+  if (label === "Bán chạy") return false;
+
+  return path === "/"
+    ? location.pathname === path
+    : location.pathname.startsWith(path);
+};
+
 if (loading) {
   return null; // hoặc skeleton
 }
@@ -237,26 +257,19 @@ if (loading) {
         </div>
       </div>
 
-      <div className="header-menu">
-        <button onClick={() => navigate("/")} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <IoHomeOutline /> BOOKS
-        </button>
-        <button onClick={() => navigate("/category")} style={{ display: "flex", alignItems: "center", gap: "6px" }} >
-          <GiHamburgerMenu /> Xem tất cả
-        </button>
-        {/*}<button style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <img src={aiLogo} alt="AI" style={{ width: "18px", height: "18px" }} />
-          Gợi Ý Hôm Nay
-        </button> */}
-        <button onClick ={() => navigate("/voucherPage")} style={{ display: "flex", alignItems: "center", gap: "6px" }} ><LuTickets /> Kho Voucher</button>
-        <button onClick ={() => navigate("/ebookPage")}   style={{ display: "flex", alignItems: "center", gap: "6px" }} ><GoBook /> Ebook</button>
-        <button style={{ display: "flex", alignItems: "center", gap: "6px" }} ><FaHotjar /> Bán chạy</button>
-        <button onClick ={() => navigate("/memberPage")} style={{ display: "flex", alignItems: "center", gap: "6px" }} ><MdCardMembership /> Thành viên</button>
-        <button onClick ={() => navigate("/companiesPage")} style={{ display: "flex", alignItems: "center", gap: "6px" }}> <CgHomeAlt /> Giới thiệu KATIIA </button>
-        <button onClick ={() => navigate("/blogPage")}  style={{ display: "flex", alignItems: "center", gap: "6px" }} ><TbBrandBlogger /> Blog</button>
-        <button onClick ={() => navigate("/communityPage")}  style={{ display: "flex", alignItems: "center", gap: "6px" }}><RiUserCommunityLine /> Cộng đồng</button>
-
-      </div>
+      <nav className="header-menu" aria-label="Danh mục chính">
+        {menuItems.map((item) => (
+          <button
+            key={item.label}
+            type="button"
+            className={isMenuActive(item.path, item.label) ? "active" : ""}
+            onClick={() => navigate(item.path)}
+          >
+            <span className="menu-icon">{item.icon}</span>
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </header>
   );
 };
