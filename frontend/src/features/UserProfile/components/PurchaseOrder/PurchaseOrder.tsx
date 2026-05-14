@@ -1,108 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  getOrderById,
-  getMyOrderById,
-  getMyOrders,
-} from "../../../../services/orderApi";
+import { getMyOrders } from "../../../../services/orderApi";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
 
 import styles from "./PurchaseOrder.module.css";
 import OrderModal from "../OrderModal/OrderModal";
 
 const FALLBACK_BOOK_IMAGE = "/images/book-placeholder.svg";
-
-const unwrapApiData = (data: any): any => {
-  let source = data;
-
-  while (
-    source &&
-    typeof source === "object" &&
-    !Array.isArray(source) &&
-    (source.result !== undefined || source.data !== undefined)
-  ) {
-    source = source.result ?? source.data;
-  }
-
-  return source;
-};
-
-const getOrderId = (order: any) =>
-  order?.orderId ?? order?.order_id ?? order?.id;
-
-const getOrderItems = (order: any) => {
-  const items =
-    order?.items ??
-    order?.orderItems ??
-    order?.order_items ??
-    order?.orderDetails ??
-    order?.orderItemResponses ??
-    order?.orderItemResponseList ??
-    order?.orderDetailResponses ??
-    order?.orderDetailResponseList ??
-    order?.details ??
-    order?.bookItems ??
-    order?.books ??
-    [];
-
-  const source = unwrapApiData(items);
-
-  return Array.isArray(source)
-    ? source
-    : Array.isArray(source?.content)
-    ? source.content
-    : [];
-};
-
-const getOrderList = (data: any) => {
-  const source = unwrapApiData(data);
-  const content = Array.isArray(source)
-    ? source
-    : source?.content ?? source?.data ?? [];
-
-  return Array.isArray(content) ? content : [];
-};
-
-const withNormalizedItems = (order: any) => ({
-  ...order,
-  orderId: getOrderId(order),
-  items: getOrderItems(order),
-});
-
-const getItemId = (item: any) =>
-  item?.itemId ?? item?.orderItemId ?? item?.id ?? item?.bookId;
-
-const getItemBookId = (item: any) =>
-  item?.bookId ?? item?.book_id ?? item?.book?.bookId ?? item?.book?.id;
-
-const getItemTitle = (item: any) =>
-  item?.bookTitle ??
-  item?.title ??
-  item?.book_title ??
-  item?.book?.title ??
-  "Sản phẩm";
-
-const getItemPrice = (item: any) =>
-  Number(item?.price ?? item?.unitPrice ?? item?.unit_price ?? 0);
-
-const getOrderTotal = (order: any) =>
-  Number(order?.totalAmount ?? order?.total ?? order?.amount?.total ?? 0);
-
-const fetchOrderDetail = async (orderId: string | number) => {
-  const myDetail = unwrapApiData(await getMyOrderById(orderId));
-
-  if (getOrderItems(myDetail).length > 0) {
-    return myDetail;
-  }
-
-  const detail = unwrapApiData(await getOrderById(orderId));
-
-  return {
-    ...myDetail,
-    ...detail,
-  };
-};
 
 export default function Orders() {
   const { isAuthenticated } = useAuth();
@@ -112,9 +17,6 @@ export default function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-  const [detailLoadingId, setDetailLoadingId] = useState<string | number | null>(
-    null,
-  );
 
   const tabs = [
     { key: "ALL", label: "Tất cả" },
@@ -154,81 +56,36 @@ export default function Orders() {
   };
 
   // ================= LOAD ORDERS =================
-  const loadOrders = async () => {
-    try {
-      setLoading(true);
+const loadOrders = async () => {
+  try {
+    setLoading(true);
 
-      const result = await getMyOrders();
-      const nextOrders = getOrderList(result).map(withNormalizedItems);
-      const ordersWithDetails = await Promise.all(
-        nextOrders.map(async (order: any) => {
-          const orderId = getOrderId(order);
+    const res = await getMyOrders();
 
-          if (!orderId || getOrderItems(order).length > 0) {
-            return order;
-          }
+    console.log("RAW API:", res);
 
-          try {
-            const detail = await fetchOrderDetail(orderId);
+    const nextOrders = Array.isArray(res?.result)
+      ? res.result
+      : [];
 
-            return withNormalizedItems({
-              ...order,
-              ...detail,
-            });
-          } catch (error) {
-            console.error("Load order detail failed:", error);
-            return order;
-          }
-        }),
-      );
+    console.log("FIRST ORDER FULL:", nextOrders?.[0]);
+    console.log("ITEMS FIELD:", nextOrders?.[0]?.items);
 
-      setOrders(ordersWithDetails);
-    } catch (error) {
-      console.error("Load orders failed:", error);
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setOrders(nextOrders);
+  } catch (error) {
+    console.error("Load orders failed:", error);
+    setOrders([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     const hasToken = Boolean(localStorage.getItem("access_token"));
-
     if (!isAuthenticated && !hasToken) return;
 
     loadOrders();
   }, [isAuthenticated]);
-
-  const handleViewDetail = async (order: any) => {
-    const orderId = getOrderId(order);
-
-    if (!orderId) {
-      setSelectedOrder(withNormalizedItems(order));
-      return;
-    }
-
-    try {
-      setDetailLoadingId(orderId);
-
-      const detail = await fetchOrderDetail(orderId);
-      const nextOrder = withNormalizedItems({
-        ...order,
-        ...detail,
-      });
-
-      setOrders((prev) =>
-        prev.map((item) =>
-          String(getOrderId(item)) === String(orderId) ? nextOrder : item,
-        ),
-      );
-      setSelectedOrder(nextOrder);
-    } catch (error) {
-      console.error("Load order detail failed:", error);
-      setSelectedOrder(withNormalizedItems(order));
-    } finally {
-      setDetailLoadingId(null);
-    }
-  };
 
   // ================= ACTIONS =================
   const renderActions = (order: any) => {
@@ -242,13 +99,8 @@ export default function Orders() {
           <>
             <button className={styles.cancelBtn}>Hủy đơn</button>
             <button>Liên hệ</button>
-            <button
-              disabled={detailLoadingId === getOrderId(order)}
-              onClick={() => handleViewDetail(order)}
-            >
-              {detailLoadingId === getOrderId(order)
-                ? "Đang tải..."
-                : "Xem chi tiết"}
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
             </button>
           </>
         );
@@ -261,13 +113,8 @@ export default function Orders() {
         return (
           <>
             <button>Liên hệ shop</button>
-            <button
-              disabled={detailLoadingId === getOrderId(order)}
-              onClick={() => handleViewDetail(order)}
-            >
-              {detailLoadingId === getOrderId(order)
-                ? "Đang tải..."
-                : "Xem chi tiết"}
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
             </button>
           </>
         );
@@ -277,12 +124,12 @@ export default function Orders() {
         return (
           <>
             {order.items?.map((item: any) => (
-              <div key={getItemId(item)}>
+              <div key={item.bookId}>
                 {!item.hasReview ? (
                   <button
                     onClick={() =>
                       navigate(
-                        `/product/${getItemBookId(item)}?orderId=${order.orderId}&itemId=${getItemId(item)}`
+                        `/product/${item.bookId}?orderId=${order.orderId}&itemId=${item.bookId}`
                       )
                     }
                   >
@@ -292,7 +139,7 @@ export default function Orders() {
                   <button
                     onClick={() =>
                       navigate(
-                        `/product/${getItemBookId(item)}?orderId=${order.orderId}&itemId=${getItemId(item)}&view=review`
+                        `/product/${item.bookId}?orderId=${order.orderId}&itemId=${item.bookId}&view=review`
                       )
                     }
                   >
@@ -305,55 +152,24 @@ export default function Orders() {
             <button>Mua lại</button>
             <button>Hoàn tiền</button>
             <button>Liên hệ</button>
-            <button
-              disabled={detailLoadingId === getOrderId(order)}
-              onClick={() => handleViewDetail(order)}
-            >
-              {detailLoadingId === getOrderId(order)
-                ? "Đang tải..."
-                : "Xem chi tiết"}
-            </button>
-          </>
-        );
-
-      case "RETURNED":
-      case "REFUNDED":
-      case "FAILED":
-      case "CANCELLED":
-        return (
-          <>
-            <button>Mua lại</button>
-            <button>Liên hệ</button>
-            <button
-              disabled={detailLoadingId === getOrderId(order)}
-              onClick={() => handleViewDetail(order)}
-            >
-              {detailLoadingId === getOrderId(order)
-                ? "Đang tải..."
-                : "Xem chi tiết"}
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
             </button>
           </>
         );
 
       default:
         return (
-          <button
-            disabled={detailLoadingId === getOrderId(order)}
-            onClick={() => handleViewDetail(order)}
-          >
-            {detailLoadingId === getOrderId(order)
-              ? "Đang tải..."
-              : "Xem chi tiết"}
+          <button onClick={() => setSelectedOrder(order)}>
+            Xem chi tiết
           </button>
         );
     }
   };
 
-  // ================= FILTER BY TAB (IMPORTANT FIX) =================
+  // ================= FILTER =================
   const filteredOrders = useMemo(() => {
-    if (active === "ALL") {
-      return orders;
-    }
+    if (active === "ALL") return orders;
 
     const group = statusGroups[active] || [active];
 
@@ -393,20 +209,26 @@ export default function Orders() {
             <div className={styles.orderList}>
               {filteredOrders.map((o, index) => {
                 const firstItem = o.items?.[0];
+
+
+                const orderImage =
+                  firstItem?.bookImgs?.[0]?.imgUrl ||
+                  FALLBACK_BOOK_IMAGE;
+
                 const orderTitle =
-                  firstItem ? getItemTitle(firstItem) : `Đơn hàng #${o.orderId || index + 1}`;
-                const orderImage = firstItem?.coverImgUrl || FALLBACK_BOOK_IMAGE;
+                  firstItem?.bookTitle ||
+                  `Đơn hàng #${o.orderId || index + 1}`;
 
                 return (
                   <div key={o.orderId || index} className={styles.orderItem}>
-                    {/* STATUS */}
                     <span
                       className={`${styles.shippingStatus} ${
                         o.status === "SHIPPING"
                           ? styles.blue
                           : o.status === "CANCELLED"
                           ? styles.red
-                          : o.status === "DELIVERED" || o.status === "COMPLETED"
+                          : o.status === "DELIVERED" ||
+                            o.status === "COMPLETED"
                           ? styles.green
                           : ""
                       }`}
@@ -414,14 +236,13 @@ export default function Orders() {
                       Trạng thái: {statusMap[o.status] || o.status}
                     </span>
 
-                    {/* ITEM */}
                     <div className={styles.orderTop}>
                       <img
                         src={orderImage}
                         alt={orderTitle}
-                        onError={(event) => {
-                          event.currentTarget.src = FALLBACK_BOOK_IMAGE;
-                        }}
+                        onError={(e) =>
+                          (e.currentTarget.src = FALLBACK_BOOK_IMAGE)
+                        }
                       />
 
                       <div className={styles.orderInfo}>
@@ -430,27 +251,33 @@ export default function Orders() {
                         {firstItem ? (
                           o.items.length > 1 ? (
                             <span>
-                              Số lượng: {firstItem.quantity} (+{o.items.length - 1} sản phẩm khác)
+                              Số lượng: {firstItem.quantity} (+{" "}
+                              {o.items.length - 1} sản phẩm khác)
                             </span>
                           ) : (
-                            <span>Số lượng: {firstItem.quantity}</span>
+                            <span>
+                              Số lượng: {firstItem.quantity}
+                            </span>
                           )
                         ) : (
-                          <span>Đang cập nhật thông tin sản phẩm</span>
+                          <span>
+                            Đang cập nhật thông tin sản phẩm
+                          </span>
                         )}
                       </div>
 
                       <div className={styles.orderPrice}>
-                        <p>{getItemPrice(firstItem).toLocaleString()} đ</p>
+                        <p>
+                          {(firstItem?.price || 0).toLocaleString()} đ
+                        </p>
                       </div>
                     </div>
 
-                    {/* FOOTER */}
                     <div className={styles.orderBottom}>
                       <strong>
                         Thành tiền:{" "}
                         <span className={styles.totalPrice}>
-                          {getOrderTotal(o).toLocaleString()} đ
+                          {(o.totalAmount || 0).toLocaleString()} đ
                         </span>
                       </strong>
 
