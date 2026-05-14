@@ -16,13 +16,7 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
-/* LOGO */
-.logo {
-  font-size: 48px;
-  color: rgba(57, 96, 107, 1);
-  font-family: Urban Jungle, sans-serif;
-  margin-bottom: 10px;
-}
+
 
 /* SUBTITLE */
 .subtitle {
@@ -186,4 +180,21 @@
 
 .input.error {
   border: 1px solid red;
+}
+
+.logo-img-auth-login {
+  width: 400px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+  transition: transform 0.2s ease;
+}
+
+.logo-img:hover {
+  transform: scale(1.05);
 }

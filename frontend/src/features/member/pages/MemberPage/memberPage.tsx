@@ -11,7 +11,7 @@ const MemberPage = () => {
 
       {/*   HERO   */}
       <div className={styles.hero}>
-        <h1>Chương trình thành viên Katila</h1>
+        <h1>Chương trình thành viên Katiia</h1>
 
         <p>
           Tích điểm – nâng hạng – nhận ưu đãi độc quyền dành cho

@@ -22,7 +22,7 @@ const CompaniesPage = () => {
         <div className={styles.heroContent}>
           <span className={styles.badge}>
             <Building2 size={16} />
-            KATILA BOOKSTORE
+            KATIIA BOOKSTORE
           </span>
 
           <h1>
@@ -30,7 +30,7 @@ const CompaniesPage = () => {
           </h1>
 
           <p>
-            Katila là thương hiệu bán sách kết hợp công nghệ,
+            Katiia là thương hiệu bán sách kết hợp công nghệ,
             AI và trải nghiệm đọc hiện đại nhằm mang tri thức
             đến gần hơn với mọi người.
           </p>
@@ -40,10 +40,10 @@ const CompaniesPage = () => {
       {/* ABOUT */}
       <div className={styles.about}>
         <div className={styles.left}>
-          <h2>Về Katila</h2>
+          <h2>Về KATIIA</h2>
 
           <p>
-            Katila được thành lập với sứ mệnh xây dựng hệ sinh
+            Katiia được thành lập với sứ mệnh xây dựng hệ sinh
             thái đọc sách hiện đại, nơi người dùng có thể tìm
             thấy tri thức, cảm hứng và cộng đồng yêu sách.
           </p>

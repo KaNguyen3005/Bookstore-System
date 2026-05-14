@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import "./Login.css";
+import logo from "../../../../assets/images/logo-auth.png";
+
 
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../../../../services/authApi";
@@ -99,7 +101,7 @@ const Login = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <h1 className="logo">KATIIA BOOKSTORE</h1>
+        <img src={logo} alt="KATIIA BOOKSTORE" className="logo-img-auth-login" />
         <p className="subtitle">Đăng nhập tài khoản</p>
 
         {/* ===== ERROR TOP ===== */}
