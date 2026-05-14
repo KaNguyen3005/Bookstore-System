@@ -1,132 +1,96 @@
 import axiosClient from "./axiosClient";
 
-/* ================= GET MY ORDERS ================= */
-export const getMyOrders = async (params?: Record<string, any>) => {
-  const res = await axiosClient.get("/orders/my", {
-    params,
-  });
+// PUT /api/v1/orders/{orderId}/approve
+export const approveOrder = async (orderId: string | number) => {
+  const res = await axiosClient.put(`/orders/${orderId}/approve`);
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= GET MY ORDERS BY STATUS ================= */
-export const getMyOrdersByStatus = async (status: string) => {
-  const res = await axiosClient.get("/orders/my", {
-    params: { status },
-  });
+// GET /api/v1/orders
+export const getOrders = async (params?: Record<string, any>) => {
+  const res = await axiosClient.get("/orders", { params });
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= GET ORDER BY ID ================= */
-export const getOrderById = async (id: number | string) => {
-  const res = await axiosClient.get(`/orders/my/${id}`);
+// POST /api/v1/orders
+export const createOrder = async (data: any) => {
+  const res = await axiosClient.post("/orders", data);
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= CREATE ORDER ================= */
-export const createOrder = async (orderData: any) => {
-  const res = await axiosClient.post("/orders", orderData);
-
-  return res.data.result;
-};
-
-/* ================= CANCEL ORDER ================= */
-export const cancelOrder = async (id: number | string) => {
+// POST /api/v1/orders/{id}/cancel
+export const cancelOrder = async (id: string | number) => {
   const res = await axiosClient.post(`/orders/${id}/cancel`);
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= ADMIN: GET ALL ORDERS ================= */
-export const getAllOrders = async (
-  params?: Record<string, any>
-) => {
-  const res = await axiosClient.get("/orders", {
-    params,
-  });
-
-  return res.data.result;
-};
-
-/* ================= ADMIN: GET ORDER DETAIL ================= */
-export const getAdminOrderById = async (
-  id: number | string
-) => {
+// GET /api/v1/orders/{id}
+export const getOrderById = async (id: string | number) => {
   const res = await axiosClient.get(`/orders/${id}`);
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= ADMIN: APPROVE ORDER ================= */
-export const approveOrder = async (
-  orderId: number | string
-) => {
-  const res = await axiosClient.put(
-    `/orders/${orderId}/approve`
-  );
+// PATCH /api/v1/orders/{id}
+export const updateOrder = async (id: string | number, data: any) => {
+  const res = await axiosClient.patch(`/orders/${id}`, data);
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= ADMIN: UPDATE ORDER ================= */
-export const updateOrder = async (
-  id: number | string,
-  data: any
-) => {
-  const res = await axiosClient.patch(
-    `/orders/${id}`,
-    data
-  );
-
-  return res.data.result;
-};
-
-/* ================= ADMIN: UPDATE ORDER ITEM ================= */
+// PATCH /api/v1/orders/{id}/items/{itemId}
 export const updateOrderItem = async (
-  orderId: number | string,
-  itemId: number | string,
-  data: any
+  id: string | number,
+  itemId: string | number,
+  data: any,
 ) => {
-  const res = await axiosClient.patch(
-    `/orders/${orderId}/items/${itemId}`,
-    data
-  );
+  const res = await axiosClient.patch(`/orders/${id}/items/${itemId}`, data);
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= TOP SELLING BOOKS ================= */
-export const getTopSellingBooks = async () => {
-  const res = await axiosClient.get(
-    "/orders/top-selling-books"
-  );
+// GET /api/v1/orders/top-selling-books
+export const getTopSellingBooks = async (params?: Record<string, any>) => {
+  const res = await axiosClient.get("/orders/top-selling-books", { params });
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= TOP SELLING BOOK ================= */
-export const getTopSellingBook = async () => {
-  const res = await axiosClient.get(
-    "/orders/top-selling-book"
-  );
+// GET /api/v1/orders/top-selling-book
+export const getTopSellingBook = async (params?: Record<string, any>) => {
+  const res = await axiosClient.get("/orders/top-selling-book", { params });
 
-  return res.data.result;
+  return res.data;
 };
 
-/* ================= EXPORT API OBJECT ================= */
+// GET /api/v1/orders/my
+export const getMyOrders = async (params?: Record<string, any>) => {
+  const res = await axiosClient.get("/orders/my", { params });
+
+  return res.data;
+};
+
+// GET /api/v1/orders/my/{id}
+export const getMyOrderById = async (id: string | number) => {
+  const res = await axiosClient.get(`/orders/my/${id}`);
+
+  return res.data;
+};
+
 export const orderApi = {
-  getMyOrders,
-  getMyOrdersByStatus,
-  getOrderById,
+  approveOrder,
+  getOrders,
   createOrder,
   cancelOrder,
-  getAllOrders,
-  getAdminOrderById,
-  approveOrder,
+  getOrderById,
   updateOrder,
   updateOrderItem,
   getTopSellingBooks,
   getTopSellingBook,
+  getMyOrders,
+  getMyOrderById,
 };
