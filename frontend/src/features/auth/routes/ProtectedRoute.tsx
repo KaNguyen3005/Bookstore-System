@@ -18,7 +18,7 @@ const ProtectedRoute = ({
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  if (role && user?.role !== role) {
+  if (role && user?.role?.trim().toUpperCase() !== role.trim().toUpperCase()) {
     return <Navigate to="/" replace />;
   }
 

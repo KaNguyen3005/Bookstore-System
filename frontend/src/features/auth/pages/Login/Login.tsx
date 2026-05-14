@@ -57,7 +57,7 @@ const Login = () => {
 
       console.log("LOGIN SUCCESS:", user);
 
-      if (!user || !user.id) {
+      if (!user || !(user.userId || user.id)) {
         setAccountError(true);
         setPasswordError(true);
         setError("Sai tài khoản hoặc mật khẩu");
