@@ -2,6 +2,7 @@ import "./Register.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { authApi } from "../../../../services/authApi";
+import logo from "../../../../assets/images/logo-auth.png";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -141,7 +142,7 @@ const Register = () => {
     <div className="register-page">
       <div className="register-container">
 
-        <h1 className="logo">KATIIA BOOKSTORE</h1>
+        <img src={logo} alt="KATIIA BOOKSTORE" className="logo-img-auth-re" />
         <p className="subtitle">Đăng ký tài khoản</p>
 
         {globalError && (

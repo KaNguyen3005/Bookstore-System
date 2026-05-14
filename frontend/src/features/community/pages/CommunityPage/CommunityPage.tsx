@@ -11,7 +11,7 @@ const CommunityPage = () => {
 
         <span className={styles.badge}>COMING SOON</span>
 
-        <h1>Cộng đồng Katila sắp ra mắt</h1>
+        <h1>Cộng đồng KatiIa sắp ra mắt</h1>
 
         <p>
           Nơi kết nối những người yêu sách, chia sẻ kiến thức và cùng nhau

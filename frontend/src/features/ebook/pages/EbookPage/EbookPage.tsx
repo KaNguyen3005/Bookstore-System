@@ -17,7 +17,7 @@ const EbookPage = () => {
         </div>
 
         <h1 className={styles.title}>
-          Kho EBook
+          Kho EBook Katiia
           <span>cao cấp sắp ra mắt</span>
         </h1>
 

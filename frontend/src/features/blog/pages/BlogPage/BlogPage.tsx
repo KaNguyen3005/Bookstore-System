@@ -14,7 +14,7 @@ const BlogPage = () => {
         <h1>Blog đang được phát triển</h1>
 
         <p>
-          Katila Blog sẽ sớm ra mắt với nhiều bài viết về sách, công nghệ,
+          KatiIa Blog sẽ sớm ra mắt với nhiều bài viết về sách, công nghệ,
           AI và kỹ năng phát triển bản thân.
         </p>
       </div>

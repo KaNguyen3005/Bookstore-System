@@ -149,7 +149,7 @@ if (loading) {
     <header className="header">
       <div className="header-top">
         <Link to="/" className="logo-header" onClick={scrollToTop}>
-          <img src={logo} alt="logo" className="logo-img" />
+          <img src={logo} alt="logo" className="logo-img-header" />
         </Link>
 
         <div className="delivery">

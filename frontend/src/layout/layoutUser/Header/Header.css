@@ -65,7 +65,7 @@ html {
   margin-right: 20px;
 }
 
-.logo-img {
+.logo-img-header {
   height: clamp(30px, 4vw, 40px);
   object-fit: contain;
 }
