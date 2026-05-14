@@ -10,6 +10,8 @@ const ProtectedRoute = ({
 }) => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
+  const normalizeRole = (value?: string) =>
+    value?.trim().toUpperCase().replace(/^ROLE_/, "");
 
   // 🔥 tránh loading giả
   if (loading) return <div>Loading...</div>;
@@ -18,7 +20,7 @@ const ProtectedRoute = ({
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  if (role && user?.role?.trim().toUpperCase() !== role.trim().toUpperCase()) {
+  if (role && normalizeRole(user?.role) !== normalizeRole(role)) {
     return <Navigate to="/" replace />;
   }
 

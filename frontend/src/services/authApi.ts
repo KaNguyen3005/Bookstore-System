@@ -71,10 +71,11 @@ export const authApi = {
       });
 
       const response = res?.data ?? res;
+      const authData = response?.result ?? response;
 
       console.log("LOGIN RESPONSE:", response);
 
-      const token = response?.result?.token;
+      const token = authData?.token;
 
       if (!token) {
         throw new Error(response?.message || "Token not found");
