@@ -8,7 +8,8 @@ import {
   Ticket, 
   BarChart2, 
   ChevronRight,
-  LogOut 
+  LogOut,
+  Layers
 } from "lucide-react";
 
 import "./AdminHome.css";
@@ -18,6 +19,7 @@ const SidebarAdmin = () => {
   const menuItems = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard, hasChevron: false },
     { name: "Quản lý sản phẩm", path: "/admin/products", icon: BookOpen, hasChevron: true },
+    { name: "Quản lý danh mục", path: "/admin/categories", icon: Layers, hasChevron: true },
     { name: "Quản lý đơn hàng", path: "/admin/orders", icon: ShoppingBag, hasChevron: true },
     { name: "Quản lý khách hàng", path: "/admin/customers", icon: Users, hasChevron: true },
     { name: "Quản lý tác giả", path: "/admin/author", icon: Users, hasChevron: true },
