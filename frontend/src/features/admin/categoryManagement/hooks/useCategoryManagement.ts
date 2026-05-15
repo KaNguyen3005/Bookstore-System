@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useToast } from "../../../../shared/components/Toast/ToastProvider";
 
 import type { Category } from "../../../book-category/types/category";
 import {
@@ -189,6 +190,7 @@ export const useCategoryManagement = () => {
     null,
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const { showToast } = useToast();
 
   const rows = useMemo(() => flattenCategories(categories), [categories]);
 
@@ -355,8 +357,10 @@ export const useCategoryManagement = () => {
             editingCategory.categoryId,
             payload,
           );
+          showToast("Đã cập nhật danh mục thành công", "success");
         } else {
           await categoryService.createCategory(payload);
+          showToast("Đã thêm danh mục thành công", "success");
         }
 
         resetForm();
@@ -368,7 +372,7 @@ export const useCategoryManagement = () => {
         setSaving(false);
       }
     },
-    [editingCategory, formData, loadCategories, resetForm],
+    [editingCategory, formData, loadCategories, resetForm, showToast],
   );
 
   const handleDelete = useCallback(
@@ -383,13 +387,14 @@ export const useCategoryManagement = () => {
 
       try {
         await categoryService.deleteCategory(category.categoryId);
+        showToast("Đã xóa danh mục thành công", "success");
         await loadCategories();
       } catch (err) {
         console.error("Delete category failed:", err);
         setError(getErrorMessage(err, "Không thể xóa danh mục"));
       }
     },
-    [loadCategories],
+    [loadCategories, showToast],
   );
 
   const handleRestore = useCallback(
@@ -398,13 +403,14 @@ export const useCategoryManagement = () => {
 
       try {
         await categoryService.restoreCategory(id);
+        showToast("Đã khôi phục danh mục thành công", "success");
         await loadCategories();
       } catch (err) {
         console.error("Restore category failed:", err);
         setError(getErrorMessage(err, "Không thể khôi phục danh mục"));
       }
     },
-    [loadCategories],
+    [loadCategories, showToast],
   );
 
   return {
