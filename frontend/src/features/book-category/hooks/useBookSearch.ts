@@ -29,7 +29,7 @@ export const useBookSearch = (filters: BookFilters) => {
           res?.data ??
           res?.result?.content ??
           [];
-
+          
         const total =
           res?.data?.totalElements ??
           res?.total ??

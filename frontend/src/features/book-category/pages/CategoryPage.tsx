@@ -5,7 +5,6 @@ import React, {
 } from "react";
 
 import { useSearchParams } from "react-router-dom";
-
 import FilterSidebar from "../components/FilterSidebar";
 import BookGrid from "../components/BookGrid";
 import Pagination from "../../home/components/Pagination/Pagination";

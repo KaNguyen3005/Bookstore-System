@@ -18,6 +18,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   publishers,
   priceRanges,
 }) => {
+  const isSelectedCategory = (categoryId: Category["categoryId"]) =>
+    filters.categoryId !== undefined &&
+    String(filters.categoryId) === String(categoryId);
+
   return (
     <aside className="filter-sidebar">
       <h2 className="filter-sidebar__title">Bộ lọc tìm kiếm</h2>
@@ -27,60 +31,66 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         <h3 className="filter-sidebar__section-title">Danh mục</h3>
 
         <ul className="filter-sidebar__list">
-          {categories.map((cat) => (
-            <li key={cat.categoryId}>
-              {/* Category cha */}
-              <div className="filter-sidebar__item">
-                <label className="filter-sidebar__label">
-                  <input
-                    type="checkbox"
-                    className="filter-sidebar__checkbox"
-                    checked={filters.categoryId === cat.categoryId}
-                    onChange={() => {
-                      onFilterChange({
-                        categoryId:
-                          filters.categoryId === cat.categoryId
-                            ? undefined
-                            : cat.categoryId,
-                      });
-                    }}
-                  />
+          {categories.map((cat) => {
+            const isChecked = isSelectedCategory(cat.categoryId);
 
-                  <span>{cat.categoryName}</span>
-                </label>
-              </div>
+            return (
+              <li key={cat.categoryId}>
+                {/* Category cha */}
+                <div className="filter-sidebar__item">
+                  <label className="filter-sidebar__label">
+                    <input
+                      type="checkbox"
+                      className="filter-sidebar__checkbox"
+                      checked={isChecked}
+                      onChange={() => {
+                        onFilterChange({
+                          categoryId: isChecked ? undefined : cat.categoryId,
+                        });
+                      }}
+                    />
 
-              {/* Category con */}
-              {cat.children && cat.children.length > 0 && (
-                <ul className="filter-sidebar__sublist">
-                  {cat.children.map((child) => (
-                    <li
-                      key={child.categoryId}
-                      className="filter-sidebar__subitem"
-                    >
-                      <label className="filter-sidebar__label">
-                        <input
-                          type="checkbox"
-                          className="filter-sidebar__checkbox"
-                          checked={filters.categoryId === child.categoryId}
-                          onChange={() => {
-                            onFilterChange({
-                              categoryId:
-                                filters.categoryId === child.categoryId
-                                  ? undefined
-                                  : child.categoryId,
-                            });
-                          }}
-                        />
+                    <span>{cat.categoryName}</span>
+                  </label>
+                </div>
 
-                        <span>{child.categoryName}</span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
+                {/* Category con */}
+                {cat.children && cat.children.length > 0 && (
+                  <ul className="filter-sidebar__sublist">
+                    {cat.children.map((child) => {
+                      const isChildChecked = isSelectedCategory(
+                        child.categoryId
+                      );
+
+                      return (
+                        <li
+                          key={child.categoryId}
+                          className="filter-sidebar__subitem"
+                        >
+                          <label className="filter-sidebar__label">
+                            <input
+                              type="checkbox"
+                              className="filter-sidebar__checkbox"
+                              checked={isChildChecked}
+                              onChange={() => {
+                                onFilterChange({
+                                  categoryId: isChildChecked
+                                    ? undefined
+                                    : child.categoryId,
+                                });
+                              }}
+                            />
+
+                            <span>{child.categoryName}</span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
 

@@ -40,12 +40,12 @@ const formatDateInput = (date: Date) => {
   return date.toISOString().slice(0, 10);
 };
 
-const normalizeGenderInput = (gender: string) => {
-  const normalized = gender.trim().toUpperCase();
+const getGenderInputValue = (gender: string) => {
+  const genderText = gender.trim().toUpperCase();
 
-  if (["MALE", "NAM"].includes(normalized)) return "MALE";
-  if (["FEMALE", "NỮ", "NU"].includes(normalized)) return "FEMALE";
-  if (["OTHER", "KHÁC", "KHAC"].includes(normalized)) return "OTHER";
+  if (["MALE", "NAM"].includes(genderText)) return "MALE";
+  if (["FEMALE", "NỮ", "NU"].includes(genderText)) return "FEMALE";
+  if (["OTHER", "KHÁC", "KHAC"].includes(genderText)) return "OTHER";
 
   return gender || "";
 };
@@ -56,7 +56,7 @@ const toFormState = (user: UserFE): UserFormState => ({
   username: user.username || "",
   name: user.name || "",
   phone: user.phone || "",
-  gender: normalizeGenderInput(user.gender || ""),
+  gender: getGenderInputValue(user.gender || ""),
   dob: formatDateInput(user.dob),
   role: user.role || "CUSTOMER",
   status: Boolean(user.status),

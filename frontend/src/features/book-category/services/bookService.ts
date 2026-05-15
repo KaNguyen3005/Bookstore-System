@@ -27,16 +27,18 @@ export const searchBooks = async (
     let filtered = MOCK_ALL_BOOKS;
 
     // ================= CATEGORY FILTER =================
-    if (filters.categoryId) {
+    if (filters.categoryId !== undefined) {
+      const selectedCategoryId = String(filters.categoryId);
+
       let targetCategoryIds = [
-        filters.categoryId,
+        selectedCategoryId,
       ];
 
       const parentCategory =
         categoriesData.find(
           (c) =>
-            c.categoryId ===
-            filters.categoryId
+            String(c.categoryId) ===
+            selectedCategoryId
         );
 
       // 📌 include children categories
@@ -45,7 +47,7 @@ export const searchBooks = async (
           ...targetCategoryIds,
           ...parentCategory.children.map(
             (child) =>
-              child.categoryId
+              String(child.categoryId)
           ),
         ];
       }
@@ -53,7 +55,7 @@ export const searchBooks = async (
       filtered = filtered.filter((book) =>
         book.categories?.some((category) =>
           targetCategoryIds.includes(
-            category.categoryId
+            String(category.categoryId)
           )
         )
       );
@@ -62,9 +64,19 @@ export const searchBooks = async (
     // ================= PUBLISHER FILTER =================
     if (filters.publisherId) {
       filtered = filtered.filter(
-        (book) =>
-          book.publishers?.publisherId ===
-          filters.publisherId
+        (book) => {
+          const publisher =
+            (
+              book as Book & {
+                publishers?: Book["publisher"];
+              }
+            ).publishers ?? book.publisher;
+
+          return (
+            publisher?.publisherId ===
+            filters.publisherId
+          );
+        }
       );
     }
 
@@ -108,14 +120,12 @@ export const searchBooks = async (
     };
   }
 
-  // ================= REAL API =================
   try {
     const token =
       localStorage.getItem(
         "accessToken"
       );
 
-    // 📌 remove undefined values
     const apiFilters: any = {
       ...filters,
     };
@@ -191,8 +201,16 @@ export const getTopSellingBooks =
       return [...MOCK_ALL_BOOKS]
         .sort(
           (a, b) =>
-            (b.reviewCount || 0) -
-            (a.reviewCount || 0)
+            ((
+              b as Book & {
+                reviewCount?: number;
+              }
+            ).reviewCount || 0) -
+            ((
+              a as Book & {
+                reviewCount?: number;
+              }
+            ).reviewCount || 0)
         )
         .slice(0, limit);
     }

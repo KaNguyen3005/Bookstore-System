@@ -1,10 +1,28 @@
 import styles from "./OrderModal.module.css";
 
-import {
-  FALLBACK_BOOK_IMAGE,
-  formatPrice,
-  getStatusLabel,
-} from "../../../../utils/order.utils";
+const formatPrice = (value: number) => {
+  return Number(value || 0).toLocaleString("vi-VN");
+};
+
+const getStatusLabel = (status: string) => {
+  const map: Record<string, string> = {
+    CREATED: "Chờ xác nhận",
+    PENDING: "Chờ xác nhận",
+    PENDING_PAYMENT: "Chờ thanh toán",
+    CONFIRMED: "Chờ lấy hàng",
+    PROCESSING: "Chờ lấy hàng",
+    PICKING_UP: "Chờ lấy hàng",
+    SHIPPING: "Đang giao hàng",
+    DELIVERED: "Đã giao",
+    COMPLETED: "Đã giao",
+    RETURNED: "Trả hàng",
+    REFUNDED: "Đã hoàn tiền",
+    FAILED: "Thanh toán thất bại",
+    CANCELLED: "Đã hủy",
+  };
+
+  return map[status] || status;
+};
 
 export default function OrderModal({
   order,
@@ -110,22 +128,20 @@ export default function OrderModal({
             Sản phẩm
           </div>
 
-          {order.items.map((item: any) => (
+          {(order.items ?? []).map((item: any) => {
+            const imageUrl = item.bookImgs?.[0]?.imgUrl || item.image;
+            const title = item.bookTitle || item.title || "Sản phẩm";
+
+            return (
             <div
-              key={item.itemId}
+              key={item.itemId || item.bookId}
               className={styles.item}
             >
-              <img
-                src={
-                  item.image ||
-                  FALLBACK_BOOK_IMAGE
-                }
-                alt={item.title}
-              />
+              {imageUrl && <img src={imageUrl} alt={title} />}
 
               <div className={styles.itemInfo}>
                 <div className={styles.itemTitle}>
-                  {item.title}
+                  {title}
                 </div>
 
                 <div className={styles.itemQty}>
@@ -137,7 +153,8 @@ export default function OrderModal({
                 {formatPrice(item.price)} đ
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* SUMMARY */}
@@ -170,10 +187,8 @@ export default function OrderModal({
               đ
             </span>
           </div>
-
           <div className={styles.summaryRow}>
             <strong>Thành tiền</strong>
-
             <strong>
               {formatPrice(order.totalAmount)} đ
             </strong>

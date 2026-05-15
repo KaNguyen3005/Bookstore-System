@@ -50,6 +50,7 @@ import { ProductManagement } from "../features/admin/productManagement";
 import { Dashboard } from "../features/admin/dashboardManagement";
 import { OrderManagement } from "../features/admin/orderManagement";
 import { VoucherManagement } from "../features/admin/voucherManagement";
+import { CategoryManagement } from "../features/admin/categoryManagement";
 
 /*search*/
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
@@ -230,6 +231,11 @@ export default function AppRoutes() {
           <Route
             path="products"
             element={<ProductManagement />}
+          />
+
+          <Route
+            path="categories"
+            element={<CategoryManagement />}
           />
 
           <Route

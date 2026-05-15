@@ -50,33 +50,33 @@ export type UpdateUserPayload = {
 const clean = (value: any) =>
   typeof value === "string" ? value.trim() : value;
 
-const normalizeStatus = (status: any) => {
+const getStatusBoolean = (status: any) => {
   if (status === undefined || status === null) return true;
   if (typeof status === "boolean") return status;
 
-  const normalized = String(status ?? "").toUpperCase();
+  const statusText = String(status ?? "").toUpperCase();
 
-  if (["ACTIVE", "ENABLED", "UNLOCKED"].includes(normalized)) return true;
-  if (["INACTIVE", "DISABLED", "BANNED", "LOCKED"].includes(normalized)) {
+  if (["ACTIVE", "ENABLED", "UNLOCKED"].includes(statusText)) return true;
+  if (["INACTIVE", "DISABLED", "BANNED", "LOCKED"].includes(statusText)) {
     return false;
   }
 
   return Boolean(status);
 };
 
-const normalizeRole = (role: any) => {
+const getRoleName = (role: any) => {
   if (typeof role === "string") return role;
 
   return role?.name ?? role?.roleName ?? "";
 };
 
-const normalizeGender = (gender: any) => {
-  const normalized = clean(gender)?.toUpperCase();
+const getGenderCode = (gender: any) => {
+  const genderText = clean(gender)?.toUpperCase();
 
-  if (!normalized) return "";
-  if (["MALE", "NAM"].includes(normalized)) return "MALE";
-  if (["FEMALE", "NỮ", "NU"].includes(normalized)) return "FEMALE";
-  if (["OTHER", "KHÁC", "KHAC"].includes(normalized)) return "OTHER";
+  if (!genderText) return "";
+  if (["MALE", "NAM"].includes(genderText)) return "MALE";
+  if (["FEMALE", "NỮ", "NU"].includes(genderText)) return "FEMALE";
+  if (["OTHER", "KHÁC", "KHAC"].includes(genderText)) return "OTHER";
 
   return clean(gender) ?? "";
 };
@@ -120,11 +120,11 @@ const mapToFE = (u: any = {}): UserFE => {
     point: Number(u.point ?? 0),
     avatarUrl: u.avatarUrl ?? u.avatar_url,
     dob: u.dob || u.birth ? new Date(u.dob ?? u.birth) : new Date(),
-    status: normalizeStatus(
+    status: getStatusBoolean(
       u.status ?? u.active ?? u.enabled ?? u.isActive
     ),
-    gender: normalizeGender(u.gender),
-    role: normalizeRole(u.role ?? u.roleName ?? u.role_id),
+    gender: getGenderCode(u.gender),
+    role: getRoleName(u.role ?? u.roleName ?? u.role_id),
     tier: u.tier,
     address: u.address,
   };

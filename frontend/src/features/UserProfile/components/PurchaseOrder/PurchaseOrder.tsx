@@ -7,8 +7,6 @@ import { useAuth } from "../../../../features/auth/hooks/useAuth";
 import styles from "./PurchaseOrder.module.css";
 import OrderModal from "../OrderModal/OrderModal";
 
-const FALLBACK_BOOK_IMAGE = "/images/book-placeholder.svg";
-
 export default function Orders() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -212,8 +210,7 @@ const loadOrders = async () => {
 
 
                 const orderImage =
-                  firstItem?.bookImgs?.[0]?.imgUrl ||
-                  FALLBACK_BOOK_IMAGE;
+                  firstItem?.bookImgs?.[0]?.imgUrl;
 
                 const orderTitle =
                   firstItem?.bookTitle ||
@@ -237,13 +234,7 @@ const loadOrders = async () => {
                     </span>
 
                     <div className={styles.orderTop}>
-                      <img
-                        src={orderImage}
-                        alt={orderTitle}
-                        onError={(e) =>
-                          (e.currentTarget.src = FALLBACK_BOOK_IMAGE)
-                        }
-                      />
+                      {orderImage && <img src={orderImage} alt={orderTitle} />}
 
                       <div className={styles.orderInfo}>
                         <h4>{orderTitle}</h4>

@@ -14,43 +14,18 @@ export type AuthorPayload = {
   alias: string;
 };
 
-const unwrap = (data: any) => data?.result ?? data?.data ?? data;
-
-const normalizeAuthor = (author: any): Author => ({
-  ...author,
-  authorId: String(author.authorId ?? author.author_id ?? author.id ?? ""),
-  authorName:
-    author.authorName ??
-    author.author_name ??
-    author.name ??
-    "",
-  alias: author.alias ?? author.penName ?? author.nickname ?? "",
-  createdAt: author.createdAt ?? author.created_at,
-  updatedAt: author.updatedAt ?? author.updated_at,
-  deletedAt: author.deletedAt ?? author.deleted_at,
-});
-
-const normalizeAuthorsResponse = (data: any): Author[] => {
-  const source = unwrap(data);
-  const content = Array.isArray(source)
-    ? source
-    : source?.content ?? source?.data ?? [];
-
-  return Array.isArray(content) ? content.map(normalizeAuthor) : [];
-};
-
 // GET /api/v1/authors
 export const getAuthors = async (): Promise<Author[]> => {
   const res = await axiosClient.get("/authors");
 
-  return normalizeAuthorsResponse(res.data);
+  return res.data.result;
 };
 
 // GET /api/v1/authors/{id}
 export const getAuthorById = async (id: string | number): Promise<Author> => {
   const res = await axiosClient.get(`/authors/${id}`);
 
-  return normalizeAuthor(unwrap(res.data));
+  return res.data.result;
 };
 
 // POST /api/v1/authors
@@ -59,7 +34,7 @@ export const createAuthor = async (
 ): Promise<Author> => {
   const res = await axiosClient.post("/authors", data);
 
-  return normalizeAuthor(unwrap(res.data));
+  return res.data.result;
 };
 
 // PATCH /api/v1/authors/{id}
@@ -69,7 +44,7 @@ export const updateAuthor = async (
 ): Promise<Author> => {
   const res = await axiosClient.patch(`/authors/${id}`, data);
 
-  return normalizeAuthor(unwrap(res.data));
+  return res.data.result;
 };
 
 // DELETE /api/v1/authors/{id}
