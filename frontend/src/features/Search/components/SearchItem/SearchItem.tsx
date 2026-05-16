@@ -1,44 +1,65 @@
-import { useNavigate } from "react-router-dom";
-import type { Book } from "../../../../features/product/types/Book";
-import "./SearchItem.css";
+import styles from "./SearchItem.module.css";
 
-export default function SearchItem({
-  book,
-  onSelect,
-}: {
-  book: Book;
-  onSelect?: () => void;
-}) {
-  const navigate = useNavigate();
+export interface Book {
+  bookId: number;
+  title: string;
+  price: number;
+  salePercent: number;
+  coverImgUrl: string;
+  avgRating: number;
+  stockQuantity: number;
 
-  const handleClick = () => {
-    onSelect?.();
-    navigate(`/product/${book.book_id}`);
+  categories: string[];
+  authors: { authorName: string }[];
+  publisher?: {
+    publisherName: string;
   };
+}
+
+interface Props {
+  book: Book;
+  onSelect: (value: string) => void;
+}
+
+export default function SearchItem({ book, onSelect }: Props) {
+  const finalPrice =
+    book.price - (book.price * book.salePercent) / 100;
+
+  const image =
+    book.coverImgUrl || "/images/book-placeholder.svg";
+
+  const category =
+    book.categories?.length > 0
+      ? book.categories[0]
+      : "Chưa phân loại";
 
   return (
-    <div className="search-item" onClick={handleClick}>
+    <div
+      className={styles.item}
+      onClick={() => onSelect(book.title)}
+    >
+      {/* IMAGE */}
       <img
-        src={
-          book.cover_image_url ||
-          `https://picsum.photos/seed/book${book.book_id}/60/80`
-        }
+        className={styles.image}
+        src={image}
         alt={book.title}
-        className="search-item__img"
       />
 
-      <div className="search-item__info">
-        <p className="search-item__title">{book.title}</p>
+      {/* CONTENT */}
+      <div className={styles.content}>
+        <div className={styles.title}>
+          {book.title}
+        </div>
 
-        {book.categories?.length > 0 && (
-          <p className="search-item__category">
-            {book.categories.map((c) => c.name).join(", ")}
-          </p>
-        )}
+        <div className={styles.meta}>
+          <span className={styles.category}>
+            {category}
+          </span>
 
-        <p className="search-item__price">
-          {book.price.toLocaleString("vi-VN")}đ
-        </p>
+          <span className={styles.price}>
+            {finalPrice.toLocaleString("vi-VN")}₫
+          </span>
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,20 @@
-// services/searchApi.ts
-import { MOCK_ALL_BOOKS } from "../data/books";
+import axiosClient from "./axiosClient";
 
-export const searchApi = {
-  searchBooks: (keyword: string, limit = 10) => {
-    return new Promise<any[]>((resolve) => {
-      setTimeout(() => {
-        const result = MOCK_ALL_BOOKS.filter((b) =>
-          b.title.toLowerCase().includes(keyword.toLowerCase())
-        );
+export interface SearchBooksParams {
+  keyword?: string;
+  categoryId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: string;
+  publisherId?: number;
+  page?: number;
+  size?: number;
+}
 
-        resolve(result.slice(0, limit));
-      }, 300);
-    });
-  },
+export const searchBooks = async (params: SearchBooksParams) => {
+  const response = await axiosClient.get("/books/search", {
+    params,
+  });
+
+  return response.data;
 };

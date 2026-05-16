@@ -1,6 +1,6 @@
 import type { Author } from "../types/Author";
-import type { Category } from "../../book-category/types/category";
 import type { Publisher } from "../../book-category/types/category";
+
 export interface Book {
   bookId: number;
 
@@ -30,9 +30,14 @@ export interface Book {
 
   salePercent: number;
 
-  categories: Category[];
+  // backend trả string[]
+  categories: string[];
 
-  bookImgs: string[] | null;
+  //backend trả object, không phải string[]
+  bookImgs: {
+    imgUrl: string;
+    publicId?: string;
+  }[] | null;
 
   isActive: boolean;
 }

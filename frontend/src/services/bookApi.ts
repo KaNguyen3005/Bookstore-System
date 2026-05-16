@@ -5,6 +5,7 @@ import type { Category } from "../features/book-category/types/category";
 const unwrap = (res: any) => res?.data?.result ?? res?.data?.data ?? res?.data;
 
 export const bookApi = {
+
   // ================= GET BOOKS =================
   getBooks: async (params?: any): Promise<{ data: Book[]; total: number }> => {
     const res = await axiosClient.get("/books", {
@@ -86,3 +87,4 @@ export const bookApi = {
     return books.slice(0, limit);
   },
 };
+
