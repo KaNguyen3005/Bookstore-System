@@ -1,47 +1,107 @@
-import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { searchApi } from "../../../../services/searchApi";
-import type { Book } from "../../../product/types/Book";
+import { searchBooks } from "../../../../services/searchApi";
 import ProductCard from "../../../product/components/ProductCard";
-import "./SearchPage.css";
+
+import styles from "./SearchPage.module.css";
+
+interface Book {
+  bookId: number;
+  title: string;
+  price: number;
+  salePercent: number;
+  coverImgUrl: string;
+  avgRating: number;
+  reviewCount?: number;
+  stockQuantity?: number;
+  authors: { authorName: string }[];
+}
 
 export default function SearchPage() {
+  const [searchParams] = useSearchParams();
+  const keyword = searchParams.get("keyword")?.trim() || "";
+
   const [books, setBooks] = useState<Book[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
-  const keyword = decodeURIComponent(query.get("q") || "");
-
+  // ===== FETCH =====
   useEffect(() => {
     if (!keyword) return;
 
-    setLoading(true);
+    const fetchBooks = async () => {
+      setLoading(true);
 
-    searchApi.searchBooks(keyword, 50).then((res) => {
-      setBooks(res);
-      setLoading(false);
-    });
+      try {
+        const res = await searchBooks({
+          keyword,
+          page: 0,
+          size: 12,
+        });
+
+        const data = res?.result;
+
+        setBooks(data?.content ?? []);
+        setTotal(data?.totalElements ?? 0);
+      } catch (err) {
+        console.error("Search error:", err);
+        setBooks([]);
+        setTotal(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBooks();
   }, [keyword]);
 
+  // ===== UI STATE =====
+  const renderContent = () => {
+    if (loading) {
+      return <div className={styles.loading}>Đang tải...</div>;
+    }
+
+    if (!books.length) {
+      return (
+        <div className={styles.empty}>
+          Không tìm thấy sách nào
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.grid}>
+        {books.map((book) => (
+          <ProductCard
+            key={book.bookId}
+            book={book}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
-    <div className="search-page">
-      <h2>
-        Kết quả cho: <span>"{keyword}"</span>
-      </h2>
+    <div className={styles.page}>
+      <div className={styles.resultHeader}>
+        <div className={styles.titleRow}>
+          <h2 className={styles.title}>Kết quả tìm kiếm</h2>
 
-      {loading ? (
-        <p className="loading">Đang tìm kiếm...</p>
-      ) : books.length === 0 ? (
-        <p className="empty">Không tìm thấy sách</p>
-      ) : (
-        <div className="search-grid">
-          {books.map((book) => (
-            <ProductCard key={book.book_id} book={book} />
-          ))}
+          {keyword && (
+            <span className={styles.keyword}>
+              “{keyword}”
+            </span>
+          )}
         </div>
-      )}
+
+        <div className={styles.meta}>
+          <span className={styles.countBadge}>
+            {total} sản phẩm
+          </span>
+        </div>
+      </div>
+
+      {renderContent()}
     </div>
   );
 }
