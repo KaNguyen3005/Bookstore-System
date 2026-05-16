@@ -213,7 +213,7 @@ html {
   padding: 0 13px;
   cursor: pointer;
   border: 1px solid rgba(206, 226, 226, 0.42);
-  border-radius: 999px;
+  border-radius: 5px;
   background: #ffffff;
   color: #111827;
   box-shadow: 0 2px 8px rgba(15, 38, 44, 0.12);
