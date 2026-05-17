@@ -181,6 +181,7 @@ export default function CustomerManagement() {
           <form
             className="modal user-form-modal"
             onSubmit={handleSubmitUser}
+            noValidate
             onClick={(event) => event.stopPropagation()}
           >
             <div className="user-form-header">
@@ -209,7 +210,6 @@ export default function CustomerManagement() {
                 <input
                   type="email"
                   value={form.email}
-                  required
                   onChange={(event) =>
                     updateFormField("email", event.target.value)
                   }
@@ -225,7 +225,6 @@ export default function CustomerManagement() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={form.password}
-                    required={formMode === "create"}
                     placeholder={
                       formMode === "edit" ? "Để trống nếu không đổi" : ""
                     }
@@ -252,7 +251,6 @@ export default function CustomerManagement() {
                 Tên đăng nhập
                 <input
                   value={form.username}
-                  required
                   onChange={(event) =>
                     updateFormField("username", event.target.value)
                   }
@@ -266,7 +264,6 @@ export default function CustomerManagement() {
                 Họ tên
                 <input
                   value={form.name}
-                  required
                   onChange={(event) =>
                     updateFormField("name", event.target.value)
                   }
@@ -280,7 +277,6 @@ export default function CustomerManagement() {
                 Số điện thoại
                 <input
                   value={form.phone}
-                  required
                   onChange={(event) =>
                     updateFormField("phone", event.target.value)
                   }
@@ -294,7 +290,6 @@ export default function CustomerManagement() {
                 Giới tính
                 <select
                   value={form.gender}
-                  required
                   onChange={(event) =>
                     updateFormField("gender", event.target.value)
                   }
@@ -314,7 +309,6 @@ export default function CustomerManagement() {
                 <input
                   type="date"
                   value={form.dob}
-                  required
                   onChange={(event) =>
                     updateFormField("dob", event.target.value)
                   }
@@ -328,7 +322,6 @@ export default function CustomerManagement() {
                 Vai trò
                 <select
                   value={form.role}
-                  required
                   onChange={(event) =>
                     updateFormField("role", event.target.value)
                   }
@@ -342,20 +335,22 @@ export default function CustomerManagement() {
                 )}
               </label>
 
-              <label>
-                Điểm
-                <input
-                  type="number"
-                  min="0"
-                  value={form.point}
-                  onChange={(event) =>
-                    updateFormField("point", event.target.value)
-                  }
-                />
-                {fieldErrors.point && (
-                  <span className="field-error">{fieldErrors.point}</span>
-                )}
-              </label>
+              {formMode === "edit" && (
+                <label>
+                  Điểm
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.point}
+                    onChange={(event) =>
+                      updateFormField("point", event.target.value)
+                    }
+                  />
+                  {fieldErrors.point && (
+                    <span className="field-error">{fieldErrors.point}</span>
+                  )}
+                </label>
+              )}
 
               <label className="user-form-status">
                 <input

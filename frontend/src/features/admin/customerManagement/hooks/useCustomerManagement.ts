@@ -69,102 +69,6 @@ const getErrorMessage = (err: any) =>
   err?.message ||
   "Không thể lưu thông tin người dùng";
 
-const validateForm = (
-  form: UserFormState,
-  formMode: FormMode | null,
-  users: UserFE[],
-  editingUser: UserFE | null
-) => {
-  const errors: UserFormErrors = {};
-  const username = form.username.trim();
-  const email = form.email.trim();
-  const phone = form.phone.trim();
-  const name = form.name.trim();
-  const currentUserId = formMode === "edit" ? editingUser?.userId : null;
-  const isOtherUser = (user: UserFE) => user.userId !== currentUserId;
-
-  if (!email) errors.email = "Email là bắt buộc";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = "Email không đúng định dạng";
-  }
-
-  if (!username) errors.username = "Tên đăng nhập là bắt buộc";
-  else if (username.length < 3) {
-    errors.username = "Tên đăng nhập phải có ít nhất 3 ký tự";
-  } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    errors.username = "Tên đăng nhập chỉ được chứa chữ, số và dấu gạch dưới";
-  }
-
-  if (!name) errors.name = "Họ tên là bắt buộc";
-  else if (name.length < 6) errors.name = "Họ tên phải có ít nhất 6 ký tự";
-
-  if (!phone) errors.phone = "Số điện thoại là bắt buộc";
-  else if (!/^(0|\+84)[0-9]{9}$/.test(phone)) {
-    errors.phone = "Số điện thoại phải có dạng 0xxxxxxxxx hoặc +84xxxxxxxxx";
-  }
-
-  if (!form.gender) errors.gender = "Vui lòng chọn giới tính";
-
-  if (!form.dob) {
-    errors.dob = "Ngày sinh là bắt buộc";
-  } else if (!/^\d{4}-\d{2}-\d{2}$/.test(form.dob)) {
-    errors.dob = "Ngày sinh phải có định dạng yyyy-mm-dd";
-  } else {
-    const dob = new Date(`${form.dob}T00:00:00`);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (Number.isNaN(dob.getTime())) errors.dob = "Ngày sinh không hợp lệ";
-    else if (dob > today) errors.dob = "Ngày sinh không được ở tương lai";
-  }
-
-  if (!form.role) errors.role = "Vui lòng chọn vai trò";
-
-  const password = form.password.trim();
-
-  if (formMode === "create" && !password) {
-    errors.password = "Mật khẩu là bắt buộc";
-  } else if (
-    password &&
-    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,50}$/.test(
-      password
-    )
-  ) {
-    errors.password =
-      "Mật khẩu phải có 6-50 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt";
-  }
-
-  if (
-    username &&
-    users.some(
-      (user) =>
-        isOtherUser(user) &&
-        user.username?.toLowerCase() === username.toLowerCase()
-    )
-  ) {
-    errors.username = "Tên đăng nhập đã tồn tại";
-  }
-
-  if (
-    email &&
-    users.some(
-      (user) =>
-        isOtherUser(user) && user.email?.toLowerCase() === email.toLowerCase()
-    )
-  ) {
-    errors.email = "Email đã tồn tại";
-  }
-
-  if (
-    phone &&
-    users.some((user) => isOtherUser(user) && user.phone?.trim() === phone)
-  ) {
-    errors.phone = "Số điện thoại đã tồn tại";
-  }
-
-  return errors;
-};
-
 const parseBackendErrors = (err: any) => {
   const data = err?.response?.data;
   const errors: UserFormErrors = {};
@@ -324,41 +228,28 @@ export const useCustomerManagement = () => {
         setActionError(null);
         setFieldErrors({});
 
-        const validationErrors = validateForm(
-          form,
-          formMode,
-          list,
-          editingUser
-        );
-
-        if (Object.keys(validationErrors).length > 0) {
-          setFieldErrors(validationErrors);
-          setActionError("Vui lòng kiểm tra lại các trường thông tin");
-          return;
-        }
-
         if (formMode === "create") {
           const createdUser = await userApi.createUser({
-            email: form.email,
+            email: form.email.trim(),
             password: form.password.trim(),
-            username: form.username,
-            name: form.name,
-            phone: form.phone,
-            gender: form.gender,
+            username: form.username.trim(),
+            name: form.name.trim(),
+            phone: form.phone.trim(),
+            gender: form.gender.trim().toUpperCase(),
             dob: form.dob,
-            roleName: form.role,
+            roleName: form.role.trim(),
           });
 
           setList((prev) => [createdUser, ...prev]);
         } else if (formMode === "edit" && editingUser) {
           const updatedUser = await userApi.updateUser({
             userId: editingUser.userId,
-            username: form.username,
+            username: form.username.trim(),
             password: form.password.trim() || undefined,
-            name: form.name,
-            email: form.email,
-            phone: form.phone,
-            gender: form.gender,
+            name: form.name.trim(),
+            email: form.email.trim(),
+            phone: form.phone.trim(),
+            gender: form.gender.trim().toUpperCase(),
             dob: form.dob,
             status: form.status,
             point: Number(form.point) || 0,
@@ -385,7 +276,6 @@ export const useCustomerManagement = () => {
       editingUser,
       form,
       formMode,
-      list,
       updateUserInList,
     ]
   );
