@@ -289,7 +289,7 @@
   background: #f9fafb;
   color: #4b5563;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .category-management__tree-name {
@@ -302,7 +302,7 @@
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .category-management__status--active {

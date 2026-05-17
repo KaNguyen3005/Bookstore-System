@@ -8,14 +8,13 @@ import type { BookFilters } from "../types/bookFilter";
 
 const IS_MOCK = false;
 
-const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * 📚 Search books
  */
 export const searchBooks = async (
-  filters: BookFilters
+  filters: BookFilters,
 ): Promise<{
   data: Book[];
   total: number;
@@ -30,61 +29,43 @@ export const searchBooks = async (
     if (filters.categoryId !== undefined) {
       const selectedCategoryId = String(filters.categoryId);
 
-      let targetCategoryIds = [
-        selectedCategoryId,
-      ];
+      let targetCategoryIds = [selectedCategoryId];
 
-      const parentCategory =
-        categoriesData.find(
-          (c) =>
-            String(c.categoryId) ===
-            selectedCategoryId
-        );
+      const parentCategory = categoriesData.find(
+        (c) => String(c.categoryId) === selectedCategoryId,
+      );
 
       // 📌 include children categories
       if (parentCategory?.children) {
         targetCategoryIds = [
           ...targetCategoryIds,
-          ...parentCategory.children.map(
-            (child) =>
-              String(child.categoryId)
-          ),
+          ...parentCategory.children.map((child) => String(child.categoryId)),
         ];
       }
 
       filtered = filtered.filter((book) =>
-        book.categories?.some((category) =>
-          targetCategoryIds.includes(
-            String(category.categoryId)
-          )
-        )
+        (book.categories as any)?.some((category: any) =>
+          targetCategoryIds.includes(String(category.categoryId ?? category)),
+        ),
       );
     }
 
     // ================= PUBLISHER FILTER =================
     if (filters.publisherId) {
-      filtered = filtered.filter(
-        (book) => {
-          const publisher =
-            (
-              book as Book & {
-                publishers?: Book["publisher"];
-              }
-            ).publishers ?? book.publisher;
+      filtered = filtered.filter((book) => {
+        const publisher =
+          (
+            book as Book & {
+              publishers?: Book["publisher"];
+            }
+          ).publishers ?? book.publisher;
 
-          return (
-            publisher?.publisherId ===
-            filters.publisherId
-          );
-        }
-      );
+        return String(publisher?.publisherId) === String(filters.publisherId);
+      });
     }
 
     // ================= PRICE FILTER =================
-    if (
-      filters.minPrice !== undefined ||
-      filters.maxPrice !== undefined
-    ) {
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
       filtered = filtered.filter((book) => {
         const matchMin =
           filters.minPrice !== undefined
@@ -103,16 +84,11 @@ export const searchBooks = async (
     // ================= PAGINATION =================
     const PAGE_SIZE = 12;
 
-    const currentPage =
-      filters.page || 0;
+    const currentPage = filters.page || 0;
 
-    const startIndex =
-      currentPage * PAGE_SIZE;
+    const startIndex = currentPage * PAGE_SIZE;
 
-    const paginated = filtered.slice(
-      startIndex,
-      startIndex + PAGE_SIZE
-    );
+    const paginated = filtered.slice(startIndex, startIndex + PAGE_SIZE);
 
     return {
       data: paginated,
@@ -121,133 +97,92 @@ export const searchBooks = async (
   }
 
   try {
-    const token =
-      localStorage.getItem(
-        "accessToken"
-      );
+    const token = localStorage.getItem("accessToken");
 
     const apiFilters: any = {
       ...filters,
     };
-    console.log(apiFilters)
-    Object.keys(apiFilters).forEach(
-      (key) => {
-        if (
-          apiFilters[key] === undefined
-        ) {
-          delete apiFilters[key];
-        }
+    console.log(apiFilters);
+    Object.keys(apiFilters).forEach((key) => {
+      if (apiFilters[key] === undefined) {
+        delete apiFilters[key];
       }
-    );
+    });
 
-    const res: any =
-      await axiosClient.get(
-        "/books/search",
-        {
-          params: apiFilters,
+    const res: any = await axiosClient.get("/books/search", {
+      params: apiFilters,
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    console.log(
-      "BOOK SEARCH RESPONSE:",
-      res
-    );
+    console.log("BOOK SEARCH RESPONSE:", res);
 
     // 📌 backend structure:
     // data.result.content
-    const result =
-      res?.data?.result;
+    const result = res?.data?.result;
 
-    const data: Book[] =
-      result?.content || [];
+    const data: Book[] = result?.content || [];
 
-    const total =
-      result?.totalElements ||
-      result?.total ||
-      data.length;
+    const total = result?.totalElements || result?.total || data.length;
 
     return {
       data,
       total,
     };
   } catch (error: any) {
-    console.error(
-      "SEARCH BOOKS ERROR:",
-      error?.response || error
-    );
+    console.error("SEARCH BOOKS ERROR:", error?.response || error);
 
-    throw new Error(
-      error?.response?.data?.message ||
-        "Failed to search books"
-    );
+    throw new Error(error?.response?.data?.message || "Failed to search books");
   }
 };
 
 /**
  * 🔥 Top selling books
  */
-export const getTopSellingBooks =
-  async (
-    limit: number = 5
-  ): Promise<Book[]> => {
-    // ================= MOCK =================
-    if (IS_MOCK) {
-      await delay(300);
+export const getTopSellingBooks = async (
+  limit: number = 5,
+): Promise<Book[]> => {
+  // ================= MOCK =================
+  if (IS_MOCK) {
+    await delay(300);
 
-      return [...MOCK_ALL_BOOKS]
-        .sort(
-          (a, b) =>
-            ((
-              b as Book & {
-                reviewCount?: number;
-              }
-            ).reviewCount || 0) -
-            ((
-              a as Book & {
-                reviewCount?: number;
-              }
-            ).reviewCount || 0)
-        )
-        .slice(0, limit);
-    }
+    return [...MOCK_ALL_BOOKS]
+      .sort(
+        (a, b) =>
+          ((
+            b as Book & {
+              reviewCount?: number;
+            }
+          ).reviewCount || 0) -
+          ((
+            a as Book & {
+              reviewCount?: number;
+            }
+          ).reviewCount || 0),
+      )
+      .slice(0, limit);
+  }
 
-    // ================= API =================
-    try {
-      const token =
-        localStorage.getItem(
-          "accessToken"
-        );
+  // ================= API =================
+  try {
+    const token = localStorage.getItem("accessToken");
 
-      const res: any =
-        await axiosClient.get(
-          "/books",
-          {
-            params: { limit },
+    const res: any = await axiosClient.get("/books", {
+      params: { limit },
 
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      const result =
-        res?.data?.result;
+    const result = res?.data?.result;
 
-      return (
-        result?.content ||
-        result ||
-        []
-      );
-    } catch (error: any) {
-      console.error(
-        "TOP SELLING BOOKS ERROR:",
-        error?.response || error
-      );
+    return result?.content || result || [];
+  } catch (error: any) {
+    console.error("TOP SELLING BOOKS ERROR:", error?.response || error);
 
-      return [];
-    }
-  };
+    return [];
+  }
+};

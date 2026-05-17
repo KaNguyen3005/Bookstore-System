@@ -51,6 +51,7 @@ import { Dashboard } from "../features/admin/dashboardManagement";
 import { OrderManagement } from "../features/admin/orderManagement";
 import { VoucherManagement } from "../features/admin/voucherManagement";
 import { CategoryManagement } from "../features/admin/categoryManagement";
+import { PublisherManagement } from "../features/admin/publisherManagement";
 
 /*search*/
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
@@ -258,6 +259,11 @@ export default function AppRoutes() {
           <Route
             path="author"
             element={<AuthorManagement />}
+          />
+
+          <Route
+            path="publishers"
+            element={<PublisherManagement />}
           />
 
           <Route

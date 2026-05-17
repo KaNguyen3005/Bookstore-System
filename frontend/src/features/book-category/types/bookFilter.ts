@@ -1,8 +1,8 @@
-import type { Category } from "./category";
+import type { Category, Publisher } from "./category";
 
 export interface BookFilters {
   categoryId?: Category["categoryId"];
-  publisherId?: number;
+  publisherId?: Publisher["publisherId"];
   minPrice?: number;
   maxPrice?:number;
   page: number;

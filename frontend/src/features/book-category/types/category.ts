@@ -9,9 +9,11 @@ export interface Category {
   isDeleted?: boolean;
   deleted?: boolean;
 }
-export interface Publisher{
-    publisherId: number;
-    publisherName: string;
+export type PublisherId = string;
+
+export interface Publisher {
+  publisherId: PublisherId;
+  publisherName: string;
 }
 export interface PriceRange {
   label: string;

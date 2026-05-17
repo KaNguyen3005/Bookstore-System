@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { adminApi } from "../../services/adminApi";
+import { orderApi } from "../../../../services/orderApi";
 import { bookApi } from "../../../../services/bookApi";
 import type { DashboardState } from "../types";
 
@@ -19,7 +20,7 @@ export const useDashboardData = () => {
         const [summaryRes, ordersRes, revenueRes, booksRes] = await Promise.all([
           adminApi.getDashboardSummary(),
           orderApi.getOrders({ page: 0, size: 5 }),
-          orderApi.getOrders({ page: 0, size: 100 }),
+          orderApi.getOrder({ page: 0, size: 100 }),
           bookApi.getTopSellingBooks(4),
         ]);
 

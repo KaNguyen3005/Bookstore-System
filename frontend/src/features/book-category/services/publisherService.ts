@@ -1,10 +1,18 @@
 import axiosClient from "../../../services/axiosClient";
-import type { Publisher } from "../types/category";
+import type { Publisher, PublisherId } from "../types/category";
 import { publishersData } from "../../../data/publishersData";
 
 const IS_MOCK = false;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export type PublisherPayload = {
+  publisherName: string;
+};
+
+const toApiPayload = (payload: PublisherPayload) => ({
+  publisherName: payload.publisherName.trim(),
+});
 
 export const publisherService = {
   /**
@@ -14,25 +22,18 @@ export const publisherService = {
     // ================= MOCK =================
     if (IS_MOCK) {
       await delay(300);
-      return publishersData;
+      return publishersData.map((publisher) => ({
+        publisherId: String(publisher.publisherId),
+        publisherName: publisher.publisherName,
+      }));
     }
 
-    // ================= API =================
     try {
-      // 📌 lấy token
-      const token = localStorage.getItem("accessToken");
-
-      // 📌 gọi API
-      const res: any = await axiosClient.get("/publishers", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res: any = await axiosClient.get("/publishers");
 
       console.log("PUBLISHERS RESPONSE:", res);
 
-      // 📌 trả dữ liệu
-      return res?.data?.result || [];
+      return res.data.result;
     } catch (error: any) {
       console.error("GET PUBLISHERS ERROR:", error?.response || error);
 
@@ -44,15 +45,69 @@ export const publisherService = {
   /**
    * 📌 Lấy chi tiết 1 publisher
    */
-  getPublisherById: async (id: number): Promise<Publisher | null> => {
+  getPublisherById: async (id: PublisherId): Promise<Publisher | null> => {
     if (IS_MOCK) {
       await delay(200);
 
-      return publishersData.find((p) => p.publisherId === id) || null;
+      const publisher = publishersData.find(
+        (p) => String(p.publisherId) === String(id),
+      );
+
+      if (!publisher) return null;
+
+      return {
+        publisherId: String(publisher.publisherId),
+        publisherName: publisher.publisherName,
+      };
     }
 
     const res: any = await axiosClient.get(`/publishers/${id}`);
 
-    return res?.data?.result || null;
+    return res.data.result;
+  },
+
+  createPublisher: async (payload: PublisherPayload): Promise<Publisher> => {
+    if (IS_MOCK) {
+      await delay(250);
+
+      return {
+        publisherId: String(Date.now()),
+        publisherName: payload.publisherName,
+      };
+    }
+
+    const res: any = await axiosClient.post("/publishers", toApiPayload(payload));
+
+    return res.data.result;
+  },
+
+  updatePublisher: async (
+    id: PublisherId,
+    payload: PublisherPayload,
+  ): Promise<Publisher> => {
+    if (IS_MOCK) {
+      await delay(250);
+
+      return {
+        publisherId: String(id),
+        publisherName: payload.publisherName,
+      };
+    }
+
+    const res: any = await axiosClient.patch(
+      `/publishers/${id}`,
+      toApiPayload(payload),
+    );
+
+    return res.data.result;
+  },
+
+  deletePublisher: async (id: PublisherId): Promise<void> => {
+    if (IS_MOCK) {
+      await delay(200);
+      return;
+    }
+
+    await axiosClient.delete(`/publishers/${id}`);
   },
 };

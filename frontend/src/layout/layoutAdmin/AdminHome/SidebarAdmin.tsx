@@ -8,12 +8,11 @@ import {
   Ticket, 
   BarChart2, 
   ChevronRight,
-  LogOut,
-  Layers
+  Layers,
+  Building2
 } from "lucide-react";
 
 import "./AdminHome.css";
-import logo from "../../../assets/images/logo.png";
 
 const SidebarAdmin = () => {
   const menuItems = [
@@ -23,7 +22,7 @@ const SidebarAdmin = () => {
     { name: "Quản lý đơn hàng", path: "/admin/orders", icon: ShoppingBag, hasChevron: true },
     { name: "Quản lý khách hàng", path: "/admin/customers", icon: Users, hasChevron: true },
     { name: "Quản lý tác giả", path: "/admin/author", icon: Users, hasChevron: true },
-    { name: "Quản lý nhà xuất bản", path: "/admin/....", icon: Users, hasChevron: true },
+    { name: "Quản lý nhà xuất bản", path: "/admin/publishers", icon: Building2, hasChevron: true },
     { name: "Phân quyền & Vai trò", path: "/admin/role", icon: Users, hasChevron: true },
     { name: "Quản lý voucher", path: "/admin/vouchers", icon: Ticket, hasChevron: true },
     { name: "Quản lý Báo cáo thống kê", path: "/admin/statistical_report", icon: BarChart2, hasChevron: true },
