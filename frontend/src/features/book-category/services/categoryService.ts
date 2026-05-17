@@ -15,72 +15,26 @@ export interface CategoryPayload {
 }
 
 const toApiPayload = (payload: CategoryPayload) => {
-  const categoryName = payload.categoryName.trim();
-  const parentCategoryId = payload.parentCategoryId || null;
-
   return {
-    categoryName,
-    parentCategoryId,
-    name: categoryName,
-    parentId: parentCategoryId,
-  };
-};
-
-type RawCategory = Partial<Category> & {
-  id?: CategoryId;
-  name?: string;
-  parentId?: CategoryId | null;
-  children?: RawCategory[];
-};
-
-const getResponsePayload = (responseData: any) => {
-  return responseData?.result ?? responseData?.data ?? responseData;
-};
-
-const normalizeCategory = (
-  rawCategory: RawCategory = {},
-  parentId: CategoryId | null = null,
-): Category => {
-  const categoryId = rawCategory.categoryId ?? rawCategory.id ?? "";
-  const categoryName = rawCategory.categoryName ?? rawCategory.name ?? "";
-  const parentCategoryId =
-    rawCategory.parentCategoryId ?? rawCategory.parentId ?? parentId;
-
-  return {
-    ...rawCategory,
-    categoryId,
-    categoryName,
-    parentCategoryId: parentCategoryId ?? null,
-    children: Array.isArray(rawCategory.children)
-      ? rawCategory.children.map((child) =>
-          normalizeCategory(child, categoryId),
-        )
-      : [],
+    categoryName: payload.categoryName.trim(),
+    parentCategoryId: payload.parentCategoryId || null,
   };
 };
 
 export const categoryService = {
-  /**
-   * 📌 Lấy danh sách category cho sidebar
-   */
+
   getCategories: async (): Promise<Category[]> => {
     if (IS_MOCK) {
       await delay(300);
       return categoriesData;
     }
-
     const res: any = await axiosClient.get("/categories");
 
-    const categories = getResponsePayload(res.data);
+    const categories = res.data.result;
 
-    return Array.isArray(categories)
-      ? categories.map((category) => normalizeCategory(category))
-      : [];
+    return Array.isArray(categories) ? categories : [];
   },
 
-  /**
-   * 📌 Lấy chi tiết 1 category
-   */
   getCategoryById: async (id: CategoryId): Promise<Category | null> => {
     if (IS_MOCK) {
       await delay(200);
@@ -89,9 +43,7 @@ export const categoryService = {
 
     const res: any = await axiosClient.get(`/categories/${id}`);
 
-    const category = getResponsePayload(res.data);
-
-    return category ? normalizeCategory(category) : null;
+    return res.data.result;
   },
 
   createCategory: async (payload: CategoryPayload): Promise<Category> => {
@@ -107,7 +59,7 @@ export const categoryService = {
 
     const res: any = await axiosClient.post("/categories", toApiPayload(payload));
 
-    return normalizeCategory(getResponsePayload(res.data));
+    return res.data.result;
   },
 
   updateCategory: async (
@@ -129,7 +81,7 @@ export const categoryService = {
       toApiPayload(payload),
     );
 
-    return normalizeCategory(getResponsePayload(res.data));
+    return res.data.result;
   },
 
   deleteCategory: async (id: CategoryId): Promise<void> => {
@@ -149,8 +101,6 @@ export const categoryService = {
 
     const res: any = await axiosClient.post(`/categories/${id}/restore`);
 
-    const category = getResponsePayload(res.data);
-
-    return category ? normalizeCategory(category) : null;
+    return res.data.result;
   },
 };

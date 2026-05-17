@@ -22,6 +22,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     filters.categoryId !== undefined &&
     String(filters.categoryId) === String(categoryId);
 
+  const isSelectedPublisher = (publisherId: Publisher["publisherId"]) =>
+    filters.publisherId !== undefined &&
+    String(filters.publisherId) === String(publisherId);
+
   return (
     <aside className="filter-sidebar">
       <h2 className="filter-sidebar__title">Bộ lọc tìm kiếm</h2>
@@ -143,27 +147,28 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         </h3>
 
         <ul className="filter-sidebar__list">
-          {publishers.map((pub) => (
-            <li key={pub.publisherId} className="filter-sidebar__item">
-              <label className="filter-sidebar__label">
-                <input
-                  type="checkbox"
-                  className="filter-sidebar__checkbox"
-                  checked={filters.publisherId === pub.publisherId}
-                  onChange={() => {
-                    onFilterChange({
-                      publisherId:
-                        filters.publisherId === pub.publisherId
-                          ? undefined
-                          : pub.publisherId,
-                    });
-                  }}
-                />
+          {publishers.map((pub) => {
+            const isChecked = isSelectedPublisher(pub.publisherId);
 
-                <span>{pub.publisherName}</span>
-              </label>
-            </li>
-          ))}
+            return (
+              <li key={pub.publisherId} className="filter-sidebar__item">
+                <label className="filter-sidebar__label">
+                  <input
+                    type="checkbox"
+                    className="filter-sidebar__checkbox"
+                    checked={isChecked}
+                    onChange={() => {
+                      onFilterChange({
+                        publisherId: isChecked ? undefined : pub.publisherId,
+                      });
+                    }}
+                  />
+
+                  <span>{pub.publisherName}</span>
+                </label>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </aside>
