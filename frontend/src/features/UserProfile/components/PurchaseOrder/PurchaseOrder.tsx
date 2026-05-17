@@ -7,6 +7,15 @@ import { useAuth } from "../../../../features/auth/hooks/useAuth";
 import styles from "./PurchaseOrder.module.css";
 import OrderModal from "../OrderModal/OrderModal";
 
+const getOrderItemCoverImage = (item: any) =>
+  item?.coverImage ||
+  item?.coverImageUrl ||
+  item?.coverImgUrl ||
+  item?.book?.coverImage ||
+  item?.book?.coverImageUrl ||
+  item?.book?.coverImgUrl ||
+  item?.image;
+
 export default function Orders() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -209,8 +218,7 @@ const loadOrders = async () => {
                 const firstItem = o.items?.[0];
 
 
-                const orderImage =
-                  firstItem?.bookImgs?.[0]?.imgUrl;
+                const orderImage = getOrderItemCoverImage(firstItem);
 
                 const orderTitle =
                   firstItem?.bookTitle ||
