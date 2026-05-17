@@ -1,5 +1,7 @@
 export interface CartItemType {
   bookCartId?: number; // ✅ optional
+  itemId?: number;
+  cartItemId?: number;
   book: {
     bookId: number;
     title: string;

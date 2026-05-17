@@ -28,6 +28,9 @@ export const CartContext = createContext<CartContextType | undefined>(
 
 const initialCartState: CartItemType[] = [];
 
+const getCartItemId = (item: CartItemType) =>
+  item.bookCartId ?? item.itemId ?? item.cartItemId;
+
 export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -105,10 +108,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 
   const updateQuantity = async (bookId: number, quantity: number) => {
     const newQuantity = Math.max(1, quantity);
+    const targetItem = cartItems.find((item) => item.book.bookId === bookId);
+    const cartItemId = targetItem ? getCartItemId(targetItem) : undefined;
 
-    if (isAuthenticated) {
+    if (isAuthenticated && cartItemId) {
       try {
-        await cartApi.updateCartItem(bookId, newQuantity);
+        await cartApi.updateCartItem(cartItemId, newQuantity);
       } catch (error) {
         console.error("Failed to update cart item on server:", error);
       }
@@ -122,9 +127,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const removeItem = async (bookId: number) => {
-    if (isAuthenticated) {
+    const targetItem = cartItems.find((item) => item.book.bookId === bookId);
+    const cartItemId = targetItem ? getCartItemId(targetItem) : undefined;
+
+    if (isAuthenticated && cartItemId) {
       try {
-        await cartApi.removeCartItem(bookId);
+        await cartApi.removeCartItem(cartItemId);
       } catch (error) {
         console.error("Failed to remove cart item from server:", error);
       }
@@ -170,9 +178,19 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const removePurchasedItems = async (bookIds: number[]) => {
+    const purchasedBookIds = new Set(bookIds);
+    const purchasedItems = cartItems.filter((item) =>
+      purchasedBookIds.has(item.book.bookId),
+    );
+
     if (isAuthenticated) {
       try {
-        await Promise.all(bookIds.map((id) => cartApi.removeCartItem(id)));
+        await Promise.all(
+          purchasedItems
+            .map(getCartItemId)
+            .filter((id): id is number => Boolean(id))
+            .map((id) => cartApi.removeCartItem(id)),
+        );
       } catch (error) {
         console.error(
           "Failed to remove purchased cart items from server:",
@@ -181,7 +199,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       }
     }
     setCartItems((prev) =>
-      prev.filter((item) => !bookIds.includes(item.book.bookId)),
+      prev.filter((item) => !purchasedBookIds.has(item.book.bookId)),
     );
   };
 

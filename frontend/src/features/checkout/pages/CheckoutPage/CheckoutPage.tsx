@@ -73,7 +73,11 @@ const CheckoutPage: React.FC = () => {
   } = useCheckout(
     buyNowItem
       ? [buyNowItem]
-      : checkoutItems
+      : checkoutItems,
+    {
+      removePurchasedItemsOnSuccess:
+        !buyNowItem,
+    },
   );
 
   // =========================

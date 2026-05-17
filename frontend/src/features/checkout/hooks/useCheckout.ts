@@ -117,8 +117,13 @@ interface UseCheckoutReturn {
   canPlaceOrder: boolean;
 }
 
+interface UseCheckoutOptions {
+  removePurchasedItemsOnSuccess?: boolean;
+}
+
 export const useCheckout = (
   initialItems?: CartItemType[],
+  options?: UseCheckoutOptions,
 ): UseCheckoutReturn => {
 
   const {
@@ -143,6 +148,9 @@ export const useCheckout = (
         cartSelectedItems,
       ],
     );
+
+  const shouldRemovePurchasedItems =
+    options?.removePurchasedItemsOnSuccess ?? !initialItems;
 
   // =========================
   // STATE
@@ -473,10 +481,10 @@ export const useCheckout = (
           ) {
 
             if (
-              !initialItems
+              shouldRemovePurchasedItems
             ) {
 
-              removePurchasedItems(
+              await removePurchasedItems(
                 selectedItems.map(
                   (item) =>
                     item.book.bookId
@@ -525,10 +533,10 @@ export const useCheckout = (
 
             // remove cart
             if (
-              !initialItems
+              shouldRemovePurchasedItems
             ) {
 
-              removePurchasedItems(
+              await removePurchasedItems(
                 selectedItems.map(
                   (item) =>
                     item.book.bookId
@@ -575,6 +583,7 @@ export const useCheckout = (
         voucher,
         removePurchasedItems,
         initialItems,
+        shouldRemovePurchasedItems,
       ],
     );
 
