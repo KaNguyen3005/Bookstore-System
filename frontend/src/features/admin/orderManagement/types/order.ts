@@ -33,10 +33,34 @@ export interface OrderItem {
   bookTitle: string;
   quantity: number;
   price: number;
-  lineTotal: number;
+  lineTotal?: number;
   rate: number;
   content: string;
   unit: string;
+}
+
+export interface ShippingSnapshot {
+  receiverName?: string;
+  receiverPhone?: string;
+  line1?: string;
+  line2?: string;
+  ward?: string;
+  district?: string;
+  city?: string;
+  country?: string;
+}
+
+export interface ShippingAddress {
+  customerName?: string;
+  customerPhone?: string;
+  detailAddress?: string;
+  ward?: string;
+  district?: string;
+  province?: string;
+}
+
+export interface Shipment {
+  address?: ShippingAddress;
 }
 
 export interface Order {
@@ -54,6 +78,8 @@ export interface Order {
 
   staffName: string;
   customerName: string;
+  shipment?: Shipment;
+  shipping?: ShippingSnapshot;
 
   status: OrderStatus;
 
