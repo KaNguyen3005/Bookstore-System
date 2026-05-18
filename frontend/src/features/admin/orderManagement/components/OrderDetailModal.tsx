@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Package, Clock, User, CreditCard } from 'lucide-react';
+import { X, Package, Clock, CreditCard, MapPin, Phone } from 'lucide-react';
 import type { Order } from '../types/order';
 import { orderService } from '../services/orderService';
 import './OrderDetailModal.css';
@@ -35,16 +35,39 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   if (!orderId) return null;
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount).replace('₫', 'đ');
+  const formatCurrency = (amount?: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0).replace('₫', 'đ');
   };
 
+  const getLineTotal = (item: Order['items'][number]) => {
+    return item.lineTotal ?? item.price * item.quantity;
+  };
+  
+//Lấy dữ liệu khách hàng hiện lên FE
+  const customerAddress = order?.shipment?.address;
+  const shippingSnapshot = order?.shipping;
+  const receiverName =
+    customerAddress?.customerName || shippingSnapshot?.receiverName || order?.customerName;
+  const receiverPhone =
+    customerAddress?.customerPhone || shippingSnapshot?.receiverPhone;
+  const shippingAddress = [
+    customerAddress?.detailAddress || shippingSnapshot?.line1,
+    shippingSnapshot?.line2,
+    customerAddress?.ward || shippingSnapshot?.ward,
+    customerAddress?.district || shippingSnapshot?.district,
+    customerAddress?.province || shippingSnapshot?.city,
+    shippingSnapshot?.country,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
   const itemsSubtotal =
-    order?.items.reduce((sum, item) => sum + item.lineTotal, 0) ?? 0;
+    order?.items.reduce((sum, item) => sum + getLineTotal(item), 0) ?? 0;
   const subtotal = itemsSubtotal > 0 ? itemsSubtotal : order?.subtotal || 0;
-  const vatAmount = subtotal * (order?.vatRate || 0);
-  const totalAmount = subtotal + vatAmount;
-  const vatPercent = (order?.vatRate || 0) * 100;
+  const vatRate = order?.vatRate || 0;
+  const vatAmount = order?.vatAmount ?? subtotal * vatRate;
+  const totalAmount = order?.totalAmount ?? subtotal + vatAmount;
+  const vatPercent = vatRate > 1 ? vatRate : vatRate * 100;
 
   return (
     <div className="order-detail-modal">
@@ -65,16 +88,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               <div className="order-detail-modal__grid">
                 <div className="order-detail-modal__section">
                   <div className="order-detail-modal__section-title">
-                    <User size={16} /> Thông tin khách hàng
-                  </div>
-                  <div className="order-detail-modal__info">
-                    <p><strong>Khách hàng:</strong> {order.customerName}</p>
-                    <p><strong>Nhân viên xử lý:</strong> {order.staffName || 'Chưa phân công'}</p>
-                  </div>
-                </div>
-
-                <div className="order-detail-modal__section">
-                  <div className="order-detail-modal__section-title">
                     <Clock size={16} /> Trạng thái & Thời gian
                   </div>
                   <div className="order-detail-modal__info">
@@ -90,6 +103,25 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                   <div className="order-detail-modal__info">
                     <p><strong>Trạng thái TT:</strong> {order.paymentStatus}</p>
                     <p><strong>Voucher:</strong> {order.voucher?.voucherCode || 'Không sử dụng'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="order-detail-modal__shipping-section">
+                <div className="order-detail-modal__section-title">
+                  <MapPin size={16} /> Thông tin giao hàng
+                </div>
+                <div className="order-detail-modal__shipping-grid">
+                  <div className="order-detail-modal__info">
+                    <p><strong>Người nhận:</strong> {receiverName || 'Chưa có thông tin'}</p>
+                    <p className="order-detail-modal__phone">
+                      <Phone size={14} />
+                      <strong>Số điện thoại:</strong> {receiverPhone || 'Chưa có thông tin'}
+                    </p>
+                    <p><strong>Nhân viên xử lý:</strong> {order.staffName || 'Chưa phân công'}</p>
+                  </div>
+                  <div className="order-detail-modal__info">
+                    <p><strong>Địa chỉ:</strong> {shippingAddress || 'Chưa có thông tin'}</p>
                   </div>
                 </div>
               </div>
@@ -114,7 +146,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                           <td>{item.bookTitle}</td>
                           <td className="text-center">{item.quantity}</td>
                           <td className="text-right">{formatCurrency(item.price)}</td>
-                          <td className="text-right">{formatCurrency(item.lineTotal)}</td>
+                          <td className="text-right">{formatCurrency(getLineTotal(item))}</td>
                         </tr>
                       ))
                     ) : (

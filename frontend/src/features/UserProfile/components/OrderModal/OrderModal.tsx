@@ -24,15 +24,6 @@ const getStatusLabel = (status: string) => {
   return map[status] || status;
 };
 
-const getOrderItemCoverImage = (item: any) =>
-  item?.coverImage ||
-  item?.coverImageUrl ||
-  item?.coverImgUrl ||
-  item?.book?.coverImage ||
-  item?.book?.coverImageUrl ||
-  item?.book?.coverImgUrl ||
-  item?.image;
-
 export default function OrderModal({
   order,
   onClose,
@@ -138,7 +129,7 @@ export default function OrderModal({
           </div>
 
           {(order.items ?? []).map((item: any) => {
-            const imageUrl = getOrderItemCoverImage(item);
+            const imageUrl = item.coverImageUrl;
             const title = item.bookTitle || item.title || "Sản phẩm";
 
             return (

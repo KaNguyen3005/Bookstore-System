@@ -16,7 +16,7 @@ const toApiPayload = (payload: PublisherPayload) => ({
 
 export const publisherService = {
   /**
-   * 📌 Lấy danh sách publisher
+   * Lấy danh sách publisher
    */
   getPublishers: async (): Promise<Publisher[]> => {
     // ================= MOCK =================
