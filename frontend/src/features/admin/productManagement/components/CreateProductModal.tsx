@@ -37,10 +37,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
     description: "",
     pageCount: "",
     coverType: "",
-    stockQuantity: "0",
     price: "",
-    avgRating: "5.0",
-    salePercent: "0",
     coverImageUrl: "", // ✅ thêm URL ảnh
   });
 
@@ -141,16 +138,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       coverImgFile: coverImgFile || undefined, // upload file
       coverImgUrl: formData.coverImgUrl || undefined, // URL
 
-      stockQuantity: formData.stockQuantity
-        ? parseInt(formData.stockQuantity)
-        : undefined,
       price: parseFloat(formData.price),
-      avgRating: formData.avgRating
-        ? parseFloat(formData.avgRating)
-        : undefined,
-      salePercent: formData.salePercent
-        ? parseFloat(formData.salePercent)
-        : undefined,
       categoryIds: selectedCategories.map((c) => c.value),
     };
 
@@ -166,10 +154,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
         description: "",
         pageCount: "",
         coverType: "",
-        stockQuantity: "0",
         price: "",
-        avgRating: "5.0",
-        salePercent: "0",
         coverImageUrl: "",
       });
 
@@ -203,84 +188,138 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
           <div className="create-product-form">
 
             {/* TITLE */}
-            <div className="form-group">
-              <label>Tên sách *</label>
-              <input name="title" value={formData.title} onChange={handleChange} />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Tên sách *</label>
+                <input name="title" value={formData.title} onChange={handleChange} />
+              </div>
+
+              {/* ISBN */}
+              <div className="form-group">
+                <label>ISBN *</label>
+                <input name="isbn" value={formData.isbn} onChange={handleChange} />
+              </div>
             </div>
 
-            {/* IMAGE FILE */}
-            <div className="form-group">
-              <label>Ảnh bìa (Upload file)</label>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
+            <div className="form-row">
+              {/* IMAGE FILE */}
+              <div className="form-group">
+                <label>Ảnh bìa (Upload file)</label>
+                <input type="file" accept="image/*" onChange={handleFileChange} />
+              </div>
+
+              {/* IMAGE URL */}
+              <div className="form-group">
+                <label>Hoặc nhập URL ảnh</label>
+                <input
+                  name="coverImageUrl"
+                  value={formData.coverImageUrl}
+                  onChange={handleChange}
+                  placeholder="https://..."
+                />
+              </div>
             </div>
 
-            {/* IMAGE URL */}
+            <div className="form-row">
+              {/* AUTHORS */}
+              <div className="form-group">
+                <label>Tác giả *</label>
+                <CreatableSelect
+                  isMulti
+                  value={selectedAuthors}
+                  options={authorOptions}
+                  onChange={(val) => setSelectedAuthors((val as Option[]) || [])}
+                />
+              </div>
+
+              {/* CATEGORY */}
+              <div className="form-group">
+                <label>Danh mục *</label>
+                <CreatableSelect
+                  isMulti
+                  value={selectedCategories}
+                  options={categoryOptions}
+                  onChange={(val) =>
+                    setSelectedCategories((val as Option[]) || [])
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* PUBLISHER */}
+              <div className="form-group">
+                <label>Nhà xuất bản</label>
+                <CreatableSelect
+                  value={selectedPublisher}
+                  options={publisherOptions}
+                  onChange={(val) => setSelectedPublisher(val as Option)}
+                />
+              </div>
+
+              {/* LANGUAGE */}
+              <div className="form-group">
+                <label>Ngôn ngữ</label>
+                <select name="language" value={formData.language} onChange={handleChange}>
+                  <option value="Tiếng Việt">Tiếng Việt</option>
+                  <option value="Tiếng Anh">Tiếng Anh</option>
+                  <option value="Tiếng Nhật">Tiếng Nhật</option>
+                  <option value="Tiếng Trung">Tiếng Trung</option>
+                  <option value="Tiếng Hàn">Tiếng Hàn</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* PRICE */}
+              <div className="form-group">
+                <label>Giá *</label>
+                <input
+                  name="price"
+                  type="number"
+                  min="0"
+                  value={formData.price}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* STOCK */}
+              <div className="form-group">
+                <label>Số trang</label>
+                <input
+                  name="pageCount"
+                  type="number"
+                  min="0"
+                  value={formData.pageCount}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* COVER TYPE */}
+              <div className="form-group">
+                <label>Loại bìa *</label>
+                <select name="coverType" value={formData.coverType} onChange={handleChange}>
+                  <option value="">Chọn loại bìa</option>
+                  <option value="Bìa mềm">Bìa mềm</option>
+                  <option value="Bìa cứng">Bìa cứng</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* DESCRIPTION */}
             <div className="form-group">
-              <label>Hoặc nhập URL ảnh</label>
-              <input
-                name="coverImageUrl"
-                value={formData.coverImageUrl}
+              <label>Mô tả</label>
+              <textarea
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
-                placeholder="https://..."
+                placeholder="Nhập mô tả ngắn về nội dung sách..."
               />
             </div>
-
-            {/* AUTHORS */}
-            <div className="form-group">
-              <label>Tác giả *</label>
-              <CreatableSelect
-                isMulti
-                value={selectedAuthors}
-                options={authorOptions}
-                onChange={(val) => setSelectedAuthors((val as Option[]) || [])}
-              />
-            </div>
-
-            {/* CATEGORY */}
-            <div className="form-group">
-              <label>Danh mục *</label>
-              <CreatableSelect
-                isMulti
-                value={selectedCategories}
-                options={categoryOptions}
-                onChange={(val) =>
-                  setSelectedCategories((val as Option[]) || [])
-                }
-              />
-            </div>
-
-            {/* PUBLISHER */}
-            <div className="form-group">
-              <label>Nhà xuất bản</label>
-              <CreatableSelect
-                value={selectedPublisher}
-                options={publisherOptions}
-                onChange={(val) => setSelectedPublisher(val as Option)}
-              />
-            </div>
-
-            {/* ISBN */}
-            <div className="form-group">
-              <label>ISBN *</label>
-              <input name="isbn" value={formData.isbn} onChange={handleChange} />
-            </div>
-
-            {/* PRICE */}
-            <div className="form-group">
-              <label>Giá *</label>
-              <input name="price" value={formData.price} onChange={handleChange} />
-            </div>
-
-            {/* COVER TYPE */}
-            <div className="form-group">
-              <label>Loại bìa *</label>
-              <select name="coverType" value={formData.coverType} onChange={handleChange}>
-                <option value="">Chọn loại bìa</option>
-                <option value="Bìa mềm">Bìa mềm</option>
-                <option value="Bìa cứng">Bìa cứng</option>
-              </select>
-            </div>
-
           </div>
         </div>
 

@@ -123,7 +123,8 @@ const parseBackendErrors = (err: any) => {
 };
 
 export const useCustomerManagement = () => {
-  const [list, setList] = useState<UserFE[]>([]);
+  const [users, setUsers] = useState<UserFE[]>([]);
+  const [allUsers, setAllUsers] = useState<UserFE[]>([]);
   const [keyword, setKeyword] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserFE | null>(null);
   const [formMode, setFormMode] = useState<FormMode | null>(null);
@@ -134,29 +135,73 @@ export const useCustomerManagement = () => {
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<UserFormErrors>({});
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  const displayedUsers = useMemo(() => {
+    const normalizedKeyword = keyword.trim().toLowerCase();
+
+    return allUsers
+      .filter((user) => {
+        if (!normalizedKeyword) return true;
+
+        return [user.username, user.name, user.email, user.phone, user.role].some(
+          (field) => field?.toLowerCase().includes(normalizedKeyword)
+        );
+      })
+      .sort((first, second) => first.userId - second.userId);
+  }, [allUsers, keyword]);
 
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await userApi.getAllUsers();
+      const summary = await userApi.getAllUsers({
+        page: 0,
+        size: 1,
+      });
+      const data = await userApi.getAllUsers({
+        page: 0,
+        size: Math.max(summary.totalElements, size),
+      });
 
-      setList(data);
+      setAllUsers(data.content);
     } catch (err: any) {
       console.error("Failed to fetch users:", err);
       setError(getErrorMessage(err) || "Không thể tải danh sách người dùng");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [size]);
 
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
 
+  useEffect(() => {
+    setPage(0);
+  }, [keyword]);
+
+  useEffect(() => {
+    const nextTotalPages = Math.max(1, Math.ceil(displayedUsers.length / size));
+
+    if (page > nextTotalPages - 1) {
+      setPage(nextTotalPages - 1);
+      return;
+    }
+
+    const start = page * size;
+
+    setUsers(displayedUsers.slice(start, start + size));
+    setTotalPages(nextTotalPages);
+    setTotalElements(displayedUsers.length);
+  }, [displayedUsers, page, size]);
+
   const updateUserInList = useCallback((updatedUser: UserFE) => {
-    setList((prev) =>
+    setAllUsers((prev) =>
       prev.map((user) =>
         user.userId === updatedUser.userId ? updatedUser : user
       )
@@ -166,18 +211,6 @@ export const useCustomerManagement = () => {
       prev?.userId === updatedUser.userId ? updatedUser : prev
     );
   }, []);
-
-  const filtered = useMemo(() => {
-    const keywordLower = keyword.trim().toLowerCase();
-
-    if (!keywordLower) return list;
-
-    return list.filter((user) =>
-      [user.username, user.name, user.email, user.phone, user.role].some(
-        (field) => String(field ?? "").toLowerCase().includes(keywordLower)
-      )
-    );
-  }, [keyword, list]);
 
   const closeForm = useCallback(() => {
     setFormMode(null);
@@ -240,12 +273,11 @@ export const useCustomerManagement = () => {
             roleName: form.role.trim(),
           });
 
-          setList((prev) => [createdUser, ...prev]);
+          setAllUsers((prev) => [createdUser, ...prev]);
         } else if (formMode === "edit" && editingUser) {
           const updatedUser = await userApi.updateUser({
             userId: editingUser.userId,
             username: form.username.trim(),
-            password: form.password.trim() || undefined,
             name: form.name.trim(),
             email: form.email.trim(),
             phone: form.phone.trim(),
@@ -290,7 +322,7 @@ export const useCustomerManagement = () => {
     try {
       setActionLoading(true);
       await userApi.deleteUser(user.userId);
-      setList((prev) => prev.filter((item) => item.userId !== user.userId));
+      setAllUsers((prev) => prev.filter((item) => item.userId !== user.userId));
       setSelectedUser((prev) => (prev?.userId === user.userId ? null : prev));
     } catch (err: any) {
       alert(getErrorMessage(err) || "Không thể xóa tài khoản");
@@ -338,7 +370,12 @@ export const useCustomerManagement = () => {
   );
 
   return {
-    list,
+    list: users,
+    totalElements,
+    totalPages,
+    currentPage: page,
+    setPage,
+    pageSize: size,
     keyword,
     setKeyword,
     selectedUser,
@@ -350,7 +387,7 @@ export const useCustomerManagement = () => {
     error,
     actionError,
     fieldErrors,
-    filtered,
+    filtered: users,
     closeForm,
     openCreateForm,
     openEditForm,

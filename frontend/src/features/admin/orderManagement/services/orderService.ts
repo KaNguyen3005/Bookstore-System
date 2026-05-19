@@ -54,6 +54,7 @@ export const orderService = {
   getOrders: async (params: {
     page?: number;
     size?: number;
+    sort?: string;
     status?: string;
     keyword?: string;
     startDate?: string;
