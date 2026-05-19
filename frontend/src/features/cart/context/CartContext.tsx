@@ -65,7 +65,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       if (isAuthenticated && user?.userId) {
         try {
           const serverCart = await cartApi.getCart();
-          setCartItems(serverCart); // ✅ PHẢI LẤY result
+          setCartItems(serverCart);
         } catch (error) {
           console.error("Failed to fetch cart from server:", error);
         }

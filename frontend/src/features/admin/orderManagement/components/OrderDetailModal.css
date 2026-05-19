@@ -71,7 +71,7 @@
 
 .order-detail-modal__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
   gap: 24px;
   margin-bottom: 32px;
 }
@@ -94,6 +94,26 @@
 
 .order-detail-modal__info strong {
   color: #374151;
+}
+
+.order-detail-modal__shipping-section {
+  margin-bottom: 28px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 8px;
+}
+
+.order-detail-modal__shipping-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 2fr;
+  gap: 16px;
+}
+
+.order-detail-modal__phone {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .order-detail-modal__items-section {
@@ -164,4 +184,15 @@
   padding: 40px;
   text-align: center;
   color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .order-detail-modal__content {
+    max-width: calc(100% - 24px);
+  }
+
+  .order-detail-modal__grid,
+  .order-detail-modal__shipping-grid {
+    grid-template-columns: 1fr;
+  }
 }

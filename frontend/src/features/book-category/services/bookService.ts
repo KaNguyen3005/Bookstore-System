@@ -9,10 +9,6 @@ import type { BookFilters } from "../types/bookFilter";
 const IS_MOCK = false;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/**
- * 📚 Search books
- */
 export const searchBooks = async (
   filters: BookFilters,
 ): Promise<{
