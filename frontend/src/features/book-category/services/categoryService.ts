@@ -17,7 +17,7 @@ export interface CategoryPayload {
 const toApiPayload = (payload: CategoryPayload) => {
   return {
     categoryName: payload.categoryName.trim(),
-    parentCategoryId: payload.parentCategoryId || null,
+    parentId: payload.parentCategoryId || null,
   };
 };
 

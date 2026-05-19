@@ -46,14 +46,14 @@ export const ProductDetailModal = ({
         </div>
 
         <div className="create-product-modal__body">
-          <div className="product-detail-layout">
+          <div className="admin-product-detail-layout">
             <img
               src={product.coverImgUrl}
               alt={product.title}
-              className="product-detail-cover"
+              className="admin-product-detail-cover"
             />
 
-            <div className="product-detail-grid">
+            <div className="admin-product-detail-grid">
               <div>
                 <span>Tên sách</span>
                 <strong>{product.title}</strong>
@@ -109,7 +109,7 @@ export const ProductDetailModal = ({
             </div>
           </div>
 
-          <div className="product-detail-description">
+          <div className="admin-product-detail-description">
             <span>Mô tả</span>
             <p>{product.description || "Chưa có mô tả"}</p>
           </div>

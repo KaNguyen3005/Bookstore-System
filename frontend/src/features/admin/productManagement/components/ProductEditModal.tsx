@@ -50,6 +50,8 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
     pageCount: "",
     coverType: "",
     stockQuantity: "",
+    stockAdjustment: "",
+    isActive: true,
     price: "",
     avgRating: "",
   });
@@ -73,6 +75,8 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
       pageCount: String(product.pageCount ?? ""),
       coverType: product.coverType ?? "",
       stockQuantity: String(product.stockQuantity ?? ""),
+      stockAdjustment: "",
+      isActive: Boolean(product.isActive),
       price: String(product.price ?? ""),
       avgRating: String(product.avgRating ?? ""),
     });
@@ -175,6 +179,12 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
       return;
     }
 
+    const currentStock = Number(formData.stockQuantity) || 0;
+    const stockAdjustment = formData.stockAdjustment
+      ? Number(formData.stockAdjustment)
+      : 0;
+    const nextStockQuantity = Math.max(0, currentStock + stockAdjustment);
+
     const success = await onUpdate(product.bookId, {
       title: formData.title.trim(),
       authorIds: selectedAuthors.map((author) => author.value),
@@ -185,9 +195,8 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
       pageCount: formData.pageCount ? Number(formData.pageCount) : undefined,
       coverType: formData.coverType,
       coverImg: coverImg ?? undefined,
-      stockQuantity: formData.stockQuantity
-        ? Number(formData.stockQuantity)
-        : undefined,
+      stockQuantity: nextStockQuantity,
+      isActive: formData.isActive,
       price: Number(formData.price),
       avgRating: formData.avgRating ? Number(formData.avgRating) : undefined,
       categories: selectedCategories.map((category) => category.value),
@@ -301,16 +310,46 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
                   type="number"
                   min="0"
                   value={formData.stockQuantity}
-                  onChange={handleChange}
+                  readOnly
                 />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
+                <label>Điều chỉnh tồn kho</label>
+                <input
+                  name="stockAdjustment"
+                  type="number"
+                  value={formData.stockAdjustment}
+                  onChange={handleChange}
+                  placeholder="Ví dụ: 5 hoặc -3"
+                />
+                <span className="form-helper-text">
+                  Nhập số dương để thêm, số âm để khấu trừ.
+                </span>
+              </div>
+              <div className="form-group">
                 <label>Giá *</label>
                 <input name="price" type="number" min="0" value={formData.price} onChange={handleChange} />
               </div>
+              <label className="product-active-toggle">
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(event) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      isActive: event.target.checked,
+                    }))
+                  }
+                />
+                <span className="product-active-toggle__text">
+                  Trạng thái hoạt động:{" "}
+                  <strong>{formData.isActive ? "ĐANG BẬT" : "ĐANG TẮT"}</strong>
+                </span>
+                <span className="product-active-toggle__switch" aria-hidden="true" />
+              </label>
             </div>
 
             <div className="form-row">
