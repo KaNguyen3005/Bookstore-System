@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 
+import { Pagination } from "../../orderManagement/components/Pagination";
 import UserDetail from "../components/UserDetail/UserDetail";
 import { useCustomerManagement } from "../hooks/useCustomerManagement";
 
@@ -27,7 +28,10 @@ const splitName = (name: string) => {
 export default function CustomerManagement() {
   const [showPassword, setShowPassword] = useState(false);
   const {
-    list,
+    totalElements,
+    totalPages,
+    currentPage,
+    setPage,
     keyword,
     setKeyword,
     selectedUser,
@@ -55,7 +59,7 @@ export default function CustomerManagement() {
 
       <div className="card-sum">
         <h3>Tổng số tài khoản</h3>
-        <p>{list.length}</p>
+        <p>{totalElements}</p>
       </div>
 
       <div className="search-cm">
@@ -167,6 +171,12 @@ export default function CustomerManagement() {
               })}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
 
       {selectedUser && (
