@@ -3,8 +3,7 @@ import users from "../data/user1";
 
 const IS_MOCK = false;
 
-const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export interface UserFE {
   id?: number;
@@ -22,6 +21,19 @@ export interface UserFE {
   tier?: string;
   address?: unknown;
 }
+
+export interface UsersResponse {
+  content: UserFE[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+}
+
+export type GetUsersParams = {
+  page?: number;
+  size?: number;
+};
 
 export interface CreateUserPayload {
   email: string;
@@ -81,12 +93,16 @@ const getGenderCode = (gender: any) => {
   return clean(gender) ?? "";
 };
 
-const getUsersPayload = (data: any) => {
-  const payload = data?.result ?? data?.data ?? data;
-  const usersPayload =
-    payload?.content ?? payload?.items ?? payload?.users ?? payload;
+const toUsersResponse = (data: any): UsersResponse => {
+  const result = data.result;
 
-  return Array.isArray(usersPayload) ? usersPayload : [];
+  return {
+    content: result.content.map(mapToFE),
+    totalPages: result.totalPages,
+    totalElements: result.totalElements,
+    size: result.size,
+    number: result.number,
+  };
 };
 
 const getUserPayload = (data: any) => data?.result ?? data?.data ?? data;
@@ -107,7 +123,7 @@ const mapToFE = (u: any = {}): UserFE => {
     u.name ??
       u.fullName ??
       u.fullname ??
-      [firstName, lastName].filter(Boolean).join(" ")
+      [firstName, lastName].filter(Boolean).join(" "),
   );
 
   return {
@@ -120,9 +136,7 @@ const mapToFE = (u: any = {}): UserFE => {
     point: Number(u.point ?? 0),
     avatarUrl: u.avatarUrl ?? u.avatar_url,
     dob: u.dob || u.birth ? new Date(u.dob ?? u.birth) : new Date(),
-    status: getStatusBoolean(
-      u.status ?? u.active ?? u.enabled ?? u.isActive
-    ),
+    status: getStatusBoolean(u.status ?? u.active ?? u.enabled ?? u.isActive),
     gender: getGenderCode(u.gender),
     role: getRoleName(u.role ?? u.roleName ?? u.role_id),
     tier: u.tier,
@@ -156,30 +170,42 @@ const mapToCreatePayload = (u: CreateUserPayload) => ({
 export const userApi = {
   // ================= GET ME =================
 
-    getMe: async (): Promise<UserFE | null> => {
-      try {
-        const res: any = await axiosClient.get("/users/me");
+  getMe: async (): Promise<UserFE | null> => {
+    try {
+      const res: any = await axiosClient.get("/users/me");
 
-        return mapToFE(getUserPayload(res.data));
-      } catch (error) {
-        console.error("getMe failed:", error);
-        return null;
-      }
-    },
+      return mapToFE(getUserPayload(res.data));
+    } catch (error) {
+      console.error("getMe failed:", error);
+      return null;
+    }
+  },
 
-      // ================= GET ALL =================
-      getAllUsers: async (): Promise<UserFE[]> => {
-        if (IS_MOCK) {
-          await delay(500);
-          return users.map(mapToFE);
-        }
+  // ================= GET ALL =================
+  getAllUsers: async (params?: GetUsersParams): Promise<UsersResponse> => {
+    if (IS_MOCK) {
+      await delay(500);
+      const mappedUsers = users.map(mapToFE);
+      const size = params?.size ?? 10;
+      const page = params?.page ?? 0;
+      const start = page * size;
 
-        const res = await axiosClient.get("/users", {
-          skipAuthRedirect: true,
-        } as any);
+      return {
+        content: mappedUsers.slice(start, start + size),
+        totalPages: Math.max(1, Math.ceil(mappedUsers.length / size)),
+        totalElements: mappedUsers.length,
+        size,
+        number: page,
+      };
+    }
 
-        return getUsersPayload(res.data).map(mapToFE);
-      },
+    const res = await axiosClient.get("/users", {
+      params,
+      skipAuthRedirect: true,
+    } as any);
+
+    return toUsersResponse(res.data);
+  },
 
   // ================= CREATE =================
   createUser: async (data: CreateUserPayload): Promise<UserFE> => {
@@ -193,10 +219,7 @@ export const userApi = {
       });
     }
 
-    const res = await axiosClient.post(
-      "/users",
-      mapToCreatePayload(data)
-    );
+    const res = await axiosClient.post("/users", mapToCreatePayload(data));
 
     return mapToFE(getUserPayload(res.data));
   },
@@ -226,40 +249,26 @@ export const userApi = {
 
     const payload = mapToUpdatePayload(data);
 
-    const res = await axiosClient.patch(
-      `/users/${data.userId}`,
-      payload
-    );
+    const res = await axiosClient.patch(`/users/${data.userId}`, payload);
 
     return mapToFE(getUserPayload(res.data));
   },
 
   // ================= UPDATE ME =================
   updateMe: async (data: Partial<UserFE>) => {
-    const res: any = await axiosClient.patch(
-      "/users/me",
-      data
-    );
+    const res: any = await axiosClient.patch("/users/me", data);
 
     return mapToFE(getUserPayload(res.data));
   },
 
   // ================= DISABLE =================
   disableUser: async (id: number): Promise<void> => {
-    await axiosClient.post(
-      `/users/${id}/disable`
-    );
+    await axiosClient.post(`/users/${id}/disable`);
   },
 
   // ================= UPDATE STATUS =================
-  updateStatus: async (
-    id: number,
-    status: boolean
-  ): Promise<void> => {
-    await axiosClient.put(
-      `/users/${id}/status`,
-      { status }
-    );
+  updateStatus: async (id: number, status: boolean): Promise<void> => {
+    await axiosClient.put(`/users/${id}/status`, { status });
   },
 
   // ================= DELETE =================
