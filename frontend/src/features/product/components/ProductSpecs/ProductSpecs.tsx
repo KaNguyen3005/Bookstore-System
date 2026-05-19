@@ -40,6 +40,14 @@ const ProductSpecs: React.FC<Props> = ({
           </tr>
 
           <tr>
+            <td>Thể loại</td>
+
+            <td>{book.categories?.length
+                ? book.categories.join(", ")
+                : "Đang cập nhật"}
+            </td>
+          </tr>
+          <tr>
             <td>Ngôn ngữ</td>
 
             <td>

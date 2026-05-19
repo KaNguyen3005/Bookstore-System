@@ -16,11 +16,10 @@ interface Props {
   book: Book;
   publisherName: string;
   authorName: string;
+  categories: string[];
   reviewsCount: number;
   quantity: number;
-  setQuantity: React.Dispatch<
-    React.SetStateAction<number>
-  >;
+  setQuantity: React.Dispatch<React.SetStateAction<number>>;
   isAdding: boolean;
   isBuying: boolean;
   onAddToCart: () => void;
@@ -82,6 +81,15 @@ const ProductInfo: React.FC<Props> = ({
           <strong>
             {authorName}
           </strong>
+        </div>
+
+        <div className="meta-item">
+          Thể loại:{" "}
+          <span>
+            {book.categories?.length
+              ? book.categories.join(", ")
+              : "Đang cập nhật"}
+          </span>
         </div>
 
         <div className="meta-item">

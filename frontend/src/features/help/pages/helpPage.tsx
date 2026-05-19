@@ -47,20 +47,19 @@ export default function HelpPage() {
           <h2 className={styles.cardTitle}>Liên hệ hỗ trợ</h2>
 
           <p className={styles.info}>
-            📞 Hotline: <b>1900 999 999</b>
+            Hotline: <b>1900 999 999</b>
           </p>
 
           <p className={styles.info}>
-            📧 Email: <b>support@bookstore.com</b>
+            Email: <b>support@bookstore.com</b>
           </p>
-
+           <p className={styles.info}>
+            Zalo: <b>912345678</b>
+          </p>
           <p className={styles.info}>
-            ⏰ Thời gian: 8:00 - 22:00 mỗi ngày
+            Thời gian: 8:00 - 22:00 mỗi ngày
           </p>
 
-          <button className={styles.button}>
-            Gửi yêu cầu hỗ trợ
-          </button>
         </div>
       </div>
     </div>

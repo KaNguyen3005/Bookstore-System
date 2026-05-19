@@ -215,4 +215,60 @@ export const authApi = {
       );
     }
   },
+// ================= GOOGLE LOGIN =================
+googleLogin: async (idToken: string) => {
+  try {
+    const res = await axiosClient.post("/auth/google", {
+      idToken,
+    });
+
+    const response = res?.data ?? res;
+    const authData = response?.result ?? response;
+
+    console.log("GOOGLE LOGIN RESPONSE:", response);
+
+    const token = authData?.token;
+
+    if (!token) {
+      throw new Error(response?.message || "Google login failed");
+    }
+
+    // SAVE TOKEN
+    localStorage.setItem("access_token", token);
+
+    // ================= GET USER INFO =================
+    const userRes = await axiosClient.get("/users/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const userData = userRes?.data?.result ?? userRes?.data;
+
+    const fullUser = {
+      userId: userData?.userId || userData?.id,
+      username: userData?.username,
+      email: userData?.email,
+      phone: userData?.phone,
+      name: userData?.name,
+      role: userData?.role,
+      token,
+      authenticated: true,
+    };
+
+    // SAVE LOCAL
+    localStorage.setItem("user", JSON.stringify(fullUser));
+
+    return fullUser;
+
+  } catch (error: any) {
+    console.error("GOOGLE LOGIN ERROR:", error);
+
+    throw new Error(
+      error?.response?.data?.message ||
+      error.message ||
+      "Google login failed"
+    );
+  }
+},
 };

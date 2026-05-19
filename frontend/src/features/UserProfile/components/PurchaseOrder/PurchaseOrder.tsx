@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getMyOrders } from "../../../../services/orderApi";
+import { getMyOrders, cancelOrder  } from "../../../../services/orderApi";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
 
 import styles from "./PurchaseOrder.module.css";
 import OrderModal from "../OrderModal/OrderModal";
+import ReviewFormModal from "../ReviewFormModal/ReviewFormModal";
+import { reviewOrderItem } from "../../../../services/orderApi";
 
 import ReviewModal from "../ReviewModal/reviewModal";
 
@@ -26,7 +28,10 @@ export default function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+
   const [reviewOrder, setReviewOrder] = useState<any | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [openReviewForm, setOpenReviewForm] = useState(false);
 
   const tabs = [
     { key: "ALL", label: "Tất cả" },
@@ -120,8 +125,20 @@ const loadOrders = async () => {
       case "PENDING_PAYMENT":
         return (
           <>
-            <button className={styles.cancelBtn}>Hủy đơn</button>
-            <button>Liên hệ</button>
+            <button
+              className={styles.cancelBtn}
+              onClick={() => {
+                if (confirm("Bạn có chắc muốn hủy đơn này không?")) {
+                  handleCancelOrder(order.orderId);
+                }
+              }}
+            >
+              Hủy đơn
+            </button>
+
+            <button onClick={() => navigate("/help")}>
+              Liên hệ
+            </button>
             <button onClick={() => setSelectedOrder(order)}>
               Xem chi tiết
             </button>
@@ -135,7 +152,9 @@ const loadOrders = async () => {
       case "SHIPPING":
         return (
           <>
-            <button>Liên hệ shop</button>
+            <button onClick={() => navigate("/help")}>
+              Liên hệ
+            </button>
             <button onClick={() => setSelectedOrder(order)}>
               Xem chi tiết
             </button>
@@ -150,8 +169,10 @@ const loadOrders = async () => {
                  Đánh giá sản phẩm
             </button>
 
-            <button>Mua lại</button>
-            <button>Liên hệ</button>
+            {/*}<button>Mua lại</button>*/}
+            <button onClick={() => navigate("/help")}>
+              Liên hệ
+            </button>
             <button onClick={() => setSelectedOrder(order)}>
               Xem chi tiết
             </button>
@@ -160,9 +181,15 @@ const loadOrders = async () => {
 
       default:
         return (
-          <button onClick={() => setSelectedOrder(order)}>
-            Xem chi tiết
-          </button>
+           <>
+              <button onClick={() => setSelectedOrder(order)}>
+                Xem chi tiết
+              </button>
+
+              <button onClick={() => navigate("/help")}>
+                Liên hệ
+              </button>
+           </>
         );
     }
   };
@@ -176,6 +203,35 @@ const loadOrders = async () => {
     return orders.filter((o) => group.includes(o.status));
   }, [orders, active]);
 
+    //Xu ly dơn hang ( huy don)
+    const handleCancelOrder = async (id: number) => {
+      try {
+        await cancelOrder(id);
+
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.orderId === id
+              ? { ...o, status: "CANCELLED" }
+              : o
+          )
+        );
+
+        // tự chuyển sang tab Đã hủy
+        setActive("CANCELLED");
+      } catch (error) {
+        console.error("Cancel order failed:", error);
+      }
+    };
+
+    //review
+    const handleReview = (item: ReviewItem) => {
+      console.log("REVIEW ITEM:", item);
+
+      reviewOrderItem(item.orderId!, item.itemId!, {
+        rating,
+        content,
+      });
+    };
   // ================= UI =================
   return (
     <>
@@ -294,20 +350,41 @@ const loadOrders = async () => {
         order={reviewOrder}
         onClose={() => setReviewOrder(null)}
         onReview={(item) => {
-          navigate(
-            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&`
-          );
-
-          setReviewOrder(null);
-        }}
-        onViewReview={(item) => {
-          navigate(
-            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&itemId=${item.itemId}&view=review`
-          );
-
-          setReviewOrder(null);
+          setSelectedItem(item);
+          setOpenReviewForm(true);
         }}
       />
+
+      {openReviewForm && selectedItem && (
+        <ReviewFormModal
+          item={selectedItem}
+          onClose={() => {
+            setOpenReviewForm(false);
+            setSelectedItem(null);
+          }}
+          onSubmit={async (data) => {
+            if (!selectedItem || !reviewOrder) return;
+
+            await reviewOrderItem(
+              reviewOrder.orderId,
+              selectedItem.bookId,
+              data
+            );
+
+            setReviewOrder((prev: any) => ({
+              ...prev,
+              items: prev.items.map((it: any) =>
+                it.bookId === selectedItem.bookId
+                  ? { ...it, hasReview: true }
+                  : it
+              ),
+            }));
+
+            setOpenReviewForm(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
     </>
   );
 }

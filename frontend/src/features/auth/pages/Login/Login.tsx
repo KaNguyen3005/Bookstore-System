@@ -13,6 +13,7 @@ import "./Login.css";
 import logo from "../../../../assets/images/logo-auth.png";
 
 import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google";
 
 import { authApi } from "../../../../services/authApi";
 
@@ -128,6 +129,8 @@ const Login = () => {
     }
   };
 
+
+
   return (
     <div className="login-page">
       <div className="login-container">
@@ -194,13 +197,57 @@ const Login = () => {
         </form>
 
         <div className="social-wrapper">
-          <button
-            className="social"
-            disabled={loading}
-          >
-            <FcGoogle size={20} />
-            Đăng nhập với Google
-          </button>
+          <div className="google-btn">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                try {
+                  setLoading(true);
+
+                  const idToken =
+                    credentialResponse.credential;
+
+                  if (!idToken) {
+                    throw new Error(
+                      "Google token missing"
+                    );
+                  }
+
+                  const user =
+                    await authApi.googleLogin(
+                      idToken
+                    );
+
+                  login(user);
+
+                  const role = normalizeRole(
+                    user.role
+                  );
+
+                  navigate(
+                    role === "ADMIN"
+                      ? "/admin"
+                      : "/",
+                    {
+                      replace: true,
+                    }
+                  );
+
+                } catch (err: any) {
+                  setError(
+                    err.message ||
+                      "Đăng nhập Google thất bại"
+                  );
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              onError={() => {
+                setError(
+                  "Đăng nhập Google thất bại"
+                );
+              }}
+            />
+          </div>
         </div>
 
         <Link

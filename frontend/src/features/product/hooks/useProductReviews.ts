@@ -35,10 +35,11 @@ export const useProductReviews = ({
   // ================= VALID REVIEW PARAMS =================
   const validReviewParams =
     isValidBookId &&
-    typeof orderId === "number" &&
-    typeof itemId === "number" &&
-    !Number.isNaN(orderId) &&
-    !Number.isNaN(itemId);
+    orderId !== null &&
+    itemId !== null &&
+    !isNaN(orderId) &&
+    !isNaN(itemId);
+
   // ================= FETCH REVIEWS =================
   const fetchReviews = useCallback(
     async () => {

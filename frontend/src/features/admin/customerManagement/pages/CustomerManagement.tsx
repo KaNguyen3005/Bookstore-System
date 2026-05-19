@@ -51,7 +51,7 @@ export default function CustomerManagement() {
 
   return (
     <div>
-      <h2>QUẢN LÝ THÔNG TIN KHÁCH HÀNG</h2>
+      <h2>QUẢN LÝ THÔNG TIN TÀI KHOẢN</h2>
 
       <div className="card-sum">
         <h3>Tổng số tài khoản</h3>

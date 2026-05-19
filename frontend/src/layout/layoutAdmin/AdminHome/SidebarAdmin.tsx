@@ -20,7 +20,7 @@ const SidebarAdmin = () => {
     { name: "Quản lý sản phẩm", path: "/admin/products", icon: BookOpen, hasChevron: true },
     { name: "Quản lý danh mục", path: "/admin/categories", icon: Layers, hasChevron: true },
     { name: "Quản lý đơn hàng", path: "/admin/orders", icon: ShoppingBag, hasChevron: true },
-    { name: "Quản lý khách hàng", path: "/admin/customers", icon: Users, hasChevron: true },
+    { name: "Quản lý tài khoản", path: "/admin/customers", icon: Users, hasChevron: true },
     { name: "Quản lý tác giả", path: "/admin/author", icon: Users, hasChevron: true },
     { name: "Quản lý nhà xuất bản", path: "/admin/publishers", icon: Building2, hasChevron: true },
     { name: "Phân quyền & Vai trò", path: "/admin/role", icon: Users, hasChevron: true },
