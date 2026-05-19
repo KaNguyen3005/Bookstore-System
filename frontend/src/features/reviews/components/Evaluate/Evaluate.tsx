@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import styles from "./Evaluate.module.css";
 import { Star, ThumbsUp, MessageCircle, Filter } from "lucide-react";
+import { evaluateApi } from "../../../../services/evaluateApi";
+
 
 export interface Review {
   bookId: number | null;
@@ -16,6 +18,10 @@ interface EvaluateProps {
   reviews?: Review[];
   myReview?: Review | null;
   orderStatus?: string | null;
+
+  orderId?: number;
+  itemId?: number;
+
   onSuccess?: () => void;
 }
 
@@ -25,6 +31,9 @@ const Evaluate: React.FC<EvaluateProps> = ({
   reviews = [],
   myReview = null,
   orderStatus = null,
+  orderId,
+  itemId,
+  onSuccess,
 }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
 
@@ -42,9 +51,41 @@ const Evaluate: React.FC<EvaluateProps> = ({
     setVisibleCount(4);
   }, [selectedFilter]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ rating, content });
+
+    try {
+      if (!orderId || !itemId) {
+        alert("Không tìm thấy thông tin đơn hàng!");
+        return;
+      }
+
+      if (!content.trim()) {
+        alert("Vui lòng nhập nội dung đánh giá!");
+        return;
+      }
+
+      await evaluateApi.reviewOrderItem(
+        orderId,
+        itemId,
+        {
+          rating,
+          content,
+        }
+      );
+
+      alert("Đánh giá thành công!");
+
+      setContent("");
+      setRating(5);
+
+      onSuccess?.();
+
+    } catch (error) {
+      console.error(error);
+
+      alert("Không thể gửi đánh giá!");
+    }
   };
 
   // AVG

@@ -74,12 +74,25 @@ const loadOrders = async () => {
 
     console.log("RAW API:", res);
 
-    const nextOrders = Array.isArray(res?.result)
-      ? res.result
-      : [];
+    let nextOrders: any[] = [];
 
-    console.log("FIRST ORDER FULL:", nextOrders?.[0]);
-    console.log("ITEMS FIELD:", nextOrders?.[0]?.items);
+    if (Array.isArray(res)) {
+      nextOrders = res;
+    }
+    else if (Array.isArray(res?.result?.content)) {
+      nextOrders = res.result.content;
+    }
+    else if (Array.isArray(res?.result)) {
+      nextOrders = res.result;
+    }
+    else if (Array.isArray(res?.data)) {
+      nextOrders = res.data;
+    }
+    else if (Array.isArray(res?.content)) {
+      nextOrders = res.content;
+    }
+
+    console.log("NEXT ORDERS:", nextOrders);
 
     setOrders(nextOrders);
   } catch (error) {
@@ -282,14 +295,14 @@ const loadOrders = async () => {
         onClose={() => setReviewOrder(null)}
         onReview={(item) => {
           navigate(
-            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&itemId=${item.bookId}`
+            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&`
           );
 
           setReviewOrder(null);
         }}
         onViewReview={(item) => {
           navigate(
-            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&itemId=${item.bookId}&view=review`
+            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&itemId=${item.itemId}&view=review`
           );
 
           setReviewOrder(null);

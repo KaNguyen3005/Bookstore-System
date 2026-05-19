@@ -185,4 +185,12 @@ export const addressApi = {
       wardName: item.WardName,
     }));
   },
+
+    setDefault: async (id: number) => {
+      const res = await axiosClient.patch(
+        `/addresses/${id}/default`
+      );
+
+      return res.data?.result;
+    },
 };

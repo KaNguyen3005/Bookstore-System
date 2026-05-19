@@ -86,4 +86,22 @@ export const evaluateApi = {
 
       return response.data.result;
     },
+
+
+    reviewOrderItem: async (
+      orderId: number,
+      itemId: number,
+      data: {
+        rating: number;
+        content: string;
+      }
+    ) => {
+      const res = await axiosClient.patch(
+        `/orders/${orderId}/items/${itemId}`,
+        data,
+        getAuthHeader()
+      );
+
+      return res.data?.result;
+    },
 };
