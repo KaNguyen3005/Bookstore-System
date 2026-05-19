@@ -54,6 +54,7 @@ import { OrderManagement } from "../features/admin/orderManagement";
 import { VoucherManagement } from "../features/admin/voucherManagement";
 import { CategoryManagement } from "../features/admin/categoryManagement";
 import { PublisherManagement } from "../features/admin/publisherManagement";
+import { RoleManagement } from "../features/admin/roleManagement";
 
 /*search*/
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
@@ -274,6 +275,11 @@ export default function AppRoutes() {
           <Route
             path="vouchers"
             element={<VoucherManagement />}
+          />
+
+          <Route
+            path="role"
+            element={<RoleManagement />}
           />
 
         </Route>

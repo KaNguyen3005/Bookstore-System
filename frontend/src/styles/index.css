@@ -1,20 +1,20 @@
 @font-face {
   font-family: "SF Pro";
-  src: url("./assets/fonts/SF-Pro-Display-Regular.otf") format("opentype");
+  src: url("../assets/fonts/SF-Pro-Display-Regular.otf") format("opentype");
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
   font-family: "SF Pro";
-  src: url("./assets/fonts/SF-Pro-Display-Bold.otf") format("opentype");
+  src: url("../assets/fonts/SF-Pro-Display-Bold.otf") format("opentype");
   font-weight: 700;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Urban Jungle";
-  src: url("./assets/fonts/UrbanJungle.otf") format("opentype");
+  src: url("../assets/fonts/UrbanJungleDEMO.otf") format("opentype");
   font-display: swap;
 }
 
