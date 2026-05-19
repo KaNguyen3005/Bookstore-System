@@ -101,8 +101,8 @@ export default function OrderModal({
             <span>Ngày đặt</span>
             <span>
               {new Date(
-                order.createdAt
-              ).toLocaleString()}
+                new Date(order.createdAt).getTime() + 7 * 60 * 60 * 1000
+              ).toLocaleString("vi-VN")}
             </span>
           </div>
         </div>

@@ -198,3 +198,19 @@
 .logo-img:hover {
   transform: scale(1.05);
 }
+
+.google-btn {
+  width: 67%;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.google-btn > div {
+  width: 100% !important;
+  border-radius: 15px !important;
+}
+
+.google-btn iframe {
+  width: 100% !important;
+  border-radius: 15px !important;
+}

@@ -2,6 +2,8 @@ import styles from "./ReviewModal.module.css";
 
 type ReviewItem = {
   bookId: number | string;
+  orderId?: number | string;
+  itemId?: number | string;
   bookTitle?: string;
   quantity?: number;
   hasReview?: boolean;
@@ -29,8 +31,6 @@ type Props = {
   onViewReview: (item: ReviewItem) => void;
 };
 
-
-
 const getBookImage = (item: ReviewItem) =>
   item?.coverImage ||
   item?.coverImageUrl ||
@@ -47,6 +47,7 @@ export default function ReviewModal({
   onViewReview,
 }: Props) {
   if (!order) return null;
+
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -94,7 +95,13 @@ export default function ReviewModal({
                 {!item.hasReview ? (
                   <button
                     className={styles.reviewBtn}
-                    onClick={() => onReview(item)}
+                    onClick={() =>
+                      onReview({
+                        ...item,
+                        orderId: order.orderId,
+                        itemId: item.bookId,
+                      })
+                    }
                   >
                     Đánh giá
                   </button>

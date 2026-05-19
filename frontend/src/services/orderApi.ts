@@ -18,12 +18,6 @@ export const getOrderById = async (id: number | string) => {
   return res.data;
 };
 
-// ================= CANCEL ORDER =================
-export const cancelOrder = async (id: number | string) => {
-  const res = await axiosClient.post(`/orders/${id}/cancel`);
-  return res.data;
-};
-
 // ================= REVIEW ITEM =================
 export const reviewOrderItem = async (
   orderId: number | string,
@@ -35,6 +29,12 @@ export const reviewOrderItem = async (
     payload
   );
 
+  return res.data;
+};
+
+// ================= CANCEL ORDER =================
+export const cancelOrder = async (id: number) => {
+  const res = await axiosClient.post(`/orders/${id}/cancel`);
   return res.data;
 };
 
