@@ -278,7 +278,6 @@ export const useCustomerManagement = () => {
           const updatedUser = await userApi.updateUser({
             userId: editingUser.userId,
             username: form.username.trim(),
-            password: form.password.trim() || undefined,
             name: form.name.trim(),
             email: form.email.trim(),
             phone: form.phone.trim(),

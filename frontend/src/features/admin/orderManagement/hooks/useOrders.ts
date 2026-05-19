@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Order, OrderStatus } from "../types/order";
 import { orderService, type OrdersResponse } from "../services/orderService";
 
@@ -53,39 +53,114 @@ export const useOrders = () => {
     }
   };
 
+  const orderTime = (order: Order) => {
+    const time = new Date(order.createdAt).getTime();
+
+    return Number.isNaN(time) ? 0 : time;
+  };
+
+  const sortNewestFirst = (first: Order, second: Order) => {
+    const timeDiff = orderTime(second) - orderTime(first);
+
+    if (timeDiff !== 0) return timeDiff;
+
+    return (second.orderId ?? 0) - (first.orderId ?? 0);
+  };
+
   const fetchOrders = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await orderService.getOrders({
-        page,
-        size,
+      const filters = {
         status:
           statusFilter === "Tất cả" ? undefined : mapStatusToData(statusFilter),
         keyword: searchTerm,
         startDate: dateRange.startDate?.toISOString(),
         endDate: dateRange.endDate?.toISOString(),
+      };
+      const summary = await orderService.getOrders({
+        ...filters,
+        page: 0,
+        size: 1,
+        sort: "createdAt,desc",
       });
+      const response = await orderService.getOrders({
+        ...filters,
+        page: 0,
+        size: Math.max(summary.totalElements, size),
+        sort: "createdAt,desc",
+      });
+
       setData(response);
     } catch (err) {
       setError("Không thể tải danh sách đơn hàng");
     } finally {
       setLoading(false);
     }
-  }, [page, size, statusFilter, searchTerm, dateRange]);
+  }, [size, statusFilter, searchTerm, dateRange]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
+  useEffect(() => {
+    setPage(0);
+  }, [statusFilter, searchTerm, dateRange]);
+
   // ================= DATA PREPARATION =================
-  const rawOrders = Array.isArray(data) ? data : (data?.content ?? []);
+  const rawOrders = useMemo(
+    () => (Array.isArray(data) ? data : (data?.content ?? [])),
+    [data],
+  );
 
   // Lọc dữ liệu tại Frontend để đảm bảo chính xác tuyệt đối (phòng trường hợp Backend chưa lọc chuẩn)
-  const safeOrders = rawOrders.filter((order: Order) => {
-    if (statusFilter === "Tất cả") return true;
+  const safeOrders = useMemo(() => {
     const mappedStatus = mapStatusToData(statusFilter);
-    return order.status === mappedStatus;
-  });
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const startTime = dateRange.startDate
+      ? new Date(dateRange.startDate).setHours(0, 0, 0, 0)
+      : undefined;
+    const endTime = dateRange.endDate
+      ? new Date(dateRange.endDate).setHours(23, 59, 59, 999)
+      : undefined;
+
+    return [...rawOrders]
+      .filter((order: Order) => {
+        if (mappedStatus && order.status !== mappedStatus) return false;
+
+        if (normalizedSearch) {
+          const fields = [
+            order.orderId,
+            order.customerName,
+            order.status,
+            order.paymentStatus,
+          ];
+
+          const matchedSearch = fields.some((field) =>
+            String(field ?? "").toLowerCase().includes(normalizedSearch),
+          );
+
+          if (!matchedSearch) return false;
+        }
+
+        const createdTime = orderTime(order);
+
+        if (startTime !== undefined && createdTime < startTime) return false;
+        if (endTime !== undefined && createdTime > endTime) return false;
+
+        return true;
+      })
+      .sort(sortNewestFirst);
+  }, [rawOrders, statusFilter, searchTerm, dateRange]);
+
+  const totalPages = Math.max(1, Math.ceil(safeOrders.length / size));
+  const paginatedOrders = safeOrders.slice(page * size, page * size + size);
+
+  useEffect(() => {
+    if (page > totalPages - 1) {
+      setPage(totalPages - 1);
+    }
+  }, [page, totalPages]);
 
   // ================= HANDLERS =================
   const handleApprove = async (id: number) => {
@@ -249,9 +324,9 @@ export const useOrders = () => {
 
   return {
     // Data
-    orders: safeOrders,
-    totalOrders: Array.isArray(data) ? data.length : (data?.totalElements ?? 0),
-    totalPages: Array.isArray(data) ? 1 : (data?.totalPages ?? 0),
+    orders: paginatedOrders,
+    totalOrders: safeOrders.length,
+    totalPages,
     currentPage: page,
     pageSize: size,
     loading,

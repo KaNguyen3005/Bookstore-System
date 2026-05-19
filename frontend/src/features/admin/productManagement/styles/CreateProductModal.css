@@ -3,7 +3,12 @@
 .create-product-modal {
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: 2000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+  overflow-y: auto;
 }
 
 .create-product-modal__overlay {
@@ -18,11 +23,11 @@
 
   width: 1000px;
   max-width: 95%;
-  max-height: 92vh;
+  max-height: calc(100vh - 48px);
 
   overflow-y: auto;
 
-  margin: 30px auto;
+  margin: 0 auto;
 
   background: #ffffff;
 
@@ -198,6 +203,12 @@
   color: #9ca3af;
 }
 
+.form-group .field-error {
+  color: #dc2626;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 /* ================= FOOTER ================= */
 
 .create-product-modal__footer {
@@ -264,12 +275,72 @@
   font-weight: 600;
 }
 
+/* ================= DETAIL VIEW ================= */
+
+.product-detail-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+}
+
+.product-detail-cover {
+  width: 220px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.product-detail-grid div,
+.product-detail-description {
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.product-detail-grid span,
+.product-detail-description span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.product-detail-grid strong {
+  color: #111827;
+  line-height: 1.4;
+}
+
+.product-detail-description {
+  margin-top: 24px;
+}
+
+.product-detail-description p {
+  margin: 0;
+  line-height: 1.6;
+  color: #374151;
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 768px) {
+  .create-product-modal {
+    padding: 16px 10px;
+  }
+
   .create-product-modal__content {
     width: 95%;
-    margin: 20px auto;
+    max-height: calc(100vh - 32px);
+    margin: 0 auto;
     border-radius: 22px;
   }
 
@@ -287,6 +358,16 @@
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .product-detail-layout,
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-detail-cover {
+    width: 100%;
+    max-width: 260px;
   }
 
   .create-product-modal__header h2 {

@@ -2,6 +2,7 @@ import React from "react";
 
 import {
   Edit,
+  Eye,
   Trash2,
 } from "lucide-react";
 
@@ -16,6 +17,10 @@ interface ProductTableProps {
 
   onDelete: (bookId: number) => void;
 
+  onView: (book: Book) => void;
+
+  onEdit: (book: Book) => void;
+
   onUpdateStatus: (
     bookId: number,
     isActive: boolean
@@ -28,6 +33,8 @@ export const ProductTable: React.FC<
   products,
   loading,
   onDelete,
+  onView,
+  onEdit,
   onUpdateStatus,
 }) => {
 
@@ -226,6 +233,13 @@ export const ProductTable: React.FC<
                     <Edit
                       className="product-table__action product-table__action--edit"
                       size={18}
+                      onClick={() => onEdit(book)}
+                    />
+
+                    <Eye
+                      className="product-table__action product-table__action--view"
+                      size={18}
+                      onClick={() => onView(book)}
                     />
 
                     <Trash2

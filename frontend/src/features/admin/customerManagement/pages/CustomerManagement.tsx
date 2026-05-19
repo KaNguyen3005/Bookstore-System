@@ -229,33 +229,34 @@ export default function CustomerManagement() {
                 )}
               </label>
 
-              <label>
-                Mật khẩu
-                <div className="password-input-wrap">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={form.password}
-                    placeholder={
-                      formMode === "edit" ? "Để trống nếu không đổi" : ""
-                    }
-                    onChange={(event) =>
-                      updateFormField("password", event.target.value)
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                    title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  >
-                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
-                </div>
-                {fieldErrors.password && (
-                  <span className="field-error">{fieldErrors.password}</span>
-                )}
-              </label>
+              {formMode === "create" && (
+                <label>
+                  Mật khẩu
+                  <div className="password-input-wrap">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      onChange={(event) =>
+                        updateFormField("password", event.target.value)
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={
+                        showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+                      }
+                      title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                  {fieldErrors.password && (
+                    <span className="field-error">{fieldErrors.password}</span>
+                  )}
+                </label>
+              )}
 
               <label>
                 Tên đăng nhập

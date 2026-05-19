@@ -116,5 +116,6 @@
   transition: color 0.2s;
 }
 
+.product-table__action--view:hover { color: #2563eb; }
 .product-table__action--edit:hover { color: #5f857a; }
 .product-table__action--delete:hover { color: #ef4444; }
