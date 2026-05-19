@@ -141,10 +141,11 @@ const ProductDetailPage: React.FC = () => {
         {/* REVIEWS */}
         <div className="mt-4">
           <Evaluate
+            orderId={orderId}
+            itemId={itemId}
             reviews={reviews}
             myReview={myReview}
             orderStatus={orderStatus}
-            onSuccess={fetchReviews}
           />
         </div>
 

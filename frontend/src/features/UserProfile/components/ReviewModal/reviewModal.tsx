@@ -29,6 +29,8 @@ type Props = {
   onViewReview: (item: ReviewItem) => void;
 };
 
+
+
 const getBookImage = (item: ReviewItem) =>
   item?.coverImage ||
   item?.coverImageUrl ||

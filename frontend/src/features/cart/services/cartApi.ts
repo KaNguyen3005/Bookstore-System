@@ -22,7 +22,7 @@ const getMockCart = (): CartItemType[] => {
 
     const parsed = JSON.parse(saved);
 
-    // ✅ validate là array + lọc data rác
+    //  validate là array + lọc data rác
     if (!Array.isArray(parsed)) return [];
 
     return parsed.filter((item) => item && item.book && item.book.bookId);

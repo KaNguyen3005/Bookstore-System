@@ -53,8 +53,17 @@ export default function AddressPage() {
 
   // ================= SET DEFAULT =================
   const handleDefault = async (id: number) => {
-    await addressApi.setDefault(id);
-    fetchData();
+    try {
+      await addressApi.setDefault(id);
+
+      await fetchData();
+
+      alert("Đặt địa chỉ mặc định thành công!");
+    } catch (error) {
+      console.error(error);
+
+      alert("Không thể đặt mặc định!");
+    }
   };
 
   return (
