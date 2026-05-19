@@ -11,6 +11,8 @@ const formatPrice = (price: number): string =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({ totals, itemCount }) => {
+
+    const vat = totals.subtotal * 0.05;
   return (
     <section className="order-summary" aria-label="Tóm tắt đơn hàng">
       <div className="order-summary__header">
@@ -25,25 +27,32 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ totals, itemCount }) => {
         </div>
 
         <div className="order-summary__row">
+          <span>VAT (5%)</span>
+          <span>{formatPrice(vat)}</span>
+        </div>
+
+        <div className="order-summary__row">
           <span>Phí vận chuyển</span>
           <span className={totals.shippingFee === 0 ? 'order-summary__free' : ''}>
             {totals.shippingFee === 0 ? 'Miễn phí' : formatPrice(totals.shippingFee)}
           </span>
         </div>
 
-        {totals.discount > 0 && (
-          <div className="order-summary__row order-summary__row--discount">
-            <span>Giảm giá trực tiếp</span>
-            <span>-{formatPrice(totals.discount)}</span>
-          </div>
-        )}
+            {totals.discount > 0 && (
+              <div className="order-summary__row order-summary__row--discount">
+                <span>Giảm giá trực tiếp</span>
+                <span>-{formatPrice(totals.discount)}</span>
+              </div>
+            )}
 
-        {totals.shippingDiscount > 0 && (
-          <div className="order-summary__row order-summary__row--discount">
-            <span>Giảm giá phí vận chuyển</span>
-            <span>-{formatPrice(totals.shippingDiscount)}</span>
-          </div>
-        )}
+            {totals.shippingDiscount > 0 && (
+              <div className="order-summary__row order-summary__row--discount">
+                <span>Giảm giá phí vận chuyển</span>
+                <span>-{formatPrice(totals.shippingDiscount)}</span>
+              </div>
+            )}
+
+
       </div>
 
       <div className="order-summary__divider" />

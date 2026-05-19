@@ -1,0 +1,110 @@
+.container {
+  padding: 40px;
+  max-width: 1100px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2b2b2b;
+}
+
+.subtitle {
+  color: #777;
+  margin-top: 6px;
+}
+
+/* SEARCH */
+.searchBox {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.searchInput {
+  width: 60%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: #4a90e2;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* CARD */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.cardTitle {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* FAQ */
+.faqItem {
+  margin-bottom: 15px;
+}
+
+.faqItem h3 {
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: #222;
+}
+
+.faqItem p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* CONTACT */
+.info {
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.button {
+  margin-top: 15px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #4a90e2;
+  color: white;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #357bd8;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+}

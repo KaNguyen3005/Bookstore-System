@@ -1,28 +1,58 @@
 import { useState } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  Link,
+  Navigate,
+} from "react-router-dom";
+
 import { useAuth } from "../../hooks/useAuth";
+
 import "./Login.css";
+
 import logo from "../../../../assets/images/logo-auth.png";
 
-
 import { FcGoogle } from "react-icons/fc";
+
 import { authApi } from "../../../../services/authApi";
 
 const Login = () => {
   const navigate = useNavigate();
+
   const location = useLocation();
-  const { login } = useAuth();
+
+  const { login, isAuthenticated, user } = useAuth();
 
   const [account, setAccount] = useState("");
+
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
 
   const [accountError, setAccountError] = useState(false);
+
   const [passwordError, setPasswordError] = useState(false);
 
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from || "/";
+
+  const normalizeRole = (value?: string) =>
+    value?.trim().toUpperCase().replace(/^ROLE_/, "");
+
+  // đã login -> redirect luôn
+ const hasToken = !!localStorage.getItem("access_token");
+
+ if (hasToken && user) {
+   const role = normalizeRole(user.role);
+
+   return (
+     <Navigate
+       to={role === "ADMIN" ? "/admin" : "/"}
+       replace
+     />
+   );
+ }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,10 +60,12 @@ const Login = () => {
     if (loading) return;
 
     setError("");
+
     setAccountError(false);
+
     setPasswordError(false);
 
-    // ================= VALIDATE =================
+    // validate
     if (!account.trim()) {
       setAccountError(true);
       setError("Vui lòng nhập tài khoản");
@@ -49,47 +81,48 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // 🔥 AUTH API ĐÃ TRẢ FULL USER + TOKEN
       const user = await authApi.login({
         account,
         password,
       });
 
-      console.log("LOGIN SUCCESS:", user);
-
       if (!user || !(user.userId || user.id)) {
-        setAccountError(true);
-        setPasswordError(true);
-        setError("Sai tài khoản hoặc mật khẩu");
-        return;
+        throw new Error("Invalid credentials");
       }
 
-      // ================= SAVE AUTH =================
-
       login(user);
-      setTimeout(() => {
-        const role = user.role?.trim().toUpperCase();
 
+      const role = normalizeRole(user.role);
+
+      setTimeout(() => {
         navigate(role === "ADMIN" ? "/admin" : from, {
           replace: true,
         });
       }, 0);
+
     } catch (error: any) {
       console.error("LOGIN ERROR:", error);
 
       const msg = error?.message;
 
-      // backend error mapping (từ authApi throw Error)
       const mapError: Record<string, string> = {
-        "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
-        "Login failed": "Sai tài khoản hoặc mật khẩu",
-        "Token not found": "Sai tài khoản hoặc mật khẩu",
+        "Invalid credentials":
+          "Sai tài khoản hoặc mật khẩu",
+
+        "Login failed":
+          "Sai tài khoản hoặc mật khẩu",
+
+        "Token not found":
+          "Sai tài khoản hoặc mật khẩu",
       };
 
       setAccountError(true);
+
       setPasswordError(true);
 
-      setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
+      setError(
+        mapError[msg] || "Sai tài khoản hoặc mật khẩu"
+      );
     } finally {
       setLoading(false);
     }
@@ -98,17 +131,31 @@ const Login = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <img src={logo} alt="KATIIA BOOKSTORE" className="logo-img-auth-login" />
-        <p className="subtitle">Đăng nhập tài khoản</p>
+        <img
+          src={logo}
+          alt="KATIIA BOOKSTORE"
+          className="logo-img-auth-login"
+        />
 
-        {error && <div className="error-message">{error}</div>}
+        <p className="subtitle">
+          Đăng nhập tài khoản
+        </p>
 
-        <form className="login-form" onSubmit={handleLogin}>
+        {error && (
+          <div className="error-message">{error}</div>
+        )}
+
+        <form
+          className="login-form"
+          onSubmit={handleLogin}
+        >
           <input
             type="text"
             placeholder="Email hoặc tên đăng nhập"
             value={account}
-            className={accountError ? "input error" : "input"}
+            className={
+              accountError ? "input error" : "input"
+            }
             onChange={(e) => {
               setAccount(e.target.value);
               setAccountError(false);
@@ -120,7 +167,9 @@ const Login = () => {
             type="password"
             placeholder="Mật khẩu"
             value={password}
-            className={passwordError ? "input error" : "input"}
+            className={
+              passwordError ? "input error" : "input"
+            }
             onChange={(e) => {
               setPassword(e.target.value);
               setPasswordError(false);
@@ -129,22 +178,35 @@ const Login = () => {
           />
 
           <div className="forgot-wrapper">
-            <div className="forgot">Quên mật khẩu</div>
+            <div className="forgot">
+              Quên mật khẩu
+            </div>
           </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+          <button
+            type="submit"
+            disabled={loading}
+          >
+            {loading
+              ? "Đang đăng nhập..."
+              : "Đăng nhập"}
           </button>
         </form>
 
         <div className="social-wrapper">
-          <button className="social" disabled={loading}>
+          <button
+            className="social"
+            disabled={loading}
+          >
             <FcGoogle size={20} />
             Đăng nhập với Google
           </button>
         </div>
 
-        <Link to="/register" className="register">
+        <Link
+          to="/register"
+          className="register"
+        >
           Đăng ký tài khoản
         </Link>
       </div>

@@ -54,7 +54,17 @@ function Home() {
   }, [topPage]);
 
   /* ───────── LOADING GUARD ───────── */
-  if (loading || !homeData) return null;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+    if (!homeData) {
+      return (
+        <div className="home-empty">
+          Không thể tải dữ liệu trang chủ
+        </div>
+      );
+    }
 
   /* ───────── SUGGESTION ───────── */
   const suggestionBooks = aiSuggestions || [];
