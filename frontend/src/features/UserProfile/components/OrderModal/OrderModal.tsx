@@ -24,6 +24,17 @@ const getStatusLabel = (status: string) => {
   return map[status] || status;
 };
 
+const getPaymentStatusLabel = (status: string) => {
+  const map: Record<string, string> = {
+    PAID: "Đã thanh toán",
+    UNPAID: "Chưa thanh toán",
+    FAILED: "Thanh toán thất bại",
+    REFUNDED: "Đã hoàn tiền",
+  };
+
+  return map[status] || status;
+};
+
 const getOrderItemCoverImage = (item: any) =>
   item?.coverImage ||
   item?.coverImageUrl ||
@@ -83,7 +94,7 @@ export default function OrderModal({
 
           <div className={styles.row}>
             <span>Thanh toán</span>
-            <span>{order.paymentStatus}</span>
+            <span>{getPaymentStatusLabel(order.paymentStatus)}</span>
           </div>
 
           <div className={styles.row}>

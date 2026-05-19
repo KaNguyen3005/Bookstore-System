@@ -5,9 +5,11 @@ type Props = {
   onLogout: () => void;
   onProfile?: () => void;
   onPurchaseOrder?: () => void;
+  onSettingPage?: () => void;
+  onHelpPage?: () => void;
 };
 
-const DropdownUser: React.FC<Props> = ({ onLogout, onProfile, onPurchaseOrder }) => {
+const DropdownUser: React.FC<Props> = ({onLogout, onProfile, onPurchaseOrder, onSettingPage, onHelpPage}) => {
   return (
     <div className="dropdown-user">
       <div className="dropdown-item" onClick={onProfile}>
@@ -18,8 +20,8 @@ const DropdownUser: React.FC<Props> = ({ onLogout, onProfile, onPurchaseOrder })
         Đơn mua
       </div>
 
-      <div className="dropdown-item">Cài đặt</div>
-      <div className="dropdown-item">Trợ giúp</div>
+      <div className="dropdown-item" onClick ={onSettingPage}>Cài đặt</div>
+      <div className="dropdown-item" onClick ={onHelpPage}>Trợ giúp</div>
 
       <div className="dropdown-item" onClick={onLogout}>
         Đăng xuất

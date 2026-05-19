@@ -35,6 +35,8 @@ import Address from "../features/UserProfile/components/Address/Address";
 import Voucher from "../features/UserProfile/components/Voucher/Voucher";
 import MemberRank from "../features/UserProfile/components/MemberRank/MemberRank";
 
+import SettingPage from "../features/setting/pages/settingPage";
+import HelpPage from "../features/help/pages/helpPage";
 /*auth*/
 import Login from "../features/auth/pages/Login/Login";
 import Register from "../features/auth/pages/Register/Register";
@@ -55,7 +57,6 @@ import { PublisherManagement } from "../features/admin/publisherManagement";
 
 /*search*/
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
-
 
 export default function AppRoutes() {
 
@@ -191,6 +192,10 @@ export default function AppRoutes() {
           />
 
         </Route>
+
+        {/* chuc nang SETTING + HELP */}
+        <Route path ="setting" element ={<SettingPage/>} />
+        <Route path ="help" element = {<HelpPage/>} />
 
         {/* ========================= AUTH ========================= */}
 

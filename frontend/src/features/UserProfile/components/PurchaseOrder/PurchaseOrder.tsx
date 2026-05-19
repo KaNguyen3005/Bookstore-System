@@ -7,6 +7,8 @@ import { useAuth } from "../../../../features/auth/hooks/useAuth";
 import styles from "./PurchaseOrder.module.css";
 import OrderModal from "../OrderModal/OrderModal";
 
+import ReviewModal from "../ReviewModal/reviewModal";
+
 const getOrderItemCoverImage = (item: any) =>
   item?.coverImage ||
   item?.coverImageUrl ||
@@ -24,6 +26,7 @@ export default function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [reviewOrder, setReviewOrder] = useState<any | null>(null);
 
   const tabs = [
     { key: "ALL", label: "Tất cả" },
@@ -130,34 +133,11 @@ const loadOrders = async () => {
       case "COMPLETED":
         return (
           <>
-            {order.items?.map((item: any) => (
-              <div key={item.bookId}>
-                {!item.hasReview ? (
-                  <button
-                    onClick={() =>
-                      navigate(
-                        `/product/${item.bookId}?orderId=${order.orderId}&itemId=${item.bookId}`
-                      )
-                    }
-                  >
-                    Đánh giá
-                  </button>
-                ) : (
-                  <button
-                    onClick={() =>
-                      navigate(
-                        `/product/${item.bookId}?orderId=${order.orderId}&itemId=${item.bookId}&view=review`
-                      )
-                    }
-                  >
-                    Xem đánh giá
-                  </button>
-                )}
-              </div>
-            ))}
+            <button onClick={() => setReviewOrder(order)}>
+                 Đánh giá sản phẩm
+            </button>
 
             <button>Mua lại</button>
-            <button>Hoàn tiền</button>
             <button>Liên hệ</button>
             <button onClick={() => setSelectedOrder(order)}>
               Xem chi tiết
@@ -295,6 +275,25 @@ const loadOrders = async () => {
       <OrderModal
         order={selectedOrder}
         onClose={() => setSelectedOrder(null)}
+      />
+
+      <ReviewModal
+        order={reviewOrder}
+        onClose={() => setReviewOrder(null)}
+        onReview={(item) => {
+          navigate(
+            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&itemId=${item.bookId}`
+          );
+
+          setReviewOrder(null);
+        }}
+        onViewReview={(item) => {
+          navigate(
+            `/product/${item.bookId}?orderId=${reviewOrder.orderId}&itemId=${item.bookId}&view=review`
+          );
+
+          setReviewOrder(null);
+        }}
       />
     </>
   );

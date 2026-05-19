@@ -165,7 +165,7 @@ const Header: React.FC = () => {
       : location.pathname.startsWith(path);
   };
 
-  if (loading) return null;
+  const isGuest = !user;
 
   /* ================= UI ================= */
   return (
@@ -237,7 +237,7 @@ const Header: React.FC = () => {
           </Link>
 
           {/* USER */}
-          {user ? (
+          {!loading && user ? (
             <div className="action-item user-menu" ref={menuRef}>
               <div
                 className="user-trigger-us"
@@ -265,6 +265,19 @@ const Header: React.FC = () => {
                     setOpen(false);
                     navigate("/profile/purchaseorder");
                   }}
+
+                  onSettingPage={() =>{
+                    scrollToTop();
+                    setOpen(false);
+                    navigate("/setting");
+                  }}
+
+                  onHelpPage={()=> {
+                    scrollToTop();
+                    setOpen(false);
+                    navigate("/help");
+                  }}
+
                 />
               )}
             </div>

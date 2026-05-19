@@ -53,7 +53,7 @@ const CartSummary: React.FC = () => {
         <span>Tổng cộng</span>
         <span className="cart-summary-total-price">{formatPrice(total)}</span>
       </div>
-      <p className="cart-summary-vat-note">(Đã bao gồm VAT nếu có)</p>
+      <p className="cart-summary-vat-note">(Giá này chưa bao gồm thuế GTGT, phí đóng gói, phí vận chuyển và các chi phí phát sinh khác)</p>
 
       <button
         className={`cart-summary-checkout-btn ${selectedItems.length === 0 ? "disabled" : ""}`}
