@@ -7,6 +7,15 @@ import type {
   UserRoleResponse,
 } from "../types/role";
 
+const getPayload = (data: any) => data?.result ?? data?.data ?? data;
+
+const getArrayPayload = <T>(data: any): T[] => {
+  const payload = getPayload(data);
+  const items = payload?.content ?? payload;
+
+  return Array.isArray(items) ? items : [];
+};
+
 export const roleService = {
   getRoles: async (): Promise<RoleResponse[]> => {
     const res = await axiosClient.get<ApiResponse<RoleResponse[]>>(
@@ -14,7 +23,7 @@ export const roleService = {
       { skipAuthRedirect: true } as any
     );
 
-    return res.data.result ?? [];
+    return getArrayPayload<RoleResponse>(res.data);
   },
 
   createRole: async (payload: RoleRequest): Promise<RoleResponse> => {
@@ -48,7 +57,7 @@ export const roleService = {
       { skipAuthRedirect: true } as any
     );
 
-    return res.data.result ?? [];
+    return getArrayPayload<PermissionResponse>(res.data);
   },
 
   getUsers: async (): Promise<UserRoleResponse[]> => {
@@ -57,7 +66,7 @@ export const roleService = {
       { skipAuthRedirect: true } as any
     );
 
-    return res.data.result ?? [];
+    return getArrayPayload<UserRoleResponse>(res.data);
   },
 
   updateUserRole: async (
