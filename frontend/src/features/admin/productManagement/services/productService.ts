@@ -1,4 +1,5 @@
 import axiosClient from "../../../../services/axiosClient";
+import type { Book } from "../../../product/types/Book";
 
 export interface CreateBookPayload {
   title: string;
@@ -10,12 +11,61 @@ export interface CreateBookPayload {
   pageCount?: number;
   coverType: string;
   coverImgFile?: File;
+  coverImgUrl?: string;
   stockQuantity?: number;
   price: number;
   avgRating?: number;
   salePercent?: number;
   categoryIds: number[];
 }
+
+export interface UpdateBookPayload {
+  title: string;
+  authorIds: number[];
+  publisherId?: number;
+  isbn: string;
+  language: string;
+  description?: string;
+  pageCount?: number;
+  coverType: string;
+  coverImg?: File;
+  stockQuantity?: number;
+  isActive?: boolean;
+  price: number;
+  avgRating?: number;
+  salePercent?: number;
+  categories: number[];
+}
+
+export interface UpdateProductStatusPayload {
+  isActive: boolean;
+  stockQuantity: number;
+}
+
+const isDeletedBook = (book: Book) => {
+  return Boolean(book.deletedAt);
+};
+
+const normalizeProductsResponse = (result: any) => {
+  const content: Book[] = result.content ?? [];
+  const visibleContent = content.filter((book) => !isDeletedBook(book));
+
+  return {
+    ...result,
+    content: visibleContent,
+    numberOfElements: visibleContent.length,
+  };
+};
+
+const appendIfDefined = (
+  formData: FormData,
+  key: string,
+  value: string | number | File | undefined,
+) => {
+  if (value === undefined || value === "") return;
+
+  formData.append(key, value instanceof File ? value : String(value));
+};
 
 export const productService = {
   // ================= GET PRODUCTS (FILTER FULL) =================
@@ -43,7 +93,7 @@ export const productService = {
       params,
     });
 
-    return response.data.result;
+    return normalizeProductsResponse(response.data.result);
   },
 
   // ================= SEARCH =================
@@ -52,7 +102,7 @@ export const productService = {
       params: { keyword },
     });
 
-    return response.data.result.content;
+    return normalizeProductsResponse(response.data.result).content;
   },
 
   // ================= CATEGORIES =================
@@ -143,8 +193,54 @@ export const productService = {
   },
 
   // ================= UPDATE =================
-  async updateProduct(bookId: number, payload: unknown) {
-    return axiosClient.patch(`/books/${bookId}`, payload);
+  async updateProduct(bookId: number, payload: UpdateBookPayload) {
+    const formData = new FormData();
+
+    appendIfDefined(formData, "title", payload.title);
+    payload.authorIds.forEach((id) => formData.append("authorIds", String(id)));
+    appendIfDefined(formData, "publisherId", payload.publisherId);
+    appendIfDefined(formData, "isbn", payload.isbn);
+    appendIfDefined(formData, "language", payload.language);
+    appendIfDefined(formData, "description", payload.description);
+    appendIfDefined(formData, "pageCount", payload.pageCount);
+    appendIfDefined(formData, "coverType", payload.coverType);
+    appendIfDefined(formData, "coverImg", payload.coverImg);
+    appendIfDefined(formData, "stockQuantity", payload.stockQuantity);
+    appendIfDefined(
+      formData,
+      "isActive",
+      payload.isActive === undefined ? undefined : String(payload.isActive),
+    );
+    appendIfDefined(formData, "price", payload.price);
+    appendIfDefined(formData, "avgRating", payload.avgRating);
+    appendIfDefined(formData, "salePercent", payload.salePercent);
+    payload.categories.forEach((id) => formData.append("categories", String(id)));
+
+    const response = await axiosClient.patch(`/books/${bookId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data.result;
+  },
+
+  async updateProductStatus(
+    bookId: number,
+    payload: UpdateProductStatusPayload,
+  ) {
+    const formData = new FormData();
+
+    appendIfDefined(formData, "isActive", String(payload.isActive));
+    appendIfDefined(formData, "stockQuantity", payload.stockQuantity);
+
+    const response = await axiosClient.patch(`/books/${bookId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data.result;
   },
 };
 

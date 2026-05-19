@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 
+import { Pagination } from "../../orderManagement/components/Pagination";
 import UserDetail from "../components/UserDetail/UserDetail";
 import { useCustomerManagement } from "../hooks/useCustomerManagement";
 
@@ -27,7 +28,10 @@ const splitName = (name: string) => {
 export default function CustomerManagement() {
   const [showPassword, setShowPassword] = useState(false);
   const {
-    list,
+    totalElements,
+    totalPages,
+    currentPage,
+    setPage,
     keyword,
     setKeyword,
     selectedUser,
@@ -55,7 +59,7 @@ export default function CustomerManagement() {
 
       <div className="card-sum">
         <h3>Tổng số tài khoản</h3>
-        <p>{list.length}</p>
+        <p>{totalElements}</p>
       </div>
 
       <div className="search-cm">
@@ -167,6 +171,12 @@ export default function CustomerManagement() {
               })}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
 
       {selectedUser && (
@@ -219,33 +229,34 @@ export default function CustomerManagement() {
                 )}
               </label>
 
-              <label>
-                Mật khẩu
-                <div className="password-input-wrap">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={form.password}
-                    placeholder={
-                      formMode === "edit" ? "Để trống nếu không đổi" : ""
-                    }
-                    onChange={(event) =>
-                      updateFormField("password", event.target.value)
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                    title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  >
-                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
-                </div>
-                {fieldErrors.password && (
-                  <span className="field-error">{fieldErrors.password}</span>
-                )}
-              </label>
+              {formMode === "create" && (
+                <label>
+                  Mật khẩu
+                  <div className="password-input-wrap">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      onChange={(event) =>
+                        updateFormField("password", event.target.value)
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={
+                        showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+                      }
+                      title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                  {fieldErrors.password && (
+                    <span className="field-error">{fieldErrors.password}</span>
+                  )}
+                </label>
+              )}
 
               <label>
                 Tên đăng nhập

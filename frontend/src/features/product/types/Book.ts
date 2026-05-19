@@ -40,4 +40,6 @@ export interface Book {
   }[] | null;
 
   isActive: boolean;
+
+  deletedAt?: string | null;
 }
