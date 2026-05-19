@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 import type { Category } from "../../../book-category/types/category";
 
@@ -11,9 +11,20 @@ import type {
 import {
   productService,
   type CreateBookPayload,
+  type UpdateBookPayload,
 } from "../services/productService";
+import { useToast } from "../../../../shared/components/Toast/ToastProvider";
+import type { Book } from "../../../product/types/Book";
+
+const getProductStatus = (book: Book) => {
+  if (!book.isActive) return "Tạm ngưng";
+  if (book.stockQuantity <= 0) return "Hết hàng";
+
+  return "Đang bán";
+};
 
 export const useProducts = () => {
+  const { showToast } = useToast();
 
   // ================= STATES =================
 
@@ -36,8 +47,17 @@ export const useProducts = () => {
   const [createLoading, setCreateLoading] =
     useState(false);
 
+  const [updateLoading, setUpdateLoading] =
+    useState(false);
+
   const [error, setError] =
     useState<string | null>(null);
+
+  const [page, setPage] =
+    useState(0);
+
+  const [size] =
+    useState(10);
 
   // ================= FILTERS =================
 
@@ -59,8 +79,8 @@ export const useProducts = () => {
 
         const data =
           await productService.getProducts({
-            page: 0,
-            size: 10000,
+            page,
+            size,
 
             keyword:
               filters.search || undefined,
@@ -98,6 +118,8 @@ export const useProducts = () => {
     [
       filters.search,
       filters.category,
+      page,
+      size,
     ],
   );
 
@@ -106,6 +128,10 @@ export const useProducts = () => {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [filters.search, filters.category]);
 
   // ================= SUMMARY =================
 
@@ -136,6 +162,14 @@ export const useProducts = () => {
     });
 
   }, [allProducts]);
+
+  const visibleProducts = useMemo(() => {
+    const content = allProducts?.content ?? [];
+
+    if (filters.status === "Tất cả trạng thái") return content;
+
+    return content.filter((book) => getProductStatus(book) === filters.status);
+  }, [allProducts, filters.status]);
 
   // ================= FILTER CHANGE =================
 
@@ -183,9 +217,7 @@ export const useProducts = () => {
         };
       });
 
-      alert(
-        "Thêm sản phẩm thành công",
-      );
+      showToast("Thêm sản phẩm thành công", "success");
 
       return true;
 
@@ -243,14 +275,46 @@ export const useProducts = () => {
         };
       });
 
-      alert("Xóa thành công");
+      showToast("Xóa sản phẩm thành công", "success");
 
     } catch {
-
       alert(
         "Đã xảy ra lỗi khi xóa sản phẩm",
       );
 
+    }
+  };
+
+  // ================= UPDATE PRODUCT =================
+
+  const handleUpdateProduct = async (
+    bookId: number,
+    payload: UpdateBookPayload,
+  ) => {
+    try {
+      setUpdateLoading(true);
+
+      const updatedBook = await productService.updateProduct(bookId, payload);
+
+      setAllProducts((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          content: prev.content.map((book) =>
+            book.bookId === bookId ? updatedBook : book,
+          ),
+        };
+      });
+
+      showToast("Cập nhật sản phẩm thành công", "success");
+      return true;
+    } catch (error) {
+      console.error(error);
+      alert("Có lỗi xảy ra khi cập nhật sản phẩm");
+      return false;
+    } finally {
+      setUpdateLoading(false);
     }
   };
 
@@ -262,12 +326,6 @@ export const useProducts = () => {
   ) => {
 
     try {
-
-      await productService.updateProduct(
-        bookId,
-        { isActive },
-      );
-
       setAllProducts((prev) => {
 
         if (!prev) return prev;
@@ -301,14 +359,20 @@ export const useProducts = () => {
   return {
     // data
     products:
-      allProducts?.content ?? [],
+      visibleProducts,
 
     categories,
     summary,
+    currentPage: page,
+    totalPages: allProducts?.totalPages ?? 0,
+    totalElements: allProducts?.totalElements ?? 0,
+    setPage,
+    pageSize: size,
 
     // loading
     loading,
     createLoading,
+    updateLoading,
 
     // error
     error,
@@ -319,6 +383,7 @@ export const useProducts = () => {
     // handlers
     handleFilterChange,
     handleCreateProduct,
+    handleUpdateProduct,
     handleDeleteProduct,
     handleUpdateStatus,
 

@@ -6,6 +6,10 @@ import { useProducts } from '../hooks/useProducts';
 import { ProductStats } from '../components/ProductStats';
 import { ProductFilters } from '../components/ProductFilters';
 import { ProductTable } from '../components/ProductTable';
+import { ProductDetailModal } from '../components/ProductDetailModal';
+import { ProductEditModal } from '../components/ProductEditModal';
+import type { Book } from '../../../product/types/Book';
+import { Pagination } from '../../orderManagement/components/Pagination';
 
 // Popup thêm sản phẩm
 import { CreateProductModal } from '../components/CreateProductModal';
@@ -19,18 +23,27 @@ const ProductManagementPage: React.FC = () => {
   // ================= MODAL STATE =================
   const [openCreateModal, setOpenCreateModal] =
     useState(false);
+  const [detailProduct, setDetailProduct] =
+    useState<Book | null>(null);
+  const [editingProduct, setEditingProduct] =
+    useState<Book | null>(null);
 
   const {
     products,
     categories,
     summary,
+    currentPage,
+    totalPages,
+    setPage,
     loading,
     filters,
     handleFilterChange,
     handleDeleteProduct,
     handleUpdateStatus,
     handleCreateProduct,
+    handleUpdateProduct,
     createLoading,
+    updateLoading,
   } = useProducts();
 
   return (
@@ -94,10 +107,18 @@ const ProductManagementPage: React.FC = () => {
         <ProductTable
           products={products}
           loading={loading}
+          onView={setDetailProduct}
+          onEdit={setEditingProduct}
           onDelete={handleDeleteProduct}
           onUpdateStatus={
             handleUpdateStatus
           }
+        />
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
         />
       </div>
 
@@ -109,6 +130,18 @@ const ProductManagementPage: React.FC = () => {
         }
         onCreate={handleCreateProduct}
         loading={createLoading}
+      />
+
+      <ProductDetailModal
+        product={detailProduct}
+        onClose={() => setDetailProduct(null)}
+      />
+
+      <ProductEditModal
+        product={editingProduct}
+        loading={updateLoading}
+        onClose={() => setEditingProduct(null)}
+        onUpdate={handleUpdateProduct}
       />
     </div>
   );
