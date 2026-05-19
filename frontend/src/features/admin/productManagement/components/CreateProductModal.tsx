@@ -23,6 +23,12 @@ type Option = {
   label: string;
 };
 
+const isValidIsbn = (isbn: string) => {
+  const normalizedIsbn = isbn.replace(/[-\s]/g, "");
+
+  return /^(?:\d{9}[\dXx]|\d{13})$/.test(normalizedIsbn);
+};
+
 export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   open,
   onClose,
@@ -42,6 +48,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   });
 
   const [coverImgFile, setCoverImgFile] = useState<File | null>(null);
+  const [isbnError, setIsbnError] = useState("");
 
   // ================= SELECT =================
   const [selectedAuthors, setSelectedAuthors] = useState<Option[]>([]);
@@ -103,6 +110,10 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "isbn") {
+      setIsbnError("");
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,6 +133,13 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       selectedCategories.length === 0
     ) {
       alert("Vui lòng điền đầy đủ các trường bắt buộc (*)");
+      return;
+    }
+
+    if (!isValidIsbn(formData.isbn)) {
+      setIsbnError(
+        "ISBN không đúng định dạng. Ví dụ hợp lệ: 978-604-2-12345-6 hoặc 0306406152.",
+      );
       return;
     }
 
@@ -162,6 +180,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       setSelectedCategories([]);
       setSelectedPublisher(null);
       setCoverImgFile(null);
+      setIsbnError("");
     }
   };
 
@@ -198,6 +217,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
               <div className="form-group">
                 <label>ISBN *</label>
                 <input name="isbn" value={formData.isbn} onChange={handleChange} />
+                {isbnError && <span className="field-error">{isbnError}</span>}
               </div>
             </div>
 
