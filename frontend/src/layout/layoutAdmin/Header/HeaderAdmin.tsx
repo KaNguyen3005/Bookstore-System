@@ -11,11 +11,14 @@ const HeaderAdmin: React.FC = () => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+    const displayName =
+      user?.name || user?.username || "User";
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -45,7 +48,9 @@ const HeaderAdmin: React.FC = () => {
             className="user-trigger"
           >
             <FaRegUserCircle />
-            <span>Admin</span>
+             <span>
+               {displayName} ({user?.role})
+             </span>
           </div>
 
           {open && (
