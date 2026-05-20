@@ -25,7 +25,6 @@ const SidebarAdmin = () => {
     { name: "Quản lý nhà xuất bản", path: "/admin/publishers", icon: Building2, hasChevron: true },
     { name: "Phân quyền & Vai trò", path: "/admin/role", icon: Users, hasChevron: true },
     { name: "Quản lý voucher", path: "/admin/vouchers", icon: Ticket, hasChevron: true },
-    { name: "Quản lý Báo cáo thống kê", path: "/admin/statistical_report", icon: BarChart2, hasChevron: true },
   ];
 
   return (

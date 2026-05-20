@@ -42,18 +42,22 @@ const Login = () => {
     value?.trim().toUpperCase().replace(/^ROLE_/, "");
 
   // đã login -> redirect luôn
- const hasToken = !!localStorage.getItem("access_token");
+const hasToken = !!localStorage.getItem("access_token");
 
- if (hasToken && user) {
-   const role = normalizeRole(user.role);
+if (hasToken && user) {
+  const role = normalizeRole(user.role);
 
-   return (
-     <Navigate
-       to={role === "ADMIN" ? "/admin" : "/"}
-       replace
-     />
-   );
- }
+  return (
+    <Navigate
+      to={
+        role === "ADMIN" || role === "STAFF"
+          ? "/admin"
+          : "/"
+      }
+      replace
+    />
+  );
+}
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +91,10 @@ const Login = () => {
         password,
       });
 
+  console.log("LOGIN USER:", user);
+  console.log("ROLE:", user.role);
+  console.log("NORMALIZED:", normalizeRole(user.role));
+
       if (!user || !(user.userId || user.id)) {
         throw new Error("Invalid credentials");
       }
@@ -96,9 +104,14 @@ const Login = () => {
       const role = normalizeRole(user.role);
 
       setTimeout(() => {
-        navigate(role === "ADMIN" ? "/admin" : from, {
-          replace: true,
-        });
+        navigate(
+          role === "ADMIN" || role === "STAFF"
+            ? "/admin"
+            : from,
+          {
+            replace: true,
+          }
+        );
       }, 0);
 
     } catch (error: any) {

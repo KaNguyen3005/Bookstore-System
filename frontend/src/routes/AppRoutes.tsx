@@ -46,10 +46,9 @@ import Otp from "../features/auth/pages/Otp/Otp";
 import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
 import AdminHome from "../layout/layoutAdmin/AdminHome/AdminHome";
 import { CustomerManagement } from "../features/admin/customerManagement";
-import { StatisticalReportManagement } from "../features/admin/reportManagement";
 import { AuthorManagement } from "../features/admin/authorManagement";
 import { ProductManagement } from "../features/admin/productManagement";
-import { Dashboard } from "../features/admin/dashboardManagement";
+import Dashboard from "../features/admin/dashboardManagement/pages/DashboardPage";
 import { OrderManagement } from "../features/admin/orderManagement";
 import { VoucherManagement } from "../features/admin/voucherManagement";
 import { CategoryManagement } from "../features/admin/categoryManagement";
@@ -64,7 +63,6 @@ export default function AppRoutes() {
   return (
 
     <Routes>
-
       {/* ========================= USER LAYOUT ========================= */}
 
       <Route
@@ -255,12 +253,6 @@ export default function AppRoutes() {
             element={<CustomerManagement />}
           />
 
-          <Route
-            path="statistical_report"
-            element={
-              <StatisticalReportManagement />
-            }
-          />
 
           <Route
             path="author"

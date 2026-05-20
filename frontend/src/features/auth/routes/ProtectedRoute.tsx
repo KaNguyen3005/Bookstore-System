@@ -3,12 +3,12 @@ import { useAuth } from "../hooks/useAuth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  role?: string;
+  roles?: string[]; // cho phép nhiều role
 }
 
 const ProtectedRoute = ({
   children,
-  role,
+  roles,
 }: ProtectedRouteProps) => {
   const { isAuthenticated, user, loading } = useAuth();
 
@@ -17,7 +17,7 @@ const ProtectedRoute = ({
   const normalizeRole = (value?: string) =>
     value?.trim().toUpperCase().replace(/^ROLE_/, "");
 
-  // đang restore auth
+  // đang load auth (restore user từ token)
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -33,10 +33,12 @@ const ProtectedRoute = ({
     );
   }
 
-  // sai role
+  const userRole = normalizeRole(user.role);
+
+  // check role nếu có yêu cầu roles
   if (
-    role &&
-    normalizeRole(user.role) !== normalizeRole(role)
+    roles &&
+    !roles.some((r) => normalizeRole(r) === userRole)
   ) {
     return <Navigate to="/" replace />;
   }
