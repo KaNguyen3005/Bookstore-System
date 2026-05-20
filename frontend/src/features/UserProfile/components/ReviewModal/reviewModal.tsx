@@ -92,25 +92,22 @@ export default function ReviewModal({
                   </div>
                 </div>
 
-                {!item.hasReview ? (
+                {item.hasReview ? (
+                  <button className={styles.reviewedBtn} disabled>
+                    Đã đánh giá
+                  </button>
+                ) : (
                   <button
                     className={styles.reviewBtn}
                     onClick={() =>
                       onReview({
                         ...item,
                         orderId: order.orderId,
-                        itemId: item.bookId,
+                        itemId: item.itemId ?? item.bookId,
                       })
                     }
                   >
                     Đánh giá
-                  </button>
-                ) : (
-                  <button
-                    className={styles.viewBtn}
-                    onClick={() => onViewReview(item)}
-                  >
-                    Xem đánh giá
                   </button>
                 )}
               </div>
