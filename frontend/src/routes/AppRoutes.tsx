@@ -220,7 +220,7 @@ export default function AppRoutes() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute role="ADMIN">
+          <ProtectedRoute roles={["ADMIN", "STAFF"]}>
             <LayoutAdmin />
           </ProtectedRoute>
         }
