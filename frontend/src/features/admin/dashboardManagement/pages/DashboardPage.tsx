@@ -1,117 +1,124 @@
 import { useEffect, useState } from "react";
-import {
-  getDashboard,
-  getOrderStatus,
-} from "../../../../services/dashboardApi";
-
 import styles from "./DashboardPage.module.css";
 
-type DashboardData = {
-  totalOrders: number;
-  pendingOrders: number;
-  confirmedOrders: number;
-  shippingOrders: number;
-  completedOrders: number;
-  cancelledOrders: number;
-  totalRevenue: number;
-  monthlyRevenue: number;
-  dailyRevenue: number;
-  totalProducts: number;
-  outOfStockProducts: number;
-  lowStockProducts: number;
-};
-
-type OrderStatus = {
-  status: string;
-  count: number;
-};
-
-const formatPrice = (value: number) => {
-  return Number(value || 0).toLocaleString("vi-VN") + " ₫";
-};
+import {
+  getDashboard,
+  getRevenueChart,
+  getTopSellingBooks,
+  getTopRatedBooks,
+  getRecentOrders,
+} from "../../../../services/dashboardApi";
 
 export default function DashboardPage() {
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [orderStatus, setOrderStatus] = useState<OrderStatus[]>([]);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDashboard = async () => {
+    const fetch = async () => {
       try {
-        const dashboardRes = await getDashboard();
-        const statusRes = await getOrderStatus();
+        const [dashboard, chart, topSelling, topRated, recent] =
+          await Promise.all([
+            getDashboard({ range: "today", limit: 10 }),
+            getRevenueChart("today"),
+            getTopSellingBooks("month", 5),
+            getTopRatedBooks(5),
+            getRecentOrders(5),
+          ]);
 
-        setDashboard(dashboardRes.result);
-        setOrderStatus(statusRes.result);
-      } catch (error) {
-        console.error("ERROR FETCH DASHBOARD:", error);
+        setData({
+          dashboard,
+          chart,
+          topSelling,
+          topRated,
+          recent,
+        });
+      } catch (err) {
+        console.error("Dashboard error:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDashboard();
+    fetch();
   }, []);
 
-  if (loading) {
-    return <div className={styles.loading}>Đang tải dashboard...</div>;
-  }
+  if (loading) return <div className={styles.loading}>Loading...</div>;
 
-  if (!dashboard) {
-    return <div className={styles.loading}>Không có dữ liệu</div>;
-  }
+  if (!data) return <div className={styles.error}>No data</div>;
+
+  const d = data.dashboard;
 
   return (
-    <div className={styles.dashboard}>
-      <h1 className={styles.title}>Dashboard</h1>
+    <div className={styles.wrapper}>
+      <h1 className={styles.title}>📊 Admin Dashboard</h1>
 
-      {/* ================= OVERVIEW ================= */}
+      {/* ================= KPI ================= */}
       <div className={styles.grid}>
         <div className={styles.card}>
-          <h3>Tổng đơn hàng</h3>
-          <p>{dashboard.totalOrders}</p>
+          <p>Revenue</p>
+          <h2>{d.totalRevenue.toLocaleString()} đ</h2>
         </div>
 
         <div className={styles.card}>
-          <h3>Doanh thu tổng</h3>
-          <p>{formatPrice(dashboard.totalRevenue)}</p>
+          <p>Orders</p>
+          <h2>{d.totalOrders}</h2>
         </div>
 
         <div className={styles.card}>
-          <h3>Doanh thu tháng</h3>
-          <p>{formatPrice(dashboard.monthlyRevenue)}</p>
+          <p>Customers</p>
+          <h2>{d.totalCustomers}</h2>
         </div>
 
-        <div className={styles.card}>
-          <h3>Doanh thu hôm nay</h3>
-          <p>{formatPrice(dashboard.dailyRevenue)}</p>
-        </div>
-
-        <div className={styles.card}>
-          <h3>Tổng sản phẩm</h3>
-          <p>{dashboard.totalProducts}</p>
-        </div>
-
-        <div className={styles.card}>
-          <h3>Sắp hết hàng</h3>
-          <p>{dashboard.lowStockProducts}</p>
-        </div>
-
-        <div className={styles.card}>
-          <h3>Hết hàng</h3>
-          <p>{dashboard.outOfStockProducts}</p>
+        <div className={styles.cardDanger}>
+          <p>Low Stock</p>
+          <h2>{d.lowStockProducts}</h2>
         </div>
       </div>
 
-      {/* ================= ORDER STATUS ================= */}
-      <div className={styles.statusSection}>
-        <h2>Trạng thái đơn hàng</h2>
+      {/* ================= ORDERS STATUS ================= */}
+      <div className={styles.panel}>
+        <h3>📦 Order Status</h3>
 
-        <div className={styles.statusGrid}>
-          {orderStatus.map((item, index) => (
-            <div key={index} className={styles.statusCard}>
-              <span>{item.status}</span>
-              <strong>{item.count}</strong>
+        {d.ordersByStatus.map((s: any) => (
+          <div key={s.status} className={styles.row}>
+            <span>{s.status}</span>
+            <b>{s.count}</b>
+          </div>
+        ))}
+      </div>
+
+      {/* ================= RECENT ORDERS ================= */}
+      <div className={styles.panel}>
+        <h3>🧾 Recent Orders</h3>
+
+        {data.recent.map((o: any) => (
+          <div key={o.orderId} className={styles.row}>
+            <span>
+              #{o.orderId} - {o.customerName}
+            </span>
+            <b>{o.totalAmount.toLocaleString()} đ</b>
+          </div>
+        ))}
+      </div>
+
+      {/* ================= TOP BOOKS ================= */}
+      <div className={styles.grid2}>
+        <div className={styles.panel}>
+          <h3>🔥 Top Selling</h3>
+          {data.topSelling.map((b: any) => (
+            <div key={b.bookId} className={styles.row}>
+              <span>{b.title}</span>
+              <b>{b.totalQuantitySold}</b>
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.panel}>
+          <h3>⭐ Top Rated</h3>
+          {data.topRated.map((b: any) => (
+            <div key={b.bookId} className={styles.row}>
+              <span>{b.title}</span>
+              <b>{b.avgRating}</b>
             </div>
           ))}
         </div>

@@ -22,6 +22,36 @@ export default function ProfileContent() {
 
   if (!user) return <p>Loading...</p>;
 
+  // ================= DOB SAFE NORMALIZE =================
+  const normalizeDob = (dob: any): string => {
+    if (!dob) return "";
+
+    if (typeof dob === "string") {
+      return dob.includes("T") ? dob.split("T")[0] : dob;
+    }
+
+    if (dob instanceof Date) {
+      return dob.toISOString().split("T")[0];
+    }
+
+    if (typeof dob === "number") {
+      return new Date(dob).toISOString().split("T")[0];
+    }
+
+    return "";
+  };
+
+  // ================= DISPLAY DATE =================
+  const toDisplayDate = (dob: any) => {
+    const safe = normalizeDob(dob);
+    if (!safe) return "";
+
+    const [y, m, d] = safe.split("-");
+    if (!y || !m || !d) return safe;
+
+    return `${d}/${m}/${y}`;
+  };
+
   // ================= VALIDATE =================
   const validate = () => {
     const err: any = {};
@@ -29,17 +59,46 @@ export default function ProfileContent() {
     if (!user.name) err.name = "Vui lòng nhập họ tên";
     if (!user.email) err.email = "Vui lòng nhập email";
     if (!user.phone) err.phone = "Vui lòng nhập số điện thoại";
-    if (!user.dob) err.dob = "Vui lòng nhập ngày sinh";
+
+    if (!user.dob) {
+      err.dob = "Vui lòng nhập ngày sinh";
+    } else {
+      const dob = new Date(user.dob);
+      const today = new Date();
+
+      if (dob > today) {
+        err.dob = "Ngày sinh không hợp lệ";
+      }
+
+      const age = today.getFullYear() - dob.getFullYear();
+      if (age < 15) {
+        err.dob = "Bạn phải từ 15 tuổi trở lên";
+      }
+    }
 
     setErrors(err);
     return Object.keys(err).length === 0;
   };
 
+  // ================= SAVE =================
   const handleSaveClick = async () => {
-    const ok = validate();
-    if (!ok) return;
+    const payload = {
+      name: user.name,
+      phone: user.phone,
+      gender: user.gender,
+      dob: normalizeDob(user.dob), // YYYY-MM-DD
+      username: user.username,
+      password: undefined, // optional
+      status: user.status ?? true,
+      avatar: avatar || user.avatarUrl,
+    };
 
-    await handleSave();
+    // remove undefined fields (IMPORTANT)
+    Object.keys(payload).forEach(
+      (key) => payload[key] === undefined && delete payload[key]
+    );
+
+    await handleSave(payload);
     setEdit(false);
   };
 
@@ -50,19 +109,16 @@ export default function ProfileContent() {
     setShowDob(false);
   };
 
-  // ================= AVATAR =================
   const handleClickAvatar = () => {
     fileInputRef.current?.click();
   };
 
-  // ================= MASK =================
+  // ================= MASK PHONE =================
   const maskPhoneVN = (phone: any = "") => {
     const str = String(phone || "");
-
     if (!str) return "";
 
     const clean = str.replace(/\s+/g, "");
-
     if (clean.length < 7) return str;
 
     return (
@@ -72,36 +128,13 @@ export default function ProfileContent() {
     );
   };
 
-  const formatDob = (dob: string = "") => {
-    if (!dob) return "";
-
-    try {
-      return new Date(dob).toISOString().split("T")[0];
-    } catch {
-      return dob;
-    }
-  };
-
-  const maskDate = (date: string = "") => {
-    if (!date) return "";
-
-    const parts = date.split("-");
-
-    if (parts.length !== 3) return date;
-
-    return `${parts[0]}/**/**`;
-  };
-
   return (
     <>
       <h2 className={styles.title}>Hồ sơ cá nhân</h2>
 
-      {/* ================= PROFILE ================= */}
       <div className={styles.profileContainer}>
-
         {/* ================= AVATAR ================= */}
         <div className={styles.avatarSection}>
-
           <div
             className={styles.avatarWrapper}
             onClick={handleClickAvatar}
@@ -121,266 +154,164 @@ export default function ProfileContent() {
             hidden
           />
 
-          <p className={styles.username}>
-            {user.username}
-          </p>
-
+          <p className={styles.username}>{user.username}</p>
         </div>
 
         {/* ================= FORM ================= */}
         <div className={styles.formSection}>
-
           {/* USERNAME */}
           <div className={styles.formRow}>
-
-            <label className={styles.formLabel}>
-              Tên đăng nhập
-            </label>
-
-            <div className={styles.inputBlock}>
-              <input
-                value={user.username || ""}
-                readOnly
-                className={`${styles.input} ${styles.readonly}`}
-              />
-            </div>
-
+            <label className={styles.formLabel}>Tên đăng nhập</label>
+            <input
+              value={user.username || ""}
+              readOnly
+              className={`${styles.input} ${styles.readonly}`}
+            />
           </div>
 
           {/* NAME */}
           <div className={styles.formRow}>
+            <label className={styles.formLabel}>Họ và tên</label>
 
-            <label className={styles.formLabel}>
-              Họ và tên
-            </label>
+            <input
+              name="name"
+              value={user.name || ""}
+              onChange={handleChange}
+              readOnly={!edit}
+              className={`${styles.input} ${
+                !edit ? styles.readonly : ""
+              } ${errors.name ? styles.errorInput : ""}`}
+            />
 
-            <div className={styles.inputBlock}>
-
-              <input
-                name="name"
-                value={user.name || ""}
-                onChange={handleChange}
-                readOnly={!edit}
-                className={`
-                  ${styles.input}
-                  ${!edit ? styles.readonly : ""}
-                  ${errors.name ? styles.errorInput : ""}
-                `}
-              />
-
-              <div className={styles.errorSpace}>
-                {errors.name && (
-                  <span className={styles.errorText}>
-                    {errors.name}
-                  </span>
-                )}
-              </div>
-
-            </div>
-
+            {errors.name && (
+              <span className={styles.errorText}>{errors.name}</span>
+            )}
           </div>
 
           {/* PHONE */}
           <div className={styles.formRow}>
+            <label className={styles.formLabel}>Số điện thoại</label>
 
-            <label className={styles.formLabel}>
-              Số điện thoại
-            </label>
+            <div className={styles.inputWrapper}>
+              <input
+                name="phone"
+                value={
+                  edit
+                    ? user.phone || ""
+                    : showPhone
+                    ? user.phone || ""
+                    : maskPhoneVN(user.phone)
+                }
+                onChange={handleChange}
+                readOnly={!edit}
+                className={`${styles.input} ${
+                  !edit ? styles.readonly : ""
+                } ${errors.phone ? styles.errorInput : ""}`}
+              />
 
-            <div className={styles.inputBlock}>
-
-              <div className={styles.inputWrapper}>
-
-                <input
-                  name="phone"
-                  value={
-                    edit
-                      ? user.phone || ""
-                      : showPhone
-                      ? user.phone || ""
-                      : maskPhoneVN(user.phone)
-                  }
-                  onChange={handleChange}
-                  readOnly={!edit}
-                  className={`
-                    ${styles.input}
-                    ${!edit ? styles.readonly : ""}
-                    ${errors.phone ? styles.errorInput : ""}
-                  `}
-                />
-
-                <span
-                  onClick={() => !edit && setShowPhone(!showPhone)}
-                  className={styles.eyeIcon}
-                >
-                  {showPhone ? (
-                    <FaRegEyeSlash />
-                  ) : (
-                    <FaRegEye />
-                  )}
-                </span>
-
-              </div>
-
-              <div className={styles.errorSpace}>
-                {errors.phone && (
-                  <span className={styles.errorText}>
-                    {errors.phone}
-                  </span>
-                )}
-              </div>
-
+              <span
+                onClick={() => !edit && setShowPhone(!showPhone)}
+                className={styles.eyeIcon}
+              >
+                {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
+              </span>
             </div>
 
+            {errors.phone && (
+              <span className={styles.errorText}>{errors.phone}</span>
+            )}
           </div>
 
           {/* EMAIL */}
           <div className={styles.formRow}>
+            <label className={styles.formLabel}>Email</label>
 
-            <label className={styles.formLabel}>
-              Email
-            </label>
+            <input
+              name="email"
+              value={user.email || ""}
+              onChange={handleChange}
+              readOnly={!edit}
+              className={`${styles.input} ${
+                !edit ? styles.readonly : ""
+              } ${errors.email ? styles.errorInput : ""}`}
+            />
 
-            <div className={styles.inputBlock}>
-
-              <input
-                name="email"
-                value={user.email || ""}
-                onChange={handleChange}
-                readOnly={!edit}
-                className={`
-                  ${styles.input}
-                  ${!edit ? styles.readonly : ""}
-                  ${errors.email ? styles.errorInput : ""}
-                `}
-              />
-
-              <div className={styles.errorSpace}>
-                {errors.email && (
-                  <span className={styles.errorText}>
-                    {errors.email}
-                  </span>
-                )}
-              </div>
-
-            </div>
-
+            {errors.email && (
+              <span className={styles.errorText}>{errors.email}</span>
+            )}
           </div>
 
           {/* DOB */}
           <div className={styles.formRow}>
+            <label className={styles.formLabel}>Ngày sinh</label>
 
-            <label className={styles.formLabel}>
-              Ngày sinh
-            </label>
+            <div className={styles.inputWrapper}>
+              <input
+                name="dob"
+                type={edit ? "date" : "text"}
+                value={
+                  edit
+                    ? normalizeDob(user.dob)
+                    : toDisplayDate(user.dob)
+                }
+                max={new Date().toISOString().split("T")[0]}
+                onChange={handleChange}
+                readOnly={!edit}
+                className={`${styles.input} ${
+                  !edit ? styles.readonly : ""
+                } ${errors.dob ? styles.errorInput : ""}`}
+              />
 
-            <div className={styles.inputBlock}>
-
-              <div className={styles.inputWrapper}>
-
-                <input
-                  name="dob"
-                  value={
-                    edit
-                      ? formatDob(user.dob)
-                      : showDob
-                      ? formatDob(user.dob)
-                      : maskDate(formatDob(user.dob))
-                  }
-                  onChange={handleChange}
-                  readOnly={!edit}
-                  className={`
-                    ${styles.input}
-                    ${!edit ? styles.readonly : ""}
-                    ${errors.dob ? styles.errorInput : ""}
-                  `}
-                />
-
-                <span
-                  onClick={() => !edit && setShowDob(!showDob)}
-                  className={styles.eyeIcon}
-                >
-                  {showDob ? (
-                    <FaRegEyeSlash />
-                  ) : (
-                    <FaRegEye />
-                  )}
-                </span>
-
-              </div>
-
-              <div className={styles.errorSpace}>
-                {errors.dob && (
-                  <span className={styles.errorText}>
-                    {errors.dob}
-                  </span>
-                )}
-              </div>
-
+              <span
+                onClick={() => !edit && setShowDob(!showDob)}
+                className={styles.eyeIcon}
+              >
+                {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
+              </span>
             </div>
 
+            {errors.dob && (
+              <span className={styles.errorText}>{errors.dob}</span>
+            )}
           </div>
-
         </div>
-
       </div>
 
       {/* ================= BUTTON ================= */}
       <div className={styles.buttonWrapper}>
+        <button
+          className={styles.cancelBtn}
+          onClick={() => {
+            if (edit) handleCancel();
+            else setEdit(true);
+          }}
+        >
+          {edit ? "Hủy" : "Sửa"}
+        </button>
 
-        <div className={styles.btnGroup}>
-
+        {edit && (
           <button
-            className={styles.cancelBtn}
-            onClick={() => {
-              if (edit) {
-                handleCancel();
-              } else {
-                setEdit(true);
-              }
-            }}
+            className={styles.saveBtn}
+            onClick={handleSaveClick}
           >
-            {edit ? "Hủy" : "Sửa"}
+            Lưu
           </button>
-
-          {edit && (
-            <button
-              className={styles.saveBtn}
-              onClick={handleSaveClick}
-            >
-              Lưu
-            </button>
-          )}
-
-        </div>
-
+        )}
       </div>
 
       {/* ================= MEMBER ================= */}
       <div className={styles.member}>
-
-        <h3 className={styles.memberTitle}>
-          Hạng thành viên
-        </h3>
+        <h3 className={styles.memberTitle}>Hạng thành viên</h3>
 
         <div className={styles.memberItem}>
-          <span className={styles.label}>Hạng:</span>
-
-          <span className={styles.value}>
-            {user.tier || "BRONZE"}
-          </span>
+          <span>Hạng:</span>
+          <b>{user.tier || "BRONZE"}</b>
         </div>
 
         <div className={styles.memberItem}>
-          <span className={styles.label}>
-            Điểm tích lũy:
-          </span>
-
-          <span className={styles.value}>
-            {user.point || 0}
-          </span>
+          <span>Điểm:</span>
+          <b>{user.point || 0}</b>
         </div>
-
       </div>
     </>
   );
