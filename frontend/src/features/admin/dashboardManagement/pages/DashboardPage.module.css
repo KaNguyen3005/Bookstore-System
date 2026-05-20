@@ -1,81 +1,286 @@
+/* ================= ROOT ================= */
+:root {
+  --primary: rgba(50, 88, 99, 1);
+  --primary-soft: rgba(50, 88, 99, 0.08);
+  --border: rgba(50, 88, 99, 0.12);
+  --text: #1f2a2e;
+  --muted: rgba(50, 88, 99, 0.7);
+
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 14px 30px rgba(50, 88, 99, 0.12);
+
+  --radius: 16px;
+}
+
+/* ================= BASE ================= */
 .wrapper {
-  padding: 24px;
-  background: #f6f7fb;
+  padding: 28px;
   min-height: 100vh;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
+  color: var(--text);
+  background: white;
 }
 
+/* ================= TYPO ================= */
 .title {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  color: var(--primary);
+  letter-spacing: -0.4px;
 }
 
-/* GRID */
+/* ================= LAYOUT ================= */
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
-  margin-bottom: 20px;
 }
 
 .grid2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin-top: 20px;
 }
 
-/* CARD */
-.card {
-  background: white;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.cardDanger {
-  background: #fff3f3;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid #ffd6d6;
-}
-
-.card p {
-  font-size: 13px;
-  color: #666;
-}
-
-/* PANEL */
+/* ================= CARD SYSTEM ================= */
+.card,
+.cardDanger,
 .panel {
-  background: white;
-  padding: 16px;
-  border-radius: 12px;
+  background: #fff;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: 0.25s ease;
+}
+
+.card,
+.cardDanger {
+  padding: 18px;
+}
+
+.card:hover,
+.cardDanger:hover,
+.panel:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ================= KPI TEXT ================= */
+.card p,
+.cardDanger p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.card h2,
+.cardDanger h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* ================= DANGER CARD ================= */
+.cardDanger {
+  background: linear-gradient(135deg, rgba(50, 88, 99, 0.04), #fff);
+  border-left: 4px solid var(--primary);
+}
+
+/* ================= PANEL ================= */
+.panel {
+  padding: 18px;
   margin-top: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .panel h3 {
-  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--primary);
 }
 
-/* ROW */
+/* ================= ROW ================= */
 .row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  align-items: center;
+
+  padding: 10px;
+  border-radius: 10px;
+
+  transition: background 0.2s ease;
 }
 
-.row:last-child {
-  border-bottom: none;
+.row:hover {
+  background: var(--primary-soft);
 }
 
-/* LOADING */
+.row span {
+  font-size: 14px;
+}
+
+.row b {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ================= HEADER ================= */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.select {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  outline: none;
+  background: #fff;
+}
+
+.refreshBtn {
+  background: var(--primary-soft);
+  border: none;
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.refreshBtn:hover {
+  background: rgba(50, 88, 99, 0.15);
+}
+
+/* ================= BADGE SYSTEM ================= */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* status */
+.pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+
+.success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+}
+
+.danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #b91c1c;
+}
+
+.default {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* ================= LOADING / ERROR ================= */
+.loading,
+.error {
+  padding: 24px;
+  font-size: 14px;
+}
+
 .loading {
-  padding: 20px;
+  color: var(--muted);
 }
 
 .error {
-  color: red;
-  padding: 20px;
+  color: #e11d48;
+}
+
+/* ================= SKELETON ================= */
+.skeleton {
+  height: 100px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, #eee 25%, #f7f7f7 50%, #eee 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+/* ================= ANIMATION ================= */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= GROWTH ================= */
+.growth {
+  font-size: 12px;
+  color: #16a34a;
+  margin-top: 4px;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.aiTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.robotLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 10px;
+
+  background: rgba(50, 88, 99, 0.08);
+
+  transition: all 0.25s ease;
+}
+
+.robotLink:hover {
+  transform: translateY(-2px) scale(1.08);
+
+  background: rgba(50, 88, 99, 0.16);
+
+  box-shadow: 0 8px 20px rgba(50, 88, 99, 0.15);
+}
+
+.robotIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
