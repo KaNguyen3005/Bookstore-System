@@ -7,6 +7,7 @@ import {
   getTopSellingBooks,
   getTopRatedBooks,
   getRecentOrders,
+  getOutOfStockBooks
 } from "../../../../services/dashboardApi";
 
 import {
@@ -37,6 +38,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const lastOrderRef = useRef<number | null>(null);
+  const outOfStock = data?.outOfStock ?? [];
 
   // ================= FETCH =================
   const fetchDashboardData = async (rangeValue = range) => {
@@ -44,16 +46,25 @@ export default function DashboardPage() {
       setLoading(true);
       setError(null);
 
-      const [dashboard, chart, topSelling, topRated, recent] =
+      const [dashboard, chart, topSelling, topRated, recent, outOfStock] =
         await Promise.all([
           getDashboard({ range: rangeValue, limit: 10 }),
           getRevenueChart(rangeValue),
           getTopSellingBooks("month", 5),
           getTopRatedBooks(5),
           getRecentOrders(5),
+          getOutOfStockBooks(10)
         ]);
 
-      setData({ dashboard, chart, topSelling, topRated, recent });
+      setData({
+        dashboard,
+        chart,
+        topSelling,
+        topRated,
+        recent,
+        outOfStock
+      });
+
     } catch (err) {
       console.error(err);
       setError("Không thể tải dashboard");
@@ -166,25 +177,25 @@ export default function DashboardPage() {
       {/* KPI */}
       <div className={styles.grid}>
         <div className={styles.card}>
-          <div className={styles.kpiHeader}><DollarSign size={18} /> Doanh thu</div>
+          <div className={styles.kpiHeader}><DollarSign size={18} color ={"green"} /><span style={{ color: "green" }}>Doanh thu</span></div>
           <h2>{dashboard.totalRevenue?.toLocaleString?.() || 0} đ</h2>
           <span className={styles.growth}>{growth(dashboard.totalRevenue || 0)}</span>
         </div>
 
         <div className={styles.card}>
-          <div className={styles.kpiHeader}><ShoppingCart size={18} /> Đơn hàng</div>
+          <div className={styles.kpiHeader}><ShoppingCart size={18} color ={"orange"}/><span style={{ color: "orange" }}>Đơn hàng</span></div>
           <h2>{dashboard.totalOrders || 0}</h2>
           <span className={styles.growth}>{growth(dashboard.totalOrders || 0)}</span>
         </div>
 
         <div className={styles.card}>
-          <div className={styles.kpiHeader}><Users size={18} /> Khách hàng</div>
+          <div className={styles.kpiHeader}><Users size={18} color ={"blue"}/> <span style={{ color: "blue" }}>Khách hàng</span></div>
           <h2>{dashboard.totalCustomers || 0}</h2>
           <span className={styles.growth}>{growth(dashboard.totalCustomers || 0)}</span>
         </div>
 
         <div className={styles.cardDanger}>
-          <div className={styles.kpiHeader}><AlertTriangle size={18} /> Tồn kho</div>
+          <div className={styles.kpiHeader}><AlertTriangle size={18} color ={"red"} /><span style={{ color: "red" }}>Tồn kho</span></div>
           <h2>{dashboard.lowStockProducts || 0}</h2>
         </div>
       </div>
@@ -249,6 +260,21 @@ export default function DashboardPage() {
             <b>{o.totalAmount?.toLocaleString?.() || 0} đ</b>
           </div>
         ))}
+      </div>
+      {/*Sach hết hàng */}
+      <div className={styles.panel}>
+        <h3>Sách hết hàng</h3>
+
+        {outOfStock.length === 0 ? (
+          <p className={styles.empty}>Không có sách nào hết hàng </p>
+        ) : (
+          outOfStock.map((b: any) => (
+            <div key={b.bookId} className={styles.row}>
+              <span>{b.title}</span>
+              <b className={styles.dangerText}>Hết hàng</b>
+            </div>
+          ))
+        )}
       </div>
 
       {/* TOP */}
