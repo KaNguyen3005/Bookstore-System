@@ -14,7 +14,7 @@ export interface UserFE {
   phone: string;
   point: number;
   avatarUrl?: string;
-  dob: Date;
+  dob: Date | string;
   status?: boolean;
   gender: string;
   role: string;
@@ -240,23 +240,36 @@ export const userApi = {
   },
 
   // ================= UPDATE =================
-  updateUser: async (data: UserFE | UpdateUserPayload): Promise<UserFE> => {
-    if (IS_MOCK) {
-      await delay(500);
-
-      return mapToFE(data);
-    }
-
-    const payload = mapToUpdatePayload(data);
-
-    const res = await axiosClient.patch(`/users/${data.userId}`, payload);
-
-    return mapToFE(getUserPayload(res.data));
-  },
-
-  // ================= UPDATE ME =================
   updateMe: async (data: Partial<UserFE>) => {
-    const res: any = await axiosClient.patch("/users/me", data);
+    const payload = {
+      username: data.username,
+      name: data.name,
+      phone: data.phone,
+      gender: data.gender,
+      dob: formatDatePayload(data.dob),
+      status: data.status,
+      avatar: data.avatarUrl,
+    };
+
+    // remove undefined/null/""
+    Object.keys(payload).forEach((key) => {
+      const k = key as keyof typeof payload;
+
+      if (
+        payload[k] === undefined ||
+        payload[k] === null ||
+        payload[k] === ""
+      ) {
+        delete payload[k];
+      }
+    });
+
+    console.log("UPDATE ME PAYLOAD", payload);
+
+    const res: any = await axiosClient.patch(
+      "/users/me",
+      payload
+    );
 
     return mapToFE(getUserPayload(res.data));
   },

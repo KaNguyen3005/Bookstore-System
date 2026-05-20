@@ -15,7 +15,6 @@ export default function ProfileContent() {
   }: any = useOutletContext();
 
   const [showPhone, setShowPhone] = useState(false);
-  const [showDob, setShowDob] = useState(false);
   const [errors, setErrors] = useState<any>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -26,16 +25,23 @@ export default function ProfileContent() {
   const normalizeDob = (dob: any): string => {
     if (!dob) return "";
 
+    // already yyyy-mm-dd
     if (typeof dob === "string") {
-      return dob.includes("T") ? dob.split("T")[0] : dob;
+      return dob.includes("T")
+        ? dob.split("T")[0]
+        : dob;
     }
 
+    // Date object
     if (dob instanceof Date) {
       return dob.toISOString().split("T")[0];
     }
 
+    // timestamp
     if (typeof dob === "number") {
-      return new Date(dob).toISOString().split("T")[0];
+      return new Date(dob)
+        .toISOString()
+        .split("T")[0];
     }
 
     return "";
@@ -44,81 +50,173 @@ export default function ProfileContent() {
   // ================= DISPLAY DATE =================
   const toDisplayDate = (dob: any) => {
     const safe = normalizeDob(dob);
+
     if (!safe) return "";
 
     const [y, m, d] = safe.split("-");
+
     if (!y || !m || !d) return safe;
 
     return `${d}/${m}/${y}`;
+  };
+
+  // ================= AGE =================
+  const calculateAge = (dobString: string) => {
+    const today = new Date();
+    const birth = new Date(dobString);
+
+    let age =
+      today.getFullYear() -
+      birth.getFullYear();
+
+    const monthDiff =
+      today.getMonth() - birth.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 &&
+        today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
   };
 
   // ================= VALIDATE =================
   const validate = () => {
     const err: any = {};
 
-    if (!user.name) err.name = "Vui lòng nhập họ tên";
-    if (!user.email) err.email = "Vui lòng nhập email";
-    if (!user.phone) err.phone = "Vui lòng nhập số điện thoại";
+    // NAME
+    if (!user.name?.trim()) {
+      err.name = "Vui lòng nhập họ tên";
+    }
 
+    // PHONE
+    if (!user.phone?.trim()) {
+      err.phone = "Vui lòng nhập số điện thoại";
+    } else if (
+      !/^(0|\+84)[0-9]{9,10}$/.test(user.phone)
+    ) {
+      err.phone =
+        "Số điện thoại không hợp lệ";
+    }
+
+    // EMAIL
+    if (!user.email?.trim()) {
+      err.email = "Vui lòng nhập email";
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        user.email
+      )
+    ) {
+      err.email = "Email không hợp lệ";
+    }
+
+    // DOB
     if (!user.dob) {
       err.dob = "Vui lòng nhập ngày sinh";
     } else {
       const dob = new Date(user.dob);
       const today = new Date();
 
-      if (dob > today) {
-        err.dob = "Ngày sinh không hợp lệ";
-      }
+      if (isNaN(dob.getTime())) {
+        err.dob =
+          "Ngày sinh không hợp lệ";
+      } else if (dob > today) {
+        err.dob =
+          "Ngày sinh không được lớn hơn hôm nay";
+      } else {
+        const age = calculateAge(
+          normalizeDob(user.dob)
+        );
 
-      const age = today.getFullYear() - dob.getFullYear();
-      if (age < 15) {
-        err.dob = "Bạn phải từ 15 tuổi trở lên";
+        if (age < 15) {
+          err.dob =
+            "Bạn phải từ 15 tuổi trở lên";
+        }
       }
     }
 
     setErrors(err);
+
     return Object.keys(err).length === 0;
   };
 
   // ================= SAVE =================
   const handleSaveClick = async () => {
-    const payload = {
-      name: user.name,
-      phone: user.phone,
-      gender: user.gender,
-      dob: normalizeDob(user.dob), // YYYY-MM-DD
-      username: user.username,
-      password: undefined, // optional
-      status: user.status ?? true,
-      avatar: avatar || user.avatarUrl,
-    };
+    if (!validate()) return;
 
-    // remove undefined fields (IMPORTANT)
-    Object.keys(payload).forEach(
-      (key) => payload[key] === undefined && delete payload[key]
-    );
+    try {
+      const payload: any = {
+        username: user.username,
+        name: user.name?.trim(),
+        phone: user.phone?.trim(),
+        gender: user.gender,
+        dob: normalizeDob(user.dob),
+        status: user.status ?? true,
+        avatar:
+          avatar || user.avatarUrl,
+      };
 
-    await handleSave(payload);
-    setEdit(false);
+      // remove undefined/null/""
+      Object.keys(payload).forEach(
+        (key) => {
+          const k =
+            key as keyof typeof payload;
+
+          if (
+            payload[k] === undefined ||
+            payload[k] === null ||
+            payload[k] === ""
+          ) {
+            delete payload[k];
+          }
+        }
+      );
+
+      console.log(
+        "FINAL PAYLOAD",
+        payload
+      );
+
+      await handleSave(payload);
+
+      setEdit(false);
+      setErrors({});
+    } catch (error) {
+      console.error(
+        "Update profile failed:",
+        error
+      );
+    }
   };
 
+  // ================= CANCEL =================
   const handleCancel = () => {
     setEdit(false);
     setErrors({});
     setShowPhone(false);
-    setShowDob(false);
   };
 
+  // ================= AVATAR =================
   const handleClickAvatar = () => {
     fileInputRef.current?.click();
   };
 
   // ================= MASK PHONE =================
-  const maskPhoneVN = (phone: any = "") => {
+  const maskPhoneVN = (
+    phone: any = ""
+  ) => {
     const str = String(phone || "");
+
     if (!str) return "";
 
-    const clean = str.replace(/\s+/g, "");
+    const clean = str.replace(
+      /\s+/g,
+      ""
+    );
+
     if (clean.length < 7) return str;
 
     return (
@@ -130,17 +228,25 @@ export default function ProfileContent() {
 
   return (
     <>
-      <h2 className={styles.title}>Hồ sơ cá nhân</h2>
+      <h2 className={styles.title}>
+        Hồ sơ cá nhân
+      </h2>
 
       <div className={styles.profileContainer}>
         {/* ================= AVATAR ================= */}
         <div className={styles.avatarSection}>
           <div
-            className={styles.avatarWrapper}
+            className={
+              styles.avatarWrapper
+            }
             onClick={handleClickAvatar}
           >
             <img
-              src={avatar || user.avatarUrl || "/default-avatar.png"}
+              src={
+                avatar ||
+                user.avatarUrl ||
+                "/default-avatar.png"
+              }
               className={styles.avatar}
               alt="avatar"
             />
@@ -154,14 +260,21 @@ export default function ProfileContent() {
             hidden
           />
 
-          <p className={styles.username}>{user.username}</p>
+          <p className={styles.username}>
+            {user.username}
+          </p>
         </div>
 
         {/* ================= FORM ================= */}
         <div className={styles.formSection}>
           {/* USERNAME */}
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>Tên đăng nhập</label>
+            <label
+              className={styles.formLabel}
+            >
+              Tên đăng nhập
+            </label>
+
             <input
               value={user.username || ""}
               readOnly
@@ -171,7 +284,11 @@ export default function ProfileContent() {
 
           {/* NAME */}
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>Họ và tên</label>
+            <label
+              className={styles.formLabel}
+            >
+              Họ và tên
+            </label>
 
             <input
               name="name"
@@ -179,20 +296,40 @@ export default function ProfileContent() {
               onChange={handleChange}
               readOnly={!edit}
               className={`${styles.input} ${
-                !edit ? styles.readonly : ""
-              } ${errors.name ? styles.errorInput : ""}`}
+                !edit
+                  ? styles.readonly
+                  : ""
+              } ${
+                errors.name
+                  ? styles.errorInput
+                  : ""
+              }`}
             />
 
             {errors.name && (
-              <span className={styles.errorText}>{errors.name}</span>
+              <span
+                className={
+                  styles.errorText
+                }
+              >
+                {errors.name}
+              </span>
             )}
           </div>
 
           {/* PHONE */}
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>Số điện thoại</label>
+            <label
+              className={styles.formLabel}
+            >
+              Số điện thoại
+            </label>
 
-            <div className={styles.inputWrapper}>
+            <div
+              className={
+                styles.inputWrapper
+              }
+            >
               <input
                 name="phone"
                 value={
@@ -200,78 +337,123 @@ export default function ProfileContent() {
                     ? user.phone || ""
                     : showPhone
                     ? user.phone || ""
-                    : maskPhoneVN(user.phone)
+                    : maskPhoneVN(
+                        user.phone
+                      )
                 }
                 onChange={handleChange}
                 readOnly={!edit}
                 className={`${styles.input} ${
-                  !edit ? styles.readonly : ""
-                } ${errors.phone ? styles.errorInput : ""}`}
+                  !edit
+                    ? styles.readonly
+                    : ""
+                } ${
+                  errors.phone
+                    ? styles.errorInput
+                    : ""
+                }`}
               />
 
-              <span
-                onClick={() => !edit && setShowPhone(!showPhone)}
-                className={styles.eyeIcon}
-              >
-                {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
-              </span>
+              {!edit && (
+                <span
+                  onClick={() =>
+                    setShowPhone(
+                      !showPhone
+                    )
+                  }
+                  className={
+                    styles.eyeIcon
+                  }
+                >
+                  {showPhone ? (
+                    <FaRegEyeSlash />
+                  ) : (
+                    <FaRegEye />
+                  )}
+                </span>
+              )}
             </div>
 
             {errors.phone && (
-              <span className={styles.errorText}>{errors.phone}</span>
+              <span
+                className={
+                  styles.errorText
+                }
+              >
+                {errors.phone}
+              </span>
             )}
           </div>
 
           {/* EMAIL */}
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>Email</label>
+            <label
+              className={styles.formLabel}
+            >
+              Email
+            </label>
 
             <input
-              name="email"
               value={user.email || ""}
-              onChange={handleChange}
-              readOnly={!edit}
-              className={`${styles.input} ${
-                !edit ? styles.readonly : ""
-              } ${errors.email ? styles.errorInput : ""}`}
+              readOnly
+              className={`${styles.input} ${styles.readonly}`}
             />
-
-            {errors.email && (
-              <span className={styles.errorText}>{errors.email}</span>
-            )}
           </div>
 
           {/* DOB */}
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>Ngày sinh</label>
+            <label
+              className={styles.formLabel}
+            >
+              Ngày sinh
+            </label>
 
-            <div className={styles.inputWrapper}>
+            <div
+              className={
+                styles.inputWrapper
+              }
+            >
               <input
                 name="dob"
-                type={edit ? "date" : "text"}
+                type={
+                  edit ? "date" : "text"
+                }
                 value={
                   edit
-                    ? normalizeDob(user.dob)
-                    : toDisplayDate(user.dob)
+                    ? normalizeDob(
+                        user.dob
+                      )
+                    : toDisplayDate(
+                        user.dob
+                      )
                 }
-                max={new Date().toISOString().split("T")[0]}
+                max={
+                  new Date()
+                    .toISOString()
+                    .split("T")[0]
+                }
                 onChange={handleChange}
-                readOnly={!edit}
+                disabled={!edit}
                 className={`${styles.input} ${
-                  !edit ? styles.readonly : ""
-                } ${errors.dob ? styles.errorInput : ""}`}
+                  !edit
+                    ? styles.readonly
+                    : ""
+                } ${
+                  errors.dob
+                    ? styles.errorInput
+                    : ""
+                }`}
               />
-
-              <span
-                onClick={() => !edit && setShowDob(!showDob)}
-                className={styles.eyeIcon}
-              >
-                {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
-              </span>
             </div>
 
             {errors.dob && (
-              <span className={styles.errorText}>{errors.dob}</span>
+              <span
+                className={
+                  styles.errorText
+                }
+              >
+                {errors.dob}
+              </span>
             )}
           </div>
         </div>
@@ -282,8 +464,11 @@ export default function ProfileContent() {
         <button
           className={styles.cancelBtn}
           onClick={() => {
-            if (edit) handleCancel();
-            else setEdit(true);
+            if (edit) {
+              handleCancel();
+            } else {
+              setEdit(true);
+            }
           }}
         >
           {edit ? "Hủy" : "Sửa"}
@@ -301,11 +486,19 @@ export default function ProfileContent() {
 
       {/* ================= MEMBER ================= */}
       <div className={styles.member}>
-        <h3 className={styles.memberTitle}>Hạng thành viên</h3>
+        <h3
+          className={
+            styles.memberTitle
+          }
+        >
+          Hạng thành viên
+        </h3>
 
         <div className={styles.memberItem}>
           <span>Hạng:</span>
-          <b>{user.tier || "BRONZE"}</b>
+          <b>
+            {user.tier || "BRONZE"}
+          </b>
         </div>
 
         <div className={styles.memberItem}>
