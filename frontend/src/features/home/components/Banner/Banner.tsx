@@ -85,6 +85,9 @@ const Banner = () => {
                 if (slide.id === 3) {
                   navigate("/voucherPage");
                 }
+
+                if ( slide.id === 1){
+                    navigate("/category")}
               }}
             >
               Xem ngay

@@ -1,0 +1,56 @@
+.container {
+  max-width: 420px;
+
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.avatarBox {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e5e7eb;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.avatar:hover {
+  transform: scale(1.03);
+}
+
+.button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(50, 88, 99, 1);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.username {
+  margin-top: 12px;
+  font-weight: 600;
+  color: rgba(50, 88, 99, 1);
+}

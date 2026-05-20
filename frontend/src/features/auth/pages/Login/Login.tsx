@@ -16,6 +16,7 @@ import { FcGoogle } from "react-icons/fc";
 import { GoogleLogin } from "@react-oauth/google";
 
 import { authApi } from "../../../../services/authApi";
+import { userApi } from "../../../../services/userApi";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -65,12 +66,9 @@ if (hasToken && user) {
     if (loading) return;
 
     setError("");
-
     setAccountError(false);
-
     setPasswordError(false);
 
-    // validate
     if (!account.trim()) {
       setAccountError(true);
       setError("Vui lòng nhập tài khoản");
@@ -86,57 +84,55 @@ if (hasToken && user) {
     setLoading(true);
 
     try {
-      const user = await authApi.login({
+      // 1. login chỉ lấy token + role
+      const loginRes = await authApi.login({
         account,
         password,
       });
 
-  console.log("LOGIN USER:", user);
-  console.log("ROLE:", user.role);
-  console.log("NORMALIZED:", normalizeRole(user.role));
-
-      if (!user || !(user.userId || user.id)) {
+      if (!loginRes) {
         throw new Error("Invalid credentials");
       }
 
-      login(user);
+      // 2. lưu token
+      localStorage.setItem("access_token", loginRes.token);
 
-      const role = normalizeRole(user.role);
+      // 3. lấy FULL user (quan trọng nhất)
+      const fullUser = await userApi.getMe();
 
-      setTimeout(() => {
-        navigate(
-          role === "ADMIN" || role === "STAFF"
-            ? "/admin"
-            : from,
-          {
-            replace: true,
-          }
-        );
-      }, 0);
+      if (!fullUser) {
+        throw new Error("Cannot fetch user");
+      }
 
+      // 4. update auth context
+      login({
+        ...fullUser,
+        token: loginRes.token,
+      });
+
+      const role = normalizeRole(fullUser.role);
+
+      navigate(
+        role === "ADMIN" || role === "STAFF"
+          ? "/admin"
+          : from,
+        { replace: true }
+      );
     } catch (error: any) {
       console.error("LOGIN ERROR:", error);
 
       const msg = error?.message;
 
       const mapError: Record<string, string> = {
-        "Invalid credentials":
-          "Sai tài khoản hoặc mật khẩu",
-
-        "Login failed":
-          "Sai tài khoản hoặc mật khẩu",
-
-        "Token not found":
-          "Sai tài khoản hoặc mật khẩu",
+        "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
+        "Login failed": "Sai tài khoản hoặc mật khẩu",
+        "Token not found": "Sai tài khoản hoặc mật khẩu",
       };
 
       setAccountError(true);
-
       setPasswordError(true);
 
-      setError(
-        mapError[msg] || "Sai tài khoản hoặc mật khẩu"
-      );
+      setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
     } finally {
       setLoading(false);
     }
@@ -216,40 +212,28 @@ if (hasToken && user) {
                 try {
                   setLoading(true);
 
-                  const idToken =
-                    credentialResponse.credential;
+                  const idToken = credentialResponse.credential;
 
-                  if (!idToken) {
-                    throw new Error(
-                      "Google token missing"
-                    );
-                  }
+                  if (!idToken) throw new Error("Google token missing");
 
-                  const user =
-                    await authApi.googleLogin(
-                      idToken
-                    );
+                  const loginRes = await authApi.googleLogin(idToken);
 
-                  login(user);
+                  localStorage.setItem("access_token", loginRes.token);
 
-                  const role = normalizeRole(
-                    user.role
-                  );
+                  const fullUser = await userApi.getMe();
 
-                  navigate(
-                    role === "ADMIN"
-                      ? "/admin"
-                      : "/",
-                    {
-                      replace: true,
-                    }
-                  );
+                  login({
+                    ...fullUser,
+                    token: loginRes.token,
+                  });
 
+                  const role = normalizeRole(fullUser.role);
+
+                  navigate(role === "ADMIN" ? "/admin" : "/", {
+                    replace: true,
+                  });
                 } catch (err: any) {
-                  setError(
-                    err.message ||
-                      "Đăng nhập Google thất bại"
-                  );
+                  setError(err.message || "Đăng nhập Google thất bại");
                 } finally {
                   setLoading(false);
                 }

@@ -24,6 +24,7 @@ interface AuthContextType {
   loading: boolean;
   login: (user: User) => void;
   logout: () => void;
+  updateUser: (data: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -36,8 +37,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // ================= UPDATE USER =================
+  const updateUser = useCallback((data: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+
+      const updated = { ...prev, ...data };
+
+      localStorage.setItem("user", JSON.stringify(updated));
+
+      return updated;
+    });
+  }, []);
+
   // ================= INIT AUTH =================
   useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+
     const initAuth = async () => {
       try {
         const token = localStorage.getItem("access_token");
@@ -98,6 +118,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         loading,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

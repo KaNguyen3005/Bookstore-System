@@ -248,7 +248,6 @@ export const userApi = {
       gender: data.gender,
       dob: formatDatePayload(data.dob),
       status: data.status,
-      avatar: data.avatarUrl,
     };
 
     // remove undefined/null/""
@@ -288,4 +287,23 @@ export const userApi = {
   deleteUser: async (id: number): Promise<void> => {
     await axiosClient.delete(`/users/${id}`);
   },
+
+    // ================= UPDATE AVATAR =================
+    updateAvatar: async (file: File): Promise<UserFE> => {
+      const formData = new FormData();
+
+      formData.append("avatar", file); // ⚠phải đúng backend key
+
+      const res = await axiosClient.patch(
+        "/users/me/avatar",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      return mapToFE(getUserPayload(res.data));
+    },
 };
