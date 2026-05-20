@@ -1,0 +1,82 @@
+:root {
+  --primary: rgba(50, 88, 99, 1);
+  --primary-soft: rgba(50, 88, 99, 0.08);
+  --border: rgba(50, 88, 99, 0.12);
+
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 14px 30px rgba(50, 88, 99, 0.12);
+
+  --radius: 16px;
+}
+
+.panel {
+  padding: 18px;
+
+  background: #fff;
+
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+
+  box-shadow: var(--shadow-sm);
+
+  transition: 0.25s ease;
+  padding-top: 20px;
+}
+
+.panel:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.aiTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  margin-bottom: 12px;
+
+  color: var(--primary);
+}
+
+.robotLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 10px;
+
+  background: rgba(50, 88, 99, 0.08);
+
+  transition: all 0.25s ease;
+}
+
+.robotLink:hover {
+  transform: translateY(-2px) scale(1.08);
+
+  background: rgba(50, 88, 99, 0.16);
+
+  box-shadow: 0 8px 20px rgba(50, 88, 99, 0.15);
+}
+
+.robotIcon {
+  width: 20px;
+  height: 20px;
+
+  object-fit: contain;
+}
+
+.panel p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.panel b {
+  color: var(--primary);
+}
