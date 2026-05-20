@@ -1,21 +1,54 @@
+.user-menu-wrapper {
+  position: relative;
+  display: inline-block;
+  z-index: 2000; /* thêm cái này */
+}
+
 .dropdown-user {
   position: absolute;
   right: 0;
-  top: 40px;
-  background: white;
-  width: 150px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  top: 44px;
+  width: 190px;
+
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+
   overflow: hidden;
-  z-index: 100;
+
+  z-index: 99999;
+
+  animation: fadeIn 0.15s ease-out;
+  transform-origin: top right;
 }
 
 .dropdown-item {
-  padding: 10px;
+  padding: 10px 14px;
   cursor: pointer;
-  color: black;
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: all 0.2s ease;
 }
 
 .dropdown-item:hover {
-  background: #f2f2f2;
+  background: white;
+  padding-left: 18px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
