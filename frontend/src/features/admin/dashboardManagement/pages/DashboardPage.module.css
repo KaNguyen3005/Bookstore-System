@@ -1,331 +1,498 @@
-/* ================= ROOT - Biến CSS Toàn cục ================= */
 :root {
-  /* Màu sắc chính */
-  --primary: rgba(50, 88, 99, 1); /* Màu xanh teal đậm */
-  --primary-soft: rgba(50, 88, 99, 0.08); /* Màu xanh teal nhạt, dùng cho nền hover, border */
-  --border: rgba(50, 88, 99, 0.12); /* Màu border */
-  --text: #1f2a2e; /* Màu chữ chính */
-  --muted: rgba(50, 88, 99, 0.7); /* Màu chữ phụ, mờ */
+  --bg: rgba(50, 88, 99, 1);
 
-  /* Màu cho các trạng thái */
-  --color-danger: #ef4444; /* Đỏ, dùng cho lỗi, cảnh báo */
-  --color-success: #10b981; /* Xanh lá, dùng cho thành công, giá trị tích cực */
-  --color-warning: #f59e0b; /* Vàng cam, dùng cho trạng thái chờ */
-  --color-neutral: #6b7280; /* Xám, dùng cho trạng thái trống, thông tin phụ */
+  --card: rgba(255, 255, 255, 0.92);
 
-  /* Bóng đổ */
-  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.04); /* Bóng đổ nhẹ */
-  --shadow-md: 0 14px 30px rgba(50, 88, 99, 0.12); /* Bóng đổ mạnh hơn, dùng cho hover */
+  --primary: #325863;
+  --primary-light: #3f7382;
 
-  /* Bo góc */
-  --radius: 16px; /* Bo góc mặc định cho card, panel */
-  --radius-sm: 10px; /* Bo góc nhỏ hơn cho button, row */
-  --radius-pill: 999px; /* Bo góc tròn cho badge */
+  --text: #111827;
+  --muted: #6b7280;
 
-  /* Khoảng cách */
-  --spacing-md: 16px; /* Khoảng cách grid mặc định */
-  --spacing-lg: 28px; /* Padding lớn */
-  --spacing-xl: 20px; /* Khoảng cách margin-top */
-  --spacing-xs: 6px; /* Khoảng cách nhỏ */
-  --spacing-xxs: 4px; /* Khoảng cách rất nhỏ */
+  --border: rgba(15, 23, 42, 0.05);
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+
+  --shadow:
+    0 4px 18px rgba(15, 23, 42, 0.05);
+
+  --radius: 16px;
+  --radius-sm: 12px;
 }
 
-/* ================= BASE - Kiểu dáng cơ bản ================= */
+/* ================= BASE ================= */
+
+* {
+  box-sizing: border-box;
+}
+
 .wrapper {
-  padding: var(--spacing-lg);
+  padding: 20px;
+
   min-height: 100vh;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
+
+  background: #f9fafb;
   color: var(--text);
-  background: white;
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+
+  border-radius:15px;
 }
 
-/* ================= TYPO - Kiểu chữ ================= */
+/* ================= HEADER ================= */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 20px;
+}
+
 .title {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
-  margin-bottom: 24px;
-  color: var(--primary);
-  letter-spacing: -0.4px;
+
+  letter-spacing: -0.8px;
 }
 
-/* ================= LAYOUT - Bố cục ================= */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.select {
+  height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 12px;
+
+  border: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.9);
+
+  outline: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: var(--text);
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.select:hover {
+  border-color: rgba(50, 88, 99, 0.2);
+}
+
+.refreshBtn {
+  width: 38px;
+  height: 38px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  box-shadow: var(--shadow);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.refreshBtn:hover {
+  transform: rotate(90deg);
+
+  box-shadow:
+    0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+/* ================= GRID ================= */
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 cột, tự động co giãn */
-  gap: var(--spacing-md);
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
 }
 
 .grid2 {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 cột, tự động co giãn */
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-top: 16px;
 }
 
-/* ================= CARD SYSTEM - Hệ thống Card ================= */
+/* ================= CARD ================= */
+
 .card,
 .cardDanger,
 .panel {
-  background: #fff;
+  background: var(--card);
+
   border-radius: var(--radius);
+
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.25s ease, box-shadow 0.25s ease; /* Chỉ định thuộc tính transition */
+
+  box-shadow: var(--shadow);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card,
 .cardDanger {
+  position: relative;
+
+  overflow: hidden;
+
   padding: 18px;
 }
 
-/* Hiệu ứng hover cho card và panel */
+.panel {
+  padding: 18px;
+
+  margin-top: 16px;
+}
+
 .card:hover,
 .cardDanger:hover,
 .panel:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.08);
 }
 
-/* ================= KPI TEXT - Văn bản KPI ================= */
-/* Áp dụng cho các thẻ p và h2 bên trong .card và .cardDanger */
-.card p,
-.cardDanger p {
+/* ================= KPI ================= */
+
+.kpiHeader {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 14px;
+}
+
+.kpiLabel {
   font-size: 13px;
+  font-weight: 600;
+
   color: var(--muted);
-  margin-bottom: var(--spacing-xs);
 }
 
 .card h2,
 .cardDanger h2 {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--primary);
+  font-size: 26px;
+  font-weight: 700;
+
+  letter-spacing: -0.8px;
+
+  margin-bottom: 8px;
 }
 
-/* ================= DANGER CARD - Card nguy hiểm ================= */
-.cardDanger {
-  /* Gradient nền nhẹ nhàng */
-  background: linear-gradient(135deg, rgba(50, 88, 99, 0.04), #fff);
-  border-left: 4px solid var(--primary); /* Đường viền trái nổi bật */
+/* ================= ICON BOX ================= */
+
+.iconBoxGreen,
+.iconBoxBlue,
+.iconBoxOrange,
+.iconBoxRed {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
 }
 
-/* ================= PANEL - Bảng điều khiển ================= */
-.panel {
-  padding: 18px;
-  margin-top: var(--spacing-md);
+.iconBoxGreen {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
 }
+
+.iconBoxBlue {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--info);
+}
+
+.iconBoxOrange {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
+}
+
+.iconBoxRed {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+}
+
+/* ================= GROWTH ================= */
+
+.growth {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  background: rgba(16, 185, 129, 0.12);
+
+  color: var(--success);
+}
+
+/* ================= PANEL ================= */
 
 .panel h3 {
   font-size: 15px;
   font-weight: 700;
-  margin-bottom: var(--spacing-xs);
-  color: var(--primary);
+
+  margin-bottom: 16px;
+
+  letter-spacing: -0.2px;
 }
 
-/* ================= ROW - Dòng dữ liệu ================= */
+/* ================= ROW ================= */
+
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  padding: 10px;
-  border-radius: var(--radius-sm); /* Sử dụng biến bo góc nhỏ */
+  padding: 10px 12px;
 
-  transition: background 0.2s ease; /* Transition cho màu nền */
+  border-radius: 12px;
+
+  border: 1px solid transparent;
+
+  transition: 0.2s ease;
 }
 
 .row:hover {
-  background: var(--primary-soft); /* Hiệu ứng nền khi hover */
+  background: rgba(50, 88, 99, 0.04);
+
+  border-color: rgba(15, 23, 42, 0.04);
 }
 
 .row span {
-  font-size: 14px;
+  font-size: 13px;
+
+  color: var(--text);
 }
 
 .row b {
+  font-size: 13px;
   font-weight: 700;
-  color: var(--primary);
 }
 
-/* ================= HEADER - Tiêu đề trang ================= */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-xl);
-}
+/* ================= BADGES ================= */
 
-.actions {
-  display: flex;
-  gap: var(--spacing-md); /* Khoảng cách giữa các action */
-  align-items: center;
-}
-
-.select {
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  outline: none;
-  background: #fff;
-}
-
-.refreshBtn {
-  background: var(--primary-soft);
-  border: none;
-  padding: 8px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.2s ease; /* Transition cho màu nền */
-}
-
-.refreshBtn:hover {
-  background: rgba(50, 88, 99, 0.15); /* Màu hover hơi đậm hơn */
-}
-
-/* ================= BADGE SYSTEM - Hệ thống huy hiệu (trạng thái) ================= */
 .badge {
   padding: 4px 10px;
-  border-radius: var(--radius-pill); /* Bo góc tròn */
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-flex; /* Để căn chỉnh nội dung bên trong */
-  align-items: center;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
 }
 
-/* Định nghĩa màu sắc cho các trạng thái badge sử dụng biến màu mới */
 .pending {
-  background: rgba(var(--color-warning), 0.15); /* Sử dụng biến màu warning */
-  color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
 }
 
 .success {
-  background: rgba(var(--color-success), 0.15); /* Sử dụng biến màu success */
-  color: var(--color-success);
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
 }
 
 .danger {
-  background: rgba(var(--color-danger), 0.15); /* Sử dụng biến màu danger */
-  color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
 }
 
 .default {
-  background: var(--primary-soft); /* Màu nền mặc định */
-  color: var(--primary); /* Màu chữ chính */
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--muted);
 }
 
-/* ================= LOADING / ERROR - Trạng thái tải / Lỗi ================= */
-.loading,
-.error {
-  padding: 24px;
-  font-size: 14px;
-}
+/* ================= AI ================= */
 
-.loading {
-  color: var(--muted); /* Màu chữ cho trạng thái tải */
-}
-
-.error {
-  color: var(--color-danger); /* Sử dụng biến màu danger cho lỗi */
-}
-
-/* ================= SKELETON - Hiệu ứng khung xương ================= */
-.skeleton {
-  height: 100px;
-  border-radius: var(--radius);
-  /* Gradient cho hiệu ứng shimmer */
-  background: linear-gradient(90deg, #eee 25%, #f7f7f7 50%, #eee 75%);
-  background-size: 400% 100%; /* Kích thước nền để animation có thể di chuyển */
-  animation: shimmer 1.2s infinite; /* Áp dụng animation shimmer */
-}
-
-/* Animation cho hiệu ứng shimmer */
-@keyframes shimmer {
-  0% {
-    background-position: 100% 0; /* Bắt đầu từ bên phải */
-  }
-  100% {
-    background-position: 0 0; /* Kết thúc ở bên trái */
-  }
-}
-
-/* ================= ANIMATION - Hiệu ứng động ================= */
-.spin {
-  animation: spin 1s linear infinite; /* Áp dụng animation spin */
-}
-
-/* Animation cho hiệu ứng xoay */
-@keyframes spin {
-  100% {
-    transform: rotate(360deg); /* Xoay 360 độ */
-  }
-}
-
-/* ================= GROWTH - Tăng trưởng (ví dụ cho KPI) ================= */
-.growth {
-  font-size: 12px;
-  color: var(--color-success); /* Sử dụng biến màu success */
-  margin-top: var(--spacing-xxs);
-  display: inline-flex;
-  gap: var(--spacing-xxs);
-  align-items: center;
-}
-
-/* ================= AI SPECIFIC STYLES - Kiểu dáng riêng cho AI ================= */
 .aiTitle {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
 
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.robotLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 34px;
-  height: 34px;
-
-  border-radius: var(--radius-sm); /* Sử dụng biến bo góc nhỏ */
-
-  background: var(--primary-soft); /* Sử dụng biến màu */
-
-  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease; /* Chỉ định thuộc tính transition */
-}
-
-.robotLink:hover {
-  transform: translateY(-2px) scale(1.08); /* Hiệu ứng hover */
-  background: rgba(50, 88, 99, 0.16); /* Màu hover hơi đậm hơn */
-  box-shadow: 0 8px 20px rgba(50, 88, 99, 0.15); /* Bóng đổ khi hover */
+  gap: 10px;
 }
 
 .robotIcon {
   width: 20px;
   height: 20px;
-  object-fit: contain; /* Đảm bảo icon vừa vặn */
+
+  object-fit: contain;
 }
 
-/* ================= UTILITY CLASSES - Lớp tiện ích ================= */
-.dangerText {
-  color: var(--color-danger); /* Sử dụng biến màu danger */
-  font-weight: 700;
+.aiInsightBox {
+  margin-top: 14px;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.06),
+      rgba(139, 92, 246, 0.06)
+    );
 }
+
+/* ================= TEXT ================= */
 
 .empty {
-  color: var(--color-neutral); /* Sử dụng biến màu neutral */
-  font-size: 14px;
+  font-size: 13px;
+
+  color: var(--muted);
 }
 
-.revenueValue {
-  color: var(--color-success); /* Sử dụng biến màu success */
-  font-weight: 700;
+.dangerText {
+  color: var(--danger);
 }
 
-.kpiHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs); /* Khoảng cách nhỏ */
+/* ================= CHART ================= */
+
+.chartWrapper {
+  width: 100%;
+  height: 280px;
+}
+
+.recharts-cartesian-grid line {
+  stroke: rgba(15, 23, 42, 0.05);
+}
+
+.recharts-tooltip-wrapper {
+  border-radius: 14px !important;
+}
+
+/* ================= SKELETON ================= */
+
+.skeleton {
+  height: 100px;
+
+  border-radius: var(--radius);
+
+  background:
+    linear-gradient(
+      90deg,
+      #ececec 25%,
+      #f6f6f6 50%,
+      #ececec 75%
+    );
+
+  background-size: 400% 100%;
+
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0 0;
+  }
+}
+
+/* ================= SPIN ================= */
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= SCROLLBAR ================= */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.12);
+
+  border-radius: 999px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .wrapper {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 14px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .card h2,
+  .cardDanger h2 {
+    font-size: 24px;
+  }
 }

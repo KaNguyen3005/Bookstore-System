@@ -42,8 +42,28 @@ const Register = () => {
     if (!form.firstName.trim()) err.firstName = "Vui lòng nhập họ";
     if (!form.lastName.trim()) err.lastName = "Vui lòng nhập tên";
 
-    if (!form.day || !form.month || !form.year)
+    if (!form.day || !form.month || !form.year) {
       err.birth = "Vui lòng chọn ngày sinh";
+    } else {
+      const birthDate = new Date(
+        Number(form.year),
+        Number(form.month) - 1,
+        Number(form.day)
+      );
+
+      const today = new Date();
+
+      let age = today.getFullYear() - birthDate.getFullYear();
+
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age < 16) {
+        err.birth = "Bạn phải từ 16 tuổi trở lên";
+      }
+    }
 
     if (!form.gender) err.gender = "Vui lòng chọn giới tính";
 

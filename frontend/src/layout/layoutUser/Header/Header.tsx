@@ -243,7 +243,16 @@ const Header: React.FC = () => {
                 className="user-trigger-us"
                 onClick={() => setOpen(!open)}
               >
-                <FaRegUserCircle />
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.username}
+                    className="user-avatar"
+                  />
+                ) : (
+                  <FaRegUserCircle />
+                )}
+
                 <p>{user.username}</p>
               </div>
 
