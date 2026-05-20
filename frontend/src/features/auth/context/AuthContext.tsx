@@ -34,47 +34,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-
   const [loading, setLoading] = useState(true);
 
+  // ================= INIT AUTH =================
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const savedUser = localStorage.getItem("user");
         const token = localStorage.getItem("access_token");
 
-        // chưa login
-        if (!savedUser && !token) {
+        if (!token) {
           setUser(null);
           return;
         }
 
-        // có cache user
-        if (savedUser) {
-          const parsedUser: User = JSON.parse(savedUser);
-          setUser(parsedUser);
-          return;
-        }
+        const fetchedUser = await userApi.getMe();
 
-        // có token nhưng chưa có user
-        if (token) {
-          const fetchedUser = await userApi.getMe();
-
-          if (fetchedUser) {
-            localStorage.setItem("user", JSON.stringify(fetchedUser));
-            setUser(fetchedUser);
-          } else {
-            localStorage.removeItem("user");
-            localStorage.removeItem("access_token");
-            setUser(null);
-          }
+        if (fetchedUser) {
+          localStorage.setItem("user", JSON.stringify(fetchedUser));
+          setUser(fetchedUser);
+        } else {
+          localStorage.removeItem("user");
+          localStorage.removeItem("access_token");
+          setUser(null);
         }
       } catch (error) {
         console.error("Auth init failed:", error);
 
         localStorage.removeItem("user");
         localStorage.removeItem("access_token");
-
         setUser(null);
       } finally {
         setLoading(false);
@@ -84,6 +71,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     initAuth();
   }, []);
 
+  // ================= LOGIN =================
   const login = useCallback((userData: User) => {
     localStorage.setItem("user", JSON.stringify(userData));
 
@@ -94,6 +82,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setUser(userData);
   }, []);
 
+  // ================= LOGOUT =================
   const logout = useCallback(() => {
     localStorage.removeItem("user");
     localStorage.removeItem("access_token");
