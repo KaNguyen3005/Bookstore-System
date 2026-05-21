@@ -345,11 +345,21 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
         {/* FOOTER */}
         <div className="create-product-modal__footer">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={loading}
+            style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600 }}
+          >
             Hủy
           </Button>
 
-          <Button variant="primary" onClick={handleSubmit} disabled={loading}>
+          <Button 
+            variant="primary" 
+            onClick={handleSubmit} 
+            disabled={loading}
+            style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600 }}
+          >
             {loading ? "Đang thêm..." : "Thêm sản phẩm"}
           </Button>
         </div>

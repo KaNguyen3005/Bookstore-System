@@ -63,6 +63,7 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
   const [categoryOptions, setCategoryOptions] = useState<Option[]>([]);
   const [publisherOptions, setPublisherOptions] = useState<Option[]>([]);
   const [isbnError, setIsbnError] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     if (!product) return;
@@ -178,6 +179,12 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
       );
       return;
     }
+
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmUpdate = async () => {
+    setShowConfirmModal(false);
 
     const currentStock = Number(formData.stockQuantity) || 0;
     const stockAdjustment = formData.stockAdjustment
@@ -379,14 +386,69 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
         </div>
 
         <div className="create-product-modal__footer">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={loading}
+            style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600 }}
+          >
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={loading}>
+          <Button 
+            variant="primary" 
+            onClick={handleSubmit} 
+            disabled={loading}
+            style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600 }}
+          >
             {loading ? "Đang lưu..." : "Lưu thay đổi"}
           </Button>
         </div>
       </div>
+
+      {showConfirmModal && (
+        <div 
+          className="toast-container" 
+          style={{ pointerEvents: 'auto', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 10000 }}
+          onClick={() => setShowConfirmModal(false)}
+        >
+          <div 
+            className="toast-message" 
+            style={{ 
+              borderColor: '#f59e0b', 
+              animation: 'toast-pop-in 0.24s ease',
+              fontFamily: 'inherit',
+              padding: '32px 24px 28px',
+              borderRadius: '16px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="toast-icon" style={{ borderColor: '#f59e0b', color: '#f59e0b', fontSize: '36px', fontWeight: 'bold' }}>
+               ?
+            </span>
+            <span className="toast-content" style={{ alignItems: 'center' }}>
+              <span className="toast-title" style={{ fontSize: '20px' }}>Xác nhận cập nhật</span>
+              <span className="toast-text" style={{ fontSize: '15px', color: '#6b7280', marginTop: '4px' }}>Bạn có chắc chắn muốn lưu những thay đổi này không?</span>
+            </span>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '16px', width: '100%', justifyContent: 'center' }}>
+               <Button 
+                 onClick={() => setShowConfirmModal(false)} 
+                 variant="outline"
+                 style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600, color: '#4b5563' }}
+               >
+                 Hủy bỏ
+               </Button>
+               <Button 
+                 onClick={handleConfirmUpdate} 
+                 variant="primary"
+                 style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600, backgroundColor: '#f59e0b', border: 'none' }}
+               >
+                 Đồng ý
+               </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
