@@ -13,6 +13,7 @@ interface UserRoleTableProps {
   loading: boolean;
   error: string | null;
   actionLoading: boolean;
+  currentUserId: number | null;
   onAssignRole: (userId: number, roleId: number) => void;
 }
 
@@ -22,6 +23,7 @@ export const UserRoleTable = ({
   loading,
   error,
   actionLoading,
+  currentUserId,
   onAssignRole,
 }: UserRoleTableProps) => {
   const emptyColSpan = 5;
@@ -66,59 +68,68 @@ export const UserRoleTable = ({
 
           {!loading &&
             !error &&
-            users.map((user) => (
-              <tr key={user.userId}>
-                <td>
-                  <div className="role-mgmt__user-cell">
-                    <span className="role-mgmt__avatar">
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt={user.name} />
-                      ) : (
-                        <UserRound size={17} />
-                      )}
-                    </span>
-                    <div>
-                      <strong>{user.name}</strong>
-                      <span>@{user.username}</span>
+            users.map((user) => {
+              const isCurrentUser = user.userId === currentUserId;
+
+              return (
+                <tr key={user.userId}>
+                  <td>
+                    <div className="role-mgmt__user-cell">
+                      <span className="role-mgmt__avatar">
+                        {user.avatarUrl ? (
+                          <img src={user.avatarUrl} alt={user.name} />
+                        ) : (
+                          <UserRound size={17} />
+                        )}
+                      </span>
+                      <div>
+                        <strong>{user.name}</strong>
+                        <span>@{user.username}</span>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td>{user.email}</td>
-                <td>
-                  <span className="role-mgmt__pill">{user.roleName}</span>
-                </td>
-                <td>
-                  <span
-                    className={
-                      user.status
-                        ? "role-mgmt__status role-mgmt__status--active"
-                        : "role-mgmt__status role-mgmt__status--inactive"
-                    }
-                  >
-                    {user.status ? "Hoạt động" : "Ngừng hoạt động"}
-                  </span>
-                </td>
-                <td className="role-mgmt__table-right">
-                  <select
-                    className="role-mgmt__select"
-                    value={user.roleId ?? ""}
-                    disabled={actionLoading || !canAssign}
-                    onChange={(event) =>
-                      onAssignRole(user.userId, Number(event.target.value))
-                    }
-                  >
-                    <option value="">
-                      {canAssign ? "Chọn vai trò" : "Backend chưa trả roleId"}
-                    </option>
-                    {roleOptions.map((role) => (
-                      <option key={role.roleId} value={role.roleId}>
-                        {role.roleName}
+                  </td>
+                  <td>{user.email}</td>
+                  <td>
+                    <span className="role-mgmt__pill">{user.roleName}</span>
+                  </td>
+                  <td>
+                    <span
+                      className={
+                        user.status
+                          ? "role-mgmt__status role-mgmt__status--active"
+                          : "role-mgmt__status role-mgmt__status--inactive"
+                      }
+                    >
+                      {user.status ? "Hoạt động" : "Ngừng hoạt động"}
+                    </span>
+                  </td>
+                  <td className="role-mgmt__table-right">
+                    <select
+                      className="role-mgmt__select"
+                      value={user.roleId ?? ""}
+                      disabled={actionLoading || !canAssign || isCurrentUser}
+                      title={
+                        isCurrentUser
+                          ? "Admin không thể tự chỉnh quyền của chính mình"
+                          : undefined
+                      }
+                      onChange={(event) =>
+                        onAssignRole(user.userId, Number(event.target.value))
+                      }
+                    >
+                      <option value="">
+                        {canAssign ? "Chọn vai trò" : "Backend chưa trả roleId"}
                       </option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            ))}
+                      {roleOptions.map((role) => (
+                        <option key={role.roleId} value={role.roleId}>
+                          {role.roleName}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              );
+            })}
         </tbody>
       </table>
     </div>

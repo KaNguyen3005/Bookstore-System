@@ -26,6 +26,7 @@ export default function RoleManagement() {
     filteredRoles,
     filteredUsers,
     roleOptions,
+    currentUserId,
     openCreateModal,
     openEditModal,
     closeModal,
@@ -111,6 +112,7 @@ export default function RoleManagement() {
             loading={loading}
             error={error}
             actionLoading={actionLoading}
+            currentUserId={currentUserId}
             onAssignRole={handleAssignUserRole}
           />
         )}

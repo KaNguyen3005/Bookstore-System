@@ -6,7 +6,9 @@ import {
   EyeOff,
   Pencil,
   Plus,
+  ShieldCheck,
   Trash2,
+  UsersRound,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -29,6 +31,9 @@ export default function CustomerManagement() {
   const [showPassword, setShowPassword] = useState(false);
   const {
     totalElements,
+    activeTab,
+    setActiveTab,
+    accountCounts,
     totalPages,
     currentPage,
     setPage,
@@ -37,6 +42,8 @@ export default function CustomerManagement() {
     selectedUser,
     setSelectedUser,
     formMode,
+    editingUser,
+    currentUserId,
     form,
     loading,
     actionLoading,
@@ -53,6 +60,12 @@ export default function CustomerManagement() {
     handleUpdateStatus,
   } = useCustomerManagement();
 
+  const isStaffAdminTab = activeTab === "staffAdmin";
+  const normalizedFormRole = form.role.trim().toUpperCase();
+  const isEditingAdmin = formMode === "edit" && normalizedFormRole === "ADMIN";
+  const isEditingCurrentAdmin =
+    isEditingAdmin && editingUser?.userId === currentUserId;
+
   return (
     <div>
       <h2>QUẢN LÝ THÔNG TIN TÀI KHOẢN</h2>
@@ -62,6 +75,32 @@ export default function CustomerManagement() {
         <p>{totalElements}</p>
       </div>
 
+      <div className="account-tabs" role="tablist" aria-label="Quản lý tài khoản">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={isStaffAdminTab}
+          className={isStaffAdminTab ? "account-tab account-tab--active" : "account-tab"}
+          onClick={() => setActiveTab("staffAdmin")}
+        >
+          <ShieldCheck size={17} />
+          Staff & Admin
+          <span>{accountCounts.staffAdmin}</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!isStaffAdminTab}
+          className={!isStaffAdminTab ? "account-tab account-tab--active" : "account-tab"}
+          onClick={() => setActiveTab("customers")}
+        >
+          <UsersRound size={17} />
+          Khách hàng
+          <span>{accountCounts.customers}</span>
+        </button>
+      </div>
+
       <div className="search-cm">
         <button
           type="button"
@@ -69,7 +108,7 @@ export default function CustomerManagement() {
           onClick={openCreateForm}
         >
           <Plus size={16} />
-          Thêm người dùng
+          {isStaffAdminTab ? "Thêm nhân viên" : "Thêm khách hàng"}
         </button>
         <input
           value={keyword}
@@ -82,7 +121,11 @@ export default function CustomerManagement() {
       </div>
 
       <div className="table-wrapper">
-        <h2>Danh sách</h2>
+        <h2>
+          {isStaffAdminTab
+            ? "Danh sách tài khoản Staff & Admin"
+            : "Danh sách tài khoản khách hàng"}
+        </h2>
 
         <table className="customer-table">
           <thead>
@@ -92,6 +135,7 @@ export default function CustomerManagement() {
               <th>Họ</th>
               <th>Tên</th>
               <th>Email</th>
+              <th>Vai trò</th>
               <th>Trạng thái</th>
               <th>Quản lý</th>
             </tr>
@@ -100,19 +144,19 @@ export default function CustomerManagement() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={7}>Đang tải danh sách người dùng...</td>
+                <td colSpan={8}>Đang tải danh sách người dùng...</td>
               </tr>
             )}
 
             {!loading && error && (
               <tr>
-                <td colSpan={7}>{error}</td>
+                <td colSpan={8}>{error}</td>
               </tr>
             )}
 
             {!loading && !error && filtered.length === 0 && (
               <tr>
-                <td colSpan={7}>Không có người dùng phù hợp</td>
+                <td colSpan={8}>Không có người dùng phù hợp</td>
               </tr>
             )}
 
@@ -120,6 +164,7 @@ export default function CustomerManagement() {
               !error &&
               filtered.map((user) => {
                 const parts = splitName(user.name);
+                const isAdminAccount = user.role?.trim().toUpperCase() === "ADMIN";
 
                 return (
                   <tr key={user.userId}>
@@ -128,6 +173,11 @@ export default function CustomerManagement() {
                     <td>{parts.firstPart}</td>
                     <td>{parts.rest}</td>
                     <td>{user.email}</td>
+                    <td>
+                      <span className="account-role-pill">
+                        {user.role || "CUSTOMER"}
+                      </span>
+                    </td>
                     <td className={user.status ? "active" : "inactive"}>
                       {user.status ? "Hoạt động" : "Ngừng hoạt động"}
                     </td>
@@ -147,24 +197,34 @@ export default function CustomerManagement() {
                         <Pencil size={14} />
                         Sửa
                       </button>
-                      <button
-                        type="button"
-                        className="btn status-action"
-                        disabled={actionLoading}
-                        onClick={() => handleUpdateStatus(user)}
-                      >
-                        <CheckCircle2 size={14} />
-                        {user.status ? "Ngừng" : "Mở"}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn delete"
-                        disabled={actionLoading}
-                        onClick={() => handleDeleteUser(user)}
-                      >
-                        <Trash2 size={14} />
-                        Xóa
-                      </button>
+                      {!isAdminAccount && (
+                        <>
+                          <button
+                            type="button"
+                            className="btn status-action"
+                            disabled={actionLoading}
+                            onClick={(event) => {
+                              console.log("CLICK STATUS BUTTON:", {
+                                userId: user.userId,
+                                status: user.status,
+                              });
+                              handleUpdateStatus(user, event);
+                            }}
+                          >
+                            <CheckCircle2 size={14} />
+                            {user.status ? "Ngừng" : "Mở"}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn delete"
+                            disabled={actionLoading}
+                            onClick={() => handleDeleteUser(user)}
+                          >
+                            <Trash2 size={14} />
+                            Xóa
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 );
@@ -333,13 +393,23 @@ export default function CustomerManagement() {
                 Vai trò
                 <select
                   value={form.role}
+                  disabled={isEditingCurrentAdmin}
+                  title={
+                    isEditingCurrentAdmin
+                      ? "Admin không thể tự chỉnh vai trò của chính mình"
+                      : undefined
+                  }
                   onChange={(event) =>
                     updateFormField("role", event.target.value)
                   }
                 >
-                  <option value="CUSTOMER">CUSTOMER</option>
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="STAFF">STAFF</option>
+                  {isEditingAdmin ? (
+                    <option value="ADMIN">ADMIN</option>
+                  ) : isStaffAdminTab ? (
+                    <option value="STAFF">STAFF</option>
+                  ) : (
+                    <option value="CUSTOMER">CUSTOMER</option>
+                  )}
                 </select>
                 {fieldErrors.role && (
                   <span className="field-error">{fieldErrors.role}</span>
@@ -367,6 +437,7 @@ export default function CustomerManagement() {
                 <input
                   type="checkbox"
                   checked={form.status}
+                  disabled={isEditingAdmin}
                   onChange={(event) =>
                     updateFormField("status", event.target.checked)
                   }

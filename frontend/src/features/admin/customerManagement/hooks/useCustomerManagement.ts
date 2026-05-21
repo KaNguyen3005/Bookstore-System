@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, MouseEvent } from "react";
 
 import { userApi, type UserFE } from "../../../../services/userApi";
 
 type FormMode = "create" | "edit";
+type AccountManagementTab = "staffAdmin" | "customers";
 
 type UserFormState = {
   email: string;
@@ -34,10 +35,44 @@ const emptyForm: UserFormState = {
   point: "0",
 };
 
-const formatDateInput = (date: Date) => {
-  if (!date || Number.isNaN(date.getTime())) return "";
+const staffAdminRoles = new Set(["ADMIN", "STAFF"]);
 
-  return date.toISOString().slice(0, 10);
+const normalizeRole = (role?: string) => role?.trim().toUpperCase() ?? "";
+
+const getDefaultRoleByTab = (tab: AccountManagementTab) =>
+  tab === "staffAdmin" ? "STAFF" : "CUSTOMER";
+
+const roleIdByName: Record<string, number> = {
+  ADMIN: 1,
+  CUSTOMER: 2,
+  STAFF: 3,
+};
+
+const getRoleIdByName = (role?: string): number | undefined =>
+  roleIdByName[normalizeRole(role)];
+
+const resolveRoleId = (role?: string) => getRoleIdByName(role) ?? roleIdByName.CUSTOMER;
+
+const getCurrentUserId = () => {
+  try {
+    const rawUser = localStorage.getItem("user");
+    const user = rawUser ? JSON.parse(rawUser) : null;
+    const userId = Number(user?.userId ?? user?.id);
+
+    return Number.isFinite(userId) && userId > 0 ? userId : null;
+  } catch {
+    return null;
+  }
+};
+
+const formatDateInput = (date: Date | string) => {
+  if (!date) return "";
+
+  const parsedDate = typeof date === "string" ? new Date(date) : date;
+
+  if (Number.isNaN(parsedDate.getTime())) return "";
+
+  return parsedDate.toISOString().slice(0, 10);
 };
 
 const getGenderInputValue = (gender: string) => {
@@ -68,6 +103,44 @@ const getErrorMessage = (err: any) =>
   err?.response?.data?.error ||
   err?.message ||
   "Không thể lưu thông tin người dùng";
+
+const validateUserForm = (
+  form: UserFormState,
+  mode: FormMode
+): UserFormErrors => {
+  const errors: UserFormErrors = {};
+  const email = form.email.trim();
+  const password = form.password.trim();
+  const phone = form.phone.trim();
+
+  if (!email) {
+    errors.email = "Vui lòng nhập email";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = "Email không hợp lệ";
+  }
+
+  if (mode === "create") {
+    if (!password) {
+      errors.password = "Vui lòng nhập mật khẩu";
+    } else if (password.length < 6) {
+      errors.password = "Mật khẩu phải từ 6 ký tự";
+    }
+  }
+
+  if (!form.username.trim()) errors.username = "Vui lòng nhập tên đăng nhập";
+  if (!form.name.trim()) errors.name = "Vui lòng nhập họ tên";
+
+  if (!phone) {
+    errors.phone = "Vui lòng nhập số điện thoại";
+  } else if (!/^0(3|5|7|8|9)\d{8}$/.test(phone)) {
+    errors.phone = "Số điện thoại phải có 10 số và bắt đầu bằng 03, 05, 07, 08 hoặc 09";
+  }
+
+  if (!form.gender.trim()) errors.gender = "Vui lòng chọn giới tính";
+  if (!form.dob.trim()) errors.dob = "Vui lòng chọn ngày sinh";
+
+  return errors;
+};
 
 const parseBackendErrors = (err: any) => {
   const data = err?.response?.data;
@@ -116,7 +189,7 @@ const parseBackendErrors = (err: any) => {
   return {
     summary:
       data?.message === "Invalid key"
-        ? "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại các trường bắt buộc và định dạng mật khẩu"
+        ? "Dữ liệu không hợp lệ. Vui lòng kiểm tra email, số điện thoại, ngày sinh và mật khẩu phải từ 6 ký tự"
         : getErrorMessage(err),
     errors,
   };
@@ -125,11 +198,14 @@ const parseBackendErrors = (err: any) => {
 export const useCustomerManagement = () => {
   const [users, setUsers] = useState<UserFE[]>([]);
   const [allUsers, setAllUsers] = useState<UserFE[]>([]);
+  const [activeTab, setActiveTab] =
+    useState<AccountManagementTab>("staffAdmin");
   const [keyword, setKeyword] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserFE | null>(null);
   const [formMode, setFormMode] = useState<FormMode | null>(null);
   const [editingUser, setEditingUser] = useState<UserFE | null>(null);
   const [form, setForm] = useState<UserFormState>(emptyForm);
+  const [currentUserId] = useState<number | null>(() => getCurrentUserId());
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -145,6 +221,12 @@ export const useCustomerManagement = () => {
 
     return allUsers
       .filter((user) => {
+        const role = normalizeRole(user.role);
+        const isStaffAdmin = staffAdminRoles.has(role);
+
+        if (activeTab === "staffAdmin" && !isStaffAdmin) return false;
+        if (activeTab === "customers" && role !== "CUSTOMER") return false;
+
         if (!normalizedKeyword) return true;
 
         return [user.username, user.name, user.email, user.phone, user.role].some(
@@ -152,7 +234,27 @@ export const useCustomerManagement = () => {
         );
       })
       .sort((first, second) => first.userId - second.userId);
-  }, [allUsers, keyword]);
+  }, [activeTab, allUsers, keyword]);
+
+  const accountCounts = useMemo(() => {
+    return allUsers.reduce(
+      (counts, user) => {
+        const role = normalizeRole(user.role);
+
+        if (staffAdminRoles.has(role)) {
+          counts.staffAdmin += 1;
+        } else if (role === "CUSTOMER") {
+          counts.customers += 1;
+        }
+
+        return counts;
+      },
+      {
+        staffAdmin: 0,
+        customers: 0,
+      },
+    );
+  }, [allUsers]);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -183,7 +285,7 @@ export const useCustomerManagement = () => {
 
   useEffect(() => {
     setPage(0);
-  }, [keyword]);
+  }, [activeTab, keyword]);
 
   useEffect(() => {
     const nextTotalPages = Math.max(1, Math.ceil(displayedUsers.length / size));
@@ -221,12 +323,15 @@ export const useCustomerManagement = () => {
   }, []);
 
   const openCreateForm = useCallback(() => {
-    setForm(emptyForm);
+    setForm({
+      ...emptyForm,
+      role: getDefaultRoleByTab(activeTab),
+    });
     setEditingUser(null);
     setFormMode("create");
     setActionError(null);
     setFieldErrors({});
-  }, []);
+  }, [activeTab]);
 
   const openEditForm = useCallback((user: UserFE) => {
     setForm(toFormState(user));
@@ -261,7 +366,19 @@ export const useCustomerManagement = () => {
         setActionError(null);
         setFieldErrors({});
 
+        if (!formMode) return;
+
+        const validationErrors = validateUserForm(form, formMode);
+
+        if (Object.keys(validationErrors).length > 0) {
+          setFieldErrors(validationErrors);
+          setActionError("Vui lòng kiểm tra lại thông tin tài khoản");
+          return;
+        }
+
         if (formMode === "create") {
+          const roleId = resolveRoleId(form.role);
+
           const createdUser = await userApi.createUser({
             email: form.email.trim(),
             password: form.password.trim(),
@@ -270,11 +387,28 @@ export const useCustomerManagement = () => {
             phone: form.phone.trim(),
             gender: form.gender.trim().toUpperCase(),
             dob: form.dob,
-            roleName: form.role.trim(),
+            roleId,
+            status: form.status,
           });
 
-          setAllUsers((prev) => [createdUser, ...prev]);
+          setAllUsers((prev) => [
+            {
+              ...createdUser,
+              role: createdUser.role || form.role.trim().toUpperCase(),
+              roleId: createdUser.roleId ?? roleId,
+              status: createdUser.status ?? form.status,
+            },
+            ...prev,
+          ]);
         } else if (formMode === "edit" && editingUser) {
+          const nextRoleId =
+            editingUser.roleId ??
+            resolveRoleId(
+              normalizeRole(editingUser.role) === "ADMIN"
+                ? editingUser.role
+                : form.role
+            );
+
           const updatedUser = await userApi.updateUser({
             userId: editingUser.userId,
             username: form.username.trim(),
@@ -283,11 +417,22 @@ export const useCustomerManagement = () => {
             phone: form.phone.trim(),
             gender: form.gender.trim().toUpperCase(),
             dob: form.dob,
-            status: form.status,
+            status:
+              normalizeRole(editingUser.role) === "ADMIN"
+                ? editingUser.status
+                : form.status,
+            roleId: nextRoleId,
             point: Number(form.point) || 0,
           });
 
-          updateUserInList(updatedUser);
+          updateUserInList({
+            ...updatedUser,
+            role: editingUser.role,
+            status:
+              normalizeRole(editingUser.role) === "ADMIN"
+                ? editingUser.status
+                : updatedUser.status,
+          });
         }
 
         closeForm();
@@ -313,6 +458,11 @@ export const useCustomerManagement = () => {
   );
 
   const handleDeleteUser = useCallback(async (user: UserFE) => {
+    if (normalizeRole(user.role) === "ADMIN") {
+      alert("Không thể xóa tài khoản admin");
+      return;
+    }
+
     const confirmed = window.confirm(
       `Bạn có chắc muốn xóa tài khoản "${user.username}"?`
     );
@@ -332,20 +482,42 @@ export const useCustomerManagement = () => {
   }, []);
 
   const handleUpdateStatus = useCallback(
-    async (user: UserFE) => {
+    async (user: UserFE, event?: MouseEvent<HTMLButtonElement>) => {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      if (actionLoading) return;
+
+      if (normalizeRole(user.role) === "ADMIN") {
+        alert("Không thể ngừng hoạt động tài khoản admin");
+        return;
+      }
+
       try {
         setActionLoading(true);
         const nextStatus = !user.status;
 
-        await userApi.updateStatus(user.userId, nextStatus);
-        updateUserInList({ ...user, status: nextStatus });
+        console.log("HANDLE UPDATE STATUS:", {
+          userId: user.userId,
+          currentStatus: user.status,
+          nextStatus,
+        });
+
+        const updatedUser = await userApi.updateStatus(user.userId, nextStatus);
+
+        updateUserInList({
+          ...user,
+          ...updatedUser,
+          status: updatedUser.status ?? nextStatus,
+        });
       } catch (err: any) {
+        console.error("Update user status failed:", err);
         alert(getErrorMessage(err) || "Không thể cập nhật trạng thái tài khoản");
       } finally {
         setActionLoading(false);
       }
     },
-    [updateUserInList]
+    [actionLoading, updateUserInList]
   );
 
   const handleDisableUser = useCallback(
@@ -371,6 +543,9 @@ export const useCustomerManagement = () => {
 
   return {
     list: users,
+    activeTab,
+    setActiveTab,
+    accountCounts,
     totalElements,
     totalPages,
     currentPage: page,
@@ -381,6 +556,8 @@ export const useCustomerManagement = () => {
     selectedUser,
     setSelectedUser,
     formMode,
+    editingUser,
+    currentUserId,
     form,
     loading,
     actionLoading,

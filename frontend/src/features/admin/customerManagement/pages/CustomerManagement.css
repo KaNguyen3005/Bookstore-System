@@ -20,6 +20,53 @@
   color: #c04e50;
 }
 
+.account-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  margin-top: 24px;
+  padding: 4px;
+  border: 1px solid #d8dee8;
+  border-radius: 999px;
+  background: #edf1f6;
+}
+
+.account-tab {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.account-tab--active {
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+}
+
+.account-tab span {
+  min-width: 24px;
+  min-height: 24px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #dce9ec;
+  color: #2c6f7b;
+  font-size: 12px;
+}
+
+.account-tab--active span {
+  background: #eef7f8;
+}
 
 .search-cm {
   display: flex;
@@ -81,6 +128,18 @@
 
 .customer-table tr:hover {
   background: #f5f5f5;
+}
+
+.account-role-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef7f8;
+  color: #2c6f7b;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 
@@ -612,6 +671,15 @@
 
   .search-cm {
     flex-wrap: wrap;
+  }
+
+  .account-tabs {
+    grid-template-columns: 1fr;
+    border-radius: 14px;
+  }
+
+  .account-tab {
+    border-radius: 10px;
   }
 
   .search-cm input {

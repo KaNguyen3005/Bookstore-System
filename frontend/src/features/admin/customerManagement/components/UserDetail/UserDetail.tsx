@@ -33,15 +33,25 @@ const genderLabel: Record<string, string> = {
   OTHER: "Khác",
 };
 
+const formatDob = (dob?: Date | string) => {
+  if (!dob) return "Chưa cập nhật";
+
+  const parsedDate = typeof dob === "string" ? new Date(dob) : dob;
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Chưa cập nhật";
+  }
+
+  return new Intl.DateTimeFormat("vi-VN").format(parsedDate);
+};
+
 export default function UserDetail({ user, onClose }: Props) {
   const modalRef = useRef<HTMLElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const lastTouchY = useRef(0);
-  const nameParts = splitName(user.name);
+  const nameParts = splitName(user.name || "");
   const displayName = user.name || user.username || "Người dùng";
-  const formattedDob = Number.isNaN(user.dob?.getTime())
-    ? "Chưa cập nhật"
-    : new Intl.DateTimeFormat("vi-VN").format(user.dob);
+  const formattedDob = formatDob(user.dob);
 
   useEffect(() => {
     const scrollY = window.scrollY;

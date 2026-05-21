@@ -111,15 +111,6 @@ export const orderService = {
 
     return response.data.result;
   },
-
-  // ================= EXPORT EXCEL =================
-  exportOrders: async (): Promise<Blob> => {
-    const response = await axiosClient.get("/orders/export", {
-      responseType: "blob",
-    });
-
-    return response.data;
-  },
 };
 
 export default orderService;
