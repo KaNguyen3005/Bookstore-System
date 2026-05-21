@@ -17,6 +17,7 @@ import { GoogleLogin } from "@react-oauth/google";
 
 import { authApi } from "../../../../services/authApi";
 import { userApi } from "../../../../services/userApi";
+import type { User } from "../../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -41,6 +42,55 @@ const Login = () => {
 
   const normalizeRole = (value?: string) =>
     value?.trim().toUpperCase().replace(/^ROLE_/, "");
+
+  const isInactiveAccount = (value?: boolean) => value === false;
+
+  const normalizeErrorMessage = (value?: string) =>
+    String(value ?? "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const isInactiveAccountMessage = (value?: string) => {
+    const message = normalizeErrorMessage(value);
+
+    return [
+      "inactive",
+      "disabled",
+      "disable",
+      "locked",
+      "blocked",
+      "ngung hoat dong",
+      "vo hieu hoa",
+      "khoa",
+    ].some((keyword) => message.includes(keyword));
+  };
+
+  const getLoginErrorMessage = (value?: string) => {
+    if (isInactiveAccountMessage(value)) {
+      return "Tài khoản này đã ngừng hoạt động";
+    }
+
+    const mapError: Record<string, string> = {
+      "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
+      "Login failed": "Sai tài khoản hoặc mật khẩu",
+      "Token not found": "Sai tài khoản hoặc mật khẩu",
+      "Account disabled": "Tài khoản này đã ngừng hoạt động",
+    };
+
+    return mapError[value ?? ""] || "Sai tài khoản hoặc mật khẩu";
+  };
+
+  const toAuthUser = (fullUser: NonNullable<Awaited<ReturnType<typeof userApi.getMe>>>, token: string): User => ({
+    userId: fullUser.userId,
+    email: fullUser.email || "",
+    phone: fullUser.phone || "",
+    username: fullUser.username || "",
+    name: fullUser.name || "",
+    role: fullUser.role || "",
+    avatarUrl: fullUser.avatarUrl,
+    token,
+  });
 
   // đã login -> redirect luôn
 const hasToken = !!localStorage.getItem("access_token");
@@ -104,11 +154,14 @@ if (hasToken && user) {
         throw new Error("Cannot fetch user");
       }
 
+      if (isInactiveAccount(fullUser.status)) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        throw new Error("Account disabled");
+      }
+
       // 4. update auth context
-      login({
-        ...fullUser,
-        token: loginRes.token,
-      });
+      login(toAuthUser(fullUser, loginRes.token));
 
       const role = normalizeRole(fullUser.role);
 
@@ -123,16 +176,10 @@ if (hasToken && user) {
 
       const msg = error?.message;
 
-      const mapError: Record<string, string> = {
-        "Invalid credentials": "Sai tài khoản hoặc mật khẩu",
-        "Login failed": "Sai tài khoản hoặc mật khẩu",
-        "Token not found": "Sai tài khoản hoặc mật khẩu",
-      };
-
       setAccountError(true);
       setPasswordError(true);
 
-      setError(mapError[msg] || "Sai tài khoản hoặc mật khẩu");
+      setError(getLoginErrorMessage(msg));
     } finally {
       setLoading(false);
     }
@@ -222,10 +269,17 @@ if (hasToken && user) {
 
                   const fullUser = await userApi.getMe();
 
-                  login({
-                    ...fullUser,
-                    token: loginRes.token,
-                  });
+                  if (!fullUser) {
+                    throw new Error("Cannot fetch user");
+                  }
+
+                  if (isInactiveAccount(fullUser.status)) {
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("user");
+                    throw new Error("Tài khoản này đã ngừng hoạt động");
+                  }
+
+                  login(toAuthUser(fullUser, loginRes.token));
 
                   const role = normalizeRole(fullUser.role);
 

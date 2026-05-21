@@ -9,6 +9,41 @@ const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const clean = (v: any) =>
   typeof v === "string" ? v.trim() : v;
 
+const isInactiveAccount = (status: any) => status === false;
+
+const normalizeErrorMessage = (value?: string) =>
+  String(value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const isInactiveAccountMessage = (value?: string) => {
+  const message = normalizeErrorMessage(value);
+
+  return [
+    "inactive",
+    "disabled",
+    "disable",
+    "locked",
+    "blocked",
+    "ngung hoat dong",
+    "vo hieu hoa",
+    "khoa",
+  ].some((keyword) => message.includes(keyword));
+};
+
+const getAuthErrorMessage = (error: any, fallback: string) => {
+  const message =
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    error?.message ||
+    fallback;
+
+  return isInactiveAccountMessage(message)
+    ? "Tài khoản này đã ngừng hoạt động"
+    : message;
+};
+
 // ================= USER MAP =================
 const mapToFE = (u: any = {}): UserFE => ({
   id: u?.userId,
@@ -92,6 +127,12 @@ export const authApi = {
 
       const userData = userRes?.data?.result ?? userRes?.data;
 
+      if (isInactiveAccount(userData?.status)) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        throw new Error("Tài khoản này đã ngừng hoạt động");
+      }
+
       const fullUser = {
         userId: userData?.userId || userData?.id,
         username: userData?.username,
@@ -99,6 +140,7 @@ export const authApi = {
         phone: userData?.phone,
         name: userData?.name,
         role: userData?.role,
+        status: userData?.status,
         token,
         authenticated: true,
       };
@@ -111,11 +153,7 @@ export const authApi = {
     } catch (error: any) {
       console.error("LOGIN ERROR:", error);
 
-      throw new Error(
-        error?.response?.data?.message ||
-        error.message ||
-        "Login failed"
-      );
+      throw new Error(getAuthErrorMessage(error, "Login failed"));
     }
   },
 
@@ -245,6 +283,12 @@ googleLogin: async (idToken: string) => {
 
     const userData = userRes?.data?.result ?? userRes?.data;
 
+    if (isInactiveAccount(userData?.status)) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      throw new Error("Tài khoản này đã ngừng hoạt động");
+    }
+
     const fullUser = {
       userId: userData?.userId || userData?.id,
       username: userData?.username,
@@ -252,6 +296,7 @@ googleLogin: async (idToken: string) => {
       phone: userData?.phone,
       name: userData?.name,
       role: userData?.role,
+      status: userData?.status,
       token,
       authenticated: true,
     };
@@ -264,11 +309,7 @@ googleLogin: async (idToken: string) => {
   } catch (error: any) {
     console.error("GOOGLE LOGIN ERROR:", error);
 
-    throw new Error(
-      error?.response?.data?.message ||
-      error.message ||
-      "Google login failed"
-    );
+    throw new Error(getAuthErrorMessage(error, "Google login failed"));
   }
 },
 };

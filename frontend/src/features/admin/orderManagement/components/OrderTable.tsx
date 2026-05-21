@@ -8,6 +8,8 @@ import type {
 
 import '../styles/OrderTable.css';
 
+const VIETNAM_TIME_OFFSET_MS = 7 * 60 * 60 * 1000;
+
 interface OrderTableProps {
   orders: Order[];
   loading: boolean;
@@ -40,7 +42,7 @@ export const OrderTable: React.FC<
     date: string
   ) => {
     return new Date(
-      date
+      new Date(date).getTime() + VIETNAM_TIME_OFFSET_MS
     ).toLocaleDateString('vi-VN');
   };
 
@@ -120,13 +122,6 @@ export const OrderTable: React.FC<
         <thead className="order-table__thead">
           <tr className="order-table__tr order-table__tr--header">
             <th className="order-table__th">
-              <input
-                type="checkbox"
-                className="order-table__checkbox"
-              />
-            </th>
-
-            <th className="order-table__th">
               Mã đơn
             </th>
 
@@ -169,13 +164,6 @@ export const OrderTable: React.FC<
                 key={order.orderId}
                 className="order-table__tr"
               >
-                <td className="order-table__td">
-                  <input
-                    type="checkbox"
-                    className="order-table__checkbox"
-                  />
-                </td>
-
                 {/* ORDER ID */}
                 <td className="order-table__td order-table__id">
                   #{order.orderId || (order as any).id}
@@ -308,7 +296,7 @@ export const OrderTable: React.FC<
           {orders.length === 0 && (
             <tr className="order-table__tr">
               <td
-                colSpan={9}
+                colSpan={8}
                 className="order-table__td order-table__td--empty"
               >
                 Không tìm thấy đơn hàng nào.

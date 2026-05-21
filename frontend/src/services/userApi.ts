@@ -18,6 +18,7 @@ export interface UserFE {
   status?: boolean;
   gender: string;
   role: string;
+  roleId?: number;
   tier?: string;
   address?: unknown;
 }
@@ -43,7 +44,8 @@ export interface CreateUserPayload {
   phone: string;
   gender: string;
   dob: string;
-  roleName: string;
+  roleId: number;
+  status?: boolean;
 }
 
 export type UpdateUserPayload = {
@@ -56,6 +58,7 @@ export type UpdateUserPayload = {
   gender?: string;
   dob?: Date | string;
   status?: boolean;
+  roleId?: number;
   point?: number;
 };
 
@@ -80,6 +83,12 @@ const getRoleName = (role: any) => {
   if (typeof role === "string") return role;
 
   return role?.name ?? role?.roleName ?? "";
+};
+
+const getRoleId = (role: any, roleId?: any) => {
+  const rawRoleId = Number(roleId ?? role?.roleId ?? role?.id);
+
+  return Number.isFinite(rawRoleId) && rawRoleId > 0 ? rawRoleId : undefined;
 };
 
 const getGenderCode = (gender: any) => {
@@ -109,10 +118,12 @@ const getUserPayload = (data: any) => data?.result ?? data?.data ?? data;
 
 const formatDatePayload = (date?: Date | string) => {
   if (!date) return undefined;
-  if (typeof date === "string") return date;
-  if (Number.isNaN(date.getTime())) return undefined;
 
-  return date.toISOString().slice(0, 10);
+  const parsedDate = typeof date === "string" ? new Date(date) : date;
+
+  if (Number.isNaN(parsedDate.getTime())) return undefined;
+
+  return parsedDate.toISOString().slice(0, 10);
 };
 
 const mapToFE = (u: any = {}): UserFE => {
@@ -135,26 +146,49 @@ const mapToFE = (u: any = {}): UserFE => {
     phone: clean(u.phone) ?? "",
     point: Number(u.point ?? 0),
     avatarUrl: u.avatarUrl ?? u.avatar_url,
-    dob: u.dob || u.birth ? new Date(u.dob ?? u.birth) : new Date(),
+    dob: u.dob || u.birth ? new Date(u.dob ?? u.birth) : "",
     status: getStatusBoolean(u.status ?? u.active ?? u.enabled ?? u.isActive),
     gender: getGenderCode(u.gender),
     role: getRoleName(u.role ?? u.roleName ?? u.role_id),
+    roleId: getRoleId(u.role, u.roleId ?? u.role_id),
     tier: u.tier,
     address: u.address,
   };
 };
 
-const mapToUpdatePayload = (u: UserFE | UpdateUserPayload) => ({
-  username: u.username,
-  password: "password" in u ? u.password : undefined,
-  name: u.name,
-  email: u.email,
-  phone: u.phone,
-  gender: u.gender,
-  point: u.point,
-  dob: formatDatePayload(u.dob),
-  isChangeAccount: u.status,
-});
+const removeEmptyFields = <T extends Record<string, any>>(payload: T) => {
+  const nextPayload = { ...payload };
+
+  Object.keys(nextPayload).forEach((key) => {
+    const value = nextPayload[key];
+
+    if (value === undefined || value === null || value === "") {
+      delete nextPayload[key];
+    }
+  });
+
+  return nextPayload;
+};
+
+const roleNameById: Record<number, string> = {
+  1: "ADMIN",
+  2: "CUSTOMER",
+  3: "STAFF",
+};
+
+const mapToUpdatePayload = (u: UserFE | UpdateUserPayload) =>
+  removeEmptyFields({
+    username: u.username,
+    password: "password" in u ? u.password : undefined,
+    name: u.name,
+    email: u.email,
+    phone: u.phone,
+    gender: u.gender,
+    isChangeAccount: u.status,
+    roleId: u.roleId,
+    point: u.point,
+    dob: formatDatePayload(u.dob),
+  });
 
 const mapToCreatePayload = (u: CreateUserPayload) => ({
   email: clean(u.email),
@@ -164,7 +198,22 @@ const mapToCreatePayload = (u: CreateUserPayload) => ({
   phone: clean(u.phone),
   gender: clean(u.gender),
   dob: u.dob,
-  roleName: clean(u.roleName),
+  roleId: u.roleId,
+  isChangeAccount: u.status ?? true,
+  point: 0,
+});
+
+const mapToCreateFallbackPayload = (u: CreateUserPayload) => ({
+  email: clean(u.email),
+  password: u.password,
+  username: clean(u.username),
+  name: clean(u.name),
+  phone: clean(u.phone),
+  gender: clean(u.gender),
+  dob: u.dob,
+  roleName: roleNameById[u.roleId] ?? "CUSTOMER",
+  status: u.status ?? true,
+  point: 0,
 });
 
 export const userApi = {
@@ -219,9 +268,22 @@ export const userApi = {
       });
     }
 
-    const res = await axiosClient.post("/users", mapToCreatePayload(data));
+    try {
+      const res = await axiosClient.post("/users", mapToCreatePayload(data));
 
-    return mapToFE(getUserPayload(res.data));
+      return mapToFE(getUserPayload(res.data));
+    } catch (error: any) {
+      if (error?.response?.status !== 400) {
+        throw error;
+      }
+
+      const res = await axiosClient.post(
+        "/users",
+        mapToCreateFallbackPayload(data)
+      );
+
+      return mapToFE(getUserPayload(res.data));
+    }
   },
 
   // ================= GET BY ID =================
@@ -273,14 +335,31 @@ export const userApi = {
     return mapToFE(getUserPayload(res.data));
   },
 
+  updateUser: async (data: UpdateUserPayload): Promise<UserFE> => {
+    const payload = mapToUpdatePayload(data);
+
+    console.log("UPDATE USER PAYLOAD:", payload);
+
+    const res = await axiosClient.patch(
+      `/users/${data.userId}`,
+      payload
+    );
+
+    return mapToFE(getUserPayload(res.data));
+  },
+
   // ================= DISABLE =================
   disableUser: async (id: number): Promise<void> => {
     await axiosClient.post(`/users/${id}/disable`);
   },
 
   // ================= UPDATE STATUS =================
-  updateStatus: async (id: number, status: boolean): Promise<void> => {
-    await axiosClient.put(`/users/${id}/status`, { status });
+  updateStatus: async (id: number, status: boolean): Promise<UserFE> => {
+    const res = await axiosClient.put(`/users/${id}/status`, {
+      status,
+    });
+
+    return mapToFE(getUserPayload(res.data));
   },
 
   // ================= DELETE =================
@@ -292,7 +371,7 @@ export const userApi = {
     updateAvatar: async (file: File): Promise<UserFE> => {
       const formData = new FormData();
 
-      formData.append("avatar", file); // ⚠phải đúng backend key
+      formData.append("avatar", file); 
 
       const res = await axiosClient.patch(
         "/users/me/avatar",

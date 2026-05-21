@@ -4,6 +4,8 @@ import type { Order } from '../types/order';
 import { orderService } from '../services/orderService';
 import './OrderDetailModal.css';
 
+const VIETNAM_TIME_OFFSET_MS = 7 * 60 * 60 * 1000;
+
 interface OrderDetailModalProps {
   orderId: number | null;
   onClose: () => void;
@@ -37,6 +39,12 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0).replace('₫', 'đ');
+  };
+
+  const formatVietnamDateTime = (date: string) => {
+    return new Date(
+      new Date(date).getTime() + VIETNAM_TIME_OFFSET_MS
+    ).toLocaleString('vi-VN');
   };
 
   const getLineTotal = (item: Order['items'][number]) => {
@@ -92,7 +100,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                   </div>
                   <div className="order-detail-modal__info">
                     <p><strong>Trạng thái:</strong> {order.status}</p>
-                    <p><strong>Ngày đặt:</strong> {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
+                    <p><strong>Ngày đặt:</strong> {formatVietnamDateTime(order.createdAt)}</p>
                   </div>
                 </div>
 

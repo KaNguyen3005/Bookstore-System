@@ -13,12 +13,24 @@ const axiosClient = axios.create({
 
 const AUTH_WHITELIST = ["/auth/token", "/auth/register"];
 
+const getAuthToken = () => {
+  return (
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("token") ||
+    localStorage.getItem("accessToken")
+  );
+};
+
+const formatBearerToken = (token: string) => {
+  return token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+};
+
 // ================= REQUEST =================
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
+  const token = getAuthToken();
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = formatBearerToken(token);
   }
 
   return config;

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Order, OrderStatus } from "../types/order";
 import { orderService, type OrdersResponse } from "../services/orderService";
 
+const VIETNAM_TIME_OFFSET_MS = 7 * 60 * 60 * 1000;
+
 export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   PENDING: ["CONFIRMED", "CANCELLED"],
   CONFIRMED: ["SHIPPING"],
@@ -57,6 +59,70 @@ export const useOrders = () => {
     const time = new Date(order.createdAt).getTime();
 
     return Number.isNaN(time) ? 0 : time;
+  };
+
+  const formatCurrency = (amount?: number) => {
+    return Number(amount || 0).toLocaleString("vi-VN");
+  };
+
+  const formatVietnamDateTime = (date?: string) => {
+    if (!date) return "";
+
+    const time = new Date(date).getTime();
+
+    if (Number.isNaN(time)) return "";
+
+    return new Date(time + VIETNAM_TIME_OFFSET_MS).toLocaleString("vi-VN");
+  };
+
+  const getStatusLabel = (status: OrderStatus) => {
+    switch (status) {
+      case "PENDING":
+        return "Chờ xác nhận";
+      case "CONFIRMED":
+        return "Đã xác nhận";
+      case "PROCESSING":
+        return "Đang xử lý";
+      case "SHIPPING":
+        return "Đang giao";
+      case "DELIVERED":
+        return "Đã giao";
+      case "COMPLETED":
+        return "Hoàn thành";
+      case "CANCELLED":
+        return "Đã hủy";
+      default:
+        return status;
+    }
+  };
+
+  const getPaymentStatusLabel = (status?: string) => {
+    switch (status) {
+      case "PAID":
+        return "Đã thanh toán";
+      case "PENDING":
+        return "Chờ thanh toán";
+      case "FAILED":
+        return "Thanh toán thất bại";
+      default:
+        return status || "";
+    }
+  };
+
+  const getShippingAddress = (order: Order) => {
+    const customerAddress = order.shipment?.address;
+    const shippingSnapshot = order.shipping;
+
+    return [
+      customerAddress?.detailAddress || shippingSnapshot?.line1,
+      shippingSnapshot?.line2,
+      customerAddress?.ward || shippingSnapshot?.ward,
+      customerAddress?.district || shippingSnapshot?.district,
+      customerAddress?.province || shippingSnapshot?.city,
+      shippingSnapshot?.country,
+    ]
+      .filter(Boolean)
+      .join(", ");
   };
 
   const sortNewestFirst = (first: Order, second: Order) => {
@@ -263,15 +329,52 @@ export const useOrders = () => {
 
   const handleExport = async () => {
     try {
-      const blob = await orderService.exportOrders();
-      const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `orders_${new Date().getTime()}.xlsx`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
+      if (safeOrders.length === 0) {
+        alert("Không có đơn hàng để xuất Excel");
+        return;
+      }
+
+      const rows = safeOrders.map((order) => ({
+        "Mã đơn": order.orderId,
+        "Khách hàng": order.customerName || "",
+        "Số sản phẩm": order.items?.length ?? 0,
+        "Sản phẩm": (order.items ?? [])
+          .map((item) => `${item.bookTitle} x${item.quantity}`)
+          .join(", "),
+        "Tạm tính": formatCurrency(order.subtotal),
+        "VAT": formatCurrency(order.vatAmount),
+        "Tổng tiền": formatCurrency(order.totalAmount),
+        "Thanh toán": getPaymentStatusLabel(order.paymentStatus),
+        "Trạng thái": getStatusLabel(order.status),
+        "Ngày đặt": formatVietnamDateTime(order.createdAt),
+        "Nhân viên xử lý": order.staffName || "",
+        "Người nhận":
+          order.shipment?.address?.customerName ||
+          order.shipping?.receiverName ||
+          order.customerName ||
+          "",
+        "Số điện thoại":
+          order.shipment?.address?.customerPhone ||
+          order.shipping?.receiverPhone ||
+          "",
+        "Địa chỉ giao hàng": getShippingAddress(order),
+      }));
+
+      const XLSX = await import("xlsx");
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      const columnWidths = Object.keys(rows[0]).map((key) => ({
+        wch: Math.max(
+          key.length,
+          ...rows.map((row) => String(row[key as keyof typeof row] ?? "").length),
+        ) + 2,
+      }));
+
+      worksheet["!cols"] = columnWidths;
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Don hang");
+      XLSX.writeFile(workbook, `orders_${Date.now()}.xlsx`);
     } catch (err) {
+      console.error("EXPORT ORDERS ERROR:", err);
       alert("Lỗi khi xuất file Excel");
     }
   };

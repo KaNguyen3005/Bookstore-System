@@ -21,8 +21,6 @@ const emptyForm: RoleFormState = {
 };
 
 const systemRoleNames = new Set([
-  "SUPER_ADMIN",
-  "SUPER ADMIN",
   "ADMIN",
   "STAFF",
   "CUSTOMER",
@@ -30,8 +28,6 @@ const systemRoleNames = new Set([
 ]);
 
 const roleDescriptions: Record<string, string> = {
-  SUPER_ADMIN: "Quyền quản trị toàn hệ thống, có toàn bộ quyền hạn",
-  "SUPER ADMIN": "Quyền quản trị toàn hệ thống, có toàn bộ quyền hạn",
   ADMIN: "Quản trị viên với quyền vận hành hệ thống",
   STAFF: "Nhân viên xử lý nghiệp vụ bán hàng",
   EDITOR: "Biên tập viên có quyền quản lý nội dung",
@@ -208,6 +204,18 @@ const isRecent = (value?: string) => {
   return Date.now() - date.getTime() <= sevenDays;
 };
 
+const getCurrentUserId = () => {
+  try {
+    const rawUser = localStorage.getItem("user");
+    const user = rawUser ? JSON.parse(rawUser) : null;
+    const userId = Number(user?.userId ?? user?.id);
+
+    return Number.isFinite(userId) && userId > 0 ? userId : null;
+  } catch {
+    return null;
+  }
+};
+
 export const useRoleManagement = () => {
   const [roles, setRoles] = useState<RoleItem[]>([]);
   const [permissions, setPermissions] = useState<PermissionResponse[]>([]);
@@ -221,6 +229,7 @@ export const useRoleManagement = () => {
   const [modalMode, setModalMode] = useState<RoleModalMode | null>(null);
   const [editingRole, setEditingRole] = useState<RoleItem | null>(null);
   const [form, setForm] = useState<RoleFormState>(emptyForm);
+  const [currentUserId] = useState<number | null>(() => getCurrentUserId());
 
   const fetchData = useCallback(async () => {
     try {
@@ -473,6 +482,11 @@ export const useRoleManagement = () => {
 
   const handleAssignUserRole = useCallback(
     async (userId: number, roleId: number) => {
+      if (userId === currentUserId) {
+        alert("Admin không thể tự chỉnh quyền của chính tài khoản đang đăng nhập");
+        return;
+      }
+
       try {
         setActionLoading(true);
         await roleService.updateUserRole(userId, roleId);
@@ -483,7 +497,7 @@ export const useRoleManagement = () => {
         setActionLoading(false);
       }
     },
-    [fetchData]
+    [currentUserId, fetchData]
   );
 
   return {
@@ -506,6 +520,7 @@ export const useRoleManagement = () => {
     filteredRoles,
     filteredUsers,
     roleOptions,
+    currentUserId,
     refresh: fetchData,
     openCreateModal,
     openEditModal,
