@@ -9,6 +9,7 @@ import {
   type Author,
   type AuthorPayload,
 } from "../../../../services/authorApi";
+import { formatVietnamDateTime } from "../../../../utils/dateTime";
 
 const emptyForm: AuthorPayload = {
   authorName: "",
@@ -308,7 +309,7 @@ export default function AuthorManagement() {
                 <span>Ngày tạo</span>
                 <strong>
                   {selectedAuthor.createdAt
-                    ? new Date(selectedAuthor.createdAt).toLocaleString("vi-VN")
+                    ? formatVietnamDateTime(selectedAuthor.createdAt)
                     : "Chưa có dữ liệu"}
                 </strong>
               </div>
@@ -317,7 +318,7 @@ export default function AuthorManagement() {
                 <span>Cập nhật lần cuối</span>
                 <strong>
                   {selectedAuthor.updatedAt
-                    ? new Date(selectedAuthor.updatedAt).toLocaleString("vi-VN")
+                    ? formatVietnamDateTime(selectedAuthor.updatedAt)
                     : "Chưa có dữ liệu"}
                 </strong>
               </div>

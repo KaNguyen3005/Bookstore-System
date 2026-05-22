@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent, MouseEvent } from "react";
 
 import { userApi, type UserFE } from "../../../../services/userApi";
+import { roleService } from "../../roleManagement/services/roleService";
+import type { RoleResponse } from "../../roleManagement/types/role";
 
 type FormMode = "create" | "edit";
 type AccountManagementTab = "staffAdmin" | "customers";
@@ -21,6 +23,10 @@ type UserFormState = {
 
 type UserFormField = keyof UserFormState;
 type UserFormErrors = Partial<Record<UserFormField, string>>;
+type RoleOption = {
+  roleId?: number;
+  roleName: string;
+};
 
 const emptyForm: UserFormState = {
   email: "",
@@ -42,16 +48,66 @@ const normalizeRole = (role?: string) => role?.trim().toUpperCase() ?? "";
 const getDefaultRoleByTab = (tab: AccountManagementTab) =>
   tab === "staffAdmin" ? "STAFF" : "CUSTOMER";
 
-const roleIdByName: Record<string, number> = {
+const fallbackRoleIdByName: Record<string, number> = {
   ADMIN: 1,
   CUSTOMER: 2,
   STAFF: 3,
 };
 
-const getRoleIdByName = (role?: string): number | undefined =>
-  roleIdByName[normalizeRole(role)];
+const getRoleOptionId = (role: RoleResponse) => {
+  const roleId = Number(role.roleId ?? role.id);
 
-const resolveRoleId = (role?: string) => getRoleIdByName(role) ?? roleIdByName.CUSTOMER;
+  return Number.isFinite(roleId) && roleId > 0 ? roleId : undefined;
+};
+
+const mapRoleOptions = (roles: RoleResponse[]): RoleOption[] =>
+  roles.reduce<RoleOption[]>((options, role) => {
+    const roleId = getRoleOptionId(role);
+    const roleName = role.roleName?.trim();
+
+    if (!roleName) return options;
+
+    options.push(
+      roleId
+        ? {
+            roleId,
+            roleName,
+          }
+        : {
+            roleName,
+          }
+    );
+
+    return options;
+  }, []);
+
+const getRoleIdByName = (roleOptions: RoleOption[], role?: string) => {
+  const normalizedRole = normalizeRole(role);
+
+  return roleOptions.find(
+    (option) => normalizeRole(option.roleName) === normalizedRole
+  )?.roleId ?? fallbackRoleIdByName[normalizedRole];
+};
+
+const getRoleNameById = (roleOptions: RoleOption[], roleId?: number) =>
+  roleOptions.find((option) => option.roleId === roleId)?.roleName;
+
+const resolveRoleId = (roleOptions: RoleOption[], role?: string) =>
+  getRoleIdByName(roleOptions, role) ??
+  getRoleIdByName(roleOptions, "CUSTOMER") ??
+  roleOptions[0]?.roleId;
+
+const getRoleOptionsByTab = (
+  roleOptions: RoleOption[],
+  tab: AccountManagementTab
+) => {
+  const allowedRoles =
+    tab === "staffAdmin" ? staffAdminRoles : new Set(["CUSTOMER"]);
+
+  return roleOptions.filter((role) =>
+    allowedRoles.has(normalizeRole(role.roleName))
+  );
+};
 
 const getCurrentUserId = () => {
   try {
@@ -205,6 +261,8 @@ export const useCustomerManagement = () => {
   const [formMode, setFormMode] = useState<FormMode | null>(null);
   const [editingUser, setEditingUser] = useState<UserFE | null>(null);
   const [form, setForm] = useState<UserFormState>(emptyForm);
+  const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
   const [currentUserId] = useState<number | null>(() => getCurrentUserId());
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -215,6 +273,10 @@ export const useCustomerManagement = () => {
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const formRoleOptions = useMemo(
+    () => getRoleOptionsByTab(roleOptions, activeTab),
+    [activeTab, roleOptions]
+  );
 
   const displayedUsers = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
@@ -279,9 +341,26 @@ export const useCustomerManagement = () => {
     }
   }, [size]);
 
+  const fetchRoles = useCallback(async () => {
+    try {
+      setRolesLoading(true);
+
+      const roles = await roleService.getRoles();
+
+      setRoleOptions(mapRoleOptions(roles));
+    } catch (err: any) {
+      console.error("Failed to fetch roles:", err);
+      setActionError(getErrorMessage(err) || "Không thể tải danh sách vai trò");
+      setRoleOptions([]);
+    } finally {
+      setRolesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers]);
+    fetchRoles();
+  }, [fetchRoles, fetchUsers]);
 
   useEffect(() => {
     setPage(0);
@@ -377,7 +456,13 @@ export const useCustomerManagement = () => {
         }
 
         if (formMode === "create") {
-          const roleId = resolveRoleId(form.role);
+          const roleId = resolveRoleId(roleOptions, form.role);
+
+          if (!roleId) {
+            setFieldErrors({ role: "Vui lòng chọn vai trò hợp lệ" });
+            setActionError("Không thể xác định Role ID từ danh sách vai trò");
+            return;
+          }
 
           const createdUser = await userApi.createUser({
             email: form.email.trim(),
@@ -387,14 +472,17 @@ export const useCustomerManagement = () => {
             phone: form.phone.trim(),
             gender: form.gender.trim().toUpperCase(),
             dob: form.dob,
+            roleName: form.role.trim().toUpperCase(),
             roleId,
             status: form.status,
           });
+          const selectedRoleName =
+            getRoleNameById(roleOptions, roleId) ?? form.role.trim().toUpperCase();
 
           setAllUsers((prev) => [
             {
               ...createdUser,
-              role: createdUser.role || form.role.trim().toUpperCase(),
+              role: createdUser.role || selectedRoleName,
               roleId: createdUser.roleId ?? roleId,
               status: createdUser.status ?? form.status,
             },
@@ -404,10 +492,17 @@ export const useCustomerManagement = () => {
           const nextRoleId =
             editingUser.roleId ??
             resolveRoleId(
+              roleOptions,
               normalizeRole(editingUser.role) === "ADMIN"
                 ? editingUser.role
                 : form.role
             );
+
+          if (!nextRoleId) {
+            setFieldErrors({ role: "Vui lòng chọn vai trò hợp lệ" });
+            setActionError("Không thể xác định Role ID từ danh sách vai trò");
+            return;
+          }
 
           const updatedUser = await userApi.updateUser({
             userId: editingUser.userId,
@@ -453,6 +548,7 @@ export const useCustomerManagement = () => {
       editingUser,
       form,
       formMode,
+      roleOptions,
       updateUserInList,
     ]
   );
@@ -559,6 +655,9 @@ export const useCustomerManagement = () => {
     editingUser,
     currentUserId,
     form,
+    formRoleOptions,
+    roleOptions,
+    rolesLoading,
     loading,
     actionLoading,
     error,
