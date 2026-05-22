@@ -3,9 +3,13 @@ package ptithcm.backend.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name="author")
+@Table(name="authors")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -17,13 +21,21 @@ import lombok.experimental.FieldDefaults;
 
 public class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    String authorId;
+    Integer authorId;
 
     @Column(nullable = false, length = 200)
     String authorName;
 
     @Column(nullable = false, unique = true)
     String alias;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

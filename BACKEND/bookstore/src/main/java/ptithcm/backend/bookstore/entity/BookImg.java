@@ -4,9 +4,13 @@ package ptithcm.backend.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name="book_img")
+@Table(name="book_imgs")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -17,11 +21,20 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookImg {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String bookImgId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Integer bookImgId;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "book_id")
     Book book;
 
     String imgUrl;
+    String publicId;
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }

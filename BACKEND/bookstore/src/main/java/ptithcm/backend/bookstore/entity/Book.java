@@ -3,13 +3,17 @@ package ptithcm.backend.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name="book")
+@Table(name="books")
 //Do sử dụng lombok nên không sử dụng @Data
 @Getter
 @Setter
@@ -20,10 +24,10 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="book_id")
     @EqualsAndHashCode.Include
-    String bookId;
+    Integer bookId;
 
     @Column(nullable = false)
     String title;
@@ -36,11 +40,8 @@ public class Book {
     )
     Set<Author> authors = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
-    @JoinColumn(name = "supplier_id")  // Rõ ràng khóa ngoại
-    Supplier supplier;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Tối ưu hiệu năng
+    @ManyToOne
     @JoinColumn(name = "publisher_id") // Rõ ràng khóa ngoại
     Publisher publisher;
 
@@ -52,12 +53,43 @@ public class Book {
     String description;
     int pageCount;
     String coverType;
-    String coverImage;
+    String coverImageUrl = "https://res-console.cloudinary.com/duqhdj1ff/thumbnails/v1/image/upload/v1772180359/OWM0ZjVjODMtMGNhMi00ZGU1LThjNzUtYzI2ZDE3NzQ1NDQz/drilldown";
     int stockQuantity = 0;
-
-    BigDecimal price; // Chọn kiểu này để giúp cho nhiều mệnh giá tiền
+    BigDecimal price; // Chọn kiểu nàm,y để giúp cho nhiều mệnh giá tiền
     float avgRating; //0 - 5
     int salePercent = 0; // Đơn vị %
+
     @ManyToMany
-    Set<Categories> categories = new HashSet<>();
+    @JoinTable(
+            name = "book_category",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    Set<Category> categories = new HashSet<>();
+    @Builder.Default
+    Boolean isActive = true;
+    Integer width;
+    Integer length;
+    Integer height;
+    Double weight;
+    String publicIdCoverImage;
+    @OneToMany(mappedBy = "book")
+    List<BookCart> bookCarts;
+
+    @OneToMany(mappedBy = "book")
+    List<BookOrder> bookOrders;
+
+    @OneToMany(mappedBy = "book")
+    List<InteractEvent> interactEvents;
+
+    @OneToMany(mappedBy = "book")
+    List<BookImg> bookImgs;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+    LocalDateTime deletedAt;
 }
