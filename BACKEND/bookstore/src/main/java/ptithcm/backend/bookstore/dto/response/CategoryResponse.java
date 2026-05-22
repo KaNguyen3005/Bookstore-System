@@ -17,6 +17,7 @@ public class CategoryResponse {
     Integer categoryId;
     String categoryName;
     String description;
+    Integer parentId;
     List<CategoryResponse> children;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

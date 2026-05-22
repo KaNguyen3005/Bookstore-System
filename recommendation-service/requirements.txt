@@ -1,0 +1,17 @@
+pandas
+numpy
+scikit-learn
+scipy
+nltk
+underthesea
+unidecode
+sqlalchemy
+pymysql
+python-dotenv
+fastapi
+uvicorn[standard]
+pyvi
+qdrant-client
+pydantic
+pydantic-settings
+cryptography

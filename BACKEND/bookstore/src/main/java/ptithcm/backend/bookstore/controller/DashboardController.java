@@ -8,87 +8,107 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
-import ptithcm.backend.bookstore.dto.response.DashboardSummaryResponse;
+import ptithcm.backend.bookstore.dto.response.DashboardBookStatResponse;
+import ptithcm.backend.bookstore.dto.response.DashboardOverviewResponse;
+import ptithcm.backend.bookstore.dto.response.DashboardRecentOrderResponse;
+import ptithcm.backend.bookstore.dto.response.DashboardRevenuePointResponse;
 import ptithcm.backend.bookstore.dto.response.OrderStatusStatisticResponse;
-import ptithcm.backend.bookstore.service.OrderService;
+import ptithcm.backend.bookstore.service.DashboardService;
 
 import java.util.List;
 
-/**
- * Dashboard API Controller
- * 
- * Endpoints:
- * 1. GET /api/dashboard - Lấy tổng overview
- * 2. GET /api/dashboard/order-status - Lấy thống kê đơn hàng theo status
- */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("api/dashboard")
+@RequestMapping("api/v1/dashboard")
 public class DashboardController {
-    OrderService orderService;
+    DashboardService dashboardService;
 
-    /**
-     * Lấy dashboard summary toàn bộ
-     * 
-     * Response:
-     * {
-     *   "code": "0",
-     *   "message": "OK",
-     *   "result": {
-     *     "totalOrders": 500,
-     *     "pendingOrders": 12,
-     *     "confirmedOrders": 50,
-     *     "shippingOrders": 100,
-     *     "completedOrders": 320,
-     *     "cancelledOrders": 18,
-     *     "totalRevenue": 50000000,
-     *     "monthlyRevenue": 5000000,
-     *     "dailyRevenue": 150000,
-     *     "ordersByStatus": [
-     *       { "status": "pending", "count": 12 },
-     *       { "status": "confirmed", "count": 50 },
-     *       ...
-     *     ]
-     *   }
-     * }
-     */
-    @PreAuthorize("hasAuthority('READ_DASHBOARD')") // Chỉ admin mới được xem dashboard
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
     @GetMapping
-    public ApiResponse<DashboardSummaryResponse> getDashboard() {
-        log.info("Get dashboard summary");
-        return ApiResponse.<DashboardSummaryResponse>builder()
-                .result(orderService.getDashboardSummary())
+    public ApiResponse<DashboardOverviewResponse> getDashboard(
+            @RequestParam(name = "range", defaultValue = "today") String range,
+            @RequestParam(name = "limit", defaultValue = "10") int limit,
+            @RequestParam(name = "lowStockThreshold", defaultValue = "5") int lowStockThreshold
+    ) {
+        log.info("Get dashboard overview, range={}, limit={}, lowStockThreshold={}", range, limit, lowStockThreshold);
+        return ApiResponse.<DashboardOverviewResponse>builder()
+                .result(dashboardService.getOverview(range, limit, lowStockThreshold))
                 .build();
     }
 
-    /**
-     * Lấy thống kê đơn hàng theo status
-     * 
-     * Response:
-     * {
-     *   "code": "0",
-     *   "message": "OK",
-     *   "result": [
-     *     { "status": "pending", "count": 12 },
-     *     { "status": "confirmed", "count": 50 },
-     *     { "status": "shipping", "count": 100 },
-     *     { "status": "completed", "count": 320 },
-     *     { "status": "cancelled", "count": 18 }
-     *   ]
-     * }
-     */
-    @PreAuthorize("hasAuthority('READ_DASHBOARD')") // Chỉ admin mới được xem dashboard
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
     @GetMapping("/order-status")
     public ApiResponse<List<OrderStatusStatisticResponse>> getOrderStatusStatistics() {
-        log.info("Get order status statistics");
         return ApiResponse.<List<OrderStatusStatisticResponse>>builder()
-                .result(orderService.getOrderStatusStatistics())
+                .result(dashboardService.getOrderStatusStatistics())
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
+    @GetMapping("/revenue-chart")
+    public ApiResponse<List<DashboardRevenuePointResponse>> getRevenueChart(
+            @RequestParam(name = "range", defaultValue = "today") String range
+    ) {
+        return ApiResponse.<List<DashboardRevenuePointResponse>>builder()
+                .result(dashboardService.getRevenueChart(range))
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
+    @GetMapping("/top-selling-books")
+    public ApiResponse<List<DashboardBookStatResponse>> getTopSellingBooks(
+            @RequestParam(name = "range", defaultValue = "month") String range,
+            @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<DashboardBookStatResponse>>builder()
+                .result(dashboardService.getTopSellingBooks(range, limit))
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
+    @GetMapping("/top-rated-books")
+    public ApiResponse<List<DashboardBookStatResponse>> getTopRatedBooks(
+            @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<DashboardBookStatResponse>>builder()
+                .result(dashboardService.getTopRatedBooks(limit))
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
+    @GetMapping("/low-stock-books")
+    public ApiResponse<List<DashboardBookStatResponse>> getLowStockBooks(
+            @RequestParam(name = "threshold", defaultValue = "5") int threshold,
+            @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<DashboardBookStatResponse>>builder()
+                .result(dashboardService.getLowStockBooks(threshold, limit))
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
+    @GetMapping("/out-of-stock-books")
+    public ApiResponse<List<DashboardBookStatResponse>> getOutOfStockBooks(
+            @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<DashboardBookStatResponse>>builder()
+                .result(dashboardService.getOutOfStockBooks(limit))
+                .build();
+    }
+
+    @PreAuthorize("hasAuthority('READ_DASHBOARD')")
+    @GetMapping("/recent-orders")
+    public ApiResponse<List<DashboardRecentOrderResponse>> getRecentOrders(
+            @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
+        return ApiResponse.<List<DashboardRecentOrderResponse>>builder()
+                .result(dashboardService.getRecentOrders(limit))
                 .build();
     }
 }
-

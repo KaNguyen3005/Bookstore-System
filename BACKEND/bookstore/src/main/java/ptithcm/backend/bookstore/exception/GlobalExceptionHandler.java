@@ -5,12 +5,12 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Map;
 import java.util.Objects;
 

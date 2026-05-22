@@ -22,6 +22,8 @@ spring:
     name: bookstore
   profiles:
     active: dev
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
   
   # Multipart Upload Configuration
   servlet:
@@ -48,6 +50,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
         jdbc:
+          time_zone: Asia/Ho_Chi_Minh
           batch_size: 20
         order_inserts: true
         order_updates: true

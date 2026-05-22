@@ -5,6 +5,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.configuration.GHNConfig;
 import ptithcm.backend.bookstore.dto.request.*;
@@ -33,6 +37,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
+    private static final BigDecimal DEFAULT_VAT_RATE = new BigDecimal("0.05");
+
     ShipmentRepository shipmentRepository;
     PaymentRepository paymentRepository;
     BookRepository bookRepository;
@@ -48,11 +54,13 @@ public class OrderService {
     BookOrderMapper bookOrderMapper;
     InteractEventService interactEventService;
 
-    public List<OrderResponse> getAll() {
+    @Transactional
+    public Page<OrderResponse> getAll(int page, int size) {
 
-        List<Order> orders = orderRepository.findByDeletedAtIsNull();
+        Pageable pageable = buildOrderPageable(page, size);
+        Page<Order> orders = orderRepository.findByDeletedAtIsNull(pageable);
 
-        List<Long> orderIds = orders.stream()
+        List<Long> orderIds = orders.getContent().stream()
                 .map(Order::getOrderId)
                 .toList();
         Map<Long, Payment> paymentMap = paymentRepository.findByOrderIds(orderIds)
@@ -62,7 +70,7 @@ public class OrderService {
                         p -> p
                 ));
 
-        return orders.stream()
+        return orders
                 .map(order -> {
                     OrderResponse response = orderMapper.toResponse(order);
 
@@ -72,21 +80,37 @@ public class OrderService {
                         response.setPaymentStatus(payment.getStatus());
                     }
                     return response;
-                })
-                .toList();
+                });
     }
 
-    public List<OrderResponse> getMyOrders() {
+    @Transactional
+    public Page<OrderResponse> getMyOrders(int page, int size) {
         UserResponse userResponse = userService.getMyInfo();
+        Pageable pageable = buildOrderPageable(page, size);
 
-        List<Order> orders = orderRepository.findByCustomer_UserId(userResponse.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        Page<Order> orders = orderRepository.findByCustomer_UserIdAndDeletedAtIsNull(userResponse.getUserId(), pageable);
 
-        return orders.stream()
-                .map(orderMapper::toResponse)
+        List<Long> orderIds = orders.getContent().stream()
+                .map(Order::getOrderId)
                 .toList();
+        Map<Long, Payment> paymentMap = paymentRepository.findByOrderIds(orderIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        p -> p.getOrder().getOrderId(),
+                        p -> p
+                ));
+
+        return orders.map(order -> {
+            OrderResponse response = orderMapper.toResponse(order);
+            Payment payment = paymentMap.get(order.getOrderId());
+            if (payment != null) {
+                response.setPaymentStatus(payment.getStatus());
+            }
+            return response;
+        });
     }
 
+    @Transactional
     public OrderResponse getMyOrderById(Long id){
         UserResponse user = userService.getMyInfo();
 
@@ -182,7 +206,7 @@ public class OrderService {
     public void cancelOrder(Integer id) {
         // 1. Lấy thông tin user hiện tại
         UserResponse userResponse = userService.getMyInfo();
-        User customer = userRepository.findById(userResponse.getUserId())
+        User currentUser = userRepository.findById(userResponse.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         // 2. Tìm đơn hàng
@@ -190,7 +214,7 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         // 3. Kiểm tra quyền sở hữu đơn hàng
-        if (!order.getCustomer().getUserId().equals(customer.getUserId())) {
+        if (!canCancelOrder(currentUser, order)) {
             throw new AppException(ErrorCode.ACCESS_DENIED);
         }
 
@@ -219,7 +243,25 @@ public class OrderService {
             voucherRepository.save(voucher);
         }
 
-        log.info("Order cancelled successfully - OrderId: {}, CustomerId: {}", order.getOrderId(), customer.getUserId());
+        log.info("Order cancelled successfully - OrderId: {}, UserId: {}", order.getOrderId(), currentUser.getUserId());
+    }
+
+    private Pageable buildOrderPageable(int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        return PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
+    private boolean canCancelOrder(User user, Order order) {
+        if (user.getRole() != null) {
+            String roleName = user.getRole().getRoleName();
+            if (ptithcm.backend.bookstore.enums.Role.ADMIN.name().equals(roleName)
+                    || ptithcm.backend.bookstore.enums.Role.STAFF.name().equals(roleName)) {
+                return true;
+            }
+        }
+
+        return order.getCustomer() != null && order.getCustomer().getUserId().equals(user.getUserId());
     }
 
     public List<RevenueResponse> getRevenue(LocalDate from, LocalDate to, String groupBy) {
@@ -229,15 +271,15 @@ public class OrderService {
         String normalized = groupBy == null ? "day" : groupBy.trim().toLowerCase();
 
         List<Object[]> rows = switch (normalized) {
-            case "month" -> orderRepository.getRevenueByMonth(fromDateTime, toDateTime, OrderStatus.COMPLETED.ordinal());
-            case "year" -> orderRepository.getRevenueByYear(fromDateTime, toDateTime, OrderStatus.COMPLETED.ordinal());
-            default -> orderRepository.getRevenueByDay(fromDateTime, toDateTime, OrderStatus.COMPLETED.ordinal());
+            case "month" -> orderRepository.getRevenueByMonth(fromDateTime, toDateTime, OrderStatus.COMPLETED.name());
+            case "year" -> orderRepository.getRevenueByYear(fromDateTime, toDateTime, OrderStatus.COMPLETED.name());
+            default -> orderRepository.getRevenueByDay(fromDateTime, toDateTime, OrderStatus.COMPLETED.name());
         };
 
         return rows.stream()
                 .map(row -> new RevenueResponse(
                         row[0].toString(),
-                        (BigDecimal) row[1]
+                        toBigDecimal(row[1])
                 ))
                 .toList();
     }
@@ -397,9 +439,8 @@ public class OrderService {
                 .max(BigDecimal.ZERO)
                 .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal vatRate = new BigDecimal("0.05");
-        BigDecimal vatAmount = amountAfterAllDiscount.multiply(vatRate)
-                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal vatRate = DEFAULT_VAT_RATE;
+        BigDecimal vatAmount = roundVatAmount(amountAfterAllDiscount.multiply(vatRate));
 
         BigDecimal totalAmount = amountAfterAllDiscount.add(vatAmount)
                 .setScale(2, RoundingMode.HALF_UP);
@@ -463,7 +504,6 @@ public class OrderService {
                 .voucher(voucher)
                 .vatRate(pricing.getVatRate())
                 .vatAmount(pricing.getVatAmount())
-                .totalAmount(pricing.getTotalAmount())
                 .tierRate(pricing.getTierRate())
                 .build();
 
@@ -617,7 +657,7 @@ public class OrderService {
         User user = order.getCustomer();
         if (user == null) return;
 
-        Long points = order.getTotalAmount().longValue() / 10000;
+        Long points = calculateOrderTotalAmount(order).longValue() / 10000;
 
         user.setPoint(user.getPoint() + points);
         order.setRewardPointApplied(true);
@@ -640,14 +680,14 @@ public class OrderService {
         List<Object[]> rows = orderRepository.getTopSellingBooks(
                 fromDateTime, 
                 toDateTime, 
-                OrderStatus.COMPLETED.ordinal(), 
+                OrderStatus.COMPLETED.name(),
                 limit
         );
 
         return rows.stream()
                 .map(row -> new RevenueResponse(
                         row[0].toString(),
-                        (BigDecimal) row[2]  // totalQuantitySold
+                        toBigDecimal(row[2])  // totalQuantitySold
                 ))
                 .toList();
     }
@@ -665,7 +705,7 @@ public class OrderService {
         List<Object[]> rows = orderRepository.getTopSellingBook(
                 fromDateTime, 
                 toDateTime, 
-                OrderStatus.COMPLETED.ordinal()
+                OrderStatus.COMPLETED.name()
         );
 
         if (rows.isEmpty()) {
@@ -695,7 +735,7 @@ public class OrderService {
         List<Object[]> rows = orderRepository.getTopSellingBooks(
                 fromDateTime, 
                 toDateTime, 
-                OrderStatus.COMPLETED.ordinal(), 
+                OrderStatus.COMPLETED.name(),
                 limit
         );
 
@@ -717,14 +757,10 @@ public class OrderService {
         
         return rows.stream()
                 .map(row -> {
-                    Integer statusOrdinal = ((Number) row[0]).intValue();
                     Long count = ((Number) row[1]).longValue();
                     
-                    // Convert status ordinal to enum name
-                    OrderStatus status = OrderStatus.values()[statusOrdinal];
-                    
                     return OrderStatusStatisticResponse.builder()
-                            .status(status.name().toLowerCase())
+                            .status(row[0].toString().toLowerCase())
                             .count(count)
                             .build();
                 })
@@ -741,11 +777,11 @@ public class OrderService {
         // Calculate totals
         Long totalOrders = orderRepository.countTotalOrders();
         
-        Long pendingOrders = orderRepository.countByStatus(OrderStatus.PENDING.ordinal());
-        Long confirmedOrders = orderRepository.countByStatus(OrderStatus.CONFIRMED.ordinal());
-        Long shippingOrders = orderRepository.countByStatus(OrderStatus.SHIPPING.ordinal());
-        Long completedOrders = orderRepository.countByStatus(OrderStatus.COMPLETED.ordinal());
-        Long cancelledOrders = orderRepository.countByStatus(OrderStatus.CANCELLED.ordinal());
+        Long pendingOrders = orderRepository.countByStatus(OrderStatus.PENDING.name());
+        Long confirmedOrders = orderRepository.countByStatus(OrderStatus.CONFIRMED.name());
+        Long shippingOrders = orderRepository.countByStatus(OrderStatus.SHIPPING.name());
+        Long completedOrders = orderRepository.countByStatus(OrderStatus.COMPLETED.name());
+        Long cancelledOrders = orderRepository.countByStatus(OrderStatus.CANCELLED.name());
         
         // Calculate revenue for today
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
@@ -754,12 +790,12 @@ public class OrderService {
         List<Object[]> dailyRevenue = orderRepository.getRevenueByDay(
                 startOfDay, 
                 endOfDay, 
-                OrderStatus.COMPLETED.ordinal()
+                OrderStatus.COMPLETED.name()
         );
         
         BigDecimal totalRevenueToday = dailyRevenue.isEmpty() ? 
                 BigDecimal.ZERO : 
-                (BigDecimal) dailyRevenue.get(0)[1];
+                toBigDecimal(dailyRevenue.get(0)[1]);
         
         // Calculate revenue for this month
         LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
@@ -768,12 +804,12 @@ public class OrderService {
         List<Object[]> monthlyRevenue = orderRepository.getRevenueByMonth(
                 startOfMonth, 
                 endOfMonth, 
-                OrderStatus.COMPLETED.ordinal()
+                OrderStatus.COMPLETED.name()
         );
         
         BigDecimal totalRevenueMonth = BigDecimal.ZERO;
         for (Object[] row : monthlyRevenue) {
-            BigDecimal revenue = (BigDecimal) row[1];
+            BigDecimal revenue = toBigDecimal(row[1]);
             totalRevenueMonth = totalRevenueMonth.add(revenue != null ? revenue : BigDecimal.ZERO);
         }
         
@@ -784,12 +820,12 @@ public class OrderService {
         List<Object[]> yearlyRevenue = orderRepository.getRevenueByYear(
                 startOfYear, 
                 endOfYear, 
-                OrderStatus.COMPLETED.ordinal()
+                OrderStatus.COMPLETED.name()
         );
         
         BigDecimal totalRevenueYear = BigDecimal.ZERO;
         for (Object[] row : yearlyRevenue) {
-            BigDecimal revenue = (BigDecimal) row[1];
+            BigDecimal revenue = toBigDecimal(row[1]);
             totalRevenueYear = totalRevenueYear.add(revenue != null ? revenue : BigDecimal.ZERO);
         }
         
@@ -808,8 +844,101 @@ public class OrderService {
                 .build();
     }
 
+    /**
+     * Tính totalAmount từ Order (subtotal + VAT)
+     * Dùng cho các service khác cần totalAmount nhưng Order không lưu trữ nó
+     */
+    public BigDecimal calculateOrderTotalAmount(Order order) {
+        if (order == null || order.getBookOrders() == null || order.getBookOrders().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal amountAfterDiscount = calculateOrderAmountAfterDiscount(order);
+        BigDecimal vatRate = resolveVatRate(order);
+        BigDecimal vatAmount = roundVatAmount(amountAfterDiscount.multiply(vatRate));
+
+        return amountAfterDiscount.add(vatAmount).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal resolveVatRate(Order order) {
+        if (order == null || order.getVatRate() == null || order.getVatRate().compareTo(BigDecimal.ZERO) == 0) {
+            return DEFAULT_VAT_RATE;
+        }
+        return order.getVatRate();
+    }
+
+    private BigDecimal calculateOrderAmountAfterDiscount(Order order) {
+        BigDecimal subtotal = calculateOrderSubtotal(order);
+        BigDecimal fixedDiscountAmount = BigDecimal.ZERO;
+        BigDecimal voucherPercentRate = BigDecimal.ZERO;
+        Voucher voucher = order.getVoucher();
+
+        if (voucher != null && voucher.getDiscountValue() != null) {
+            if (voucher.getType() == VoucherType.FIXED) {
+                fixedDiscountAmount = voucher.getDiscountValue().setScale(2, RoundingMode.HALF_UP);
+            } else if (voucher.getType() == VoucherType.PERCENTAGE) {
+                voucherPercentRate = voucher.getDiscountValue()
+                        .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+            }
+        }
+
+        if (fixedDiscountAmount.compareTo(subtotal) > 0) {
+            fixedDiscountAmount = subtotal;
+        }
+
+        BigDecimal amountAfterFixedDiscount = subtotal.subtract(fixedDiscountAmount)
+                .max(BigDecimal.ZERO)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal tierRate = order.getTierRate() != null ? order.getTierRate() : BigDecimal.ZERO;
+        BigDecimal percentDiscountAmount = calculatePercentDiscount(
+                amountAfterFixedDiscount,
+                voucher,
+                voucherPercentRate,
+                tierRate
+        );
+
+        if (percentDiscountAmount.compareTo(amountAfterFixedDiscount) > 0) {
+            percentDiscountAmount = amountAfterFixedDiscount;
+        }
+
+        return amountAfterFixedDiscount.subtract(percentDiscountAmount)
+                .max(BigDecimal.ZERO)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal calculateOrderSubtotal(Order order) {
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (BookOrder bo : order.getBookOrders()) {
+            if (bo == null || bo.getBook() == null || bo.getBook().getPrice() == null || bo.getQuantity() == null) {
+                continue;
+            }
+            subtotal = subtotal.add(bo.getBook().getPrice().multiply(BigDecimal.valueOf(bo.getQuantity())));
+        }
+        return subtotal.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal roundVatAmount(BigDecimal vatAmount) {
+        if (vatAmount == null) {
+            return BigDecimal.ZERO;
+        }
+        return vatAmount.setScale(0, RoundingMode.CEILING);
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+        return new BigDecimal(value.toString());
+    }
+
     public OrderItemResponse updateOrderItem(Long orderId, Long itemId, UpdateOrderItemRequest request){
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        UserResponse user = userService.getMyInfo();
+        if (order.getCustomer() == null || !order.getCustomer().getUserId().equals(user.getUserId())) {
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
 
         // Chỉ cho phép đánh giá khi đơn đã giao hoặc đã hoàn thành
         if (order.getStatus() != OrderStatus.DELIVERED && order.getStatus() != OrderStatus.COMPLETED) {
@@ -826,10 +955,7 @@ public class OrderService {
 
         bookOrder.setContent(request.getContent());
         bookOrder.setRate(request.getRating());
-        UserResponse user = userService.getMyInfoOrNull();
-        if(user != null) {
-            interactEventService.recordEvent(user.getUserId(), bookOrder.getBook().getBookId(), InteractEventType.REVIEW);
-        }
+        interactEventService.recordEvent(user.getUserId(), bookOrder.getBook().getBookId(), InteractEventType.REVIEW);
         return bookOrderMapper.toResponse(bookOrderRepository.save(bookOrder));
     }
 }

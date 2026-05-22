@@ -355,27 +355,27 @@ INSERT INTO `vouchers` (`voucher_id`, `voucher_code`, `title`, `description`, `t
 -- =====================================================
 -- ORDERS
 -- =====================================================
-INSERT INTO `orders` (`order_id`, `status`, `vat_rate`, `total_amount`, `customer_id`, `created_at`) VALUES
-(1, 'PENDING', 0.05, 250.00, 12, NOW()),
-(2, 'PENDING', 0.05, 200.00, 13, NOW()),
-(3, 'CONFIRMED', 0.05, 350.00, 14, NOW()),
-(4, 'CONFIRMED', 0.05, 180.00, 15, NOW()),
-(5, 'SHIPPING', 0.05, 420.00, 16, NOW()),
-(6, 'SHIPPING', 0.05, 280.00, 17, NOW()),
-(7, 'DELIVERED', 0.05, 310.00, 18, NOW()),
-(8, 'DELIVERED', 0.05, 290.00, 19, NOW()),
-(9, 'COMPLETED', 0.05, 500.00, 20, NOW()),
-(10, 'COMPLETED', 0.05, 380.00, 21, NOW()),
-(11, 'PENDING', 0.05, 220.00, 22, NOW()),
-(12, 'CONFIRMED', 0.05, 340.00, 23, NOW()),
-(13, 'SHIPPING', 0.05, 270.00, 24, NOW()),
-(14, 'DELIVERED', 0.05, 450.00, 25, NOW()),
-(15, 'COMPLETED', 0.05, 320.00, 12, NOW()),
-(16, 'PENDING', 0.05, 195.00, 13, NOW()),
-(17, 'CONFIRMED', 0.05, 380.00, 14, NOW()),
-(18, 'SHIPPING', 0.05, 290.00, 15, NOW()),
-(19, 'DELIVERED', 0.05, 410.00, 16, NOW()),
-(20, 'COMPLETED', 0.05, 360.00, 17, NOW());
+INSERT INTO `orders` (`order_id`, `status`, `vat_rate`, `customer_id`, `created_at`) VALUES
+(1, 'PENDING', 0.05, 12, NOW()),
+(2, 'PENDING', 0.05, 13, NOW()),
+(3, 'CONFIRMED', 0.05, 14, NOW()),
+(4, 'CONFIRMED', 0.05, 15, NOW()),
+(5, 'SHIPPING', 0.05, 16, NOW()),
+(6, 'SHIPPING', 0.05, 17, NOW()),
+(7, 'DELIVERED', 0.05, 18, NOW()),
+(8, 'DELIVERED', 0.05, 19, NOW()),
+(9, 'COMPLETED', 0.05, 20, NOW()),
+(10, 'COMPLETED', 0.05, 21, NOW()),
+(11, 'PENDING', 0.05, 22, NOW()),
+(12, 'CONFIRMED', 0.05, 23, NOW()),
+(13, 'SHIPPING', 0.05, 24, NOW()),
+(14, 'DELIVERED', 0.05, 25, NOW()),
+(15, 'COMPLETED', 0.05, 12, NOW()),
+(16, 'PENDING', 0.05, 13, NOW()),
+(17, 'CONFIRMED', 0.05, 14, NOW()),
+(18, 'SHIPPING', 0.05, 15, NOW()),
+(19, 'DELIVERED', 0.05, 16, NOW()),
+(20, 'COMPLETED', 0.05, 17, NOW());
 
 -- =====================================================
 -- BOOK_ORDER (with reviews)

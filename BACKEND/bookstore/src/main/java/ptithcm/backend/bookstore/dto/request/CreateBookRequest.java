@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.multipart.MultipartFile;
 import ptithcm.backend.bookstore.validator.ValidImageFile;
+import ptithcm.backend.bookstore.validator.ValidIsbn;
 
 
 import java.math.BigDecimal;
@@ -28,7 +29,7 @@ public class CreateBookRequest {
     Integer publisherId; // bỏ validate ID theo rule mới
 
     @NotBlank(message = "INVALID_ISBN")
-    @Pattern(regexp = "^(97[89])?\\d{9}(\\d|X)$", message = "INVALID_ISBN")
+    @ValidIsbn
     String isbn;
 
     @NotBlank(message = "INVALID_LANGUAGE")

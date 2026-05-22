@@ -113,33 +113,34 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `name`, `email`, `phone`
 (25, 'customer14', '$2a$10$nyVFCwRC3/AjlDLfQvG4O.1omVzKT8kZWHRN8rAtfoCj.oIYYKL9S', 'Tây Thị Lệ', 'khach14@email.com', '0912345691', 1, 'Nữ', 'GOLD', 29800, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778055119/7c27baf5-2948-4275-8e02-fb472cee8195_cmfbjx.jpg', 'users/customer14', 0, 2, NOW());
 
 -- =====================================================
--- ADDRESSES (ĐỊA CHỈ)
+-- ADDRESSES (ĐỊA CHỈ) - CHUẨN HÓA THEO GHN API STANDARD
+-- Cập nhật 22/05/2026: Xóa "Thành phố" từ province, thêm "Phường" cho ward
 -- =====================================================
 INSERT INTO `addresses` (`address_id`, `customer_name`, `customer_phone`, `detail_address`, `ward`, `district`, `province`, `is_default`, `user_id`, `created_at`) VALUES
-(1, 'Trần Văn A', '0901123456', '123 Đường Nguyễn Huệ', 'Bến Thành', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 2, NOW()),
-(2, 'Lê Thị B', '0901123457', '456 Đường Lê Lợi', 'Đa Kao', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 3, NOW()),
-(3, 'Phạm Văn C', '0901123458', '789 Đường Trần Hưng Đạo', 'Nguyễn Cư Trinh', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 4, NOW()),
-(4, 'Hoàng Thị D', '0901123459', '321 Đường Pasteur', 'Bến Nghé', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 5, NOW()),
-(5, 'Đỗ Văn E', '0901123460', '654 Đường Tôn Đức Thắng', 'Bến Thành', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 6, NOW()),
-(6, 'Vũ Thị F', '0901123461', '987 Đường Calmette', 'Đa Kao', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 7, NOW()),
-(7, 'Bùi Văn G', '0901123462', '147 Đường Mạc Thiên Tích', 'Nguyễn Cư Trinh', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 8, NOW()),
-(8, 'Trần Thị H', '0901123463', '258 Đường Hai Bà Trưng', 'Bến Nghé', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 9, NOW()),
-(9, 'Lý Văn I', '0901123464', '369 Đường Võ Văn Kiệt', 'Bến Thành', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 10, NOW()),
-(10, 'Ngô Thị J', '0901123465', '741 Đường Nam Kỳ Khởi Nghĩa', 'Đa Kao', 'Quận 1', 'Thành phố Hồ Chí Minh', 1, 11, NOW()),
-(11, 'Nguyễn Văn Khách', '0912345678', '111 Đường Lý Thường Kiệt', 'Tân Định', 'Quận 4', 'Thành phố Hồ Chí Minh', 1, 12, NOW()),
-(12, 'Lê Thị Hoa', '0912345679', '222 Đường Nguyễn Thị Minh Khai', 'Phường 3', 'Quận 5', 'Thành phố Hồ Chí Minh', 1, 13, NOW()),
-(13, 'Trương Văn An', '0912345680', '333 Đường Âu Cơ', 'Phường 5', 'Quận 11', 'Thành phố Hồ Chí Minh', 1, 14, NOW()),
-(14, 'Phạm Thị Linh', '0912345681', '444 Đường Lâm Văn Gen', 'Tân Chí', 'Quận 7', 'Thành phố Hồ Chí Minh', 1, 15, NOW()),
-(15, 'Hoàng Văn Tân', '0912345682', '555 Đường Cộng Hoà', 'Phường 12', 'Quận Tân Bình', 'Thành phố Hồ Chí Minh', 1, 16, NOW()),
-(16, 'Đặng Thị Thu', '0912345683', '666 Đường Cách Mạng Tháng Tám', 'Phường 6', 'Quận 3', 'Thành phố Hồ Chí Minh', 1, 17, NOW()),
-(17, 'Vương Văn Khôi', '0912345684', '777 Đường Điền Biên Phủ', 'Phường 25', 'Quận Bình Thạnh', 'Thành phố Hồ Chí Minh', 1, 18, NOW()),
-(18, 'Tạ Thị Hương', '0912345685', '888 Đường Ung Văn Khiêm', 'Phường 4', 'Quận Gò Vấp', 'Thành phố Hồ Chí Minh', 1, 19, NOW()),
-(19, 'Giang Văn Tùng', '0912345686', '999 Đường Hoàng Văn Thụ', 'Phường 6', 'Quận Phú Nhuận', 'Thành phố Hồ Chí Minh', 1, 20, NOW()),
-(20, 'Thái Thị Duyên', '0912345687', '1010 Đường Tạ Quang Bửu', 'Phường 3', 'Quận 8', 'Thành phố Hồ Chí Minh', 1, 21, NOW()),
-(21, 'Khuất Văn Quyết', '0912345688', '1111 Đường Lê Thánh Tông', 'Phường 1', 'Quận 11', 'Thành phố Hồ Chí Minh', 1, 22, NOW()),
-(22, 'Tôn Thị Huệ', '0912345689', '1212 Đường Huỳnh Thủc Kháng', 'Phường 4', 'Quận Đống Đa', 'Thành phố Hà Nội', 1, 23, NOW()),
-(23, 'Hà Văn Đạt', '0912345690', '1313 Đường Phan Chu Trinh', 'Phường Hoàn Kiếm', 'Quận Hoàn Kiếm', 'Thành phố Hà Nội', 1, 24, NOW()),
-(24, 'Tây Thị Lệ', '0912345691', '1414 Đường Trương Định', 'Phường Hai Bà Trưng', 'Quận Hai Bà Trưng', 'Thành phố Hà Nội', 1, 25, NOW());
+(1, 'Trần Văn A', '0901123456', '123 Đường Nguyễn Huệ', 'Phường Bến Thành', 'Quận 1', 'Hồ Chí Minh', 1, 2, NOW()),
+(2, 'Lê Thị B', '0901123457', '456 Đường Lê Lợi', 'Phường Đa Kao', 'Quận 1', 'Hồ Chí Minh', 1, 3, NOW()),
+(3, 'Phạm Văn C', '0901123458', '789 Đường Trần Hưng Đạo', 'Phường Nguyễn Cư Trinh', 'Quận 1', 'Hồ Chí Minh', 1, 4, NOW()),
+(4, 'Hoàng Thị D', '0901123459', '321 Đường Pasteur', 'Phường Bến Nghé', 'Quận 1', 'Hồ Chí Minh', 1, 5, NOW()),
+(5, 'Đỗ Văn E', '0901123460', '654 Đường Tôn Đức Thắng', 'Phường Bến Thành', 'Quận 1', 'Hồ Chí Minh', 1, 6, NOW()),
+(6, 'Vũ Thị F', '0901123461', '987 Đường Calmette', 'Phường Đa Kao', 'Quận 1', 'Hồ Chí Minh', 1, 7, NOW()),
+(7, 'Bùi Văn G', '0901123462', '147 Đường Mạc Thiên Tích', 'Phường Nguyễn Cư Trinh', 'Quận 1', 'Hồ Chí Minh', 1, 8, NOW()),
+(8, 'Trần Thị H', '0901123463', '258 Đường Hai Bà Trưng', 'Phường Bến Nghé', 'Quận 1', 'Hồ Chí Minh', 1, 9, NOW()),
+(9, 'Lý Văn I', '0901123464', '369 Đường Võ Văn Kiệt', 'Phường Bến Thành', 'Quận 1', 'Hồ Chí Minh', 1, 10, NOW()),
+(10, 'Ngô Thị J', '0901123465', '741 Đường Nam Kỳ Khởi Nghĩa', 'Phường Đa Kao', 'Quận 1', 'Hồ Chí Minh', 1, 11, NOW()),
+(11, 'Nguyễn Văn Khách', '0912345678', '111 Đường Lý Thường Kiệt', 'Phường Tân Định', 'Quận 4', 'Hồ Chí Minh', 1, 12, NOW()),
+(12, 'Lê Thị Hoa', '0912345679', '222 Đường Nguyễn Thị Minh Khai', 'Phường 3', 'Quận 5', 'Hồ Chí Minh', 1, 13, NOW()),
+(13, 'Trương Văn An', '0912345680', '333 Đường Âu Cơ', 'Phường 5', 'Quận 11', 'Hồ Chí Minh', 1, 14, NOW()),
+(14, 'Phạm Thị Linh', '0912345681', '444 Đường Lâm Văn Gen', 'Phường Tân Chí', 'Quận 7', 'Hồ Chí Minh', 1, 15, NOW()),
+(15, 'Hoàng Văn Tân', '0912345682', '555 Đường Cộng Hoà', 'Phường 12', 'Quận Tân Bình', 'Hồ Chí Minh', 1, 16, NOW()),
+(16, 'Đặng Thị Thu', '0912345683', '666 Đường Cách Mạng Tháng Tám', 'Phường 6', 'Quận 3', 'Hồ Chí Minh', 1, 17, NOW()),
+(17, 'Vương Văn Khôi', '0912345684', '777 Đường Điền Biên Phủ', 'Phường 25', 'Quận Bình Thạnh', 'Hồ Chí Minh', 1, 18, NOW()),
+(18, 'Tạ Thị Hương', '0912345685', '888 Đường Ung Văn Khiêm', 'Phường 4', 'Quận Gò Vấp', 'Hồ Chí Minh', 1, 19, NOW()),
+(19, 'Giang Văn Tùng', '0912345686', '999 Đường Hoàng Văn Thụ', 'Phường 6', 'Quận Phú Nhuận', 'Hồ Chí Minh', 1, 20, NOW()),
+(20, 'Thái Thị Duyên', '0912345687', '1010 Đường Tạ Quang Bửu', 'Phường 3', 'Quận 8', 'Hồ Chí Minh', 1, 21, NOW()),
+(21, 'Khuất Văn Quyết', '0912345688', '1111 Đường Lê Thánh Tông', 'Phường 1', 'Quận 11', 'Hồ Chí Minh', 1, 22, NOW()),
+(22, 'Tôn Thị Huệ', '0912345689', '1212 Đường Huỳnh Thủc Kháng', 'Phường 4', 'Quận Đống Đa', 'Hà Nội', 1, 23, NOW()),
+(23, 'Hà Văn Đạt', '0912345690', '1313 Đường Phan Chu Trinh', 'Phường Hoàn Kiếm', 'Quận Hoàn Kiếm', 'Hà Nội', 1, 24, NOW()),
+(24, 'Tây Thị Lệ', '0912345691', '1414 Đường Trương Định', 'Phường Hai Bà Trưng', 'Quận Hai Bà Trưng', 'Hà Nội', 1, 25, NOW());
 
 -- =====================================================
 -- AUTHORS (TÁC GIẢ)
@@ -250,56 +251,56 @@ INSERT INTO `books` (`book_id`, `title`, `isbn`, `language`, `description`, `pag
 -- Khi chạy app (context-path=/bookstore), ảnh này sẽ được serve tại: /bookstore/imgs/books/book_default.jpg
 -- =====================================================
 INSERT INTO `book_imgs` (`book_img_id`, `img_url`, `public_id`, `book_id`, `created_at`) VALUES
-(1,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683650/a8171a9cb5ac948914f1f861af67f878_bhbom6.jpg', 'a8171a9cb5ac948914f1f861af67f878_bhbom6', 1,  NOW()),
-(2,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683755/2022_12_09_10_30_42_6-390x510_fgvkls.jpg', '2022_12_09_10_30_42_6-390x510_fgvkls', 2,  NOW()),
-(3,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683824/sach-kinh-doanh-khach-san-1_bygg9b.jpg', 'sach-kinh-doanh-khach-san-1_bygg9b', 3,  NOW()),
-(4,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683912/31100630905_3_wqkqvu.jpg', '31100630905_3_wqkqvu', 4,  NOW()),
-(5,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683985/OIP_cluvek.webp', 'OIP_cluvek', 5,  NOW()),
-(6,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684062/9c13aa0bffe7edbc745b7d91073c4fe5_vfabpm.jpg', '9c13aa0bffe7edbc745b7d91073c4fe5_vfabpm', 6,  NOW()),
-(7,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684136/image_188919_a94d3ddd3dda42e0bc0c83fd153f52c9_master_a65rfz.jpg', 'image_188919_a94d3ddd3dda42e0bc0c83fd153f52c9_master_a65rfz', 7,  NOW()),
-(8,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684198/OIP_a6rrmp.webp', 'OIP_a6rrmp', 8,  NOW()),
-(9,  '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684274/2023_11_30_16_30_43_3-390x510_yswrwk.jpg', '2023_11_30_16_30_43_3-390x510_yswrwk', 9,  NOW()),
-(10, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684334/OIP_enjpd3.webp', 'OIP_enjpd3', 10, NOW()),
-(11, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684405/OIP_fcqjen.webp', 'OIP_fcqjen', 11, NOW()),
-(12, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684477/OIP_yxr1fl.webp', 'OIP_yxr1fl', 12, NOW()),
-(13, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684538/OIP_gw36es.webp', 'OIP_gw36es', 13, NOW()),
-(14, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684608/OIP_izh5q2.webp', 'OIP_izh5q2', 14, NOW()),
-(15, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684697/e89c4e18922fbfba7156d1a0517e2ca7_fac0rd.jpg', 'e89c4e18922fbfba7156d1a0517e2ca7_fac0rd', 15, NOW()),
-(16, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684770/anh-mo-ta_f6sbb0.png', 'anh-mo-ta_f6sbb0', 16, NOW()),
-(17, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684841/5bd9f0f29c3a787368414aa567a73604_drkiwy.jpg', '5bd9f0f29c3a787368414aa567a73604_drkiwy', 17, NOW()),
-(18, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684902/OIP_rqv7sz.webp', 'OIP_rqv7sz', 18, NOW()),
-(19, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684982/dieu-binh-thuong-la-co-mot-nguoi-thuong_teu6cl.jpg', 'dieu-binh-thuong-la-co-mot-nguoi-thuong_teu6cl', 19, NOW()),
-(20, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685056/OIP_zhsuht.webp', 'OIP_zhsuht', 20, NOW()),
-(21, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685134/OIP_ewzxp4.webp', 'OIP_ewzxp4', 21, NOW()),
-(22, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685196/OIP_trcv4j.webp', 'OIP_trcv4j', 22, NOW()),
-(23, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685270/OIP_spo46x.webp', 'OIP_spo46x', 23, NOW()),
-(24, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685343/OIP_qmaddm.webp', 'OIP_qmaddm', 24, NOW()),
-(25, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685405/3d37e237feecfa2ddbe321b6a19ebf28_p0tx8b.jpg', '3d37e237feecfa2ddbe321b6a19ebf28_p0tx8b', 25, NOW()),
-(26, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685465/OIP_vfy8nc.webp', 'OIP_vfy8nc', 26, NOW()),
-(27, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685538/12ac5863147db5fbd250bbf9e214fe8a_mmbohe.jpg', '12ac5863147db5fbd250bbf9e214fe8a_mmbohe', 27, NOW()),
-(28, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685613/ddfc5b673940c2cfa4320cb4cc429e41_ym5ptu.jpg', 'ddfc5b673940c2cfa4320cb4cc429e41_ym5ptu', 28, NOW()),
-(29, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685680/OIP_kbmfg2.webp', 'OIP_kbmfg2', 29, NOW()),
-(30, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685821/OIP_l17wo9.webp', 'OIP_l17wo9', 30, NOW()),
-(31, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685880/6b25698b71bb075a09cbab703c96011b_npg4qk.jpg', '6b25698b71bb075a09cbab703c96011b_npg4qk', 31, NOW()),
-(32, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685967/719kFvvozAL._SY342__n0bgsp.jpg', '719kFvvozAL._SY342__n0bgsp', 32, NOW()),
-(33, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686025/OIP_wjaejo.webp', 'OIP_wjaejo', 33, NOW()),
-(34, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686084/OIP_rks3fh.webp', 'OIP_rks3fh', 34, NOW()),
-(35, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686144/OIP_q9zdeg.webp', 'OIP_q9zdeg', 35, NOW()),
-(36, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686203/tbph_3_dm5oke.png', 'tbph_3_dm5oke', 36, NOW()),
-(37, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686256/0843f87fd67207ccf3e912a9d11efa4c_xz8x8v.jpg', '0843f87fd67207ccf3e912a9d11efa4c_xz8x8v', 37, NOW()),
-(38, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686330/quan-ly-mo-lam-viec-tot-hon-vi-mot-the-gioi-tot-hon-02_chsqh2.jpg', 'quan-ly-mo-lam-viec-tot-hon-vi-mot-the-gioi-tot-hon-02_chsqh2', 38, NOW()),
-(39, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686407/6ac0081dc3fe36062907d2a44c9b3a80_aiwvse.jpg', '6ac0081dc3fe36062907d2a44c9b3a80_aiwvse', 39, NOW()),
-(40, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686461/sg-11134201-7qvdt-li029i12nihe29_ydb2og.jpg', 'sg-11134201-7qvdt-li029i12nihe29_ydb2og', 40, NOW()),
-(41, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686530/2021_06_23_16_14_47_6-390x510_h6hf4t.jpg', '2021_06_23_16_14_47_6-390x510_h6hf4t', 41, NOW()),
-(42, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686615/OIP_k6ac4n.webp', 'OIP_k6ac4n', 42, NOW()),
-(43, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686677/viet-gi-khi-tang-sach-cho-nguoi-yeu-8_xzo20v.jpg', 'viet-gi-khi-tang-sach-cho-nguoi-yeu-8_xzo20v', 43, NOW()),
-(44, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686736/bi-mat-vu-tru-pdf_selvff.jpg', 'bi-mat-vu-tru-pdf_selvff', 44, NOW()),
-(45, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686792/OIP_qgj2yr.webp', 'OIP_qgj2yr', 45, NOW()),
-(46, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686883/top-5-cuon-sach-hay-ve-uoc-mo-truyen-cam-hung-giup-ban-tre-theo-duoi-dam-me-3_cmu5op.jpg', 'top-5-cuon-sach-hay-ve-uoc-mo-truyen-cam-hung-giup-ban-tre-theo-duoi-dam-me-3_cmu5op', 46, NOW()),
-(47, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686955/OIP_esa6eu.webp', 'OIP_esa6eu', 47, NOW()),
-(48, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778687024/d690be0c355389e49493bd800b7c5a40_s33wdn.jpg', 'd690be0c355389e49493bd800b7c5a40_s33wdn', 48, NOW()),
-(49, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778687096/vn-11134201-23030-k35rchbopmova2_h2keie.jpg', 'vn-11134201-23030-k35rchbopmova2_h2keie', 49, NOW()),
-(50, '/https://res.cloudinary.com/duqhdj1ff/image/upload/v1778687160/vn-11134207-7ras8-m0f2zhzqn2el76_zxiab7.jpg', 'vn-11134207-7ras8-m0f2zhzqn2el76_zxiab7', 50, NOW());
+(1,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683650/a8171a9cb5ac948914f1f861af67f878_bhbom6.jpg', 'a8171a9cb5ac948914f1f861af67f878_bhbom6', 1,  NOW()),
+(2,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683755/2022_12_09_10_30_42_6-390x510_fgvkls.jpg', '2022_12_09_10_30_42_6-390x510_fgvkls', 2,  NOW()),
+(3,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683824/sach-kinh-doanh-khach-san-1_bygg9b.jpg', 'sach-kinh-doanh-khach-san-1_bygg9b', 3,  NOW()),
+(4,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683912/31100630905_3_wqkqvu.jpg', '31100630905_3_wqkqvu', 4,  NOW()),
+(5,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778683985/OIP_cluvek.webp', 'OIP_cluvek', 5,  NOW()),
+(6,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684062/9c13aa0bffe7edbc745b7d91073c4fe5_vfabpm.jpg', '9c13aa0bffe7edbc745b7d91073c4fe5_vfabpm', 6,  NOW()),
+(7,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684136/image_188919_a94d3ddd3dda42e0bc0c83fd153f52c9_master_a65rfz.jpg', 'image_188919_a94d3ddd3dda42e0bc0c83fd153f52c9_master_a65rfz', 7,  NOW()),
+(8,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684198/OIP_a6rrmp.webp', 'OIP_a6rrmp', 8,  NOW()),
+(9,  'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684274/2023_11_30_16_30_43_3-390x510_yswrwk.jpg', '2023_11_30_16_30_43_3-390x510_yswrwk', 9,  NOW()),
+(10, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684334/OIP_enjpd3.webp', 'OIP_enjpd3', 10, NOW()),
+(11, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684405/OIP_fcqjen.webp', 'OIP_fcqjen', 11, NOW()),
+(12, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684477/OIP_yxr1fl.webp', 'OIP_yxr1fl', 12, NOW()),
+(13, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684538/OIP_gw36es.webp', 'OIP_gw36es', 13, NOW()),
+(14, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684608/OIP_izh5q2.webp', 'OIP_izh5q2', 14, NOW()),
+(15, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684697/e89c4e18922fbfba7156d1a0517e2ca7_fac0rd.jpg', 'e89c4e18922fbfba7156d1a0517e2ca7_fac0rd', 15, NOW()),
+(16, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684770/anh-mo-ta_f6sbb0.png', 'anh-mo-ta_f6sbb0', 16, NOW()),
+(17, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684841/5bd9f0f29c3a787368414aa567a73604_drkiwy.jpg', '5bd9f0f29c3a787368414aa567a73604_drkiwy', 17, NOW()),
+(18, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684902/OIP_rqv7sz.webp', 'OIP_rqv7sz', 18, NOW()),
+(19, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778684982/dieu-binh-thuong-la-co-mot-nguoi-thuong_teu6cl.jpg', 'dieu-binh-thuong-la-co-mot-nguoi-thuong_teu6cl', 19, NOW()),
+(20, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685056/OIP_zhsuht.webp', 'OIP_zhsuht', 20, NOW()),
+(21, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685134/OIP_ewzxp4.webp', 'OIP_ewzxp4', 21, NOW()),
+(22, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685196/OIP_trcv4j.webp', 'OIP_trcv4j', 22, NOW()),
+(23, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685270/OIP_spo46x.webp', 'OIP_spo46x', 23, NOW()),
+(24, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685343/OIP_qmaddm.webp', 'OIP_qmaddm', 24, NOW()),
+(25, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685405/3d37e237feecfa2ddbe321b6a19ebf28_p0tx8b.jpg', '3d37e237feecfa2ddbe321b6a19ebf28_p0tx8b', 25, NOW()),
+(26, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685465/OIP_vfy8nc.webp', 'OIP_vfy8nc', 26, NOW()),
+(27, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685538/12ac5863147db5fbd250bbf9e214fe8a_mmbohe.jpg', '12ac5863147db5fbd250bbf9e214fe8a_mmbohe', 27, NOW()),
+(28, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685613/ddfc5b673940c2cfa4320cb4cc429e41_ym5ptu.jpg', 'ddfc5b673940c2cfa4320cb4cc429e41_ym5ptu', 28, NOW()),
+(29, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685680/OIP_kbmfg2.webp', 'OIP_kbmfg2', 29, NOW()),
+(30, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685821/OIP_l17wo9.webp', 'OIP_l17wo9', 30, NOW()),
+(31, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685880/6b25698b71bb075a09cbab703c96011b_npg4qk.jpg', '6b25698b71bb075a09cbab703c96011b_npg4qk', 31, NOW()),
+(32, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778685967/719kFvvozAL._SY342__n0bgsp.jpg', '719kFvvozAL._SY342__n0bgsp', 32, NOW()),
+(33, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686025/OIP_wjaejo.webp', 'OIP_wjaejo', 33, NOW()),
+(34, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686084/OIP_rks3fh.webp', 'OIP_rks3fh', 34, NOW()),
+(35, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686144/OIP_q9zdeg.webp', 'OIP_q9zdeg', 35, NOW()),
+(36, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686203/tbph_3_dm5oke.png', 'tbph_3_dm5oke', 36, NOW()),
+(37, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686256/0843f87fd67207ccf3e912a9d11efa4c_xz8x8v.jpg', '0843f87fd67207ccf3e912a9d11efa4c_xz8x8v', 37, NOW()),
+(38, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686330/quan-ly-mo-lam-viec-tot-hon-vi-mot-the-gioi-tot-hon-02_chsqh2.jpg', 'quan-ly-mo-lam-viec-tot-hon-vi-mot-the-gioi-tot-hon-02_chsqh2', 38, NOW()),
+(39, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686407/6ac0081dc3fe36062907d2a44c9b3a80_aiwvse.jpg', '6ac0081dc3fe36062907d2a44c9b3a80_aiwvse', 39, NOW()),
+(40, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686461/sg-11134201-7qvdt-li029i12nihe29_ydb2og.jpg', 'sg-11134201-7qvdt-li029i12nihe29_ydb2og', 40, NOW()),
+(41, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686530/2021_06_23_16_14_47_6-390x510_h6hf4t.jpg', '2021_06_23_16_14_47_6-390x510_h6hf4t', 41, NOW()),
+(42, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686615/OIP_k6ac4n.webp', 'OIP_k6ac4n', 42, NOW()),
+(43, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686677/viet-gi-khi-tang-sach-cho-nguoi-yeu-8_xzo20v.jpg', 'viet-gi-khi-tang-sach-cho-nguoi-yeu-8_xzo20v', 43, NOW()),
+(44, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686736/bi-mat-vu-tru-pdf_selvff.jpg', 'bi-mat-vu-tru-pdf_selvff', 44, NOW()),
+(45, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686792/OIP_qgj2yr.webp', 'OIP_qgj2yr', 45, NOW()),
+(46, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686883/top-5-cuon-sach-hay-ve-uoc-mo-truyen-cam-hung-giup-ban-tre-theo-duoi-dam-me-3_cmu5op.jpg', 'top-5-cuon-sach-hay-ve-uoc-mo-truyen-cam-hung-giup-ban-tre-theo-duoi-dam-me-3_cmu5op', 46, NOW()),
+(47, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778686955/OIP_esa6eu.webp', 'OIP_esa6eu', 47, NOW()),
+(48, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778687024/d690be0c355389e49493bd800b7c5a40_s33wdn.jpg', 'd690be0c355389e49493bd800b7c5a40_s33wdn', 48, NOW()),
+(49, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778687096/vn-11134201-23030-k35rchbopmova2_h2keie.jpg', 'vn-11134201-23030-k35rchbopmova2_h2keie', 49, NOW()),
+(50, 'https://res.cloudinary.com/duqhdj1ff/image/upload/v1778687160/vn-11134207-7ras8-m0f2zhzqn2el76_zxiab7.jpg', 'vn-11134207-7ras8-m0f2zhzqn2el76_zxiab7', 50, NOW());
 
 -- =====================================================
 -- BOOK_AUTHOR (GÁN TÁC GIẢ CHO SÁCH)
@@ -353,155 +354,197 @@ INSERT INTO `vouchers` (`voucher_id`, `voucher_code`, `title`, `description`, `t
 
 -- =====================================================
 -- ORDERS (ĐƠN HÀNG)
+-- Phân bố đều từ tháng 1 đến tháng 5 năm 2025
+-- Trạng thái thanh toán: PENDING, SUCCESS, FAILED, CANCELLED
 -- =====================================================
-INSERT INTO `orders` (`order_id`, `status`, `vat_rate`, `total_amount`, `customer_id`, `created_at`) VALUES
-(1, 'PENDING', 0.05, 6000000, 12, NOW()),
-(2, 'PENDING', 0.05, 5500000, 13, NOW()),
-(3, 'CONFIRMED', 0.05, 7200000, 14, NOW()),
-(4, 'CONFIRMED', 0.05, 6800000, 15, NOW()),
-(5, 'SHIPPING', 0.05, 9000000, 16, NOW()),
-(6, 'SHIPPING', 0.05, 5400000, 17, NOW()),
-(7, 'DELIVERED', 0.05, 11000000, 18, NOW()),
-(8, 'DELIVERED', 0.05, 6200000, 19, NOW()),
-(9, 'COMPLETED', 0.05, 8500000, 20, NOW()),
-(10, 'COMPLETED', 0.05, 7100000, 21, NOW()),
-(11, 'PENDING', 0.05, 6500000, 22, NOW()),
-(12, 'CONFIRMED', 0.05, 5900000, 23, NOW()),
-(13, 'SHIPPING', 0.05, 9500000, 24, NOW()),
-(14, 'DELIVERED', 0.05, 8000000, 25, NOW()),
-(15, 'COMPLETED', 0.05, 10200000, 12, NOW()),
-(16, 'PENDING', 0.05, 6300000, 13, NOW()),
-(17, 'CONFIRMED', 0.05, 7800000, 14, NOW()),
-(18, 'SHIPPING', 0.05, 5600000, 15, NOW()),
-(19, 'DELIVERED', 0.05, 9200000, 16, NOW()),
-(20, 'COMPLETED', 0.05, 8800000, 17, NOW());
+INSERT INTO `orders` (`order_id`, `status`, `vat_rate`, `customer_id`, `created_at`) VALUES
+-- Tháng 1/2025 (5 đơn hàng)
+(1, 'PENDING', 0.05, 12, '2025-01-05 10:30:00'),
+(2, 'CONFIRMED', 0.05, 13, '2025-01-08 14:15:00'),
+(3, 'SHIPPING', 0.05, 14, '2025-01-12 09:45:00'),
+(4, 'DELIVERED', 0.05, 15, '2025-01-18 16:20:00'),
+(5, 'COMPLETED', 0.05, 16, '2025-01-25 11:00:00'),
+-- Tháng 2/2025 (4 đơn hàng)
+(6, 'PENDING', 0.05, 17, '2025-02-03 13:30:00'),
+(7, 'CONFIRMED', 0.05, 18, '2025-02-10 10:45:00'),
+(8, 'SHIPPING', 0.05, 19, '2025-02-15 15:20:00'),
+(9, 'COMPLETED', 0.05, 20, '2025-02-28 12:00:00'),
+-- Tháng 3/2025 (5 đơn hàng)
+(10, 'PENDING', 0.05, 21, '2025-03-05 09:15:00'),
+(11, 'CONFIRMED', 0.05, 22, '2025-03-10 14:30:00'),
+(12, 'SHIPPING', 0.05, 23, '2025-03-15 11:00:00'),
+(13, 'DELIVERED', 0.05, 24, '2025-03-20 16:45:00'),
+(14, 'COMPLETED', 0.05, 25, '2025-03-28 10:30:00'),
+-- Tháng 4/2025 (4 đơn hàng)
+(15, 'PENDING', 0.05, 12, '2025-04-05 13:20:00'),
+(16, 'CONFIRMED', 0.05, 13, '2025-04-12 10:50:00'),
+(17, 'SHIPPING', 0.05, 14, '2025-04-18 15:15:00'),
+(18, 'COMPLETED', 0.05, 15, '2025-04-25 09:40:00'),
+-- Tháng 5/2025 (2 đơn hàng)
+(19, 'PENDING', 0.05, 16, '2025-05-08 11:30:00'),
+(20, 'CONFIRMED', 0.05, 17, '2025-05-20 14:45:00');
 
 -- =====================================================
 -- SHIPMENTS (VẬN CHUYỂN)
--- Lưu ý: server.servlet.context-path=/bookstore nên img_url ở book_imgs đã có prefix /bookstore
--- Ở đây seed tối giản: gán shipment cho từng order + địa chỉ của customer (address_id = customer_id - 1)
+-- Phân bố thời gian giống như orders
 -- =====================================================
 INSERT INTO `shipments` (`shipment_id`, `status`, `order_id`, `address_id`, `weight`, `length`, `width`, `height`, `created_at`) VALUES
-(1,  'PENDING',  1,  11, 1.0, 25, 18, 10, NOW()),
-(2,  'PENDING',  2,  12, 1.0, 25, 18, 10, NOW()),
-(3,  'READY_TO_SHIP', 3,  13, 1.0, 25, 18, 10, NOW()),
-(4,  'READY_TO_SHIP', 4,  14, 1.0, 25, 18, 10, NOW()),
-(5,  'IN_TRANSIT', 5,  15, 1.0, 25, 18, 10, NOW()),
-(6,  'IN_TRANSIT', 6,  16, 1.0, 25, 18, 10, NOW()),
-(7,  'DELIVERED', 7,  17, 1.0, 25, 18, 10, NOW()),
-(8,  'DELIVERED', 8,  18, 1.0, 25, 18, 10, NOW()),
-(9,  'DELIVERED', 9,  19, 1.0, 25, 18, 10, NOW()),
-(10, 'DELIVERED', 10, 20, 1.0, 25, 18, 10, NOW()),
-(11, 'PENDING',  11, 21, 1.0, 25, 18, 10, NOW()),
-(12, 'READY_TO_SHIP', 12, 22, 1.0, 25, 18, 10, NOW()),
-(13, 'IN_TRANSIT', 13, 23, 1.0, 25, 18, 10, NOW()),
-(14, 'DELIVERED', 14, 24, 1.0, 25, 18, 10, NOW()),
-(15, 'DELIVERED', 15, 11, 1.0, 25, 18, 10, NOW()),
-(16, 'PENDING',  16, 12, 1.0, 25, 18, 10, NOW()),
-(17, 'READY_TO_SHIP', 17, 13, 1.0, 25, 18, 10, NOW()),
-(18, 'IN_TRANSIT', 18, 14, 1.0, 25, 18, 10, NOW()),
-(19, 'DELIVERED', 19, 15, 1.0, 25, 18, 10, NOW()),
-(20, 'DELIVERED', 20, 16, 1.0, 25, 18, 10, NOW());
+(1,  'PENDING',  1,  11, 1.0, 25, 18, 10, '2025-01-05 10:30:00'),
+(2,  'READY_TO_SHIP', 2,  12, 1.0, 25, 18, 10, '2025-01-08 14:15:00'),
+(3,  'IN_TRANSIT', 3,  13, 1.0, 25, 18, 10, '2025-01-12 09:45:00'),
+(4,  'DELIVERED', 4,  14, 1.0, 25, 18, 10, '2025-01-18 16:20:00'),
+(5,  'DELIVERED', 5,  15, 1.0, 25, 18, 10, '2025-01-25 11:00:00'),
+(6,  'PENDING',  6,  16, 1.0, 25, 18, 10, '2025-02-03 13:30:00'),
+(7,  'READY_TO_SHIP', 7,  17, 1.0, 25, 18, 10, '2025-02-10 10:45:00'),
+(8,  'IN_TRANSIT', 8,  18, 1.0, 25, 18, 10, '2025-02-15 15:20:00'),
+(9,  'DELIVERED', 9,  19, 1.0, 25, 18, 10, '2025-02-28 12:00:00'),
+(10, 'PENDING',  10, 20, 1.0, 25, 18, 10, '2025-03-05 09:15:00'),
+(11, 'READY_TO_SHIP', 11, 21, 1.0, 25, 18, 10, '2025-03-10 14:30:00'),
+(12, 'IN_TRANSIT', 12, 22, 1.0, 25, 18, 10, '2025-03-15 11:00:00'),
+(13, 'DELIVERED', 13, 23, 1.0, 25, 18, 10, '2025-03-20 16:45:00'),
+(14, 'DELIVERED', 14, 24, 1.0, 25, 18, 10, '2025-03-28 10:30:00'),
+(15, 'PENDING',  15, 11, 1.0, 25, 18, 10, '2025-04-05 13:20:00'),
+(16, 'READY_TO_SHIP', 16, 12, 1.0, 25, 18, 10, '2025-04-12 10:50:00'),
+(17, 'IN_TRANSIT', 17, 13, 1.0, 25, 18, 10, '2025-04-18 15:15:00'),
+(18, 'DELIVERED', 18, 14, 1.0, 25, 18, 10, '2025-04-25 09:40:00'),
+(19, 'PENDING',  19, 15, 1.0, 25, 18, 10, '2025-05-08 11:30:00'),
+(20, 'READY_TO_SHIP', 20, 16, 1.0, 25, 18, 10, '2025-05-20 14:45:00');
 
 -- =====================================================
 -- PAYMENTS (THANH TOÁN)
--- Seed tối giản: mỗi order có 1 payment COD với amount = total_amount
+-- Phương thức: COD (Tiền mặt), VNPAY (Thanh toán qua VNPAY)
+-- Trạng thái: PENDING, SUCCESS, FAILED, CANCELLED
+-- Cập nhật 22/05/2026: Chỉ dùng 2 loại COD và VNPAY
 -- =====================================================
 INSERT INTO `payments` (`payment_id`, `amount`, `method`, `status`, `order_id`, `created_at`) VALUES
-(1,  6000000, 'COD', 'PENDING',   1,  NOW()),
-(2,  5500000, 'COD', 'PENDING',   2,  NOW()),
-(3,  7200000, 'COD', 'PENDING',   3,  NOW()),
-(4,  6800000, 'COD', 'PENDING',   4,  NOW()),
-(5,  9000000, 'COD', 'PENDING',   5,  NOW()),
-(6,  5400000, 'COD', 'PENDING',   6,  NOW()),
-(7,  11000000,'COD', 'SUCCESS',   7,  NOW()),
-(8,  6200000, 'COD', 'SUCCESS',   8,  NOW()),
-(9,  8500000, 'COD', 'SUCCESS',   9,  NOW()),
-(10, 7100000, 'COD', 'SUCCESS',   10, NOW()),
-(11, 6500000, 'COD', 'PENDING',   11, NOW()),
-(12, 5900000, 'COD', 'PENDING',   12, NOW()),
-(13, 9500000, 'COD', 'PENDING',   13, NOW()),
-(14, 8000000, 'COD', 'SUCCESS',   14, NOW()),
-(15, 10200000,'COD', 'SUCCESS',   15, NOW()),
-(16, 6300000, 'COD', 'PENDING',   16, NOW()),
-(17, 7800000, 'COD', 'PENDING',   17, NOW()),
-(18, 5600000, 'COD', 'PENDING',   18, NOW()),
-(19, 9200000, 'COD', 'SUCCESS',   19, NOW()),
-(20, 8800000, 'COD', 'SUCCESS',   20, NOW());
+-- Tháng 1/2025
+(1,  6000000, 'COD', 'PENDING',   1,  '2025-01-05 10:30:00'),
+(2,  5500000, 'COD', 'SUCCESS',   2,  '2025-01-08 14:15:00'),
+(3,  7200000, 'VNPAY', 'SUCCESS',   3,  '2025-01-12 09:45:00'),
+(4,  6800000, 'COD', 'SUCCESS',   4,  '2025-01-18 16:20:00'),
+(5,  9000000, 'VNPAY', 'SUCCESS',   5,  '2025-01-25 11:00:00'),
+-- Tháng 2/2025
+(6,  5400000, 'COD', 'PENDING',   6,  '2025-02-03 13:30:00'),
+(7,  8200000, 'VNPAY', 'SUCCESS',  7,  '2025-02-10 10:45:00'),
+(8,  6500000, 'VNPAY', 'SUCCESS', 8,  '2025-02-15 15:20:00'),
+(9,  7800000, 'COD', 'SUCCESS',   9,  '2025-02-28 12:00:00'),
+-- Tháng 3/2025
+(10, 6500000, 'COD', 'PENDING',   10, '2025-03-05 09:15:00'),
+(11, 5900000, 'VNPAY', 'SUCCESS',  11, '2025-03-10 14:30:00'),
+(12, 9500000, 'VNPAY', 'SUCCESS', 12, '2025-03-15 11:00:00'),
+(13, 8000000, 'COD', 'SUCCESS',   13, '2025-03-20 16:45:00'),
+(14, 10200000,'COD', 'SUCCESS', 14, '2025-03-28 10:30:00'),
+-- Tháng 4/2025
+(15, 6300000, 'COD', 'PENDING',   15, '2025-04-05 13:20:00'),
+(16, 7800000, 'VNPAY', 'SUCCESS',  16, '2025-04-12 10:50:00'),
+(17, 5600000, 'VNPAY', 'SUCCESS', 17, '2025-04-18 15:15:00'),
+(18, 9200000, 'COD', 'SUCCESS',   18, '2025-04-25 09:40:00'),
+-- Tháng 5/2025
+(19, 8800000, 'COD', 'PENDING',   19, '2025-05-08 11:30:00'),
+(20, 7200000, 'VNPAY', 'SUCCESS', 20, '2025-05-20 14:45:00');
 
 -- =====================================================
--- BOOK_ORDER (CHI TIẾT ĐƠN HÀNG - CÓ ĐÁNH GIÁ)
+-- BOOK_ORDER (CHI TIẾT ĐƠN HÀNG - ĐẢM BẢO MỖI ĐƠN HÀNG CÓ ÍT NHẤT 1 SÁCH)
+-- Mỗi order phải có ít nhất 1 chi tiết đơn hàng, không được rỗng
 -- =====================================================
 INSERT INTO `book_order` (`book_order_id`, `quantity`, `unit`, `rate`, `content`, `book_id`, `order_id`, `created_at`) VALUES
--- 1 STAR (Rất không hài lòng) - 2 items`
-(1, 2, 'quyển', NULL, NULL, 1, 1, NOW()),
-(2, 1, 'quyển', NULL, NULL, 15, 1, NOW()),
--- 2 STARS (Không hài lòng) - 3 items
-(3, 3, 'quyển', NULL, NULL, 25, 2, NOW()),
-(4, 1, 'quyển', NULL, NULL, 35, 2, NOW()),
-(5, 2, 'quyển', NULL, NULL, 5, 3, NOW()),
--- 3 STARS (Bình thường) - 4 items
-(6, 1, 'quyển', NULL, NULL, 10, 3, NOW()),
-(7, 1, 'quyển', NULL, NULL, 20, 4, NOW()),
-(8, 2, 'quyển', NULL, NULL, 30, 5, NOW()),
-(9, 3, 'quyển', NULL, NULL, 40, 6, NOW()),
--- 4 STARS (Hài lòng) - 5 items
-(10, 1, 'quyển', 4, 'Hay, nhân vật thú vị, mặc dù kết thúc hơi nhanh!', 45, 7, NOW()),
-(11, 2, 'quyển', 4, 'Rất hay, tôi thích nó nhưng có nhược điểm nhỏ!', 7, 8, NOW()),
-(12, 1, 'quyển', 4, 'Tốt, nội dung hấp dẫn nhưng hơi dài một chút!', 17, 9, NOW()),
-(13, 2, 'quyển', 4, 'Hay lắm, tôi sẽ giới thiệu cho bạn bè!', 27, 10, NOW()),
-(14, 1, 'quyển', NULL, NULL, 37, 11, NOW()),
--- 5 STARS (Rất hài lòng) - 6 items
-(15, 3, 'quyển', NULL, NULL, 47, 12, NOW()),
-(16, 1, 'quyển', NULL, NULL, 2, 13, NOW()),
-(17, 2, 'quyển', 5, 'Tuyệt tác! Một trong những tiểu thuyết hay nhất từng đọc!', 12, 14, NOW()),
-(18, 1, 'quyển', 5, 'Siêu kì diệu! Tôi không thể đặt nó xuống!', 22, 15, NOW()),
-(19, 2, 'quyển', NULL, NULL, 32, 16, NOW()),
-(20, 1, 'quyển', NULL, NULL, 42, 17, NOW()),
--- Thêm 5 đánh giá cho sách book_id = 1
-(21, 1, 'quyển', 5, 'Một cuốn sách kinh điển, càng đọc càng thấm. Rất đáng tiền!', 1, 7, NOW()),
-(22, 1, 'quyển', 4, 'Nội dung hay, hơi nặng đô nhưng rất cuốn. Sẽ giới thiệu cho bạn bè.', 1, 8, NOW()),
-(23, 2, 'quyển', 4, 'Bản dịch ổn, câu chuyện hấp dẫn, có vài đoạn hơi chậm nhưng vẫn rất tốt.', 1, 9, NOW()),
-(24, 1, 'quyển', 3, 'Đọc ổn, ý tưởng hay nhưng cần tập trung mới theo kịp.', 1, 10, NOW()),
-(25, 1, 'quyển', 2, 'Không hợp gu của tôi, hơi khó đọc và u ám, nhưng vẫn có giá trị.', 1, 15, NOW());
+-- Order 1 (Tháng 1)
+(1, 2, 'quyển', NULL, NULL, 1, 1, '2025-01-05 10:30:00'),
+(2, 1, 'quyển', NULL, NULL, 15, 1, '2025-01-05 10:30:00'),
+-- Order 2 (Tháng 1)
+(3, 3, 'quyển', 5, 'Tuyệt vời! Không thể rời mắt khỏi cuốn sách này!', 2, 2, '2025-01-08 14:15:00'),
+-- Order 3 (Tháng 1)
+(4, 2, 'quyển', 4, 'Hay lắm, cuốn sách này thực sự tuyệt vời!', 5, 3, '2025-01-12 09:45:00'),
+-- Order 4 (Tháng 1)
+(5, 1, 'quyển', 4, 'Rất hài lòng với sách này, nội dung hay!', 10, 4, '2025-01-18 16:20:00'),
+-- Order 5 (Tháng 1)
+(6, 2, 'quyển', 5, 'Tuyệt tác! Cuốn sách hay nhất tôi từng đọc!', 15, 5, '2025-01-25 11:00:00'),
+-- Order 6 (Tháng 2)
+(7, 1, 'quyển', NULL, NULL, 20, 6, '2025-02-03 13:30:00'),
+-- Order 7 (Tháng 2)
+(8, 2, 'quyển', 4, 'Rất hay, cốt truyện cuốn hút!', 25, 7, '2025-02-10 10:45:00'),
+-- Order 8 (Tháng 2)
+(9, 1, 'quyển', 4, 'Tốt, nội dung hay nhưng hơi chậm!', 30, 8, '2025-02-15 15:20:00'),
+(10, 1, 'quyển', 5, 'Siêu hay! Giới thiệu cho bạn bè!', 35, 8, '2025-02-15 15:20:00'),
+-- Order 9 (Tháng 2)
+(11, 3, 'quyển', NULL, NULL, 40, 9, '2025-02-28 12:00:00'),
+-- Order 10 (Tháng 3)
+(12, 1, 'quyển', NULL, NULL, 45, 10, '2025-03-05 09:15:00'),
+-- Order 11 (Tháng 3)
+(13, 2, 'quyển', 5, 'Tuyệt vời! Rất đáng giá!', 7, 11, '2025-03-10 14:30:00'),
+-- Order 12 (Tháng 3)
+(14, 1, 'quyển', 4, 'Hay lắm, sẽ mua tiếp!', 12, 12, '2025-03-15 11:00:00'),
+(15, 1, 'quyển', 4, 'Cốt truyện hay, nhân vật thú vị!', 17, 12, '2025-03-15 11:00:00'),
+-- Order 13 (Tháng 3)
+(16, 2, 'quyển', NULL, NULL, 22, 13, '2025-03-20 16:45:00'),
+-- Order 14 (Tháng 3)
+(17, 1, 'quyển', 5, 'Tuyệt tác! Không thể rời mắt!', 27, 14, '2025-03-28 10:30:00'),
+(18, 1, 'quyển', 5, 'Cực hay! Khuyến nghị cao!', 32, 14, '2025-03-28 10:30:00'),
+-- Order 15 (Tháng 4)
+(19, 1, 'quyển', NULL, NULL, 37, 15, '2025-04-05 13:20:00'),
+-- Order 16 (Tháng 4)
+(20, 2, 'quyển', 4, 'Rất hay, cảm xúc sâu sắc!', 42, 16, '2025-04-12 10:50:00'),
+-- Order 17 (Tháng 4)
+(21, 1, 'quyển', 4, 'Hay lắm, giới thiệu cho bạn!', 47, 17, '2025-04-18 15:15:00'),
+-- Order 18 (Tháng 4)
+(22, 3, 'quyển', 5, 'Tuyệt vời! Sẽ mua tiếp!', 1, 18, '2025-04-25 09:40:00'),
+(23, 1, 'quyển', 5, 'Kỳ diệu! Rất đáng tiền!', 50, 18, '2025-04-25 09:40:00'),
+-- Order 19 (Tháng 5)
+(24, 2, 'quyển', NULL, NULL, 3, 19, '2025-05-08 11:30:00'),
+-- Order 20 (Tháng 5)
+(25, 1, 'quyển', 4, 'Hay, cốt truyện thú vị!', 8, 20, '2025-05-20 14:45:00'),
+(26, 1, 'quyển', 4, 'Rất hay, nội dung hay!', 11, 20, '2025-05-20 14:45:00');
 
 -- =====================================================
 -- INTERACT_EVENTS (SỰ KIỆN TƯƠNG TÁC)
 -- INTERACT_WEIGHTS: VIEW=1, ADD_CART=3, PURCHASE=8
+-- Phân bố theo cùng giai đoạn tháng 1-5 năm 2025
 -- =====================================================
 INSERT INTO `interact_events` (`interact_event_id`, `event_type`, `value`, `book_id`, `user_id`, `created_at`) VALUES
-(1, 'VIEW', 1, 1, 12, NOW()),
-(2, 'ADD_CART', 3, 1, 12, NOW()),
-(3, 'VIEW', 1, 15, 12, NOW()),
-(4, 'PURCHASE', 8, 1, 12, NOW()),
-(5, 'VIEW', 1, 25, 13, NOW()),
-(6, 'ADD_CART', 3, 25, 13, NOW()),
-(7, 'PURCHASE', 8, 25, 13, NOW()),
-(8, 'VIEW', 1, 5, 14, NOW()),
-(9, 'VIEW', 1, 10, 14, NOW()),
-(10, 'PURCHASE', 8, 5, 14, NOW()),
-(11, 'VIEW', 1, 20, 15, NOW()),
-(12, 'PURCHASE', 8, 20, 15, NOW()),
-(13, 'VIEW', 1, 30, 16, NOW()),
-(14, 'ADD_CART', 3, 30, 16, NOW()),
-(15, 'PURCHASE', 8, 30, 16, NOW()),
-(16, 'VIEW', 1, 40, 17, NOW()),
-(17, 'PURCHASE', 8, 40, 17, NOW()),
-(18, 'VIEW', 1, 45, 18, NOW()),
-(19, 'ADD_CART', 3, 45, 18, NOW()),
-(20, 'PURCHASE', 8, 45, 18, NOW()),
-(21, 'VIEW', 1, 7, 19, NOW()),
-(22, 'PURCHASE', 8, 7, 19, NOW()),
-(23, 'VIEW', 1, 17, 20, NOW()),
-(24, 'PURCHASE', 8, 17, 20, NOW()),
-(25, 'VIEW', 1, 27, 21, NOW()),
-(26, 'ADD_CART', 3, 27, 21, NOW()),
-(27, 'PURCHASE', 8, 27, 21, NOW()),
-(28, 'VIEW', 1, 37, 22, NOW()),
-(29, 'PURCHASE', 8, 37, 22, NOW()),
-(30, 'VIEW', 1, 47, 23, NOW()),
-(31, 'ADD_CART', 3, 47, 23, NOW()),
-(32, 'PURCHASE', 8, 47, 23, NOW());
+-- Tháng 1/2025
+(1, 'VIEW', 1, 1, 12, '2025-01-04 09:00:00'),
+(2, 'ADD_CART', 3, 1, 12, '2025-01-05 10:00:00'),
+(3, 'PURCHASE', 8, 1, 12, '2025-01-05 10:30:00'),
+(4, 'VIEW', 1, 15, 12, '2025-01-05 11:00:00'),
+(5, 'VIEW', 1, 25, 13, '2025-01-07 14:00:00'),
+(6, 'ADD_CART', 3, 25, 13, '2025-01-08 10:00:00'),
+(7, 'PURCHASE', 8, 25, 13, '2025-01-08 14:15:00'),
+(8, 'VIEW', 1, 5, 14, '2025-01-11 09:00:00'),
+(9, 'ADD_CART', 3, 5, 14, '2025-01-12 08:00:00'),
+(10, 'PURCHASE', 8, 5, 14, '2025-01-12 09:45:00'),
+-- Tháng 2/2025
+(11, 'VIEW', 1, 20, 15, '2025-02-02 13:00:00'),
+(12, 'ADD_CART', 3, 20, 15, '2025-02-03 10:00:00'),
+(13, 'PURCHASE', 8, 20, 15, '2025-02-03 13:30:00'),
+(14, 'VIEW', 1, 30, 16, '2025-02-09 15:00:00'),
+(15, 'ADD_CART', 3, 30, 16, '2025-02-10 09:00:00'),
+(16, 'PURCHASE', 8, 30, 16, '2025-02-10 10:45:00'),
+(17, 'VIEW', 1, 40, 17, '2025-02-14 11:00:00'),
+(18, 'PURCHASE', 8, 40, 17, '2025-02-15 15:20:00'),
+-- Tháng 3/2025
+(19, 'VIEW', 1, 45, 18, '2025-03-04 10:00:00'),
+(20, 'ADD_CART', 3, 45, 18, '2025-03-05 14:00:00'),
+(21, 'PURCHASE', 8, 45, 18, '2025-03-05 09:15:00'),
+(22, 'VIEW', 1, 7, 19, '2025-03-09 13:00:00'),
+(23, 'PURCHASE', 8, 7, 19, '2025-03-10 14:30:00'),
+(24, 'VIEW', 1, 17, 20, '2025-03-14 15:00:00'),
+(25, 'PURCHASE', 8, 17, 20, '2025-03-15 11:00:00'),
+(26, 'VIEW', 1, 27, 21, '2025-03-19 10:00:00'),
+(27, 'ADD_CART', 3, 27, 21, '2025-03-20 09:00:00'),
+(28, 'PURCHASE', 8, 27, 21, '2025-03-20 16:45:00'),
+-- Tháng 4/2025
+(29, 'VIEW', 1, 37, 22, '2025-04-04 11:00:00'),
+(30, 'PURCHASE', 8, 37, 22, '2025-04-05 13:20:00'),
+(31, 'VIEW', 1, 47, 23, '2025-04-11 14:00:00'),
+(32, 'ADD_CART', 3, 47, 23, '2025-04-12 10:00:00'),
+(33, 'PURCHASE', 8, 47, 23, '2025-04-12 10:50:00'),
+-- Tháng 5/2025
+(34, 'VIEW', 1, 1, 24, '2025-05-07 09:00:00'),
+(35, 'ADD_CART', 3, 1, 24, '2025-05-08 10:00:00'),
+(36, 'PURCHASE', 8, 1, 24, '2025-05-08 11:30:00'),
+(37, 'VIEW', 1, 8, 25, '2025-05-19 13:00:00'),
+(38, 'ADD_CART', 3, 8, 25, '2025-05-20 13:00:00'),
+(39, 'PURCHASE', 8, 8, 25, '2025-05-20 14:45:00');
 
 SET FOREIGN_KEY_CHECKS=1;
 

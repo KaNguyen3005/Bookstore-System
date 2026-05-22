@@ -41,6 +41,7 @@ public class PaymentService {
     VNPayUtil vnPayUtil;
     CartRepository cartRepository;
     BookCartRepository bookCartRepository;
+    OrderService orderService;
 
     /**
      * Tạo session thanh toán
@@ -57,7 +58,7 @@ public class PaymentService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         log.info("Order found: id={}, status={}, totalAmount={}", 
-                order.getOrderId(), order.getStatus(), order.getTotalAmount());
+                order.getOrderId(), order.getStatus(), orderService.calculateOrderTotalAmount(order));
 
         // 2. Kiểm tra order có thể thanh toán không
         if (order.getStatus() != OrderStatus.PENDING) {
@@ -92,7 +93,7 @@ public class PaymentService {
                     .order(order)
                     .method(paymentMethod)
                     .status(PaymentStatus.PENDING)
-                    .amount(order.getTotalAmount())
+                    .amount(orderService.calculateOrderTotalAmount(order))
                     .build();
             payment = paymentRepository.save(payment);
         } else {
@@ -226,7 +227,7 @@ public class PaymentService {
             }
 
             log.info("Order found: orderId={}, orderStatus={}, totalAmount={}",
-                    order.getOrderId(), order.getStatus(), order.getTotalAmount());
+                    order.getOrderId(), order.getStatus(), orderService.calculateOrderTotalAmount(order));
 
             log.info("Payment found: paymentId={}, paymentStatus={}",
                     payment.getPaymentId(), payment.getStatus());
@@ -252,7 +253,7 @@ public class PaymentService {
             }
 
             // 6. Validate số tiền
-            BigDecimal expectedAmount = order.getTotalAmount();
+            BigDecimal expectedAmount = orderService.calculateOrderTotalAmount(order);
             if (expectedAmount == null || expectedAmount.longValue() != amountVND) {
                 log.error("Amount mismatch! orderId={}, expected={}, received={}",
                         orderId, expectedAmount, amountVND);
@@ -471,7 +472,7 @@ public class PaymentService {
     private String generateVNPayUrl(Order order, HttpServletRequest httpRequest) throws Exception {
         return vnPayUtil.buildPaymentUrl(
                 order.getOrderId().toString(),
-                order.getTotalAmount(),
+                orderService.calculateOrderTotalAmount(order),
                 "Thanh toán đơn hàng #" + order.getOrderId(),
                 null, // bankCode để trống để VNPay hiển thị trang chọn ngân hàng
                 "vn",

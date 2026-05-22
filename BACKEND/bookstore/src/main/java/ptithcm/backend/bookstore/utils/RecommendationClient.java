@@ -11,76 +11,42 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RecommendationClient {
 
+    private static final long POPULAR_FALLBACK_USER_ID = 2_147_483_647L;
+
     private final RestClient recommendationRestClient;
 
     public RecommendationServiceResponse getPopularBooks(int limit) {
-        return recommendationRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/recommendations/popular")
-                        .queryParam("limit", limit)
-                        .build())
-                .retrieve()
-                .body(RecommendationServiceResponse.class);
+        return getRecommendationsForUser(POPULAR_FALLBACK_USER_ID, limit);
     }
 
     public RecommendationServiceResponse getRecommendationsForUser(Long userId, int limit) {
         return recommendationRestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/recommendations/users/{userId}")
-                        .queryParam("limit", limit)
+                        .path("/api/recommendations/user/{userId}")
+                        .queryParam("top_n", limit)
                         .build(userId))
                 .retrieve()
                 .body(RecommendationServiceResponse.class);
     }
 
     public RecommendationServiceResponse getSimilarBooks(Integer bookId, int limit) {
-        return recommendationRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/recommendations/books/{bookId}/similar")
-                        .queryParam("limit", limit)
-                        .build(bookId))
-                .retrieve()
-                .body(RecommendationServiceResponse.class);
+        return getRelatedBooks(bookId, limit);
     }
 
     public RecommendationServiceResponse getFrequentlyBoughtTogether(Integer bookId, int limit) {
-        return recommendationRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/recommendations/books/{bookId}/frequently-bought-together")
-                        .queryParam("limit", limit)
-                        .build(bookId))
-                .retrieve()
-                .body(RecommendationServiceResponse.class);
+        return getRelatedBooks(bookId, limit);
     }
 
     public RecommendationServiceResponse getContentBasedRecommendations(Long userId, int limit) {
-        return recommendationRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/recommendations/v2/users/{userId}/content-based")
-                        .queryParam("limit", limit)
-                        .build(userId))
-                .retrieve()
-                .body(RecommendationServiceResponse.class);
+        return getRecommendationsForUser(userId, limit);
     }
 
     public RecommendationServiceResponse getCollaborativeRecommendations(Long userId, int limit) {
-        return recommendationRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/recommendations/v3/users/{userId}/collaborative")
-                        .queryParam("limit", limit)
-                        .build(userId))
-                .retrieve()
-                .body(RecommendationServiceResponse.class);
+        return getRecommendationsForUser(userId, limit);
     }
 
     public RecommendationServiceResponse getHybridRecommendations(Long userId, int limit) {
-        return recommendationRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/recommendations/v4/users/{userId}/hybrid")
-                        .queryParam("limit", limit)
-                        .build(userId))
-                .retrieve()
-                .body(RecommendationServiceResponse.class);
+        return getRecommendationsForUser(userId, limit);
     }
 
     public RecommendationServiceResponse getRelatedBooks(Integer bookId, int limit) {
@@ -94,13 +60,7 @@ public class RecommendationClient {
     }
 
     public RecommendationServiceResponse getRelatedBooksSimple(Integer bookId, int limit) {
-        return recommendationRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api/books/{bookId}/related/simple")
-                        .queryParam("top_n", limit)
-                        .build(bookId))
-                .retrieve()
-                .body(RecommendationServiceResponse.class);
+        return getRelatedBooks(bookId, limit);
     }
 
     public Map<String, Object> getBookInfo(Integer bookId) {
@@ -112,7 +72,7 @@ public class RecommendationClient {
                 .body(Map.class);
     }
 
-    public Map<String, Object> searchByTitle(String title, int limit) {
+    public Object searchByTitle(String title, int limit) {
         return recommendationRestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/books/search/by-title")
@@ -120,7 +80,7 @@ public class RecommendationClient {
                         .queryParam("limit", limit)
                         .build())
                 .retrieve()
-                .body(Map.class);
+                .body(Object.class);
     }
 
     public Map<String, Object> trainModels(boolean retrainCollaborative, boolean retrainContent) {

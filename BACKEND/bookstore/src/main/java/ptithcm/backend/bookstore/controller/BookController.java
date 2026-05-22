@@ -32,7 +32,7 @@ public class BookController {
 
     @PreAuthorize("hasAuthority('CREATE_BOOK')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<BookResponse> create(@ModelAttribute CreateBookRequest createBookRequest){
+    public ApiResponse<BookResponse> create(@ModelAttribute @Valid CreateBookRequest createBookRequest){
         log.error("Đã chạy xuống controller");
         ApiResponse<BookResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(bookService.create(createBookRequest));

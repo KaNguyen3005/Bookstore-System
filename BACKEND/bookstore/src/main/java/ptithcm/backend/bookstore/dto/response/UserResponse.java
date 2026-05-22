@@ -24,4 +24,5 @@ public class UserResponse {
     String tier;
     Long point;
     String email;
+    Boolean status;
 }

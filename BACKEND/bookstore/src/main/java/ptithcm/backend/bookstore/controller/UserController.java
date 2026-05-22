@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.*;
 import ptithcm.backend.bookstore.dto.response.*;
 import ptithcm.backend.bookstore.service.CloudinaryService;
 import ptithcm.backend.bookstore.service.UserService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,8 +37,11 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('READ_USER')")
     @GetMapping()
-    ApiResponse<List<UserResponse>> getAll(){
-        return ApiResponse.<List<UserResponse>>builder().result(userService.getAll()).build();
+    ApiResponse<Page<UserResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ApiResponse.<Page<UserResponse>>builder().result(userService.getAll(page, size)).build();
     }
 
     @PreAuthorize("hasAuthority('UPDATE_USER')")
@@ -63,9 +66,9 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PutMapping("/{id}/status")
-    ApiResponse<Void> changeStatusAccount(@PathVariable("id") Long id, @RequestBody @Valid ChangeStatusAccountRequest request){
-        ApiResponse<Void> apiResponse = new ApiResponse<>();
-        userService.changeStatusAccount(id, request);
+    ApiResponse<UserResponse> changeStatusAccount(@PathVariable("id") Long id, @RequestBody @Valid ChangeStatusAccountRequest request){
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userService.changeStatusAccount(id, request));
         return apiResponse;
     }
 
@@ -80,10 +83,17 @@ public class UserController {
     ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UpdateMyInfoRequest request){
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
 
-        userService.updateMyInfo(request);
         apiResponse.setResult(userService.updateMyInfo(request));
 
         return apiResponse;
+    }
+
+    @PatchMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ApiResponse<UserResponse> uploadAvatar(@ModelAttribute @Valid UploadAvatarRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.uploadAvatar(request))
+                .message("Upload avatar success")
+                .build();
     }
 
     @PreAuthorize("hasAuthority('UPDATE_USER')")

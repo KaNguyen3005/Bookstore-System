@@ -13,14 +13,17 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class OrderItemResponse {
+    Long orderItemId;
     Integer bookId;
     String bookTitle;
     Integer quantity;
     BigDecimal price;
     Integer rate;
     String content;
+    String coverImageUrl;
     String unit;
     List<BookImgResponse> bookImgs;
+    Boolean hasRating;
 }
 
 

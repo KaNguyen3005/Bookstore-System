@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
-import ptithcm.backend.bookstore.dto.response.BookResponse;
+import ptithcm.backend.bookstore.dto.response.RecommendedBookResponse;
 import ptithcm.backend.bookstore.service.RecommendationService;
 
 import java.util.List;
@@ -24,14 +24,14 @@ public class RecommendationController {
             description = "Trả về danh sách sách phổ biến nhất trong hệ thống."
     )
     @GetMapping("/popular")
-    public ApiResponse<List<BookResponse>> getPopularBooks(
+    public ApiResponse<List<RecommendedBookResponse>> getPopularBooks(
             @Parameter(
                     description = "Số lượng sách trả về. Mặc định là 10, tối đa nên giới hạn 100",
                     example = "10"
             )
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.getPopularBooks(limit))
                 .build();
     }
@@ -41,14 +41,14 @@ public class RecommendationController {
             description = "Trả về danh sách sách được khuyến nghị cho người dùng theo userId."
     )
     @GetMapping("/users/{userId}")
-    public ApiResponse<List<BookResponse>> recommendForUser(
+    public ApiResponse<List<RecommendedBookResponse>> recommendForUser(
             @Parameter(description = "ID của người dùng", example = "1")
             @PathVariable Long userId,
 
             @Parameter(description = "Số lượng sách khuyến nghị", example = "10")
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.recommendForUser(userId, limit))
                 .build();
     }
@@ -58,14 +58,14 @@ public class RecommendationController {
             description = "Trả về danh sách sách tương tự với một cuốn sách cụ thể."
     )
     @GetMapping("/books/{bookId}/similar")
-    public ApiResponse<List<BookResponse>> getSimilarBooks(
+    public ApiResponse<List<RecommendedBookResponse>> getSimilarBooks(
             @Parameter(description = "ID của sách", example = "1")
             @PathVariable Integer bookId,
 
             @Parameter(description = "Số lượng sách trả về", example = "10")
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.getSimilarBooks(bookId, limit))
                 .build();
     }
@@ -75,14 +75,14 @@ public class RecommendationController {
             description = "Trả về danh sách sách thường được mua cùng với một cuốn sách cụ thể."
     )
     @GetMapping("/books/{bookId}/frequently-bought-together")
-    public ApiResponse<List<BookResponse>> getFrequentlyBoughtTogether(
+    public ApiResponse<List<RecommendedBookResponse>> getFrequentlyBoughtTogether(
             @Parameter(description = "ID của sách", example = "1")
             @PathVariable Integer bookId,
 
             @Parameter(description = "Số lượng sách trả về", example = "10")
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.getFrequentlyBoughtTogether(bookId, limit))
                 .build();
     }
@@ -92,11 +92,11 @@ public class RecommendationController {
             description = "Khuyến nghị sách dựa trên nội dung sách mà người dùng đã tương tác."
     )
     @GetMapping("/me/content-based")
-    public ApiResponse<List<BookResponse>> recommendContentBased(
+    public ApiResponse<List<RecommendedBookResponse>> recommendContentBased(
             @Parameter(description = "Số lượng sách khuyến nghị", example = "10")
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.recommendContentBased(limit))
                 .build();
     }
@@ -106,11 +106,11 @@ public class RecommendationController {
             description = "Khuyến nghị sách dựa trên hành vi của những người dùng có sở thích tương tự."
     )
     @GetMapping("/me/collaborative")
-    public ApiResponse<List<BookResponse>> recommendCollaborative(
+    public ApiResponse<List<RecommendedBookResponse>> recommendCollaborative(
             @Parameter(description = "Số lượng sách khuyến nghị", example = "10")
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.recommendCollaborative(limit))
                 .build();
     }
@@ -120,11 +120,11 @@ public class RecommendationController {
             description = "Khuyến nghị sách bằng cách kết hợp nhiều thuật toán khuyến nghị."
     )
     @GetMapping("/me/hybrid")
-    public ApiResponse<List<BookResponse>> recommendHybrid(
+    public ApiResponse<List<RecommendedBookResponse>> recommendHybrid(
             @Parameter(description = "Số lượng sách khuyến nghị", example = "10")
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.recommendHybrid(limit))
                 .build();
     }
@@ -134,14 +134,14 @@ public class RecommendationController {
             description = "Trả về danh sách sách liên quan với một cuốn sách cụ thể (khác với similar books)."
     )
     @GetMapping("/books/{bookId}/related")
-    public ApiResponse<List<BookResponse>> getRelatedBooks(
+    public ApiResponse<List<RecommendedBookResponse>> getRelatedBooks(
             @Parameter(description = "ID của sách", example = "1")
             @PathVariable Integer bookId,
 
             @Parameter(description = "Số lượng sách trả về", example = "10")
             @RequestParam(defaultValue = "10") int limit
     ) {
-        return ApiResponse.<List<BookResponse>>builder()
+        return ApiResponse.<List<RecommendedBookResponse>>builder()
                 .result(recommendationService.getRelatedBooks(bookId, limit))
                 .build();
     }

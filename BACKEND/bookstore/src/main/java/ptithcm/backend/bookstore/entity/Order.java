@@ -45,9 +45,10 @@ public class Order {
     @JoinColumn(name = "voucher_id")
     Voucher voucher;
 
-    BigDecimal totalAmount;
 
-    @OneToMany(mappedBy = "order")
+    // Cascade để khi tạo Order mới thì các BookOrder (items) được persist theo,
+    // tránh trường hợp tạo đơn xong nhưng get lại không thấy items vì chưa insert vào table book_order.
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     List<BookOrder> bookOrders;
 
     @OneToOne(mappedBy = "order")

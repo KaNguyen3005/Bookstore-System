@@ -17,6 +17,7 @@ public interface BookMapper {
 
     @Mapping(target = "coverImgUrl", source = "coverImageUrl")
     @Mapping(target = "categories", expression = "java(mapCategories(book.getCategories()))")
+    @Mapping(target = "bookStatus", expression = "java(resolveBookStatus(book))")
     BookResponse toResponse(Book book);
 
     default Set<String> mapCategories(Set<Category> categories) {
@@ -24,5 +25,15 @@ public interface BookMapper {
         return categories.stream()
                 .map(Category::getCategoryName)
                 .collect(Collectors.toSet());
+    }
+
+    default String resolveBookStatus(Book book) {
+        if (book == null || Boolean.FALSE.equals(book.getIsActive())) {
+            return "Tạm Ngưng";
+        }
+        if (book.getStockQuantity() <= 0) {
+            return "Hết Hàng";
+        }
+        return "Đang Bán";
     }
 }
