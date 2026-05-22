@@ -45,6 +45,8 @@ export default function CustomerManagement() {
     editingUser,
     currentUserId,
     form,
+    formRoleOptions,
+    rolesLoading,
     loading,
     actionLoading,
     error,
@@ -65,6 +67,7 @@ export default function CustomerManagement() {
   const isEditingAdmin = formMode === "edit" && normalizedFormRole === "ADMIN";
   const isEditingCurrentAdmin =
     isEditingAdmin && editingUser?.userId === currentUserId;
+  const hasRoleOptions = formRoleOptions.length > 0;
 
   return (
     <div>
@@ -393,7 +396,7 @@ export default function CustomerManagement() {
                 Vai trò
                 <select
                   value={form.role}
-                  disabled={isEditingCurrentAdmin}
+                  disabled={isEditingCurrentAdmin || rolesLoading || !hasRoleOptions}
                   title={
                     isEditingCurrentAdmin
                       ? "Admin không thể tự chỉnh vai trò của chính mình"
@@ -403,12 +406,28 @@ export default function CustomerManagement() {
                     updateFormField("role", event.target.value)
                   }
                 >
-                  {isEditingAdmin ? (
-                    <option value="ADMIN">ADMIN</option>
-                  ) : isStaffAdminTab ? (
-                    <option value="STAFF">STAFF</option>
-                  ) : (
-                    <option value="CUSTOMER">CUSTOMER</option>
+                  {rolesLoading && (
+                    <option value={form.role}>Đang tải vai trò...</option>
+                  )}
+                  {!rolesLoading && !hasRoleOptions && (
+                    <option value={form.role}>Không có vai trò hợp lệ</option>
+                  )}
+                  {!rolesLoading &&
+                    hasRoleOptions &&
+                    formRoleOptions.map((role) => (
+                      <option key={role.roleName} value={role.roleName}>
+                        {role.roleName}
+                      </option>
+                    ))}
+                  {!rolesLoading &&
+                    hasRoleOptions &&
+                    form.role &&
+                    !formRoleOptions.some(
+                      (role) =>
+                        role.roleName.trim().toUpperCase() ===
+                        form.role.trim().toUpperCase()
+                    ) && (
+                      <option value={form.role}>{form.role}</option>
                   )}
                 </select>
                 {fieldErrors.role && (
