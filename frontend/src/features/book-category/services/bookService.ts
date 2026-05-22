@@ -78,7 +78,7 @@ export const searchBooks = async (
     }
 
     // ================= PAGINATION =================
-    const PAGE_SIZE = 12;
+    const PAGE_SIZE = filters.size ?? 10;
 
     const currentPage = filters.page || 0;
 
@@ -93,8 +93,6 @@ export const searchBooks = async (
   }
 
   try {
-    const token = localStorage.getItem("accessToken");
-
     const apiFilters: any = {
       ...filters,
     };
@@ -107,11 +105,9 @@ export const searchBooks = async (
 
     const res: any = await axiosClient.get("/books/search", {
       params: apiFilters,
-
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      skipAuth: true,
+      skipAuthRedirect: true,
+    } as any);
 
     console.log("BOOK SEARCH RESPONSE:", res);
 
@@ -163,15 +159,11 @@ export const getTopSellingBooks = async (
 
   // ================= API =================
   try {
-    const token = localStorage.getItem("accessToken");
-
     const res: any = await axiosClient.get("/books", {
       params: { limit },
-
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      skipAuth: true,
+      skipAuthRedirect: true,
+    } as any);
 
     const result = res?.data?.result;
 

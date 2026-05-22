@@ -3,12 +3,27 @@ import axiosClient from "./axiosClient";
 const getAuthHeader = () => {
   const token = localStorage.getItem("token");
 
+  if (!token) {
+    return {};
+  }
+
   return {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
 };
+
+const optionalAuthRequest = {
+  skipAuthRedirect: true,
+  skipErrorLog: true,
+} as any;
+
+const publicRequest = {
+  skipAuth: true,
+  skipAuthRedirect: true,
+  skipErrorLog: true,
+} as any;
 
 export interface ReviewItem {
   bookId: number;
@@ -41,7 +56,7 @@ export const evaluateApi = {
   ): Promise<ReviewResponse> => {
     const response = await axiosClient.get(
       `/books/${bookId}/reviews?page=${page}&size=${size}`,
-      getAuthHeader()
+      publicRequest
     );
 
     return response.data.result;
@@ -55,7 +70,10 @@ export const evaluateApi = {
   ) => {
     const response = await axiosClient.get(
       `/reviews/my?bookId=${bookId}&orderId=${orderId}&itemId=${itemId}`,
-      getAuthHeader()
+      {
+        ...getAuthHeader(),
+        ...optionalAuthRequest,
+      }
     );
 
     return response.data.result;
@@ -65,7 +83,10 @@ export const evaluateApi = {
   getOrderById: async (orderId: number) => {
     const response = await axiosClient.get(
       `/orders/my/${orderId}`,
-      getAuthHeader()
+      {
+        ...getAuthHeader(),
+        ...optionalAuthRequest,
+      }
     );
 
     return response.data.result;

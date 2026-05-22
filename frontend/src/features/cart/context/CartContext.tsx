@@ -34,7 +34,7 @@ const getCartItemId = (item: CartItemType) =>
 export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
   const [cartItems, setCartItems] = useState<CartItemType[]>(() => {
@@ -62,6 +62,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     const syncCart = async () => {
       setIsLoading(true);
+
+      if (authLoading) {
+        return;
+      }
+
       if (isAuthenticated && user?.userId) {
         try {
           const serverCart = await cartApi.getCart();
@@ -76,7 +81,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     syncCart();
-  }, [isAuthenticated, user]);
+  }, [authLoading, isAuthenticated, user]);
 
   const selectedItems = cartItems.filter((item) => item.selected);
 

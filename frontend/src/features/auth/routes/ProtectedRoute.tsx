@@ -19,7 +19,7 @@ const ProtectedRoute = ({
 
   // đang load auth (restore user từ token)
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="page-loading">Loading...</div>;
   }
 
   // chưa login

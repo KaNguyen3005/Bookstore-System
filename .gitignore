@@ -47,3 +47,9 @@ recommendation-service/.pytest_cache/
 recommendation-service/.mypy_cache/
 recommendation-service/.ruff_cache/
 recommendation-service/.ipynb_checkpoints/
+# Frontend / Node.js
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+!frontend/.env.example

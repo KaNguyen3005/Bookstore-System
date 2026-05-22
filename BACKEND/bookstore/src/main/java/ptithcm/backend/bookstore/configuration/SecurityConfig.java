@@ -60,6 +60,10 @@ public class SecurityConfig {
             "/api/v1/vouchers",
             "/api/v1/vouchers/**",
 
+            // Public book statistics
+            "/api/v1/orders/top-selling-book",
+            "/api/v1/orders/top-selling-books",
+
             // Recommendations
             "/api/v1/recommendations/**",
 

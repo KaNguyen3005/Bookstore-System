@@ -5,8 +5,31 @@ const IS_MOCK = false;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const isVisibleLocationName = (name?: string) => {
+  const normalizedName = (name || "").trim().toLowerCase();
+
+  if (!normalizedName) {
+    return false;
+  }
+
+  return (
+    !normalizedName.includes("test") &&
+    !normalizedName.includes("alert") &&
+    !normalizedName.includes("đặc biệt") &&
+    !normalizedName.includes("dac biet") &&
+    !/\d{2,}/.test(normalizedName)
+  );
+};
+
 const getAuthHeader = () => {
-  const token = localStorage.getItem("token");
+  const token =
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("token") ||
+    localStorage.getItem("accessToken");
+
+  if (!token) {
+    return {};
+  }
 
   return {
     headers: {
@@ -139,11 +162,13 @@ export const addressApi = {
 
     console.log("PROVINCES API:", response.data.result);
 
-    return response.data.result.map((item: any) => ({
-      provinceId: item.ProvinceID,
+    return response.data.result
+      .filter((item: any) => isVisibleLocationName(item.ProvinceName))
+      .map((item: any) => ({
+        provinceId: item.ProvinceID,
 
-      provinceName: item.ProvinceName,
-    }));
+        provinceName: item.ProvinceName,
+      }));
   },
 
   // GET /api/v1/addresses/districts/{provinceId}
@@ -159,11 +184,13 @@ export const addressApi = {
 
     console.log("DISTRICTS API:", response.data.result);
 
-    return response.data.result.map((item: any) => ({
-      districtId: item.DistrictID,
+    return response.data.result
+      .filter((item: any) => isVisibleLocationName(item.DistrictName))
+      .map((item: any) => ({
+        districtId: item.DistrictID,
 
-      districtName: item.DistrictName,
-    }));
+        districtName: item.DistrictName,
+      }));
   },
 
   // GET /api/v1/addresses/wards/{districtId}

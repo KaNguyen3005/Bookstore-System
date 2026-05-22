@@ -12,6 +12,7 @@ export interface PermissionResponse {
 
 export interface RoleResponse {
   roleId?: number;
+  role_id?: number;
   id?: number;
   roleName: string;
   description?: string;
@@ -28,11 +29,14 @@ export interface RoleRequest {
 
 export interface UserRoleResponse {
   userId: number;
+  id?: number;
   username: string;
   name?: string;
   email?: string;
   role?: string;
   roleId?: number;
+  role_id?: number;
+  roleName?: string;
   status?: boolean | string;
   avatarUrl?: string;
 }

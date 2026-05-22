@@ -118,37 +118,7 @@ export const authApi = {
 
       localStorage.setItem("access_token", token);
 
-      // ================= GET USER INFO =================
-      const userRes = await axiosClient.get("/users/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const userData = userRes?.data?.result ?? userRes?.data;
-
-      if (isInactiveAccount(userData?.status)) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user");
-        throw new Error("Tài khoản này đã ngừng hoạt động");
-      }
-
-      const fullUser = {
-        userId: userData?.userId || userData?.id,
-        username: userData?.username,
-        email: userData?.email,
-        phone: userData?.phone,
-        name: userData?.name,
-        role: userData?.role,
-        status: userData?.status,
-        token,
-        authenticated: true,
-      };
-
-      // ⚡ SAVE LOCAL (QUAN TRỌNG để không cần f5)
-      localStorage.setItem("user", JSON.stringify(fullUser));
-
-      return fullUser;
+      return authData;
 
     } catch (error: any) {
       console.error("LOGIN ERROR:", error);
@@ -274,37 +244,7 @@ googleLogin: async (idToken: string) => {
     // SAVE TOKEN
     localStorage.setItem("access_token", token);
 
-    // ================= GET USER INFO =================
-    const userRes = await axiosClient.get("/users/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const userData = userRes?.data?.result ?? userRes?.data;
-
-    if (isInactiveAccount(userData?.status)) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      throw new Error("Tài khoản này đã ngừng hoạt động");
-    }
-
-    const fullUser = {
-      userId: userData?.userId || userData?.id,
-      username: userData?.username,
-      email: userData?.email,
-      phone: userData?.phone,
-      name: userData?.name,
-      role: userData?.role,
-      status: userData?.status,
-      token,
-      authenticated: true,
-    };
-
-    // SAVE LOCAL
-    localStorage.setItem("user", JSON.stringify(fullUser));
-
-    return fullUser;
+    return authData;
 
   } catch (error: any) {
     console.error("GOOGLE LOGIN ERROR:", error);
@@ -313,3 +253,4 @@ googleLogin: async (idToken: string) => {
   }
 },
 };
+

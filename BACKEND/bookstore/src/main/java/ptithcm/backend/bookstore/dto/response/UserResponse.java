@@ -20,6 +20,7 @@ public class UserResponse {
     String phone;
     String dob;
     String role;
+    Integer roleId;
     String avatarUrl;
     String tier;
     Long point;

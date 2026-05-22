@@ -29,7 +29,10 @@ export const publisherService = {
     }
 
     try {
-      const res: any = await axiosClient.get("/publishers");
+      const res: any = await axiosClient.get("/publishers", {
+        skipAuth: true,
+        skipAuthRedirect: true,
+      } as any);
 
       console.log("PUBLISHERS RESPONSE:", res);
 
@@ -61,7 +64,10 @@ export const publisherService = {
       };
     }
 
-    const res: any = await axiosClient.get(`/publishers/${id}`);
+    const res: any = await axiosClient.get(`/publishers/${id}`, {
+      skipAuth: true,
+      skipAuthRedirect: true,
+    } as any);
 
     return res.data.result;
   },

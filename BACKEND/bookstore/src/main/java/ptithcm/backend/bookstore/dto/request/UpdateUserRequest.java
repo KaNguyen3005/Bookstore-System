@@ -1,12 +1,15 @@
 package ptithcm.backend.bookstore.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.multipart.MultipartFile;
+import ptithcm.backend.bookstore.validator.ValidAge;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -41,9 +44,7 @@ public class UpdateUserRequest {
     @Min(value = 0, message = "VALIDATION_ERROR")
     Long point;
 
-    @Pattern(
-            regexp = "^\\d{4}-\\d{2}-\\d{2}$",
-            message = "INVALID_DOB"
-    )
-    String dob;
+    @ValidAge(min = 18, message = "INVALID_AGE")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate dob;
 }

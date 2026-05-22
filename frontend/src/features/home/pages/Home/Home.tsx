@@ -9,6 +9,7 @@ import Pagination from "../../components/Pagination/Pagination";
 
 import { useHomeData } from "../../hooks/useHomeData";
 import { useAISuggestion } from "../../../AI/hooks/useAISuggestion";
+import "./Home.css";
 
 function Home() {
     /*hooks*/
@@ -55,7 +56,7 @@ function Home() {
 
   /* ───────── LOADING GUARD ───────── */
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="page-loading">Loading...</div>;
   }
 
     if (!homeData) {
@@ -67,7 +68,10 @@ function Home() {
     }
 
   /* ───────── SUGGESTION ───────── */
-  const suggestionBooks = aiSuggestions || [];
+  const suggestionBooks =
+    aiSuggestions.length > 0
+      ? aiSuggestions
+      : homeData.suggestionBooks || [];
 
   const suggestionTotalPages = Math.ceil(
     suggestionBooks.length / SUGGESTION_LIMIT
@@ -116,7 +120,10 @@ function Home() {
 
         {/* SUGGESTION */}
         <div className="section">
-          <Suggestion books={suggestionCurrent} />
+          <Suggestion
+            books={suggestionCurrent}
+            loading={aiLoading && suggestionBooks.length === 0}
+          />
 
           <Pagination
             currentPage={suggestionPage}

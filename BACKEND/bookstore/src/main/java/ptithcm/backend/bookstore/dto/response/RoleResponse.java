@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class RoleResponse {
+    Integer roleId;
     String roleName;
     List<String> permissions;
 }

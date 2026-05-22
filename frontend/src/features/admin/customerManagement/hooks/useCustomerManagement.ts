@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent, MouseEvent } from "react";
 
 import { userApi, type UserFE } from "../../../../services/userApi";
+import type { UpdateUserPayload } from "../../../../services/userApi";
 import { roleService } from "../../roleManagement/services/roleService";
 import type { RoleResponse } from "../../roleManagement/types/role";
 
@@ -154,6 +155,39 @@ const toFormState = (user: UserFE): UserFormState => ({
   point: String(user.point ?? 0),
 });
 
+const getTrimmedValue = (value: string) => value.trim();
+
+const isChangedText = (next: string, current?: string) =>
+  getTrimmedValue(next) !== getTrimmedValue(current ?? "");
+
+const isChangedRole = (next: string, current?: string) =>
+  normalizeRole(next) !== normalizeRole(current);
+
+const getPointNumber = (point: string | number | undefined) => {
+  const pointNumber = Number(point ?? 0);
+
+  return Number.isFinite(pointNumber) ? pointNumber : 0;
+};
+
+const isAtLeastAge = (dateValue: string, minimumAge: number) => {
+  if (!dateValue) return false;
+
+  const dob = new Date(`${dateValue}T00:00:00`);
+
+  if (Number.isNaN(dob.getTime())) return false;
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  const dayDiff = today.getDate() - dob.getDate();
+
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age -= 1;
+  }
+
+  return age >= minimumAge;
+};
+
 const getErrorMessage = (err: any) =>
   err?.response?.data?.message ||
   err?.response?.data?.error ||
@@ -193,7 +227,11 @@ const validateUserForm = (
   }
 
   if (!form.gender.trim()) errors.gender = "Vui lòng chọn giới tính";
-  if (!form.dob.trim()) errors.dob = "Vui lòng chọn ngày sinh";
+  if (!form.dob.trim()) {
+    errors.dob = "Vui lòng chọn ngày sinh";
+  } else if (!isAtLeastAge(form.dob, 18)) {
+    errors.dob = "Người dùng phải đủ 18 tuổi";
+  }
 
   return errors;
 };
@@ -489,44 +527,74 @@ export const useCustomerManagement = () => {
             ...prev,
           ]);
         } else if (formMode === "edit" && editingUser) {
-          const nextRoleId =
-            editingUser.roleId ??
-            resolveRoleId(
-              roleOptions,
-              normalizeRole(editingUser.role) === "ADMIN"
-                ? editingUser.role
-                : form.role
-            );
+          const isAdminUser = normalizeRole(editingUser.role) === "ADMIN";
+          const updatePayload: UpdateUserPayload = {
+            userId: editingUser.userId,
+          };
 
-          if (!nextRoleId) {
-            setFieldErrors({ role: "Vui lòng chọn vai trò hợp lệ" });
-            setActionError("Không thể xác định Role ID từ danh sách vai trò");
+          if (isChangedText(form.username, editingUser.username)) {
+            updatePayload.username = form.username.trim();
+          }
+
+          if (isChangedText(form.name, editingUser.name)) {
+            updatePayload.name = form.name.trim();
+          }
+
+          if (isChangedText(form.phone, editingUser.phone)) {
+            updatePayload.phone = form.phone.trim();
+          }
+
+          if (isChangedText(form.gender, editingUser.gender)) {
+            updatePayload.gender = form.gender.trim().toUpperCase();
+          }
+
+          if (form.dob !== formatDateInput(editingUser.dob)) {
+            updatePayload.dob = form.dob;
+          }
+
+          const nextPoint = getPointNumber(form.point);
+          if (nextPoint !== getPointNumber(editingUser.point)) {
+            updatePayload.point = nextPoint;
+          }
+
+          if (!isAdminUser && isChangedRole(form.role, editingUser.role)) {
+            const nextRoleId = resolveRoleId(roleOptions, form.role);
+
+            if (!nextRoleId) {
+              setFieldErrors({ role: "Vui lòng chọn vai trò hợp lệ" });
+              setActionError("Không thể xác định Role ID từ danh sách vai trò");
+              return;
+            }
+
+            updatePayload.roleId = nextRoleId;
+          }
+
+          const statusChanged = !isAdminUser && form.status !== Boolean(editingUser.status);
+          const hasUserInfoChanged = Object.keys(updatePayload).length > 1;
+
+          if (!hasUserInfoChanged && !statusChanged) {
+            closeForm();
             return;
           }
 
-          const updatedUser = await userApi.updateUser({
-            userId: editingUser.userId,
-            username: form.username.trim(),
-            name: form.name.trim(),
-            email: form.email.trim(),
-            phone: form.phone.trim(),
-            gender: form.gender.trim().toUpperCase(),
-            dob: form.dob,
-            status:
-              normalizeRole(editingUser.role) === "ADMIN"
-                ? editingUser.status
-                : form.status,
-            roleId: nextRoleId,
-            point: Number(form.point) || 0,
-          });
+          let updatedUser: UserFE = editingUser;
+
+          if (hasUserInfoChanged) {
+            updatedUser = await userApi.updateUser(updatePayload);
+          }
+
+          if (statusChanged) {
+            updatedUser = await userApi.updateStatus(
+              editingUser.userId,
+              form.status
+            );
+          }
 
           updateUserInList({
+            ...editingUser,
             ...updatedUser,
-            role: editingUser.role,
-            status:
-              normalizeRole(editingUser.role) === "ADMIN"
-                ? editingUser.status
-                : updatedUser.status,
+            role: updatedUser.role || form.role || editingUser.role,
+            status: statusChanged ? form.status : updatedUser.status,
           });
         }
 

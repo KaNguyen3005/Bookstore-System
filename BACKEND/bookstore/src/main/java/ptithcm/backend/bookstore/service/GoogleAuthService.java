@@ -13,10 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.dto.request.GoogleLoginRequest;
 import ptithcm.backend.bookstore.dto.response.AuthenticationResponse;
+import ptithcm.backend.bookstore.entity.Cart;
+import ptithcm.backend.bookstore.entity.Role;
 import ptithcm.backend.bookstore.entity.User;
 import ptithcm.backend.bookstore.enums.AuthProvider;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
+import ptithcm.backend.bookstore.repository.CartRepository;
+import ptithcm.backend.bookstore.repository.RoleRepository;
 import ptithcm.backend.bookstore.repository.UserRepository;
 import ptithcm.backend.bookstore.utils.GoogleOAuthProperties;
 
@@ -32,6 +36,8 @@ public class GoogleAuthService {
 
     private final GoogleOAuthProperties googleOAuthProperties;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final CartRepository cartRepository;
     AuthenticationService authenticationService;
     public AuthenticationResponse loginWithGoogle(GoogleLoginRequest request) {
         try {
@@ -66,21 +72,31 @@ public class GoogleAuthService {
                                 existingUser.setProviderId(googleSub);
                                 existingUser.setAuthProvider(AuthProvider.GOOGLE.name());
                                 existingUser.setEmailVerified(true);
+                                existingUser.setRole(resolveCustomerRole(existingUser.getRole()));
                                 if (existingUser.getName() == null || existingUser.getName().isBlank()) {
                                     existingUser.setName(fullName);
+                                }
+                                if (existingUser.getAvatarUrl() == null || existingUser.getAvatarUrl().isBlank()) {
+                                    existingUser.setAvatarUrl(avatarUrl);
                                 }
                                 return userRepository.save(existingUser);
                             })
                             .orElseGet(() -> {
                                 User newUser = User.builder()
                                         .email(email)
+                                        .username(email)
                                         .name(fullName)
+                                        .avatarUrl(avatarUrl)
+                                        .role(resolveCustomerRole(null))
                                         .providerId(googleSub)
                                         .authProvider(AuthProvider.GOOGLE.name())
                                         .emailVerified(true)
                                         .build();
                                 return userRepository.save(newUser);
                             }));
+
+            user = normalizeGoogleUser(user, fullName, avatarUrl);
+            ensureCart(user);
 
             String token = authenticationService.generateToken(user);
 
@@ -97,8 +113,47 @@ public class GoogleAuthService {
         } catch (AppException e) {
             throw e;
         } catch (Exception e) {
+            log.error("Google login failed", e);
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+    }
+
+    private User normalizeGoogleUser(User user, String fullName, String avatarUrl) {
+        boolean changed = false;
+
+        if (user.getRole() == null) {
+            user.setRole(resolveCustomerRole(null));
+            changed = true;
+        }
+
+        if ((user.getName() == null || user.getName().isBlank()) && fullName != null && !fullName.isBlank()) {
+            user.setName(fullName);
+            changed = true;
+        }
+
+        if ((user.getAvatarUrl() == null || user.getAvatarUrl().isBlank()) && avatarUrl != null && !avatarUrl.isBlank()) {
+            user.setAvatarUrl(avatarUrl);
+            changed = true;
+        }
+
+        return changed ? userRepository.save(user) : user;
+    }
+
+    private Role resolveCustomerRole(Role currentRole) {
+        if (currentRole != null) {
+            return currentRole;
+        }
+
+        return roleRepository.findByRoleName(ptithcm.backend.bookstore.enums.Role.CUSTOMER.name())
+                .orElseGet(() -> roleRepository.findByRoleName("USER")
+                        .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND)));
+    }
+
+    private void ensureCart(User user) {
+        cartRepository.findByUser_UserId(user.getUserId())
+                .orElseGet(() -> cartRepository.save(Cart.builder()
+                        .user(user)
+                        .build()));
     }
 }
 //SEO

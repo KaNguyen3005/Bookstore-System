@@ -1,9 +1,16 @@
-import { useAISuggestion } from "../../hooks/useAISuggestion";
 import ProductCard from "../../../product/components/ProductCard";
+import type { Book } from "../../../product/types/Book";
 import styles from "./SuggestionAI.module.css";
 
-const Suggestion = () => {
-  const { books, loading } = useAISuggestion();
+interface SuggestionProps {
+  books?: Book[];
+  loading?: boolean;
+}
+
+const Suggestion = ({
+  books = [],
+  loading = false,
+}: SuggestionProps) => {
 
   // ---------------- LOADING ----------------
   if (loading) {
@@ -45,10 +52,10 @@ const Suggestion = () => {
       </h2>
 
       <div className={styles.grid}>
-        {books.map((item) => (
+        {books.map((book) => (
           <ProductCard
-            key={item.book.bookId}
-            book={item.book}
+            key={book.bookId}
+            book={book}
           />
         ))}
       </div>

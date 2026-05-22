@@ -4,10 +4,10 @@ import type { Book } from "../features/product/types/Book";
 /**
  * Raw response từ API related books
  */
-type RelatedBookResponse = {
+type RecommendationBookResponse = {
   book: Book;
   score: number;
-  reason: string;
+  reason: string | null;
 };
 
 export const aiRcmApi = {
@@ -19,9 +19,13 @@ export const aiRcmApi = {
   ): Promise<Book[]> => {
     const res = await axiosClient.get("/recommendations/me/hybrid", {
       params: { limit },
-    });
+      skipAuthRedirect: true,
+      skipErrorLog: true,
+    } as any);
 
-    return (res?.data?.result ?? []) as Book[];
+    const data: RecommendationBookResponse[] = res?.data?.result ?? [];
+
+    return data.map((item) => item.book);
   },
 
   /**
@@ -37,10 +41,12 @@ export const aiRcmApi = {
       `/recommendations/books/${bookId}/related`,
       {
         params: { limit },
-      }
+        skipAuth: true,
+        skipAuthRedirect: true,
+      } as any
     );
 
-    const data: RelatedBookResponse[] = res?.data?.result ?? [];
+    const data: RecommendationBookResponse[] = res?.data?.result ?? [];
 
     return data.map((item) => item.book);
   },

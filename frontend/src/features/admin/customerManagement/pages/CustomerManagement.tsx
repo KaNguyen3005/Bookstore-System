@@ -181,53 +181,55 @@ export default function CustomerManagement() {
                         {user.role || "CUSTOMER"}
                       </span>
                     </td>
-                    <td className={user.status ? "active" : "inactive"}>
+                    <td
+                      className={
+                        user.status
+                          ? "customer-status active"
+                          : "customer-status inactive"
+                      }
+                    >
                       {user.status ? "Hoạt động" : "Ngừng hoạt động"}
                     </td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn view"
-                        onClick={() => setSelectedUser(user)}
-                      >
-                        Xem chi tiết
-                      </button>
-                      <button
-                        type="button"
-                        className="btn edit"
-                        onClick={() => openEditForm(user)}
-                      >
-                        <Pencil size={14} />
-                        Sửa
-                      </button>
-                      {!isAdminAccount && (
-                        <>
-                          <button
-                            type="button"
-                            className="btn status-action"
-                            disabled={actionLoading}
-                            onClick={(event) => {
-                              console.log("CLICK STATUS BUTTON:", {
-                                userId: user.userId,
-                                status: user.status,
-                              });
-                              handleUpdateStatus(user, event);
-                            }}
-                          >
-                            <CheckCircle2 size={14} />
-                            {user.status ? "Ngừng" : "Mở"}
-                          </button>
-                          <button
-                            type="button"
-                            className="btn delete"
-                            disabled={actionLoading}
-                            onClick={() => handleDeleteUser(user)}
-                          >
-                            <Trash2 size={14} />
-                            Xóa
-                          </button>
-                        </>
-                      )}
+                    <td className="customer-actions-cell">
+                      <div className="customer-actions">
+                        <button
+                          type="button"
+                          className="btn view"
+                          onClick={() => setSelectedUser(user)}
+                        >
+                          Xem chi tiết
+                        </button>
+                        <button
+                          type="button"
+                          className="btn edit"
+                          onClick={() => openEditForm(user)}
+                        >
+                          <Pencil size={14} />
+                          Sửa
+                        </button>
+                        {!isAdminAccount && (
+                          <>
+                            <button
+                              type="button"
+                              className="btn status-action"
+                              disabled={actionLoading}
+                              onClick={(event) => handleUpdateStatus(user, event)}
+                            >
+                              <CheckCircle2 size={14} />
+                              {user.status ? "Ngừng" : "Mở"}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn delete"
+                              disabled={actionLoading}
+                              onClick={() => handleDeleteUser(user)}
+                            >
+                              <Trash2 size={14} />
+                              Xóa
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -283,6 +285,12 @@ export default function CustomerManagement() {
                 <input
                   type="email"
                   value={form.email}
+                  disabled={formMode === "edit"}
+                  title={
+                    formMode === "edit"
+                      ? "Email không được thay đổi sau khi tạo tài khoản"
+                      : undefined
+                  }
                   onChange={(event) =>
                     updateFormField("email", event.target.value)
                   }

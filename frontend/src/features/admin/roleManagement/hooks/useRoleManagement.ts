@@ -27,6 +27,9 @@ const systemRoleNames = new Set([
   "USER",
 ]);
 
+const assignableRoleNames = new Set(["STAFF"]);
+const internalRoleNames = new Set(["ADMIN", "STAFF"]);
+
 const roleDescriptions: Record<string, string> = {
   ADMIN: "Quản trị viên với quyền vận hành hệ thống",
   STAFF: "Nhân viên xử lý nghiệp vụ bán hàng",
@@ -34,6 +37,13 @@ const roleDescriptions: Record<string, string> = {
   AUTHOR: "Tác giả có thể tạo và chỉnh sửa nội dung của mình",
   CUSTOMER: "Khách hàng sử dụng hệ thống mua sách",
   USER: "Người dùng tiêu chuẩn của hệ thống",
+};
+
+const fallbackRoleIdByName: Record<string, number> = {
+  ADMIN: 1,
+  CUSTOMER: 2,
+  USER: 2,
+  STAFF: 3,
 };
 
 const groupLabels: Record<string, string> = {
@@ -91,8 +101,16 @@ const toPermissionIds = (
 };
 
 const toRoleId = (role: RoleResponse) => {
-  const rawId = role.roleId ?? role.id;
+  const rawId = role.roleId ?? role.role_id ?? role.id;
   const roleId = Number(rawId);
+
+  if (Number.isFinite(roleId) && roleId > 0) return roleId;
+
+  return fallbackRoleIdByName[normalizeText(role.roleName)];
+};
+
+const toUserRoleId = (user: UserRoleResponse) => {
+  const roleId = Number(user.roleId ?? user.role_id);
 
   return Number.isFinite(roleId) && roleId > 0 ? roleId : undefined;
 };
@@ -144,12 +162,12 @@ const getStatusBoolean = (status: UserRoleResponse["status"]) => {
 };
 
 const toUserRoleItem = (user: UserRoleResponse): UserRoleItem => ({
-  userId: Number(user.userId),
+  userId: Number(user.userId ?? user.id),
   username: user.username || "",
   name: user.name || "Chưa cập nhật",
   email: user.email || "Chưa cập nhật",
-  roleName: user.role || "Chưa phân quyền",
-  roleId: user.roleId,
+  roleName: user.role || user.roleName || "Chưa phân quyền",
+  roleId: toUserRoleId(user),
   status: getStatusBoolean(user.status),
   avatarUrl: user.avatarUrl,
 });
@@ -306,10 +324,13 @@ export const useRoleManagement = () => {
 
   const filteredUsers = useMemo(() => {
     const searchValue = keyword.trim().toLowerCase();
+    const internalUsers = users.filter((user) =>
+      internalRoleNames.has(normalizeText(user.roleName))
+    );
 
-    if (!searchValue) return users;
+    if (!searchValue) return internalUsers;
 
-    return users.filter((user) =>
+    return internalUsers.filter((user) =>
       [user.username, user.name, user.email, user.roleName].some((field) =>
         field.toLowerCase().includes(searchValue)
       )
@@ -320,6 +341,7 @@ export const useRoleManagement = () => {
     () =>
       roles
         .filter((role) => role.roleId)
+        .filter((role) => assignableRoleNames.has(normalizeText(role.roleName)))
         .map((role) => ({
           roleId: role.roleId as number,
           roleName: role.roleName,
@@ -488,6 +510,14 @@ export const useRoleManagement = () => {
       }
 
       try {
+        const targetRole = roles.find((role) => role.roleId === roleId);
+        const targetRoleName = normalizeText(targetRole?.roleName);
+
+        if (!targetRole || !assignableRoleNames.has(targetRoleName)) {
+          alert("Chỉ được phân quyền vai trò nhân viên nội bộ");
+          return;
+        }
+
         setActionLoading(true);
         await roleService.updateUserRole(userId, roleId);
         await fetchData();

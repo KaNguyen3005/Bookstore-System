@@ -1,7 +1,6 @@
 import axios from "axios";
 import type {
   AxiosResponse,
-  InternalAxiosRequestConfig,
 } from "axios";
 
 const axiosClient = axios.create({
@@ -10,8 +9,6 @@ const axiosClient = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-const AUTH_WHITELIST = ["/auth/token", "/auth/register"];
 
 const getAuthToken = () => {
   return (
@@ -25,8 +22,19 @@ const formatBearerToken = (token: string) => {
   return token.startsWith("Bearer ") ? token : `Bearer ${token}`;
 };
 
+export const clearAuthStorage = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("token");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
+};
+
 // ================= REQUEST =================
 axiosClient.interceptors.request.use((config) => {
+  if ((config as any).skipAuth) {
+    return config;
+  }
+
   const token = getAuthToken();
 
   if (token) {
@@ -45,14 +53,16 @@ axiosClient.interceptors.response.use(
     const skipAuthRedirect = Boolean(error.config?.skipAuthRedirect);
 
     if (error.response?.status === 401 && !skipAuthRedirect) {
-      localStorage.removeItem("access_token");
+      clearAuthStorage();
 
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
     }
 
-    console.error("API ERROR:", error.response?.data || error.message);
+    if (!error.config?.skipErrorLog) {
+      console.error("API ERROR:", error.response?.data || error.message);
+    }
 
     return Promise.reject(error);
   }

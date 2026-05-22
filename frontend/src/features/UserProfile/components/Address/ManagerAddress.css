@@ -8,6 +8,11 @@
   margin-top: 20px;
 }
 
+.address-create-card {
+  margin-top: 16px;
+  max-width: 520px;
+}
+
 /* =========================
    CARD
 ========================= */
@@ -120,6 +125,22 @@
   transition: all 0.2s ease;
 }
 
+.address-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.address-error {
+  margin-top: 12px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 /* =========================
    BUTTONS STYLE
 ========================= */
@@ -168,4 +189,14 @@
 .btn-default:hover {
   background: #4f8cff;
   color: white;
+}
+
+.btn-add {
+  margin-top: 12px;
+  background: #ff5a2f;
+  color: #fff;
+}
+
+.btn-add:hover {
+  background: #e84b22;
 }

@@ -1,5 +1,7 @@
 .footer {
   max-width: 100%;
+  flex-shrink: 0;
+  position: relative;
   background: rgba(50, 88, 99, 1);
   color: white;
   font-size: 12px;

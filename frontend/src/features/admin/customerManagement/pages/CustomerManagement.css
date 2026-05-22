@@ -99,12 +99,15 @@
 
 .table-wrapper {
   margin-top: 20px;
+  overflow-x: auto;
 }
 
 .customer-table {
   width: 100%;
+  min-width: 1180px;
   margin-top: 15px;
   border-collapse: collapse;
+  table-layout: fixed;
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
@@ -113,6 +116,45 @@
 .customer-table th,
 .customer-table td {
   padding: 12px;
+  vertical-align: middle;
+}
+
+.customer-table th:nth-child(1),
+.customer-table td:nth-child(1) {
+  width: 50px;
+}
+
+.customer-table th:nth-child(2),
+.customer-table td:nth-child(2) {
+  width: 140px;
+}
+
+.customer-table th:nth-child(3),
+.customer-table td:nth-child(3),
+.customer-table th:nth-child(4),
+.customer-table td:nth-child(4) {
+  width: 90px;
+}
+
+.customer-table th:nth-child(5),
+.customer-table td:nth-child(5) {
+  width: 260px;
+  overflow-wrap: anywhere;
+}
+
+.customer-table th:nth-child(6),
+.customer-table td:nth-child(6) {
+  width: 105px;
+}
+
+.customer-table th:nth-child(7),
+.customer-table td:nth-child(7) {
+  width: 155px;
+}
+
+.customer-table th:nth-child(8),
+.customer-table td:nth-child(8) {
+  width: 390px;
 }
 
 .customer-table th {
@@ -146,6 +188,25 @@
 .active { color: green; }
 .inactive { color: red; }
 
+.customer-status {
+  white-space: nowrap;
+}
+
+.customer-actions-cell {
+  white-space: nowrap;
+}
+
+.customer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.customer-actions .btn {
+  flex: 0 0 auto;
+  margin-right: 0;
+}
 
 .btn {
   display: inline-flex;

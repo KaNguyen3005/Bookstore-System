@@ -5,6 +5,7 @@ import {
 } from "react";
 
 import { evaluateApi } from "../../../services/evaluateApi";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 import type { Review } from "../../reviews/components/Evaluate/Evaluate";
 
@@ -23,6 +24,8 @@ export const useProductReviews = ({
   view,
   isValidBookId,
 }: UseProductReviewsProps) => {
+  const { isAuthenticated } = useAuth();
+
   const [reviews, setReviews] =
     useState<Review[]>([]);
 
@@ -69,7 +72,7 @@ export const useProductReviews = ({
 
   // ================= MY REVIEW =================
   useEffect(() => {
-    if (!validReviewParams) return;
+    if (!isAuthenticated || !validReviewParams) return;
 
     const fetchMyReview =
       async () => {
@@ -93,6 +96,7 @@ export const useProductReviews = ({
     fetchMyReview();
   }, [
     validReviewParams,
+    isAuthenticated,
     bookId,
     orderId,
     itemId,
@@ -102,6 +106,7 @@ export const useProductReviews = ({
   // ================= ORDER STATUS =================
   useEffect(() => {
     if (
+      !isAuthenticated ||
       orderId === null ||
       isNaN(orderId)
     )
@@ -125,7 +130,7 @@ export const useProductReviews = ({
       };
 
     fetchOrderStatus();
-  }, [orderId]);
+  }, [isAuthenticated, orderId]);
 
   return {
     reviews,

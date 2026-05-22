@@ -186,7 +186,9 @@ export const userApi = {
 
   getMe: async (): Promise<UserFE | null> => {
     try {
-      const res: any = await axiosClient.get("/users/me");
+      const res: any = await axiosClient.get("/users/me", {
+        skipAuthRedirect: true,
+      } as any);
 
       return mapToFE(getUserPayload(res.data));
     } catch (error) {

@@ -21,8 +21,13 @@
         User toEntity(RegisterRequest request);
         @Mapping(source = "userId", target="userId")
         @Mapping(source = "dob", target="dob", qualifiedByName = "localDateTimeToString")
+        @Mapping(source = "role.roleId", target = "roleId")
         UserResponse toResponse(User user);
         default String map(Role role) {
+            if (role == null) {
+                return null;
+            }
+
             return role.getRoleName();
         }
 

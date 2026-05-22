@@ -29,7 +29,6 @@ import Profile from "../features/UserProfile/pages/ProfileUser/Profile";
 import ProfileContent from "../features/UserProfile/components/ProfileDetail/ProfileContent";
 
 import ResetPassword from "../features/UserProfile/components/ResetPassword/ResetPassword";
-import PersonalInfor from "../features/UserProfile/components/PersonalInfor/PersonalInfor";
 import PurchaseOrder from "../features/UserProfile/components/PurchaseOrder/PurchaseOrder";
 import Address from "../features/UserProfile/components/Address/Address";
 import Voucher from "../features/UserProfile/components/Voucher/Voucher";
@@ -163,11 +162,6 @@ export default function AppRoutes() {
           <Route
             path="password"
             element={<ResetPassword />}
-          />
-
-          <Route
-            path="info"
-            element={<PersonalInfor />}
           />
 
           <Route

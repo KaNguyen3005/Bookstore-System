@@ -1,17 +1,11 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-export default function Sidebar(){
-
-  const navigate = useNavigate();
-
-  return(
-
+export default function Sidebar() {
+  return (
     <div className="sidebar">
-
       <h3>Tài khoản của tôi</h3>
 
       <ul>
-
         <li>
           <NavLink to="/profile" end>
             Hồ sơ cá nhân
@@ -21,12 +15,6 @@ export default function Sidebar(){
         <li>
           <NavLink to="/profile/password">
             Đổi mật khẩu
-          </NavLink>
-        </li>
-
-        <li>
-          <NavLink to="/profile/info">
-            Thông tin cá nhân
           </NavLink>
         </li>
 
@@ -53,10 +41,7 @@ export default function Sidebar(){
             Hạng thành viên
           </NavLink>
         </li>
-
       </ul>
-
     </div>
-
-  )
+  );
 }

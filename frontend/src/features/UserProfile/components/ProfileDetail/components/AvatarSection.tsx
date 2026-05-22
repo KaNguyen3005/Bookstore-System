@@ -85,7 +85,7 @@ export default function AvatarSection() {
       />
 
       {user && (
-        <p className={styles.username}>{user.username}</p>
+        <p className={styles.username}>{user.name || user.username}</p>
       )}
     </div>
   );

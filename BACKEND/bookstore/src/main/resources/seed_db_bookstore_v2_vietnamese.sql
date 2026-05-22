@@ -116,6 +116,36 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `name`, `email`, `phone`
 -- ADDRESSES (ĐỊA CHỈ) - CHUẨN HÓA THEO GHN API STANDARD
 -- Cập nhật 22/05/2026: Xóa "Thành phố" từ province, thêm "Phường" cho ward
 -- =====================================================
+UPDATE `users`
+SET `dob` = CASE `user_id`
+    WHEN 1 THEN '1988-01-15 00:00:00'
+    WHEN 2 THEN '1990-02-10 00:00:00'
+    WHEN 3 THEN '1991-03-12 00:00:00'
+    WHEN 4 THEN '1992-04-14 00:00:00'
+    WHEN 5 THEN '1993-05-16 00:00:00'
+    WHEN 6 THEN '1994-06-18 00:00:00'
+    WHEN 7 THEN '1995-07-20 00:00:00'
+    WHEN 8 THEN '1996-08-22 00:00:00'
+    WHEN 9 THEN '1997-09-24 00:00:00'
+    WHEN 10 THEN '1998-10-26 00:00:00'
+    WHEN 11 THEN '1999-11-28 00:00:00'
+    WHEN 12 THEN '1995-01-05 00:00:00'
+    WHEN 13 THEN '1996-02-07 00:00:00'
+    WHEN 14 THEN '1997-03-09 00:00:00'
+    WHEN 15 THEN '1998-04-11 00:00:00'
+    WHEN 16 THEN '1999-05-13 00:00:00'
+    WHEN 17 THEN '2000-06-15 00:00:00'
+    WHEN 18 THEN '2001-07-17 00:00:00'
+    WHEN 19 THEN '2002-08-19 00:00:00'
+    WHEN 20 THEN '2003-09-21 00:00:00'
+    WHEN 21 THEN '2004-10-23 00:00:00'
+    WHEN 22 THEN '2005-11-25 00:00:00'
+    WHEN 23 THEN '2006-12-27 00:00:00'
+    WHEN 24 THEN '2000-01-29 00:00:00'
+    WHEN 25 THEN '2001-02-28 00:00:00'
+END
+WHERE `user_id` BETWEEN 1 AND 25;
+
 INSERT INTO `addresses` (`address_id`, `customer_name`, `customer_phone`, `detail_address`, `ward`, `district`, `province`, `is_default`, `user_id`, `created_at`) VALUES
 (1, 'Trần Văn A', '0901123456', '123 Đường Nguyễn Huệ', 'Phường Bến Thành', 'Quận 1', 'Hồ Chí Minh', 1, 2, NOW()),
 (2, 'Lê Thị B', '0901123457', '456 Đường Lê Lợi', 'Phường Đa Kao', 'Quận 1', 'Hồ Chí Minh', 1, 3, NOW()),

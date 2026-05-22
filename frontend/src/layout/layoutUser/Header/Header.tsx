@@ -44,6 +44,7 @@ const Header: React.FC = () => {
     (total, item) => total + item.quantity,
     0
   );
+  const displayName = user?.name || user?.username || "User";
 
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -56,7 +57,7 @@ const Header: React.FC = () => {
   const [address, setAddress] = useState<Address | null>(null);
 
   useEffect(() => {
-    if (!user) {
+    if (loading || !user) {
       setAddress(null);
       return;
     }
@@ -75,7 +76,7 @@ const Header: React.FC = () => {
     };
 
     fetchAddress();
-  }, [user]);
+  }, [loading, user]);
 
   /* ================= SEARCH ================= */
   const [keyword, setKeyword] = useState("");
@@ -246,14 +247,14 @@ const Header: React.FC = () => {
                 {user.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
-                    alt={user.username}
+                    alt={displayName}
                     className="user-avatar"
                   />
                 ) : (
                   <FaRegUserCircle />
                 )}
 
-                <p>{user.username}</p>
+                <p>{displayName}</p>
               </div>
 
               {open && (

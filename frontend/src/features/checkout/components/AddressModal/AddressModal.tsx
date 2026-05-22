@@ -489,17 +489,11 @@ const AddressModal: React.FC<AddressModalProps> = ({
                 >
                   <option value="">Tỉnh/Thành phố</option>
 
-                  {provinces
-                    .filter(
-                      (p) =>
-                        !p.provinceName.toLowerCase().includes("test") &&
-                        !p.provinceName.match(/\d{2,}/),
-                    )
-                    .map((p) => (
-                      <option key={p.provinceId} value={p.provinceId}>
-                        {p.provinceName}
-                      </option>
-                    ))}
+                  {provinces.map((p) => (
+                    <option key={p.provinceId} value={p.provinceId}>
+                      {p.provinceName}
+                    </option>
+                  ))}
 
                 </select>
               </div>

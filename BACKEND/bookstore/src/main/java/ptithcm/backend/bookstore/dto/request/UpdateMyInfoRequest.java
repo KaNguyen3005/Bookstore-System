@@ -1,10 +1,14 @@
 package ptithcm.backend.bookstore.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ptithcm.backend.bookstore.validator.ValidAge;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -25,11 +29,9 @@ public class UpdateMyInfoRequest {
     @Pattern(regexp = "MALE|FEMALE|OTHER", message = "INVALID_GENDER")
     String gender;
 
-    @Pattern(
-            regexp = "^\\d{4}-\\d{2}-\\d{2}$",
-            message = "INVALID_DOB"
-    )
-    String dob;
+    @ValidAge(min = 18, message = "INVALID_AGE")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate dob;
 
     @NotBlank(message = "INVALID_USERNAME")
     @Size(min = 3, max = 255, message = "INVALID_USERNAME")

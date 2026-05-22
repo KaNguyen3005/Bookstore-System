@@ -47,10 +47,14 @@ public class CartService {
         User user = userRepository.findById(userResponse.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        Cart cart = cartRepository.findByUser_UserId(user.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+        Cart cart = getOrCreateCart(user);
 
-        return cart.getBookCarts().stream()
+        if (cart.getBookCarts() == null) {
+            return List.of();
+        }
+
+        return cart
+                .getBookCarts().stream()
                 .map(bookCart -> CartItemResponse.builder()
                         .bookCartId(bookCart.getBookCartId())
                         .book(bookMapper.toResponse(bookCart.getBook()))
@@ -65,8 +69,7 @@ public class CartService {
         User user = userRepository.findById(userResponse.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        Cart cart = cartRepository.findByUser_UserId(user.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+        Cart cart = getOrCreateCart(user);
 
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
@@ -95,6 +98,13 @@ public class CartService {
                     .quantity(request.getQuantity())
                     .build();
         }
+    }
+
+    private Cart getOrCreateCart(User user) {
+        return cartRepository.findByUser_UserId(user.getUserId())
+                .orElseGet(() -> cartRepository.save(Cart.builder()
+                        .user(user)
+                        .build()));
     }
 
     @Transactional

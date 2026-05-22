@@ -6,5 +6,6 @@ export interface BookFilters {
   minPrice?: number;
   maxPrice?:number;
   page: number;
+  size?: number;
   sort:string;
 }

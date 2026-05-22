@@ -8,11 +8,17 @@ export default function AddressPage() {
 
   const [list, setList] = useState<any[]>([]);
   const [form, setForm] = useState<any>({});
+  const [createForm, setCreateForm] = useState<any>({});
+  const [isCreating, setIsCreating] = useState(false);
+  const [isSavingCreate, setIsSavingCreate] = useState(false);
+  const [createError, setCreateError] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const [provinces, setProvinces] = useState<any[]>([]);
   const [districts, setDistricts] = useState<any[]>([]);
   const [wards, setWards] = useState<any[]>([]);
+  const [createDistricts, setCreateDistricts] = useState<any[]>([]);
+  const [createWards, setCreateWards] = useState<any[]>([]);
 
   // ================= LOAD PROVINCES =================
   useEffect(() => {
@@ -29,26 +35,161 @@ export default function AddressPage() {
     fetchData();
   }, [user]);
 
+  const isValidAddressForm = (value: any) =>
+    value.customerName &&
+    value.customerPhone &&
+    value.detailAddress &&
+    value.province &&
+    value.district &&
+    value.ward;
+
+  const normalizeAddressErrorMessage = (
+    message: string,
+    status?: number,
+    fallback = "Không thể xử lý địa chỉ. Vui lòng thử lại."
+  ) => {
+    const normalizedMessage = message.trim();
+    const lowerMessage = normalizedMessage.toLowerCase();
+
+    if (!normalizedMessage) {
+      return fallback;
+    }
+
+    if (/[^\x00-\x7F]/.test(normalizedMessage)) {
+      return normalizedMessage;
+    }
+
+    if (lowerMessage.includes("unauthorized") || status === 401) {
+      return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+    }
+
+    if (lowerMessage.includes("forbidden") || status === 403) {
+      return "Bạn không có quyền thực hiện thao tác này.";
+    }
+
+    if (lowerMessage.includes("not found") || status === 404) {
+      return "Không tìm thấy địa chỉ cần xử lý.";
+    }
+
+    if (
+      lowerMessage.includes("phone") ||
+      lowerMessage.includes("mobile") ||
+      lowerMessage.includes("telephone")
+    ) {
+      return "Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.";
+    }
+
+    if (lowerMessage.includes("customer") || lowerMessage.includes("name")) {
+      return "Tên khách hàng không hợp lệ. Vui lòng kiểm tra lại.";
+    }
+
+    if (lowerMessage.includes("province")) {
+      return "Tỉnh/thành không hợp lệ. Vui lòng chọn lại.";
+    }
+
+    if (lowerMessage.includes("district")) {
+      return "Quận/huyện không hợp lệ. Vui lòng chọn lại.";
+    }
+
+    if (lowerMessage.includes("ward")) {
+      return "Phường/xã không hợp lệ. Vui lòng chọn lại.";
+    }
+
+    if (lowerMessage.includes("detail") || lowerMessage.includes("address")) {
+      return "Địa chỉ không hợp lệ. Vui lòng kiểm tra lại.";
+    }
+
+    if (lowerMessage.includes("bad request") || status === 400) {
+      return "Thông tin địa chỉ chưa hợp lệ. Vui lòng kiểm tra lại.";
+    }
+
+    if (lowerMessage.includes("network")) {
+      return "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.";
+    }
+
+    if (status && status >= 500) {
+      return "Máy chủ đang gặp lỗi. Vui lòng thử lại sau.";
+    }
+
+    return fallback;
+  };
+
+  const getErrorMessage = (error: any, fallback: string) => {
+    const data = error?.response?.data;
+    const status = error?.response?.status;
+    const rawMessage =
+      typeof data === "string"
+        ? data
+        : data?.message ||
+          data?.error ||
+          data?.result?.message ||
+          error?.message ||
+          "";
+
+    return normalizeAddressErrorMessage(rawMessage, status, fallback);
+  };
+
+  // ================= CREATE =================
+  const handleCreate = async () => {
+    setCreateError("");
+
+    if (!isValidAddressForm(createForm)) {
+      setCreateError("Vui lòng nhập đầy đủ thông tin địa chỉ!");
+      return;
+    }
+
+    try {
+      setIsSavingCreate(true);
+
+      await addressApi.create(createForm);
+
+      setCreateForm({});
+      setCreateDistricts([]);
+      setCreateWards([]);
+      setIsCreating(false);
+      await fetchData();
+    } catch (error) {
+      console.error("CREATE ADDRESS ERROR:", error);
+      setCreateError(
+        getErrorMessage(error, "Không thể thêm địa chỉ. Vui lòng thử lại.")
+      );
+    } finally {
+      setIsSavingCreate(false);
+    }
+  };
+
   // ================= SAVE =================
   const handleSave = async (id: number) => {
-    if (!form.customerName || !form.customerPhone) {
+    if (!isValidAddressForm(form)) {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
-    await addressApi.update(id, form);
+    try {
+      await addressApi.update(id, form);
 
-    setEditingId(null);
-    setForm({});
-    fetchData();
+      setEditingId(null);
+      setForm({});
+      await fetchData();
+    } catch (error) {
+      console.error("UPDATE ADDRESS ERROR:", error);
+      alert(
+        getErrorMessage(error, "Không thể cập nhật địa chỉ. Vui lòng thử lại.")
+      );
+    }
   };
 
   // ================= DELETE =================
   const handleDelete = async (id: number) => {
     if (!confirm("Bạn có chắc muốn xóa địa chỉ này?")) return;
 
-    await addressApi.remove(id);
-    fetchData();
+    try {
+      await addressApi.remove(id);
+      await fetchData();
+    } catch (error) {
+      console.error("DELETE ADDRESS ERROR:", error);
+      alert(getErrorMessage(error, "Không thể xóa địa chỉ. Vui lòng thử lại."));
+    }
   };
 
   // ================= SET DEFAULT =================
@@ -60,15 +201,182 @@ export default function AddressPage() {
 
       alert("Đặt địa chỉ mặc định thành công!");
     } catch (error) {
-      console.error(error);
+      console.error("SET DEFAULT ADDRESS ERROR:", error);
 
-      alert("Không thể đặt mặc định!");
+      alert(
+        getErrorMessage(
+          error,
+          "Không thể đặt địa chỉ mặc định. Vui lòng thử lại."
+        )
+      );
     }
   };
 
   return (
     <div className="address-container">
       <h2>Địa chỉ giao hàng</h2>
+
+      {!isCreating ? (
+        <button
+          className="address-btn btn-add"
+          onClick={() => setIsCreating(true)}
+        >
+          Thêm địa chỉ
+        </button>
+      ) : (
+        <div className="address-card address-create-card">
+          <input
+            value={createForm.customerName || ""}
+            onChange={(e) =>
+              setCreateForm({
+                ...createForm,
+                customerName: e.target.value,
+              })
+            }
+            placeholder="Tên khách hàng"
+          />
+
+          <input
+            value={createForm.customerPhone || ""}
+            onChange={(e) =>
+              setCreateForm({
+                ...createForm,
+                customerPhone: e.target.value,
+              })
+            }
+            placeholder="Số điện thoại"
+          />
+
+          <input
+            value={createForm.detailAddress || ""}
+            onChange={(e) =>
+              setCreateForm({
+                ...createForm,
+                detailAddress: e.target.value,
+              })
+            }
+            placeholder="Địa chỉ chi tiết"
+          />
+
+          <select
+            value={createForm.province || ""}
+            onChange={async (e) => {
+              const name = e.target.value;
+              const p = provinces.find(
+                (x) => x.provinceName === name
+              );
+
+              setCreateForm({
+                ...createForm,
+                province: name,
+                district: "",
+                ward: "",
+              });
+
+              if (p) {
+                const data = await addressApi.getDistricts(
+                  p.provinceId
+                );
+                setCreateDistricts(data);
+                setCreateWards([]);
+              }
+            }}
+          >
+            <option value="">Chọn tỉnh</option>
+            {provinces.map((p) => (
+              <option
+                key={p.provinceId}
+                value={p.provinceName}
+              >
+                {p.provinceName}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={createForm.district || ""}
+            onChange={async (e) => {
+              const name = e.target.value;
+              const d = createDistricts.find(
+                (x) => x.districtName === name
+              );
+
+              setCreateForm({
+                ...createForm,
+                district: name,
+                ward: "",
+              });
+
+              if (d) {
+                const data = await addressApi.getWards(
+                  d.districtId
+                );
+                setCreateWards(data);
+              }
+            }}
+          >
+            <option value="">Chọn quận/huyện</option>
+            {createDistricts.map((d) => (
+              <option
+                key={d.districtId}
+                value={d.districtName}
+              >
+                {d.districtName}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={createForm.ward || ""}
+            onChange={(e) =>
+              setCreateForm({
+                ...createForm,
+                ward: e.target.value,
+              })
+            }
+          >
+            <option value="">Chọn phường/xã</option>
+            {createWards.map((w) => (
+              <option
+                key={w.wardId}
+                value={w.wardName}
+              >
+                {w.wardName}
+              </option>
+            ))}
+          </select>
+
+          <div className="address-actions">
+            <button
+              className="address-btn btn-save"
+              onClick={handleCreate}
+              disabled={isSavingCreate}
+            >
+              {isSavingCreate ? "Đang lưu..." : "Lưu địa chỉ"}
+            </button>
+
+            <button
+              className="address-btn btn-cancel"
+              onClick={() => {
+                setIsCreating(false);
+                setCreateForm({});
+                setCreateDistricts([]);
+                setCreateWards([]);
+                setCreateError("");
+              }}
+              disabled={isSavingCreate}
+            >
+              Hủy
+            </button>
+          </div>
+
+          {createError && (
+            <div className="address-error" role="alert">
+              {createError}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="address-list">
         {list.map((item) => (

@@ -70,6 +70,9 @@ export const UserRoleTable = ({
             !error &&
             users.map((user) => {
               const isCurrentUser = user.userId === currentUserId;
+              const hasCurrentRoleOption = roleOptions.some(
+                (role) => role.roleId === user.roleId
+              );
 
               return (
                 <tr key={user.userId}>
@@ -118,8 +121,13 @@ export const UserRoleTable = ({
                       }
                     >
                       <option value="">
-                        {canAssign ? "Chọn vai trò" : "Backend chưa trả roleId"}
+                        {canAssign ? "Chọn vai trò" : "Không tải được vai trò"}
                       </option>
+                      {user.roleId && !hasCurrentRoleOption && (
+                        <option value={user.roleId} disabled>
+                          {user.roleName}
+                        </option>
+                      )}
                       {roleOptions.map((role) => (
                         <option key={role.roleId} value={role.roleId}>
                           {role.roleName}

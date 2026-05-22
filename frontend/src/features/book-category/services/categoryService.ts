@@ -28,7 +28,10 @@ export const categoryService = {
       await delay(300);
       return categoriesData;
     }
-    const res: any = await axiosClient.get("/categories");
+    const res: any = await axiosClient.get("/categories", {
+      skipAuth: true,
+      skipAuthRedirect: true,
+    } as any);
 
     const categories = res.data.result;
 
@@ -41,7 +44,10 @@ export const categoryService = {
       return categoriesData.find((c) => String(c.categoryId) === String(id)) || null;
     }
 
-    const res: any = await axiosClient.get(`/categories/${id}`);
+    const res: any = await axiosClient.get(`/categories/${id}`, {
+      skipAuth: true,
+      skipAuthRedirect: true,
+    } as any);
 
     return res.data.result;
   },

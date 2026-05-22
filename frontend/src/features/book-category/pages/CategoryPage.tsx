@@ -57,6 +57,7 @@ const CategoryPage: React.FC = () => {
   const [filters, setFilters] =
     useState<BookFilters>({
       page: 0,
+      size: itemsPerPage,
       sort: "asc",
 
       categoryId: categoryIdParam
@@ -120,6 +121,7 @@ const CategoryPage: React.FC = () => {
         ...prev,
         categoryId: Number(categoryIdParam),
         page: 0,
+        size: itemsPerPage,
       }));
 
       setCurrentPage(1);
@@ -216,6 +218,7 @@ const CategoryPage: React.FC = () => {
       ...prevFilters,
       ...newFilters,
       page: 0,
+      size: itemsPerPage,
     }));
 
     setCurrentPage(1);
@@ -226,18 +229,31 @@ const CategoryPage: React.FC = () => {
     });
   };
 
+  const handleMainPageChange: React.Dispatch<
+    React.SetStateAction<number>
+  > = (value) => {
+    const nextPage =
+      typeof value === "function"
+        ? value(currentPage)
+        : value;
+
+    setCurrentPage(nextPage);
+    setFilters((prev) => ({
+      ...prev,
+      page: nextPage - 1,
+      size: itemsPerPage,
+    }));
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   // ================= MAIN BOOK PAGINATION =================
 
   const totalPages = Math.ceil(
-    books.length / itemsPerPage
-  );
-
-  const startIndex =
-    (currentPage - 1) * itemsPerPage;
-
-  const currentBooks = books.slice(
-    startIndex,
-    startIndex + itemsPerPage
+    total / itemsPerPage
   );
 
   // ================= TOP SELLING PAGINATION =================
@@ -294,7 +310,7 @@ const CategoryPage: React.FC = () => {
         <main className="category-page__main">
 
           <BookGrid
-            books={currentBooks}
+            books={books}
             loading={loading}
             error={error}
           />
@@ -302,15 +318,7 @@ const CategoryPage: React.FC = () => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            setCurrentPage={(page) => {
-
-              setCurrentPage(page);
-
-              window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-              });
-            }}
+            setCurrentPage={handleMainPageChange}
           />
 
         </main>

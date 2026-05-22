@@ -14,7 +14,9 @@ export interface SearchBooksParams {
 export const searchBooks = async (params: SearchBooksParams) => {
   const response = await axiosClient.get("/books/search", {
     params,
-  });
+    skipAuth: true,
+    skipAuthRedirect: true,
+  } as any);
 
   return response.data;
 };

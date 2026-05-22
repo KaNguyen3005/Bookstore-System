@@ -47,9 +47,23 @@ export const cartApi = {
       return getMockCart().filter((item) => item?.book); // 🔥 quan trọng
     }
 
-    const res = await axiosClient.get("/cart/items");
+    try {
+      const res = await axiosClient.get("/cart/items", {
+        skipErrorLog: true,
+        skipAuthRedirect: true,
+      } as any);
 
-    return (res.data.result || []).filter((item: any) => item?.book);
+      return (res.data.result || []).filter((item: any) => item?.book);
+    } catch (error: any) {
+      const status = error?.response?.status;
+      const code = error?.response?.data?.code;
+
+      if (status === 404 && code === 4102) {
+        return [];
+      }
+
+      throw error;
+    }
   },
   addToCart: async (item: CartItemType): Promise<any> => {
     if (!item?.book?.bookId) return;

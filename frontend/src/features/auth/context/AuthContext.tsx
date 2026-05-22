@@ -1,4 +1,5 @@
 import { userApi } from "../../../services/userApi";
+import { clearAuthStorage } from "../../../services/axiosClient";
 import React, {
   createContext,
   useState,
@@ -52,19 +53,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   // ================= INIT AUTH =================
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-
     const initAuth = async () => {
       try {
         const token = localStorage.getItem("access_token");
 
         if (!token) {
+          clearAuthStorage();
           setUser(null);
           return;
+        }
+
+        const savedUser = localStorage.getItem("user");
+
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
         }
 
         const fetchedUser = await userApi.getMe();
@@ -73,15 +75,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           localStorage.setItem("user", JSON.stringify(fetchedUser));
           setUser(fetchedUser);
         } else {
-          localStorage.removeItem("user");
-          localStorage.removeItem("access_token");
+          clearAuthStorage();
           setUser(null);
         }
       } catch (error) {
         console.error("Auth init failed:", error);
 
-        localStorage.removeItem("user");
-        localStorage.removeItem("access_token");
+        clearAuthStorage();
         setUser(null);
       } finally {
         setLoading(false);
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   // ================= LOGOUT =================
   const logout = useCallback(() => {
     localStorage.removeItem("user");
-    localStorage.removeItem("access_token");
+    clearAuthStorage();
 
     setUser(null);
   }, []);

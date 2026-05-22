@@ -47,7 +47,19 @@ body {
 
 /* MAIN CONTENT */
 .main-content {
-  flex: 1;
+  flex: 1 0 auto;
+  width: 100%;
+  min-height: calc(100vh - var(--user-header-height, 0px));
+  overflow: visible;
+}
+
+.page-loading {
+  min-height: calc(100vh - var(--user-header-height, 0px) - 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  color: #4b5563;
 }
 
 /* CONTAINER (FIX 30px spacing) */

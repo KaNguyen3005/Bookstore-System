@@ -112,7 +112,7 @@ public class UserService {
         }
 
         if (request.getDob() != null) {
-            LocalDateTime dob = LocalDateTime.parse(request.getDob());
+            LocalDateTime dob = request.getDob().atStartOfDay();
             user.setDob(dob);
         }
 
@@ -227,8 +227,8 @@ public class UserService {
                 user.setGender(request.getGender());
             }
 
-            if (request.getDob() != null && !request.getDob().isBlank()) {
-                LocalDateTime dob = LocalDateTime.parse(request.getDob());
+            if (request.getDob() != null) {
+                LocalDateTime dob = request.getDob().atStartOfDay();
                 user.setDob(dob);
             }
 

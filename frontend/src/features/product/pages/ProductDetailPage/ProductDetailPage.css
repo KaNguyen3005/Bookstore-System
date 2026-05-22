@@ -3,6 +3,18 @@
   padding: 20px 0;
 }
 
+.product-detail-loading,
+.product-detail-error {
+  min-height: calc(100vh - var(--user-header-height, 0px) - 220px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 20px;
+  text-align: center;
+}
+
 .product-detail-layout {
   display: grid;
   grid-template-columns: minmax(320px, 450px) minmax(0, 1fr);
