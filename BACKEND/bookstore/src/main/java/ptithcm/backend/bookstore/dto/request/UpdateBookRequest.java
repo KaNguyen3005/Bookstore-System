@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.multipart.MultipartFile;
 import ptithcm.backend.bookstore.validator.ValidImageFile;
+import ptithcm.backend.bookstore.validator.ValidIsbn;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class UpdateBookRequest {
 
     Integer publisherId; // bỏ qua validate ID
 
-    @Pattern(regexp = "^(97[89])?\\d{9}(\\d|X)$", message = "INVALID_ISBN")
+    @ValidIsbn
     String isbn;
 
     @Size(max = 50, message = "INVALID_LANGUAGE")
@@ -55,6 +56,8 @@ public class UpdateBookRequest {
     @Min(value = 0, message = "INVALID_SALE_PERCENT")
     @Max(value = 100, message = "INVALID_SALE_PERCENT")
     Integer salePercent;
+
+    Boolean isActive;
 
     Set<Integer> categories; // bỏ qua validate ID
 }

@@ -66,7 +66,8 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     Set<Category> categories = new HashSet<>();
-    Boolean isActive;
+    @Builder.Default
+    Boolean isActive = true;
     Integer width;
     Integer length;
     Integer height;

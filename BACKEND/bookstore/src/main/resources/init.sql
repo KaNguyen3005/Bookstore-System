@@ -296,7 +296,6 @@ CREATE TABLE `orders` (
   `status` VARCHAR(255) NULL DEFAULT 'PENDING',
   `vat_rate` DECIMAL(5,2) NOT NULL DEFAULT 0.05,
   `vat_amount` DECIMAL(12,2) NULL,
-  `total_amount` DECIMAL(38,2) NULL,
   `reward_point_applied` BIT(1) NULL DEFAULT 0,
   `delivered_at` DATETIME(6) NULL,
   `reward_eligible_at` DATETIME(6) NULL,
@@ -369,7 +368,7 @@ CREATE TABLE `shipments` (
 CREATE TABLE `payments` (
   `payment_id` BIGINT NOT NULL AUTO_INCREMENT,
   `amount` DECIMAL(38,2) NULL,
-  `method` ENUM('COD', 'MOMO', 'VNPAY', 'ZALOPAY') NULL,
+  `method` ENUM('COD', 'VNPAY') NULL COMMENT 'Phương thức thanh toán: COD (Tiền mặt khi nhận), VNPAY (VNPay)',
   `status` ENUM('PENDING', 'SUCCESS', 'FAILED', 'CANCELLED') NULL DEFAULT 'PENDING',
   `transaction_id` VARCHAR(255) NULL,
   `paid_at` DATETIME(6) NULL,
@@ -413,4 +412,11 @@ CREATE TABLE `invalidated_token` (
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- =====================================================
+-- NOTE: Trigger check_order_not_empty bị remove vì Spring init scripts
+-- không hỗ trợ DELIMITER statement.
+-- Để sử dụng trigger, chạy file trigger riêng hoặc dùng MySQL client.
+-- =====================================================
+
 

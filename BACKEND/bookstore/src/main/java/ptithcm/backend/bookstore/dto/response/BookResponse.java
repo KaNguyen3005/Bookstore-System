@@ -33,4 +33,5 @@ public class BookResponse {
     List<BookImgResponse> bookImgs;
     Integer bookId;
     Boolean isActive;
+    String bookStatus;
 }

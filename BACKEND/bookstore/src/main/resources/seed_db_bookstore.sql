@@ -127,9 +127,9 @@ INSERT INTO `vouchers` (`voucher_id`, `voucher_code`, `title`, `description`, `t
 -- =====================================================
 -- ORDERS (without shipments and payments)
 -- =====================================================
-INSERT INTO `orders` (`order_id`, `status`, `vat_rate`, `total_amount`, `customer_id`, `created_at`) VALUES
-(1, '0', 0.05, 250.00, 2, NOW()),
-(2, '0', 0.05, 200.00, 3, NOW());
+INSERT INTO `orders` (`order_id`, `status`, `vat_rate`, `customer_id`, `created_at`) VALUES
+(1, '0', 0.05, 2, NOW()),
+(2, '0', 0.05, 3, NOW());
 
 -- =====================================================
 -- BOOK_ORDER (with reviews/ratings)

@@ -1,10 +1,10 @@
 package ptithcm.backend.bookstore.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ptithcm.backend.bookstore.entity.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ptithcm.backend.bookstore.entity.User;
 
-import java.math.BigInteger;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -23,4 +23,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByProviderId(String providerId);
 
     boolean existsByEmail(String email);
+
+    Page<User> findByDeletedAtIsNull(Pageable pageable);
+
+    Long countByRole_RoleNameAndDeletedAtIsNull(String roleName);
 }

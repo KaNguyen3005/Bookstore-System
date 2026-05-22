@@ -6,6 +6,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,9 +28,6 @@ import ptithcm.backend.bookstore.repository.RoleRepository;
 import ptithcm.backend.bookstore.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -52,14 +53,16 @@ public class UserService {
         return userMapper.toResponse(userRepository.save(user));
     }
 
-    public List<UserResponse> getAll(){
-        List<UserResponse> users = new ArrayList<>();
-        for(User user : userRepository.findAll()){
-            log.error(user.getUserId().toString());
-            if(user.getDeletedAt() != null) continue;
-            users.add(userMapper.toResponse(user));
-        }
-        return users;
+    public Page<UserResponse> getAll(int page, int size){
+        Pageable pageable = buildUserPageable(page, size);
+        return userRepository.findByDeletedAtIsNull(pageable)
+                .map(userMapper::toResponse);
+    }
+
+    private Pageable buildUserPageable(int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 100);
+        return PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     @Transactional
@@ -68,7 +71,7 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (request.getUsername() != null && !request.getUsername().isBlank()) {
-            if (userRepository.existsByUsernameAndUserIdNot(request.getUsername(), userId)) {
+            if (!request.getUsername().equals(user.getUsername()) && userRepository.existsByUsernameAndUserIdNot(request.getUsername(), userId)) {
                 throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
             }
             user.setUsername(request.getUsername());
@@ -83,14 +86,14 @@ public class UserService {
         }
 
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
-            if (userRepository.existsByEmailAndUserIdNot(request.getEmail(), userId)) {
+            if (!request.getEmail().equals(user.getEmail()) && userRepository.existsByEmailAndUserIdNot(request.getEmail(), userId)) {
                 throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
             }
             user.setEmail(request.getEmail());
         }
 
         if (request.getPhone() != null && !request.getPhone().isBlank()) {
-            if (userRepository.existsByPhoneAndUserIdNot(request.getPhone(), userId)) {
+            if (!request.getPhone().equals(user.getPhone()) && userRepository.existsByPhoneAndUserIdNot(request.getPhone(), userId)) {
                 throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
             }
             user.setPhone(request.getPhone());
@@ -148,11 +151,13 @@ public class UserService {
     }
 
     @Transactional
-    public void changeStatusAccount(Long id, ChangeStatusAccountRequest request){
+    public UserResponse changeStatusAccount(Long id, ChangeStatusAccountRequest request){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         user.setStatus(request.getStatus());
+        User savedUser = userRepository.save(user);
+        return userMapper.toResponse(savedUser);
     }
 
     public UserResponse getMyInfo(){
@@ -205,20 +210,14 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        String oldAvatarPublicId = user.getPublicIdAvatar();
-        String newAvatarPublicId = null;
-
         try {
-            if (request.getPassword() != null && !request.getPassword().isBlank()) {
-                user.setPassword(passwordEncoder.encode(request.getPassword()));
-            }
 
             if (request.getName() != null && !request.getName().isBlank()) {
                 user.setName(request.getName());
             }
 
             if (request.getPhone() != null && !request.getPhone().isBlank()) {
-                if (userRepository.existsByPhoneAndUserIdNot(request.getPhone(), userId)) {
+                if (!request.getPhone().equals(user.getPhone()) && userRepository.existsByPhoneAndUserIdNot(request.getPhone(), userId)) {
                     throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
                 }
                 user.setPhone(request.getPhone());
@@ -235,7 +234,7 @@ public class UserService {
 
             if(request.getUsername() != null && !request.getUsername().isBlank()) {
 
-                if (userRepository.existsByUsernameAndUserIdNot(request.getUsername(), userId)) {
+                if (!request.getUsername().equals(user.getUsername()) && userRepository.existsByUsernameAndUserIdNot(request.getUsername(), userId)) {
                     throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
                 }
                 if(user.getIsChangeAccount()) {
@@ -245,47 +244,14 @@ public class UserService {
                 user.setIsChangeAccount(true);
             }
 
-            if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
-                UploadResult uploadResult = cloudinaryService.uploadFile(request.getAvatar(), "avatars");
-                newAvatarPublicId = uploadResult.getPublicId();
-
-                user.setAvatarUrl(uploadResult.getUrl());
-                user.setPublicIdAvatar(uploadResult.getPublicId());
-            }
-
             User savedUser = userRepository.save(user);
-
-            if (newAvatarPublicId != null
-                    && oldAvatarPublicId != null
-                    && !oldAvatarPublicId.isBlank()) {
-                try {
-                    cloudinaryService.deleteFile(oldAvatarPublicId);
-                } catch (Exception e) {
-                    log.warn("Không thể xóa avatar cũ: {}", oldAvatarPublicId, e);
-                }
-            }
 
             return userMapper.toResponse(savedUser);
 
         } catch (AppException e) {
-            if (newAvatarPublicId != null) {
-                try {
-                    cloudinaryService.deleteFile(newAvatarPublicId);
-                } catch (Exception ex) {
-                    log.warn("Không thể xóa avatar mới sau khi update thất bại", ex);
-                }
-            }
             throw e;
         } catch (Exception e) {
             log.error("Lỗi khi cập nhật thông tin người dùng: {}", e.getMessage(), e);
-
-            if (newAvatarPublicId != null) {
-                try {
-                    cloudinaryService.deleteFile(newAvatarPublicId);
-                } catch (Exception ex) {
-                    log.warn("Không thể xóa avatar mới sau khi update thất bại", ex);
-                }
-            }
 
             throw new AppException(ErrorCode.UPDATE_USER_FAILED);
         }
@@ -294,9 +260,53 @@ public class UserService {
     // Review functionality removed - Review entity no longer exists
     // This method has been deprecated
 
-    public UploadResult uploadAvatar(UploadAvatarRequest request) {
-        UploadResult uploadResult = cloudinaryService.uploadFile(request.getAvatar(), "avatars");
-        return uploadResult;
+    @Transactional
+    public UserResponse uploadAvatar(UploadAvatarRequest request) {
+        UserResponse userResponse = getMyInfo();
+        Long userId = userResponse.getUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        String oldAvatarPublicId = user.getPublicIdAvatar();
+        String newAvatarPublicId = null;
+
+        try {
+            UploadResult uploadResult = cloudinaryService.uploadFile(request.getAvatar(), "avatars");
+            newAvatarPublicId = uploadResult.getPublicId();
+
+            user.setAvatarUrl(uploadResult.getUrl());
+            user.setPublicIdAvatar(uploadResult.getPublicId());
+            User savedUser = userRepository.save(user);
+
+            // Xóa avatar cũ nếu có
+            if (oldAvatarPublicId != null && !oldAvatarPublicId.isBlank()) {
+                try {
+                    cloudinaryService.deleteFile(oldAvatarPublicId);
+                } catch (Exception e) {
+                    log.warn("Không thể xóa avatar cũ trên Cloudinary. Public ID: {}", oldAvatarPublicId, e);
+                }
+            }
+
+            return userMapper.toResponse(savedUser);
+        } catch (AppException e) {
+            rollbackNewAvatar(newAvatarPublicId);
+            throw e;
+        } catch (Exception e) {
+            rollbackNewAvatar(newAvatarPublicId);
+            throw new AppException(ErrorCode.UPDATE_USER_FAILED);
+        }
+    }
+
+    // Tách hàm rollback ra để tránh lặp code (DRY principle)
+    private void rollbackNewAvatar(String newAvatarPublicId) {
+        if (newAvatarPublicId != null) {
+            try {
+                cloudinaryService.deleteFile(newAvatarPublicId);
+            } catch (Exception ex) {
+                log.warn("Không thể xóa avatar mới tải lên (rollback) sau khi xử lý thất bại. Public ID: {}", newAvatarPublicId, ex);
+            }
+        }
     }
 
     public void pointToTier(User user) {

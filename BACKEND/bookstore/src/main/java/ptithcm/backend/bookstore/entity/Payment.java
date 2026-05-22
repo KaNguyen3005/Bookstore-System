@@ -30,7 +30,7 @@ public class Payment {
     Order order;
 
     @Enumerated(EnumType.STRING)
-    PaymentMethod method; // VNPAY, MOMO, ZALOPAY, COD
+    PaymentMethod method; // COD: Tiền mặt, VNPAY: Thanh toán qua VNPAY (Cập nhật 22/05/2026)
 
     @Enumerated(EnumType.STRING)
     PaymentStatus status; // PENDING, SUCCESS, FAILED, CANCELLED

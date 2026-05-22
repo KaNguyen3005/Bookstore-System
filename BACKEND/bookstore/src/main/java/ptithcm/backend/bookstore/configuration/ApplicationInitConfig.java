@@ -11,9 +11,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ptithcm.backend.bookstore.entity.User;
 import ptithcm.backend.bookstore.enums.Role;
+import ptithcm.backend.bookstore.exception.AppException;
+import ptithcm.backend.bookstore.exception.ErrorCode;
+import ptithcm.backend.bookstore.repository.RoleRepository;
 import ptithcm.backend.bookstore.repository.UserRepository;
-
-import java.util.HashSet;
 
 @Configuration
 @RequiredArgsConstructor
@@ -30,16 +31,17 @@ public class ApplicationInitConfig {
             prefix = "spring",
             value = "datasource.driverClassName",
             havingValue = "com.mysql.cj.jdbc.Driver")
-    ApplicationRunner applicationRunner(UserRepository userRepository) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         log.info("Init application......");
         return args -> {
             if (userRepository.findByUsername(ADMIN).isEmpty()) {
-                var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+                var adminRole = roleRepository.findByRoleName(Role.ADMIN.name())
+                        .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
                 User user = User.builder()
                         .username(ADMIN)
                         .password(passwordEncoder.encode("admin"))
-                        //                        .roles(roles)
+                        .role(adminRole)
                         .build();
                 userRepository.save(user);
                 log.warn("admin user has been created with default password: admin, please change it!");

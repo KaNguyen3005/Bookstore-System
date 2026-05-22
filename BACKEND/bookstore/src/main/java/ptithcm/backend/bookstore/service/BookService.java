@@ -100,10 +100,9 @@ public class BookService {
         }
     }
 
-    // ❌ FIXED: Không phân trang gây OutOfMemory + N+1 Query
     public Page<BookResponse> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return bookRepository.findAll(pageable)
+        return bookRepository.findByDeletedAtIsNull(pageable)
                 .map(bookMapper::toResponse);
     }
 
@@ -257,6 +256,9 @@ public class BookService {
         }
         if (request.getSalePercent() != null) {
             book.setSalePercent(request.getSalePercent());
+        }
+        if (request.getIsActive() != null) {
+            book.setIsActive(request.getIsActive());
         }
     }
     

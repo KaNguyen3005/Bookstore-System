@@ -7,12 +7,14 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.backend.bookstore.dto.request.CreateOrderRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderItemRequest;
 import ptithcm.backend.bookstore.dto.request.UpdateOrderStatusRequest;
 import ptithcm.backend.bookstore.dto.response.ApiResponse;
+import ptithcm.backend.bookstore.dto.response.OrderItemResponse;
 import ptithcm.backend.bookstore.dto.response.OrderResponse;
 import ptithcm.backend.bookstore.dto.response.TopSellingBookResponse;
 import ptithcm.backend.bookstore.service.OrderService;
@@ -29,7 +31,6 @@ import java.util.List;
 public class OrderController {
     OrderService orderService;
 
-    @PreAuthorize("hasAuthority('CREATE_ORDER')")
     @PostMapping()
     ApiResponse<OrderResponse> create(@RequestBody @Valid CreateOrderRequest request){
         ApiResponse<OrderResponse> apiResponse = new ApiResponse<>();
@@ -38,10 +39,12 @@ public class OrderController {
         return apiResponse;
     }
 
-    @PreAuthorize("hasAuthority('READ_ORDER')")
     @GetMapping()
-    ApiResponse<List<OrderResponse>> getAll(){
-        return ApiResponse.<List<OrderResponse>>builder().result(orderService.getAll()).build();
+    ApiResponse<Page<OrderResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ApiResponse.<Page<OrderResponse>>builder().result(orderService.getAll(page, size)).build();
     }
 
     @GetMapping("{id}")
@@ -54,8 +57,11 @@ public class OrderController {
     }
 
     @GetMapping("/my")
-    ApiResponse<List<OrderResponse>> getMyOrders(){
-        return ApiResponse.<List<OrderResponse>>builder().result(orderService.getMyOrders()).build();
+    ApiResponse<Page<OrderResponse>> getMyOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ApiResponse.<Page<OrderResponse>>builder().result(orderService.getMyOrders(page, size)).build();
     }
 
     @GetMapping("/my/{id}")
@@ -119,9 +125,9 @@ public class OrderController {
                 .build();
     }
     @PatchMapping("/{id}/items/{itemId}")
-    public ApiResponse<Void> updateOrderItem(@PathVariable Long id, @PathVariable Long itemId, @RequestBody @Valid UpdateOrderItemRequest request) {
-        orderService.updateOrderItem(id, itemId, request);
-        return ApiResponse.<Void>builder()
+    public ApiResponse<OrderItemResponse> updateOrderItem(@PathVariable Long id, @PathVariable Long itemId, @RequestBody @Valid UpdateOrderItemRequest request) {
+        return ApiResponse.<OrderItemResponse>builder()
+                .result(orderService.updateOrderItem(id, itemId, request))
                 .message("Update order item success")
                 .build();
     }

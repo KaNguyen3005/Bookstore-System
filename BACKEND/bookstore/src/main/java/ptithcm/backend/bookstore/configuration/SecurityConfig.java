@@ -84,7 +84,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults());
         http.exceptionHandling(exception -> exception
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                .accessDeniedHandler(new JwtAccessDeniedHandler()));
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // POST endpoints - public
@@ -121,6 +122,7 @@ public class SecurityConfig {
         // Liệt kê chi tiết các domain, tránh dùng "*" khi có allowCredentials(true)
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
+                "http://localhost:5174",
                 "http://127.0.0.1:5173",
                 "http://localhost:3000"
         ));

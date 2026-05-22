@@ -61,4 +61,54 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
                            @Param("sort") String sort,
                            @Param("publisherId") Integer publisherId,
                            Pageable pageable);
+    Page<Book> findByDeletedAtIsNull(Pageable pageable);
+
+    Long countByDeletedAtIsNull();
+
+    @Query("""
+            SELECT COUNT(b)
+            FROM Book b
+            WHERE b.deletedAt IS NULL
+              AND b.stockQuantity > 0
+              AND b.stockQuantity <= :threshold
+            """)
+    Long countLowStockProducts(@Param("threshold") int threshold);
+
+    @Query("""
+            SELECT COUNT(b)
+            FROM Book b
+            WHERE b.deletedAt IS NULL
+              AND b.stockQuantity = 0
+            """)
+    Long countOutOfStockProducts();
+
+    @Query("""
+            SELECT b.bookId, b.title, b.coverImageUrl, b.avgRating, b.stockQuantity, COUNT(bo.bookOrderId)
+            FROM Book b
+            LEFT JOIN b.bookOrders bo ON bo.rate IS NOT NULL
+            WHERE b.deletedAt IS NULL
+              AND b.isActive = true
+            GROUP BY b.bookId, b.title, b.coverImageUrl, b.avgRating, b.stockQuantity
+            ORDER BY b.avgRating DESC, COUNT(bo.bookOrderId) DESC, b.title ASC
+            """)
+    List<Object[]> findDashboardTopRatedBooks(Pageable pageable);
+
+    @Query("""
+            SELECT b.bookId, b.title, b.coverImageUrl, b.avgRating, b.stockQuantity
+            FROM Book b
+            WHERE b.deletedAt IS NULL
+              AND b.stockQuantity > 0
+              AND b.stockQuantity <= :threshold
+            ORDER BY b.stockQuantity ASC, b.title ASC
+            """)
+    List<Object[]> findDashboardLowStockBooks(@Param("threshold") int threshold, Pageable pageable);
+
+    @Query("""
+            SELECT b.bookId, b.title, b.coverImageUrl, b.avgRating, b.stockQuantity
+            FROM Book b
+            WHERE b.deletedAt IS NULL
+              AND b.stockQuantity = 0
+            ORDER BY b.title ASC
+            """)
+    List<Object[]> findDashboardOutOfStockBooks(Pageable pageable);
 }

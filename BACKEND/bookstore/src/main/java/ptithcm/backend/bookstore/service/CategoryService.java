@@ -1,6 +1,7 @@
 package ptithcm.backend.bookstore.service;
 
 
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class CategoryService {
     /**
      * Tạo category mới (có thể là parent hoặc child)
      */
+    @Transactional
     public CategoryResponse create(CreateCategoryRequest request) {
         // Check category name không bị trùng
         if (isCategoryNameExists(request.getCategoryName())) {
@@ -39,7 +41,7 @@ public class CategoryService {
 
         // Nếu có parentId → tìm parent category
         if (request.getParentId() != null && request.getParentId() > 0) {
-            Category parent = categoryRepository.findById(request.getParentId())
+            Category parent = categoryRepository.findByIdActive(request.getParentId())
                     .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
             
             // Check parent không bị soft delete
@@ -48,6 +50,9 @@ public class CategoryService {
             }
 
             category.setParentCategory(parent);
+            if (parent.getChildCategories() != null) {
+                parent.getChildCategories().add(category);
+            }
         }
 
         Category savedCategory = categoryRepository.save(category);

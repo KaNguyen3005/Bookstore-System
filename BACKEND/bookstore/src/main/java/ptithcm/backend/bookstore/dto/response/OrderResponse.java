@@ -21,6 +21,9 @@ public class OrderResponse {
     VoucherResponse voucher;
     BigDecimal totalAmount;
     BigDecimal subtotal;
+    BigDecimal discountAmount;
+    BigDecimal amountAfterDiscount;
+    BigDecimal tierRate;
     List<OrderItemResponse> items;
     ShipmentResponse shipment;
     String staffName;

@@ -27,6 +27,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(2004, "User not found", HttpStatus.NOT_FOUND),
     INVALID_DOB(2005, "Your age must be {regexp}", HttpStatus.BAD_REQUEST),
     EMAIL_ALREADY_EXISTS(2006, "Email already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
+    INVALID_AGE(2019, "User must be at least {min} years old", HttpStatus.BAD_REQUEST),
     PHONE_ALREADY_EXISTS(2007, "Phone already existed", HttpStatus.CONFLICT),  // nên là 409 CONFLICT
     USER_ALREADY_DELETED(2008, "User already deleted", HttpStatus.BAD_REQUEST),
     INVALID_EMAIL(2009, "Invalid email format", HttpStatus.BAD_REQUEST),
@@ -37,12 +38,14 @@ public enum ErrorCode {
     INVALID_ACCOUNT_STATUS(2014, "Account status not null", HttpStatus.BAD_REQUEST),
     UPDATE_USER_FAILED(2015, "Update user failed", HttpStatus.INTERNAL_SERVER_ERROR),
     USERNAME_CHANGE_LIMITED(2016, "Username can only be changed once", HttpStatus.BAD_REQUEST),
+    USER_INACTIVE(2017, "User account is inactive", HttpStatus.FORBIDDEN),
+    INVALID_ROLE_ID(2018, "Role ID is required and must be valid", HttpStatus.BAD_REQUEST),
     // ===== BOOK (3xxx) =====
     INVALID_TITLE(3001, "Title must be between {min} and {max} characters", HttpStatus.BAD_REQUEST),
     INVALID_AUTHOR_IDS(3002, "Must have at least 1 author", HttpStatus.BAD_REQUEST),
     INVALID_SUPPLIER_ID(3003, "Supplier is required", HttpStatus.BAD_REQUEST),
     INVALID_PUBLISHER_ID(3004, "Publisher is required", HttpStatus.BAD_REQUEST),
-    INVALID_ISBN(3005,  "ISBN must match pattern {regexp}", HttpStatus.BAD_REQUEST),
+    INVALID_ISBN(3005,  "ISBN must be a valid ISBN-10 or ISBN-13", HttpStatus.BAD_REQUEST),
     INVALID_LANGUAGE(3006, "Language is required and max 50 characters", HttpStatus.BAD_REQUEST),
     INVALID_DESCRIPTION(3007, "Description must not exceed 5000 characters", HttpStatus.BAD_REQUEST),
     INVALID_PAGE_COUNT(3008, "Page count must be between {min} and {max}", HttpStatus.BAD_REQUEST),

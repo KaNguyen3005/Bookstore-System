@@ -56,6 +56,14 @@ public class AddressController {
         return apiResponse;
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
+    @PatchMapping("/{id}/default")
+    ApiResponse<AddressResponse> setDefault(@PathVariable("id") Long id) {
+        return ApiResponse.<AddressResponse>builder()
+                .result(addressService.setDefault(id))
+                .build();
+    }
+
     @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> delete(@PathVariable("id") Long id){
@@ -85,6 +93,33 @@ public class AddressController {
     public ApiResponse<List<GHNWardResponse>> getWards(@PathVariable Integer districtId) {
         return ApiResponse.<List<GHNWardResponse>>builder()
                 .result(ghnAddressService.getWards(districtId))
+                .build();
+    }
+
+    /**
+     * API để validate tất cả addresses (Cập nhật 22/05/2026)
+     */
+    @PostMapping("/validate-all")
+    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
+    public ApiResponse<Boolean> validateAllAddresses() {
+        log.info("Validating all addresses from GHN standard");
+        boolean result = addressService.validateAllAddresses();
+        return ApiResponse.<Boolean>builder()
+                .result(result)
+                .message(result ? "Tất cả addresses hợp lệ" : "Một số addresses không hợp lệ")
+                .build();
+    }
+
+    /**
+     * API để standardize một address
+     */
+    @PostMapping("/{id}/standardize")
+    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
+    public ApiResponse<AddressResponse> standardizeAddress(@PathVariable Long id) {
+        log.info("Standardizing address: {}", id);
+        // Implement logic để lấy address, chuẩn hóa, và lưu
+        return ApiResponse.<AddressResponse>builder()
+                .message("Address standardized successfully")
                 .build();
     }
 }

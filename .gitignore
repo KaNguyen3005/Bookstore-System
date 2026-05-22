@@ -33,3 +33,17 @@ BACKEND/bookstore/build/
 
 # VS Code
 BACKEND/bookstore/.vscode/
+
+# Recommendation service / Python
+recommendation-service/.env
+!recommendation-service/.env.example
+recommendation-service/venv/
+recommendation-service/.venv/
+recommendation-service/env/
+recommendation-service/__pycache__/
+recommendation-service/**/*.py[cod]
+recommendation-service/**/__pycache__/
+recommendation-service/.pytest_cache/
+recommendation-service/.mypy_cache/
+recommendation-service/.ruff_cache/
+recommendation-service/.ipynb_checkpoints/

@@ -3,8 +3,10 @@ package ptithcm.backend.bookstore.dto.request;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import ptithcm.backend.bookstore.validator.ValidAge;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -38,14 +40,11 @@ public class CreateUserRequest {
     @Pattern(regexp = "MALE|FEMALE|OTHER", message = "INVALID_GENDER")
     String gender;
 
-    @NotBlank(message = "INVALID_DOB")
-    @Pattern(
-            regexp = "^\\d{4}-\\d{2}-\\d{2}$",
-            message = "INVALID_DOB"
-    )
-    String dob;
+    @NotNull(message = "INVALID_DOB")
+    @ValidAge(min = 18, message = "INVALID_AGE")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate dob;
 
-    @NotNull(message = "INVALID_ROLE_ID")
-    @Positive(message = "INVALID_ROLE_ID")
+    @NotBlank(message = "INVALID_ROLE_ID")
     String roleName;
 }

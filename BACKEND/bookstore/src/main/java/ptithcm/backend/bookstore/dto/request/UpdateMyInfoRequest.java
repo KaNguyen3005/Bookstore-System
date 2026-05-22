@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -14,8 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateMyInfoRequest {
 
-    @Size(min = 6, max = 50, message = "INVALID_PASSWORD")
-    String password;
 
     @Size(min = 6, max = 100, message = "INVALID_NAME")
     String name;
@@ -38,6 +35,4 @@ public class UpdateMyInfoRequest {
     @Size(min = 3, max = 255, message = "INVALID_USERNAME")
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "INVALID_USERNAME")
     String username;
-
-    MultipartFile avatar;
 }

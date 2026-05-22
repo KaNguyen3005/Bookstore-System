@@ -104,6 +104,7 @@ public class AuthenticationService {
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
+        ensureUserActive(user);
 
         var token = generateToken(user);
         SignedJWT signedJWT = verifyToken(token, false);
@@ -139,6 +140,7 @@ public class AuthenticationService {
     }
 
     public String generateToken(User user) {
+        ensureUserActive(user);
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         // Khởi tạo đối tượng JWTClaimsSet bằng Builder pattern
@@ -294,7 +296,29 @@ public class AuthenticationService {
         // Object này có thể dùng tiếp để:
         // - Lấy username (sub)
         // - Lấy scope / role / permission
+        ensureTokenSubjectActive(signedJWT.getJWTClaimsSet().getSubject());
         return signedJWT;
+    }
+
+    private void ensureTokenSubjectActive(String subject) {
+        if (subject == null || subject.isBlank()) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        try {
+            Long userId = Long.parseLong(subject);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+            ensureUserActive(user);
+        } catch (NumberFormatException ignored) {
+            // Reset-password tokens use email as subject, not user id.
+        }
+    }
+
+    private void ensureUserActive(User user) {
+        if (user == null || user.getDeletedAt() != null || !Boolean.TRUE.equals(user.getStatus())) {
+            throw new AppException(ErrorCode.USER_INACTIVE);
+        }
     }
 
     public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {

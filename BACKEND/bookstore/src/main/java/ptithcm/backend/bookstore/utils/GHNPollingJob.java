@@ -94,7 +94,7 @@ public class GHNPollingJob {
                 continue;
             }
 
-            Long points = order.getTotalAmount().longValue() / 10000;
+            Long points = orderService.calculateOrderTotalAmount(order).longValue() / 10000;
 
             User user = order.getCustomer();
             if (user == null) continue;
