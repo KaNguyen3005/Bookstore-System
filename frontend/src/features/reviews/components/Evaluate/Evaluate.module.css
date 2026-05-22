@@ -1,0 +1,392 @@
+.container {
+  margin-top: 40px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid #ececec;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* ================= HEADER ================= */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 18px;
+}
+
+.ratingSummary {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.average {
+  font-size: 58px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star {
+  color: #d1d5db;
+}
+
+.activeStar {
+  color: #facc15;
+  fill: #facc15;
+}
+
+.total {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ================= FILTER ================= */
+
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filterBtn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.filterBtn:hover {
+  border-color: #111827;
+  transform: translateY(-1px);
+}
+
+.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+/* ================= REVIEW LIST ================= */
+
+.reviewList {
+  margin-top: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.reviewCard {
+  border: 1px solid #ececec;
+  border-radius: 20px;
+  padding: 22px;
+  transition: 0.25s ease;
+  background: #fff;
+}
+
+.reviewCard:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.reviewTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.reviewInfo {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+}
+
+/* ================= AVATAR ================= */
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    #f3f4f6,
+    #e5e7eb
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #111827;
+  font-size: 18px;
+}
+
+/* ================= CONTENT ================= */
+
+.userName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.comment {
+  margin-top: 12px;
+  line-height: 1.8;
+  color: #4b5563;
+  font-size: 15px;
+}
+
+.date {
+  color: #9ca3af;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.extraInfo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.extraInfo span {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.badge{
+    color: blue;
+    font-size: 14px;
+}
+
+/* ================= ACTIONS ================= */
+
+.actions {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.actionBtn {
+  border: none;
+  background: #f9fafb;
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #4b5563;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.actionBtn:hover {
+  background: #111827;
+  color: white;
+}
+
+/* ================= EMPTY ================= */
+
+.empty {
+  border: 1px dashed #d1d5db;
+  border-radius: 18px;
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .reviewTop {
+    flex-direction: column;
+  }
+
+  .reviewInfo {
+    flex-direction: row;
+  }
+
+  .average {
+    font-size: 46px;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* ================= WRITE REVIEW ================= */
+
+.formReview {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.starSelect {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 14px;
+}
+
+.textarea {
+  min-height: 120px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.textarea:focus,
+.select:focus {
+  border-color: #111827;
+}
+
+.submitBtn {
+  background: #111827;
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.submitBtn:hover {
+  opacity: 0.9;
+}
+
+/* ================= MY REVIEW ================= */
+
+.myReviewBox {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.myReviewStars {
+  margin: 10px 0;
+}
+
+.myReviewText {
+  color: #4b5563;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.editBtn {
+  background: #f3f4f6;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.editBtn:hover {
+  background: #111827;
+  color: white;
+}
+
+/* ================= LOAD MORE ================= */
+
+.loadMoreWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.loadMoreBtn {
+  min-width: 200px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid #111827;
+  background: #fff;
+  color: #111827;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.loadMoreBtn:hover {
+  background: #111827;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.loadMoreBtn:active {
+  transform: translateY(0px);
+}
+

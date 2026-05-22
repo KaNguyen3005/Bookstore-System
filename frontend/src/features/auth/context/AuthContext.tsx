@@ -1,25 +1,30 @@
+import { userApi } from "../../../services/userApi";
 import React, {
   createContext,
   useState,
   type ReactNode,
   useCallback,
-  useContext,
+  useEffect,
 } from "react";
 
 export interface User {
-  user_id: number;
+  userId: number;
   email: string;
   phone: string;
   username: string;
-  fullname: string;
-  role_id: number;
+  name: string;
+  role: string;
+  avatarUrl?: string;
+  token?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  loading: boolean;
   login: (user: User) => void;
   logout: () => void;
+  updateUser: (data: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -29,40 +34,93 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-    const [user, setUser] = useState<User | null>(() => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // ================= UPDATE USER =================
+  const updateUser = useCallback((data: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+
+      const updated = { ...prev, ...data };
+
+      localStorage.setItem("user", JSON.stringify(updated));
+
+      return updated;
+    });
+  }, []);
+
+  // ================= INIT AUTH =================
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+
+    const initAuth = async () => {
       try {
-        const saved = localStorage.getItem("user");
-        if (!saved) return null;
+        const token = localStorage.getItem("access_token");
 
-        const parsed = JSON.parse(saved);
-
-        // validate tránh data sai (A -> B bug)
-        if (!parsed?.user_id || !parsed?.email) {
-          localStorage.removeItem("user");
-          return null;
+        if (!token) {
+          setUser(null);
+          return;
         }
 
-        return parsed;
-      } catch {
+        const fetchedUser = await userApi.getMe();
+
+        if (fetchedUser) {
+          localStorage.setItem("user", JSON.stringify(fetchedUser));
+          setUser(fetchedUser);
+        } else {
+          localStorage.removeItem("user");
+          localStorage.removeItem("access_token");
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Auth init failed:", error);
+
         localStorage.removeItem("user");
-        return null;
+        localStorage.removeItem("access_token");
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
 
-  const isAuthenticated = !!user;
+    initAuth();
+  }, []);
 
+  // ================= LOGIN =================
   const login = useCallback((userData: User) => {
     localStorage.setItem("user", JSON.stringify(userData));
+
+    if (userData.token) {
+      localStorage.setItem("access_token", userData.token);
+    }
+
     setUser(userData);
   }, []);
 
+  // ================= LOGOUT =================
   const logout = useCallback(() => {
     localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
+
     setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        loading,
+        login,
+        logout,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

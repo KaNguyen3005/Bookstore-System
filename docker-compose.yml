@@ -2,30 +2,105 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql-dev
+
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: appdb
+      MYSQL_DATABASE: db_bookstore
       MYSQL_USER: app
       MYSQL_PASSWORD: app
       TZ: Asia/Ho_Chi_Minh
+
     ports:
       - "3307:3306"
+
     volumes:
       - mysql_data:/var/lib/mysql
 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    networks:
+      - bookstore-network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-dev
+
+    ports:
+      - "6333:6333"
+
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+    environment:
+      QDRANT_API_KEY: ""
+
+
+    networks:
+      - bookstore-network
+
   backend:
-    build:
-      context: ./backend/bookstore
+    image: morex3/bookstore-backend:latest
     container_name: backend-dev
+
     ports:
       - "8080:8080"
+
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/appdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
       SPRING_DATASOURCE_USERNAME: app
       SPRING_DATASOURCE_PASSWORD: app
+      RECOMMENDATION_SERVICE_URL: http://recommendation-service:8000
+    networks:
+      - bookstore-network
+
+  recommendation-service:
+    image: morex3/bookstore-recommendation:latest
+    container_name: recommendation-service-dev
+
+    environment:
+      DATABASE_URL: mysql+pymysql://app:app@mysql:3306/db_bookstore
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      COLLAB_WEIGHT: 0.6
+      CONTENT_WEIGHT: 0.4
+      PYTHONUNBUFFERED: 1
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+      qdrant:
+        condition: service_started
+
+      backend:
+        condition: service_started
+
+    networks:
+      - bookstore-network
 
 volumes:
   mysql_data:
+  qdrant_data:
+
+networks:
+  bookstore-network:
+    driver: bridge
+#docker build -t morex3/bookstore-backend:latest ./backend/bookstore
+#docker push morex3/bookstore-backend:latest
+#docker build -t morex3/bookstore-recommendation:latest ./recommendation-service
+#docker push morex3/bookstore-recommendation:latest
+#docker compose down -v
+#docker compose up --build

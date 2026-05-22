@@ -1,5 +1,6 @@
 import React from "react";
 import "./Footer.css";
+import logo from "../../../assets/images/logo.png";
 
 import { MdOutlineEmail } from "react-icons/md";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -43,27 +44,36 @@ const Footer: React.FC = () => {
 
         {/* LEFT */}
         <div className="footer-col logo-col">
-          <h1 className="logo-footer">KATIIA</h1>
-          <p>Nhà sách số 1 Việt Nam</p>
+          <h1 className="logo-footer">
+                    <Link to="/" className="logo-header" onClick={scrollToTop}>
+                      <img src={logo} alt="logo" className="logo-img" />
+                    </Link>
+          </h1>
+          <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+            Nhà sách số 1 Việt Nam
+          </p>
 
           <div className="contact">
             <h4>Liên hệ </h4>
-            <p><FaMapMarkerAlt /> 97 Man Thiện, Tp Thủ Đức, Tp Hồ Chí Minh</p>
-            <p><MdOutlineEmail /> KaTiIlaskh@gmail.com</p>
-            <p>📞 0299 8687 99</p>
+           <p style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+             <FaMapMarkerAlt />
+             Trụ sở chính: 97 Man Thiện, TP. Thủ Đức, TP. Hồ Chí Minh
+           </p>
+            <p style={{ display: "flex", alignItems: "center", gap: "6px" }}> <MdOutlineEmail /> Email: Katilaskh@gmail.com</p>
+            <p style={{ display: "flex", alignItems: "center", gap: "6px" }}> 📞 Hotline khách hàng: 0299 868 799</p>
           </div>
 
           <h4>Hệ thống cửa hàng KaTiIa</h4>
-          <p><FaMapMarkerAlt /> 123 Ngọc Thị, Tp Thủ Đức, Tp Hồ Chí Minh</p>
-          <p><FaMapMarkerAlt /> 345 Khánh Huyền, Quận 5, Tp Hồ Chí Minh</p>
-          <p><FaMapMarkerAlt /> 678 Baka, Q1, Tp Hồ Chí Minh</p>
+          <p style={{ display: "flex", alignItems: "center", gap: "6px" }}><FaMapMarkerAlt /> Cơ sở 1: 123 Ngọc Thị, Tp Thủ Đức, Tp Hồ Chí Minh</p>
+          <p style={{ display: "flex", alignItems: "center", gap: "6px" }}><FaMapMarkerAlt /> Cơ sở 2: 345 Khánh Huyền, Quận 5, Tp Hồ Chí Minh</p>
+          <p style={{ display: "flex", alignItems: "center", gap: "6px" }}><FaMapMarkerAlt /> Cơ sở 3: 678 Baka, Q1, Tp Hồ Chí Minh</p>
         </div>
 
         {/* PAYMENT */}
         <div className="footer-col">
           <h4>Hỗ trợ thanh toán</h4>
           <p>MoMo</p>
-          <p>Tài khoản ngân hàng nhà nước Việt Nam</p>
+          <p>VN Pay</p>
           <p>Nạp tiền vào tài khoản KaTiIa</p>
           <p>Thẻ tín dụng</p>
         </div>
@@ -74,6 +84,7 @@ const Footer: React.FC = () => {
           <p>Thành lập</p>
           <p>Nhà đầu tư</p>
           <p>Cộng đồng</p>
+          <p>KaTiIa Payment</p>
         </div>
 
         {/* HELP */}
@@ -88,23 +99,42 @@ const Footer: React.FC = () => {
 
       </div>
 
-      {/* SOCIAL */}
-      <div className="social">
-        <span><FaFacebookSquare /></span>
-        <span><FaInstagram /></span>
-        <span><SiZalo /></span>
-        <span><AiFillTikTok /></span>
-        <span><FaYoutube /></span>
-      </div>
 
-      {/* BOTTOM */}
-      <div className="footer-bottom">
-        <p>
-          Thông báo bản quyền | Điều khoản & Điều kiện | Chính sách bảo mật | Chính sách cookie
-        </p>
-        <p>KaTiIa.com</p>
-        <p>Gửi phản hồi tại thông liên hệ KaTiIa</p>
-      </div>
+            {/* SOCIAL */}
+           <div className="social-icon">
+             <div className="footer-social">
+
+               <a href="https://facebook.com" target="_blank" rel="noreferrer">
+                 <FaFacebookSquare />
+               </a>
+
+               <a href="https://instagram.com" target="_blank" rel="noreferrer">
+                 <FaInstagram />
+               </a>
+
+               <a href="https://zalo.me" target="_blank" rel="noreferrer">
+                 <SiZalo />
+               </a>
+
+               <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                 <AiFillTikTok />
+               </a>
+
+               <a href="https://youtube.com" target="_blank" rel="noreferrer">
+                 <FaYoutube />
+               </a>
+
+             </div>
+           </div>
+
+            {/* BOTTOM */}
+            <div className="footer-bottom">
+              <p>
+                Thông báo bản quyền | Điều khoản & Điều kiện | Chính sách bảo mật | Chính sách cookie
+              </p>
+              <p>KaTiIa.com</p>
+              <p>Gửi phản hồi tại thông liên hệ KaTiIa</p>
+            </div>
 
     </footer>
   );

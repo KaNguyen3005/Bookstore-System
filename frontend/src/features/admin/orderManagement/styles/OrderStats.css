@@ -1,0 +1,93 @@
+/* Order Statistics CSS - BEM */
+
+.order-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1200px) {
+  .order-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .order-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.order-stats__card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 130px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px -3px rgba(6, 81, 237, 0.1);
+  border: none;
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+/* Modifiers for background and text colors */
+.order-stats__card--teal {
+  background-color: #5f857a;
+  color: #ffffff;
+}
+
+.order-stats__card--green {
+  background-color: #82b575;
+  color: #ffffff;
+}
+
+.order-stats__icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.05); /* Default icon bg */
+}
+
+/* Modifier icon wrappers */
+.order-stats__card--teal .order-stats__icon-wrapper,
+.order-stats__card--green .order-stats__icon-wrapper {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.order-stats__icon-wrapper--pending { background-color: #fff7ed; }
+.order-stats__icon-wrapper--confirmed { background-color: #f5f3ff; }
+.order-stats__icon-wrapper--shipping { background-color: #eff6ff; }
+.order-stats__icon-wrapper--delivered { background-color: #f0fdf4; }
+.order-stats__icon-wrapper--completed { background-color: #ecfeff; }
+.order-stats__icon-wrapper--cancelled { background-color: #fef2f2; }
+
+.order-stats__info {
+  margin-top: 8px;
+}
+
+.order-stats__value {
+  line-height: 1;
+  font-weight: 700;
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.order-stats__value--large {
+  font-size: 20px;
+}
+
+.order-stats__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.order-stats__card--teal .order-stats__label,
+.order-stats__card--green .order-stats__label {
+  color: rgba(255, 255, 255, 0.8);
+}

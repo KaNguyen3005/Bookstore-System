@@ -1,94 +1,126 @@
 import axiosClient from "../../../services/axiosClient";
-
-const IS_MOCK = true;
+import type { CartItemType } from "../types/cartItemType";
+const IS_MOCK = false;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const getUserId = () => {
+  try {
+    const u = localStorage.getItem("user");
+    if (u) return JSON.parse(u).userId;
+  } catch (e) {
+    console.error("Failed to parse user from localStorage", e);
+  }
+  return null;
+};
+const getMockCart = (): CartItemType[] => {
+  const userId = getUserId();
+  if (!userId) return [];
 
-export interface CartItemType {
-  cart_id?: number;
-  book_id: number;
-  title: string;
-  price: number;
-  sale_percent: number;
-  cover_image_url: string;
-  quantity: number;
-  stock_quantity: number;
-  selected: boolean;
-}
+  try {
+    const saved = localStorage.getItem(`mockCart_${userId}`);
+    if (!saved) return [];
 
-// Initial mock data
-let mockCart: CartItemType[] = [
-  {
-    book_id: 1,
-    title: "The Great Gatsby",
-    price: 150000,
-    sale_percent: 10,
-    cover_image_url: "https://picsum.photos/seed/book1/200/280",
-    quantity: 1,
-    stock_quantity: 10,
-    selected: true,
-  },
-  {
-    book_id: 2,
-    title: "1984 by George Orwell",
-    price: 120000,
-    sale_percent: 20,
-    cover_image_url: "https://picsum.photos/seed/book2/200/280",
-    quantity: 2,
-    stock_quantity: 5,
-    selected: false,
-  },
-];
+    const parsed = JSON.parse(saved);
+
+    //  validate là array + lọc data rác
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter((item) => item && item.book && item.book.bookId);
+  } catch (e) {
+    console.error("Failed to parse mockCart from localStorage", e);
+    return [];
+  }
+};
+const saveMockCart = (cart: CartItemType[]) => {
+  const userId = getUserId();
+  if (userId) {
+    const safeCart = cart.filter((item) => item?.book);
+    localStorage.setItem(`mockCart_${userId}`, JSON.stringify(safeCart));
+  }
+};
 
 export const cartApi = {
-  getCart: async () => {
+  getCart: async (): Promise<CartItemType[]> => {
     if (IS_MOCK) {
       await delay(500);
-      return mockCart;
-    }
-    return axiosClient.get("/cart");
-  },
 
-  addToCart: async (item: CartItemType) => {
+      return getMockCart().filter((item) => item?.book); // 🔥 quan trọng
+    }
+
+    const res = await axiosClient.get("/cart/items");
+
+    return (res.data.result || []).filter((item: any) => item?.book);
+  },
+  addToCart: async (item: CartItemType): Promise<any> => {
+    if (!item?.book?.bookId) return;
+
     if (IS_MOCK) {
       await delay(500);
-      const existing = mockCart.find((i) => i.book_id === item.book_id);
+
+      const cart = getMockCart();
+      const existing = cart.find((i) => i?.book?.bookId === item.book.bookId);
+
       if (existing) {
         existing.quantity += item.quantity;
       } else {
-        mockCart.push({ ...item, selected: true });
+        cart.push({
+          book: item.book,
+          quantity: item.quantity,
+          bookCartId: Date.now(),
+          selected: true,
+        });
       }
-      return { message: "Added to cart", cart: mockCart };
+
+      saveMockCart(cart);
+      return { message: "Added to cart", cart };
     }
-    return axiosClient.post("/cart", item);
+
+    return axiosClient.post(`/cart/items/${item.book.bookId}`, {
+      quantity: item.quantity,
+    });
   },
 
-  updateCartItem: async (book_id: number, quantity: number) => {
+  updateCartItem: async (
+    bookCartId: number,
+    quantity: number,
+  ): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
-      mockCart = mockCart.map((item) =>
-        item.book_id === book_id ? { ...item, quantity: Math.max(1, quantity) } : item
+
+      const cart = getMockCart().map((item) =>
+        item.bookCartId === bookCartId
+          ? { ...item, quantity: Math.max(1, quantity) }
+          : item,
       );
-      return { message: "Updated quantity", cart: mockCart };
-    }
-    return axiosClient.put(`/cart/${book_id}`, { quantity });
-  },
 
-  removeCartItem: async (book_id: number) => {
+      saveMockCart(cart);
+      return { message: "Updated quantity", cart };
+    }
+
+    return axiosClient.patch(`/cart/items/${bookCartId}`, { quantity });
+  },
+  removeCartItem: async (bookCartId: number): Promise<any> => {
     if (IS_MOCK) {
       await delay(500);
-      mockCart = mockCart.filter((item) => item.book_id !== book_id);
-      return { message: "Removed from cart", cart: mockCart };
+
+      const cart = getMockCart().filter(
+        (item) => item.bookCartId !== bookCartId,
+      );
+
+      saveMockCart(cart);
+      return { message: "Removed from cart", cart };
     }
-    return axiosClient.delete(`/cart/${book_id}`);
+
+    return axiosClient.delete(`/cart/items/${bookCartId}`);
   },
 
-  clearCart: async () => {
-    if (IS_MOCK) {
-      await delay(500);
-      mockCart = [];
-      return { message: "Cleared cart" };
-    }
-    return axiosClient.delete("/cart");
-  },
+  // clearCart: async (): Promise<any> => {
+  //   if (IS_MOCK) {
+  //     await delay(500);
+  //     saveMockCart([]);
+  //     return { message: "Cleared cart" };
+  //   }
+
+  //   return axiosClient.delete("/cart");
+  // },
 };

@@ -1,223 +1,101 @@
 import { useOutletContext } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState } from "react";
+import styles from "./ProfileContent.module.css";
 
-import { FaRegEye } from "react-icons/fa6";
-import { FaRegEyeSlash } from "react-icons/fa6";
-import "./ProfileContent.css";
+import AvatarSection from "./components/AvatarSection";
+import ProfileForm from "./components/ProfileForm";
+import MemberInfo from "./components/MemberInfo";
 
-export default function ProfileContent(){
+import {
+  normalizeDob,
+  calculateAge,
+} from "./utils/profileUtils";
 
+export default function ProfileContent() {
   const {
-
     user,
     edit,
     setEdit,
     avatar,
     handleAvatar,
     handleChange,
-    handleSave
+    handleSave,
+  }: any = useOutletContext();
 
-  }:any = useOutletContext();
+  const [showPhone, setShowPhone] = useState(false);
+  const [errors, setErrors] = useState<any>({});
 
-    const [showPhone, setShowPhone] = useState(false);
-    const [showDob, setShowDob] = useState(false);
+  if (!user) return <p>Loading...</p>;
 
-  {/*} console.log("USER:", user);*/}
+  const validate = () => {
+    const err: any = {};
 
-  if(!user){
-    return <p>Loading...</p>
-  }
+    if (!user.name?.trim())
+      err.name = "Vui lòng nhập họ tên";
 
-//avatar
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    if (!user.phone?.trim())
+      err.phone = "Vui lòng nhập số điện thoại";
 
-    const handleClickAvatar = () => {
-      fileInputRef.current?.click();
-    };
-//sdt
-    const maskPhoneVN = (phone: string ="") => {
-      if (!phone) return "";
+    if (!user.dob) err.dob = "Vui lòng nhập ngày sinh";
+    else {
+      const age = calculateAge(normalizeDob(user.dob));
+      if (age < 15)
+        err.dob = "Bạn phải từ 15 tuổi trở lên";
+    }
 
-      // bỏ khoảng trắng nếu có
-      const clean = phone.replace(/\s+/g, "");
+    setErrors(err);
+    return Object.keys(err).length === 0;
+  };
 
-      if (clean.length < 7) return phone; // tránh lỗi
+  const handleSaveClick = async () => {
+    if (!validate()) return;
 
-      const first = clean.slice(0, 3);   // 090
-      const last = clean.slice(-3);      // 567
-      const middle = "*".repeat(clean.length - 6);
-
-      return `${first}${middle}${last}`;
-    };
-
-//ngay sinh
-    const maskDate = (date: string="") => {
-      if (!date) return "";
-
-      const parts = date.split("/"); // ["01","01","2006"]
-
-      if (parts.length !== 3) return date;
-
-      return `**/**/${parts[2]}`;
+    const payload = {
+      ...user,
+      dob: normalizeDob(user.dob),
+      avatar,
     };
 
-  return(
+    await handleSave(payload);
+    setEdit(false);
+  };
 
+  return (
     <>
+      <h2 className={styles.title}>Hồ sơ cá nhân</h2>
 
-      <h2>Hồ sơ cá nhân</h2>
+      <div className={styles.profileContainer}>
+        <AvatarSection
+          avatar={avatar}
+          user={user}
+          handleAvatar={handleAvatar}
+        />
 
-      <div className="profile-container">
+        <ProfileForm
+          user={user}
+          edit={edit}
+          errors={errors}
+          showPhone={showPhone}
+          setShowPhone={setShowPhone}
+          handleChange={handleChange}
+        />
+      </div>
 
-          <div className="avatar-section">
-              <div className="avatar-wrapper" onClick={handleClickAvatar}>
-                <img
-                  src={avatar || user.avatar || "/default-avatar.png"}
-                  className="avatar"
-                />
-              </div>
+      <div className={styles.buttonWrapper}>
+        <div className={styles.btnGroup}>
+            <button className={styles.cancelBtn} onClick={() => setEdit(!edit)}>
+              {edit ? "Hủy" : "Sửa"}
+            </button>
 
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleAvatar}
-                style={{ display: "none" }}
-              />
-
-              <p>{user.username}</p>
-            </div>
-
-        <div className="form-section">
-
-          <div className="form-row">
-            <label>Tên đăng nhập</label>
-            <input value={user.username} readOnly />
-          </div>
-
-          <div className="form-row">
-            <label>Họ và tên</label>
-            <input
-              name="fullname"
-              value={user.fullname}
-              onChange={handleChange}
-              readOnly={!edit}
-            />
-          </div>
-
-          <div className="form-row">
-            <label>Số điện thoại</label>
-
-            <div style={{ position: "relative" }}>
-              <input
-                name="phone"
-                value={
-                  edit
-                    ? (user.phone || "")
-                    : showPhone
-                      ? (user.phone || "")
-                      : maskPhoneVN(user.phone || "")
-                }
-                onChange={handleChange}
-                readOnly={!edit}
-              />
-
-              <span
-                onClick={() => !edit && setShowPhone(!showPhone)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  userSelect: "none"
-                }}
-              >
-                {showPhone ? <FaRegEyeSlash /> : <FaRegEye />}
-              </span>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <label>Email</label>
-            <input
-              name="email"
-              value={user.email}
-              onChange={handleChange}
-              readOnly={!edit}
-            />
-          </div>
-
-          <div className="form-row">
-            <label>Ngày sinh</label>
-
-            <div style={{ position: "relative" }}>
-              <input
-                name="birth"
-                value={
-                  edit
-                    ? (user.birth || "")
-                    : showDob
-                      ? (user.birth || "")
-                      : maskDate(user.birth || "")
-                }
-                onChange={handleChange}
-                readOnly={!edit}
-              />
-
-              <span
-                onClick={() => !edit && setShowDob(!showDob)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  userSelect: "none"
-                }}
-              >
-                {showDob ? <FaRegEyeSlash /> : <FaRegEye />}
-              </span>
-            </div>
-          </div>
-
+            {edit && (
+              <button className={styles.saveBtn} onClick={handleSaveClick}>
+                 Lưu
+              </button> )}
         </div>
 
       </div>
 
-      <div className="member">
-
-        <h3>Hạng thành viên</h3>
-
-        <p>Số điểm tích lũy: {user.point} điểm</p>
-
-      </div>
-
-      <div style={{marginTop:"20px"}}>
-
-    <div className="btn-group">
-
-      <button
-        className="cancel-btn"
-        onClick={() => setEdit(!edit)}
-      >
-        {edit ? "Hủy" : "Sửa"}
-      </button>
-
-      {edit && (
-        <button
-          className="save-btn"
-          onClick={handleSave}
-        >
-          Lưu
-        </button>
-      )}
-
-    </div>
-
-      </div>
-
+      <MemberInfo user={user} />
     </>
-
-  )
+  );
 }

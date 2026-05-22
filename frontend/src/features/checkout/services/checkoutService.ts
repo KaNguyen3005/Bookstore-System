@@ -4,15 +4,15 @@
  * Coordinates between UI state and API Layer.
  */
 
-import { voucherApi } from './voucherApi';
-import checkoutApi from './checkoutApi';
-import type { CartItemType } from '../../cart/context/CartContext';
+import { voucherApi } from "./voucherApi";
+import checkoutApi from "./checkoutApi";
+import type { CartItemType } from "../../cart/types/cartItemType";
 import type {
   CheckoutVoucher,
   CreateOrderResponse,
   CalculateOrderResponse,
   ShippingMethodType,
-} from '../types';
+} from "../types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -21,22 +21,21 @@ const SHIPPING_FEE_PICKUP = 0;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const getItemPrice = (item: CartItemType): number =>
-  item.price * (1 - item.sale_percent / 100);
+const getItemPrice = (item: CartItemType): number => item.book.price;
 
 const calcSubtotal = (items: CartItemType[]): number =>
   items.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
 
 const calcShippingFee = (method: ShippingMethodType): number =>
-  method === 'DELIVERY' ? SHIPPING_FEE_DELIVERY : SHIPPING_FEE_PICKUP;
+  method === "DELIVERY" ? SHIPPING_FEE_DELIVERY : SHIPPING_FEE_PICKUP;
 
 const calcDiscount = (
   subtotal: number,
-  voucher: CheckoutVoucher | null
+  voucher: CheckoutVoucher | null,
 ): number => {
   if (!voucher) return 0;
-  if (subtotal < voucher.min_order_value) return 0;
-  return Math.min(voucher.discount_value, voucher.max_discount_amount);
+  if (subtotal < voucher.minOrderValue) return 0;
+  return Math.min(voucher.discountValue, voucher.maxDiscountAmount);
 };
 
 // ─── calculateOrder ───────────────────────────────────────────────────────────
@@ -44,14 +43,37 @@ const calcDiscount = (
 export const calculateOrder = (
   items: CartItemType[],
   shippingMethod: ShippingMethodType,
-  voucher: CheckoutVoucher | null
+  voucher: CheckoutVoucher | null,
 ): CalculateOrderResponse => {
   const subtotal = calcSubtotal(items);
-  const shipping_fee = calcShippingFee(shippingMethod);
-  const discount = calcDiscount(subtotal, voucher);
-  const total = subtotal - discount + shipping_fee;
+  const shippingFee = calcShippingFee(shippingMethod);
+  
+  let discount = 0;
+  let shippingDiscount = 0;
 
-  return { subtotal, shipping_fee, discount, total };
+  if (voucher && subtotal >= voucher.minOrderValue) {
+    const isFreeship = voucher.voucherCode.toLowerCase().includes("freeship");
+    
+    let calcVal = 0;
+    if (voucher.type === "PERCENT") {
+      calcVal = subtotal * (voucher.discountValue / 100);
+      if (voucher.maxDiscountAmount > 0) {
+        calcVal = Math.min(calcVal, voucher.maxDiscountAmount);
+      }
+    } else {
+      calcVal = voucher.discountValue;
+    }
+
+    if (isFreeship) {
+      shippingDiscount = Math.min(calcVal, shippingFee);
+    } else {
+      discount = calcVal;
+    }
+  }
+
+  const total = subtotal - discount + (shippingFee - shippingDiscount);
+
+  return { subtotal, shippingFee, discount, shippingDiscount, total };
 };
 
 // ─── applyVoucher ─────────────────────────────────────────────────────────────
@@ -62,14 +84,14 @@ export const calculateOrder = (
  */
 export const applyVoucher = async (
   code: string,
-  subtotal: number
+  subtotal: number,
 ): Promise<CheckoutVoucher> => {
   try {
     const voucher = await voucherApi.validateVoucher(code);
 
-    if (subtotal < voucher.min_order_value) {
+    if (subtotal < voucher.minOrderValue) {
       throw new Error(
-        `Đơn hàng tối thiểu ${voucher.min_order_value.toLocaleString('vi-VN')}đ để áp dụng voucher này.`
+        `Đơn hàng tối thiểu ${voucher.minOrderValue.toLocaleString("vi-VN")}đ để áp dụng voucher này.`,
       );
     }
 
@@ -86,19 +108,27 @@ export const applyVoucher = async (
  * Maps UI request format and coordinates with checkoutApi.
  */
 export const createOrder = async (
-  payload: any 
+  payload: any,
 ): Promise<CreateOrderResponse> => {
   try {
     // 1. Map to Backend Format:
     const mappedPayload = {
-      source: 'WEBSITE',
+      source: "WEBSITE",
+
       addressId: payload.addressId,
+      shippingAddressId: payload.addressId,
+
       items: payload.items.map((item: any) => ({
         bookId: item.bookId || item.book_id,
         quantity: item.quantity,
       })),
-      paymentMethod: payload.paymentMethod || payload.payment_method,
-      voucherCode: payload.voucherCode || '',
+
+      paymentMethod:
+        (payload.paymentMethod || payload.payment_method) === "VNPAY"
+          ? "VNPAY"
+          : payload.paymentMethod || payload.payment_method,
+
+      voucherCode: payload.voucherCode || "",
     };
 
     // 2. Call the API layer

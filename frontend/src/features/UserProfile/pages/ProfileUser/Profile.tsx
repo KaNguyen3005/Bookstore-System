@@ -1,39 +1,89 @@
 import { Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Profile.Sidebar.css";
+
 import Sidebar from "./Sidebar";
 import { userApi } from "../../../../services/userApi";
+import { useAuth } from "../../../auth/hooks/useAuth";
 
-import {useAuth} from "../../../auth/hooks/useAuth";
+type User = {
+  id?: string | number;
+  userId?: number;
+  username?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: string;
+  avatarUrl?: string;
+};
 
 export default function Profile() {
-
-  const [user, setUser] = useState<any>(null);
-  const [edit, setEdit] = useState(false);
-  const [avatar, setAvatar] = useState("");
-
   const { user: authUser } = useAuth();
+  const [user, setUser] = useState<User | null>(() => authUser);
+  const [edit, setEdit] = useState(false);
 
-     useEffect(() => {
-       if (!authUser?.user_id) return;
+  const [avatar, setAvatar] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-       const fetchUser = async () => {
-         const data = await userApi.getUserById(authUser.user_id);
+  // ================= FETCH USER =================
+  useEffect(() => {
+    let isMounted = true;
 
-         if (data) {
-           setUser(data);
-           setAvatar(data.avatar || "");
-         }
-       };
+    const fetchUser = async () => {
+      try {
+        if (authUser) {
+          setUser((prev) => prev ?? authUser);
+          setAvatar((prev) => prev || authUser.avatarUrl || "");
+        }
 
-       fetchUser();
-     }, [authUser]);
+        const res = await userApi.getMe();
+        const data = res?.data ?? res;
 
+        console.log("PROFILE USER:", data);
+
+        if (!isMounted) return;
+
+        if (data) {
+          setUser(data);
+          setAvatar(data?.avatarUrl || "");
+          return;
+        }
+
+        if (authUser) {
+          setUser(authUser);
+        }
+      } catch (error) {
+        console.error("FETCH USER ERROR:", error);
+
+        if (isMounted && authUser) {
+          setUser(authUser);
+        }
+      }
+    };
+
+    fetchUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authUser]);
+
+  // ================= CLEAN OBJECT URL =================
+  useEffect(() => {
+    return () => {
+      if (avatar.startsWith("blob:")) {
+        URL.revokeObjectURL(avatar);
+      }
+    };
+  }, [avatar]);
+
+  // ================= HANDLE AVATAR =================
   const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+
     if (!validTypes.includes(file.type)) {
       alert("Chỉ chấp nhận file JPG, PNG!");
       return;
@@ -44,66 +94,78 @@ export default function Profile() {
       return;
     }
 
-    // preview
     const preview = URL.createObjectURL(file);
+
     setAvatar(preview);
+    setAvatarFile(file);
 
-    // lưu file (QUAN TRỌNG)
-    setUser((prev: any) => ({
-      ...prev,
-      avatarFile: file
-    }));
-
-    // fix bug chọn lại cùng ảnh
     e.target.value = "";
   };
 
-  const handleChange = (e: any) => {
+  // ================= HANDLE CHANGE =================
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
 
-    setUser((prev: any) => ({
-      ...prev,
-      [name]: value
-    }));
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]: value,
+          }
+        : prev
+    );
   };
 
+  // ================= HANDLE SAVE =================
   const handleSave = async () => {
     try {
-      let avatarUrl = user.avatar;
+      if (!user) return;
 
-      // nếu có file mới thì upload trước
-      if (user.avatarFile) {
+      let avatarUrl = user.avatarUrl;
+
+      // upload avatar nếu có
+      if (avatarFile) {
         const formData = new FormData();
-        formData.append("file", user.avatarFile);
+        formData.append("file", avatarFile);
 
-        // gọi API upload
         const uploadRes = await userApi.uploadAvatar(formData);
+        const uploadData = uploadRes?.data ?? uploadRes;
 
-        avatarUrl = uploadRes.url; // backend trả về url
+        avatarUrl = uploadData.url;
       }
 
-      // update user
-      const updatedUser = {
-        ...user,
-        avatar: avatarUrl
+      // loại bỏ file khỏi payload
+      const { ...cleanUser } = user;
+
+      const updatedPayload = {
+        ...cleanUser,
+        avatarUrl,
       };
 
-      const updated = await userApi.updateUser(updatedUser);
+      const res = await userApi.updateMe(updatedPayload);
+      const updated = res?.data ?? res;
 
       setUser(updated);
-      if (updated.avatar) setAvatar(updated.avatar);
+      setAvatar(updated.avatarUrl || "");
+      setAvatarFile(null);
 
       setEdit(false);
-      alert("Đã lưu thông tin");
 
+      alert("Đã lưu thông tin");
     } catch (err) {
-      console.error(err);
+      console.error("SAVE ERROR:", err);
       alert("Có lỗi xảy ra");
     }
   };
 
-  if (!user) return <p>Loading...</p>;
+  // ================= LOADING =================
+  if (!user) {
+    return <p>Loading...</p>;
+  }
 
+  // ================= RENDER =================
   return (
     <div className="account-page">
       <Sidebar />
@@ -117,7 +179,7 @@ export default function Profile() {
             avatar,
             handleAvatar,
             handleChange,
-            handleSave
+            handleSave,
           }}
         />
       </div>

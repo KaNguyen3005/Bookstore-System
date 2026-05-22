@@ -1,17 +1,45 @@
+import type { Author } from "../types/Author";
+import type { Publisher } from "../../book-category/types/category";
+
 export interface Book {
-    book_id: number;
-    title: string;
-    price: number;
-    author_name?: string;
-    cover_image_url?: string;
-    oldPrice?: number;
-    sale_percent?: number;
-    avg_rating?: number;
-    reviewCount?: number;
-    description?: string;
-    publisher?: string;
-    publication_date?: string;
-    dimensions?: string;
-    cover_type?: string;
-    num_pages?: number;
+  bookId: number;
+
+  title: string;
+
+  authors: Author[];
+
+  publisher: Publisher;
+
+  isbn: string;
+
+  language: string;
+
+  description: string;
+
+  pageCount: number;
+
+  coverType: string;
+
+  coverImgUrl: string;
+
+  stockQuantity: number;
+
+  price: number;
+
+  avgRating: number;
+
+  salePercent: number;
+
+  // backend trả string[]
+  categories: string[];
+
+  //backend trả object, không phải string[]
+  bookImgs: {
+    imgUrl: string;
+    publicId?: string;
+  }[] | null;
+
+  isActive: boolean;
+
+  deletedAt?: string | null;
 }

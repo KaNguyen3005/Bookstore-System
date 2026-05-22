@@ -1,74 +1,115 @@
-.otp-page{
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== CENTER PAGE ===== */
+.otp-page {
     background: white;
     min-height: 100vh;
+    width: 100%;
+
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.otp-container{
+/* ===== CONTAINER ===== */
+.otp-container {
     background: white;
     width: 700px;
+    max-width: 90%;
+
     padding: 60px 50px;
-    border-radius:6px;
-    text-align:center;
+    border-radius: 6px;
+    text-align: center;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-.logo-otp{
+/* ===== LOGO ===== */
+.logo-otp {
     font-size: 52px;
     color: rgba(57, 96, 107, 1);
     font-family: Urban Jungle;
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 
-.subtitle{
-    font-size:16px;
+/* ===== SUBTITLE ===== */
+.subtitle {
+    font-size: 16px;
     margin-top: 30px;
-    margin-bottom:40px;
-    color:black;
+    margin-bottom: 40px;
+    color: black;
 }
 
-.otp-form{
-    display:flex;
+/* ===== FORM ===== */
+.otp-form {
+    display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
-.otp-form input{
-    width: 20%;
-    padding:12px;
-    margin:0 auto 16px;
-    border:1px solid #ddd;
-    border-radius:10px;
-    font-size:14px;
+/* INPUT */
+.otp-form input {
+    width: 200px;
+    padding: 12px;
+    margin-bottom: 10px;
 
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
 }
 
-.otp-form input:focus{
-    outline:none;
-    border-color:#4c6f73;
+.otp-form input:focus {
+    outline: none;
+    border-color: #4c6f73;
 }
 
-.otp-form button{
-    width:60%;
-    padding:12px;
-    border:none;
-    border-radius:20px;
-    background:rgba(57, 96, 107, 1);
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-    margin: 0 auto ;
-    margin-top: 40px;
+/* BUTTON */
+.otp-form button {
+    width: 60%;
+    padding: 12px;
+    border: none;
+    border-radius: 20px;
+
+    background: rgba(57, 96, 107, 1);
+    color: white;
+    font-size: 16px;
+
+    cursor: pointer;
+    margin-top: 30px;
 }
 
-.otp-form button:hover{
-    background:#355558;
+.otp-form button:hover {
+    background: #355558;
 }
 
-.forgot{
-    margin-top:10px;
-    font-size:14px;
-    color:black;
-    cursor:pointer;
+/* ERROR */
+.error-text {
+    font-size: 12px;
+    color: #ff3b30;
+    margin-top: 6px;
 }
 
+.otp-expired {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.resend-btn {
+  margin-top: 10px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #222;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.resend-btn:hover {
+  opacity: 0.9;
+}

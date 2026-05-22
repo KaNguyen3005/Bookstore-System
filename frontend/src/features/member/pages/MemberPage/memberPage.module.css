@@ -1,0 +1,141 @@
+.wrapper {
+  background: #f6f8fa;
+  padding-bottom: 80px;
+}
+
+/* ================= HERO ================= */
+
+.hero {
+  padding: 100px 20px 60px;
+
+  text-align: center;
+
+  background: linear-gradient(
+    135deg,
+    #325863,
+    #4b6f79
+  );
+
+  color: white;
+}
+
+.hero h1 {
+  font-size: clamp(34px, 5vw, 56px);
+  margin-bottom: 16px;
+}
+
+.hero p {
+  max-width: 700px;
+  margin: auto;
+
+  font-size: 17px;
+  line-height: 1.8;
+
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ================= BENEFITS ================= */
+
+.benefitIntro {
+  max-width: 1100px;
+  margin: auto;
+
+  padding: 80px 20px;
+
+  text-align: center;
+}
+
+.benefitIntro h2 {
+  font-size: 36px;
+  color: #325863;
+  margin-bottom: 30px;
+}
+
+.benefitGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.benefitCard {
+  background: white;
+
+  padding: 22px;
+  border-radius: 18px;
+
+  box-shadow: 0 10px 30px rgba(50, 88, 99, 0.08);
+
+  color: #475569;
+
+  font-size: 15px;
+  line-height: 1.6;
+
+  transition: 0.3s;
+}
+
+.benefitCard:hover {
+  transform: translateY(-6px);
+}
+
+/* ================= TIERS ================= */
+
+.tierSection {
+  max-width: 1200px;
+  margin: auto;
+
+  padding: 20px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  background: white;
+
+  padding: 32px;
+  border-radius: 24px;
+
+  text-align: center;
+
+  box-shadow: 0 12px 35px rgba(50, 88, 99, 0.08);
+
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 60px rgba(50, 88, 99, 0.15);
+}
+
+.card h3 {
+  margin: 12px 0 6px;
+  font-size: 26px;
+  color: #325863;
+}
+
+.card p {
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.card ul li {
+  margin: 10px 0;
+  color: #475569;
+  font-size: 15px;
+}
+
+/* GOLD highlight */
+.gold {
+  border: 2px solid rgba(50, 88, 99, 0.2);
+}
+
+/* DIAMOND highlight */
+.diamond {
+  border: 2px solid rgba(50, 88, 99, 0.35);
+}

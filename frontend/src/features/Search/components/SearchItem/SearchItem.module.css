@@ -1,0 +1,68 @@
+.item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+
+  cursor: pointer;
+  background: #fff;
+  border-bottom: 1px solid #f1f1f1;
+
+  transition: background 0.2s ease;
+}
+
+.item:hover {
+  background: #f7f7f7;
+}
+
+/* IMAGE */
+.image {
+  width: 46px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* TITLE */
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* META */
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/* CATEGORY */
+.category {
+  color: #777;
+
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* PRICE */
+.price {
+  color: #d70018;
+  font-weight: 600;
+  font-size: 14px;
+}

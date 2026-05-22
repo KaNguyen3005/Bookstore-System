@@ -14,11 +14,15 @@ const HeroBanner = ({ books }: HeroBannerProps) => {
       <div className="hero-banner__inner container">
         <div className="hero-banner__images">
           {displayBooks.map((book) => (
-            <Link key={book.book_id} to={`/product/${book.book_id}`} className="hero-banner__cover">
+            <Link
+              key={book.bookId}
+              to={`/product/${book.bookId}`}
+              className="hero-banner__cover"
+            >
               <img
                 src={
-                  book.cover_image_url ||
-                  `https://picsum.photos/seed/book${book.book_id}/300/400`
+                  book.coverImgUrl ||
+                  `https://picsum.photos/seed/book${book.bookId}/300/400`
                 }
                 alt={book.title}
               />

@@ -1,0 +1,267 @@
+.page {
+  padding: 24px;
+  background: #f6f7fb;
+  min-height: 100vh;
+
+  max-width: 1400px;
+  margin: 30px auto;
+
+  border-radius: 12px;
+}
+
+/* ================= SEARCH ================= */
+.toolbar {
+  margin-bottom: 20px;
+  display: flex;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 320px;
+  padding: 10px 14px;
+
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.searchBox input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* ================= GRID (5 ITEMS / ROW) ================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* ================= CARD ================= */
+.card {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+
+  border: 1px solid #eee;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ================= HEADER ================= */
+.cardHeader {
+  padding: 14px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  color: white;
+}
+
+.percent {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.fixed {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+}
+
+.freeship {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.titleArea {
+  flex: 1;
+}
+
+.badge {
+  font-size: 10px;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.minOrder {
+  font-size: 11px;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+/* COPY */
+.copyBtn {
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+
+  width: 30px;
+  height: 30px;
+
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.copyBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ================= CODE ================= */
+.codeRow {
+  padding: 10px 14px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.codeLabel {
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.code {
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-family: monospace;
+  color: #111827;
+}
+
+.expire {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* ================= BODY ================= */
+.body {
+  padding: 12px 14px 14px;
+}
+
+.progressHead {
+  display: flex;
+  justify-content: space-between;
+
+  font-size: 11px;
+  color: #374151;
+
+  margin-bottom: 6px;
+}
+
+.progressTrack {
+  height: 6px;
+  background: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #10b981);
+}
+
+/* ================= BOTTOM ================= */
+.bottom {
+  margin-top: 10px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remain {
+  font-size: 11px;
+  color: #6b7280;
+
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.collectBtn {
+  border: none;
+  padding: 7px 10px;
+
+  border-radius: 8px;
+
+  background: #ef4444;
+  color: white;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  cursor: pointer;
+}
+
+/* ================= EMPTY ================= */
+.empty {
+  text-align: center;
+  padding: 60px;
+  color: #6b7280;
+}
+
+/* ================= TOP SECTION ================= */
+.topSection {
+  margin-top: 40px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1400px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .searchBox {
+    width: 100%;
+  }
+}

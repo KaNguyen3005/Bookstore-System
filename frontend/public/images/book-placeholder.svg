@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280" viewBox="0 0 200 280" role="img" aria-labelledby="title desc">
+  <title id="title">Book placeholder</title>
+  <desc id="desc">Default book cover image</desc>
+  <rect width="200" height="280" rx="14" fill="#f3f4f6"/>
+  <rect x="42" y="36" width="116" height="190" rx="8" fill="#ffffff" stroke="#d9dee7" stroke-width="4"/>
+  <path d="M62 58h76M62 82h76M62 106h52" stroke="#9aa4b2" stroke-width="7" stroke-linecap="round"/>
+  <path d="M62 142h76M62 166h76M62 190h44" stroke="#d4dae3" stroke-width="7" stroke-linecap="round"/>
+  <path d="M145 36v190" stroke="#e7ebf1" stroke-width="4"/>
+  <text x="100" y="252" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#6b7280">BOOK</text>
+</svg>

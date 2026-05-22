@@ -2,58 +2,314 @@ import axiosClient from "./axiosClient";
 import users from "../data/user1";
 import { type UserFE } from "./userApi";
 
-const IS_MOCK = true;
+const IS_MOCK = false;
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-const mapToFE = (u: any): UserFE => ({
-  id: u.user_id,
-  user_id: u.user_id,
-  username: u.username,
-  fullname: `${u.first_name || ""} ${u.last_name || ""}`.trim(),
-  firstname: u.first_name,
-  lastname: u.last_name,
-  email: u.email,
-  phone: u.phone,
-  birth: u.birth,
-  point: u.point,
-  status: u.status,
-  gender: u.gender,
-  role_id: u.role_id,
+const clean = (v: any) =>
+  typeof v === "string" ? v.trim() : v;
+
+const isInactiveAccount = (status: any) => status === false;
+
+const normalizeErrorMessage = (value?: string) =>
+  String(value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const isInactiveAccountMessage = (value?: string) => {
+  const message = normalizeErrorMessage(value);
+
+  return [
+    "inactive",
+    "disabled",
+    "disable",
+    "locked",
+    "blocked",
+    "ngung hoat dong",
+    "vo hieu hoa",
+    "khoa",
+  ].some((keyword) => message.includes(keyword));
+};
+
+const getAuthErrorMessage = (error: any, fallback: string) => {
+  const message =
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    error?.message ||
+    fallback;
+
+  return isInactiveAccountMessage(message)
+    ? "Tài khoản này đã ngừng hoạt động"
+    : message;
+};
+
+// ================= USER MAP =================
+const mapToFE = (u: any = {}): UserFE => ({
+  id: u?.userId,
+  userId: u?.userId,
+  username: clean(u?.username),
+  name: u?.name,
+  email: clean(u?.email),
+  phone: clean(u?.phone),
+  dob: u?.dob,
+  point: u?.point,
+  status: u?.status,
+  gender: u?.gender,
+  role: u?.role,
+  avatarUrl: u?.avatarUrl,
+  address: u?.address,
 });
 
+// ================= AUTH API =================
 export const authApi = {
-  login: async (data: any): Promise<UserFE> => {
-    if (IS_MOCK) {
-      await delay(500);
-      const user = users.find(
-        (u) =>
-          (u.email === data.account ||
-            u.phone === data.account ||
-            u.username === data.account) &&
-          u.password === data.password
-      );
-      if (user) {
-        return mapToFE(user);
+
+  login: async (data: any) => {
+    try {
+      // ================= MOCK =================
+      if (IS_MOCK) {
+        await delay(500);
+
+        const account = clean(data.account);
+        const password = clean(data.password);
+
+        const user = users.find(
+          (u) =>
+            (u.email === account ||
+              u.phone === account ||
+              u.username === account) &&
+            u.password === password
+        );
+
+        if (!user) throw new Error("Invalid credentials");
+
+        const token = "mock-token-123";
+
+        const fullUser = mapToFE(user);
+
+        const result = {
+          ...fullUser,
+          token,
+          authenticated: true,
+        };
+
+        localStorage.setItem("access_token", token);
+        localStorage.setItem("user", JSON.stringify(result));
+
+        return result;
       }
-      throw new Error("Invalid credentials");
+
+      // ================= API =================
+      const res = await axiosClient.post("/auth/login", {
+        username: clean(data.account),
+        password: clean(data.password),
+      });
+
+      const response = res?.data ?? res;
+      const authData = response?.result ?? response;
+
+      console.log("LOGIN RESPONSE:", response);
+
+      const token = authData?.token;
+
+      if (!token) {
+        throw new Error(response?.message || "Token not found");
+      }
+
+      localStorage.setItem("access_token", token);
+
+      // ================= GET USER INFO =================
+      const userRes = await axiosClient.get("/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const userData = userRes?.data?.result ?? userRes?.data;
+
+      if (isInactiveAccount(userData?.status)) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        throw new Error("Tài khoản này đã ngừng hoạt động");
+      }
+
+      const fullUser = {
+        userId: userData?.userId || userData?.id,
+        username: userData?.username,
+        email: userData?.email,
+        phone: userData?.phone,
+        name: userData?.name,
+        role: userData?.role,
+        status: userData?.status,
+        token,
+        authenticated: true,
+      };
+
+      // ⚡ SAVE LOCAL (QUAN TRỌNG để không cần f5)
+      localStorage.setItem("user", JSON.stringify(fullUser));
+
+      return fullUser;
+
+    } catch (error: any) {
+      console.error("LOGIN ERROR:", error);
+
+      throw new Error(getAuthErrorMessage(error, "Login failed"));
     }
-    return axiosClient.post("/auth/login", data);
   },
 
-  register: async (data: any) => {
-    if (IS_MOCK) {
-      await delay(500);
-      return { message: "Register success" };
+  // ================= REGISTER INIT =================
+  registerInit: async (data: any) => {
+    try {
+      if (IS_MOCK) {
+        await delay(500);
+        return { message: "Register success" };
+      }
+
+      const res = await axiosClient.post("/auth/register/init", {
+        username: clean(data.username),
+        email: clean(data.email),
+        phone: clean(data.phone),
+        password: data.password,
+        name: data.name,
+        gender: data.gender,
+        dob: data.dob,
+
+      });
+
+      return res?.data ?? res;
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.message || "Register init failed"
+      );
     }
-    return axiosClient.post("/auth/register", data);
   },
 
+  // ================= REGISTER COMPLETE =================
+  registerComplete: async (data: any) => {
+    try {
+      const res = await axiosClient.post(
+        "/auth/register/complete",
+        {
+          username: clean(data.username),
+          email: clean(data.email),
+          phone: clean(data.phone),
+          password: data.password,
+          name: data.name,
+          gender: data.gender,
+          dob: data.dob,
+          otp: clean(data.otp),
+        }
+      );
+
+      return res?.data ?? res;
+
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.message ||
+        "Register complete failed"
+      );
+    }
+  },
+
+  // ================= LOGOUT =================
   logout: async () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+
     if (IS_MOCK) {
-      await delay(500);
+      await delay(300);
       return { message: "Logout success" };
     }
+
     return axiosClient.post("/auth/logout");
   },
+
+  // ================= OTP =================
+  verifyOtp: async (data: { email: string; otp: string }) => {
+    try {
+      const res = await axiosClient.post("/otp/verify", {
+        email: clean(data.email),
+        otp: clean(data.otp),
+      });
+
+      return res?.data ?? res;
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.message || "OTP verification failed"
+      );
+    }
+  },
+
+  sendOtp: async (email: string) => {
+    try {
+      const res = await axiosClient.post("/otp/send", {
+        email: clean(email),
+      });
+
+      return res?.data ?? res;
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.message || "Send OTP failed"
+      );
+    }
+  },
+// ================= GOOGLE LOGIN =================
+googleLogin: async (idToken: string) => {
+  try {
+    const res = await axiosClient.post("/auth/google", {
+      idToken,
+    });
+
+    const response = res?.data ?? res;
+    const authData = response?.result ?? response;
+
+    console.log("GOOGLE LOGIN RESPONSE:", response);
+
+    const token = authData?.token;
+
+    if (!token) {
+      throw new Error(response?.message || "Google login failed");
+    }
+
+    // SAVE TOKEN
+    localStorage.setItem("access_token", token);
+
+    // ================= GET USER INFO =================
+    const userRes = await axiosClient.get("/users/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const userData = userRes?.data?.result ?? userRes?.data;
+
+    if (isInactiveAccount(userData?.status)) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      throw new Error("Tài khoản này đã ngừng hoạt động");
+    }
+
+    const fullUser = {
+      userId: userData?.userId || userData?.id,
+      username: userData?.username,
+      email: userData?.email,
+      phone: userData?.phone,
+      name: userData?.name,
+      role: userData?.role,
+      status: userData?.status,
+      token,
+      authenticated: true,
+    };
+
+    // SAVE LOCAL
+    localStorage.setItem("user", JSON.stringify(fullUser));
+
+    return fullUser;
+
+  } catch (error: any) {
+    console.error("GOOGLE LOGIN ERROR:", error);
+
+    throw new Error(getAuthErrorMessage(error, "Google login failed"));
+  }
+},
 };

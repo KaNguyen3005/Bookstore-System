@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
+import type { MouseEvent } from "react";
+
 import { useCartActions } from "../../cart/hooks/useCartActions";
 import type { Book } from "../types/Book";
+import type { CartItemType } from "../../cart/types/cartItemType";
+
 import "./ProductCard.css";
 
 interface ProductCardProps {
@@ -9,22 +13,30 @@ interface ProductCardProps {
 
 const ProductCard = ({ book }: ProductCardProps) => {
   const { onAddToCart } = useCartActions();
-  const rating = book.avg_rating || 0;
-  const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(rating));
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); 
+  // ================= SAFE DATA =================
+  const rating = book.avgRating ?? 0;
+  const roundedRating = Math.round(rating);
+  const price = book.price ?? 0;
+
+  const stars = Array.from({ length: 5 }, (_, i) => i < roundedRating);
+
+  // ================= HANDLER =================
+  const handleAddToCart = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     e.stopPropagation();
 
-    const item = {
-      book_id: book.book_id,
-      title: book.title,
-      price: book.oldPrice || book.price,
-      sale_percent: book.sale_percent || 0,
-      cover_image_url: book.cover_image_url || `https://picsum.photos/seed/book${book.book_id}/200/280`,
+    const item: CartItemType = {
+      book: {
+        bookId: book.bookId,
+        title: book.title,
+        price: book.price ?? 0,
+        salePercent: book.salePercent ?? 0,
+        coverImgUrl: book.coverImgUrl,
+        stockQuantity: book.stockQuantity ?? 0,
+      },
       quantity: 1,
-      stock_quantity: 100, // mock stock
-      selected: true
+      selected: true,
     };
 
     onAddToCart(item);
@@ -32,63 +44,57 @@ const ProductCard = ({ book }: ProductCardProps) => {
 
   return (
     <div className="product-card">
-      <Link to={`/product/${book.book_id}`} className="product-card__link">
+      <Link to={`/product/${book.bookId}`} className="product-card__link">
+        {/* ================= COVER ================= */}
         <div className="product-card__cover">
-          {book.cover_image_url ? (
-            <img src={book.cover_image_url} alt={book.title} />
-          ) : (
-            <img
-              src={`https://picsum.photos/seed/book${book.book_id}/200/280`}
-              alt={book.title}
-            />
-          )}
-
-          {book.sale_percent && (
-            <span className="product-card__badge">
-              -{book.sale_percent}%
-            </span>
-          )}
+          <img
+            src={
+              book.coverImgUrl ||
+              `https://picsum.photos/seed/book${book.bookId}/200/280`
+            }
+            alt={book.title}
+          />
         </div>
 
+        {/* ================= CONTENT ================= */}
         <div className="product-card__content">
           <h3 className="product-card__title" title={book.title}>
             {book.title}
           </h3>
 
+          {/* ================= RATING ================= */}
           <div className="product-card__rating">
             {rating > 0 ? (
               <>
                 {stars.map((isFilled, index) => (
                   <span
                     key={index}
-                    className={`product-card__star ${isFilled ? "product-card__star--filled" : ""
-                      }`}
+                    className={`product-card__star ${
+                      isFilled ? "product-card__star--filled" : ""
+                    }`}
                   >
                     ★
                   </span>
                 ))}
-                {book.reviewCount && (
+
+                {book.reviewCount !== undefined && (
                   <span className="product-card__review-count">
                     ({book.reviewCount})
                   </span>
                 )}
               </>
             ) : (
-              <>
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <span key={index} className="product-card__star">
-                    ★
-                  </span>
-                ))}
-                <span className="product-card__review-count">(0)</span>
-              </>
+              <span className="product-card__no-rating">
+                Chưa có đánh giá
+              </span>
             )}
           </div>
 
+          {/* ================= PRICE ================= */}
           <div className="product-card__price-container">
             <div className="product-card__price">
               <span className="product-card__price-current">
-                {book.price.toLocaleString("vi-VN")} đ
+                {price.toLocaleString("vi-VN")} đ
               </span>
 
               {book.oldPrice && (
@@ -101,6 +107,7 @@ const ProductCard = ({ book }: ProductCardProps) => {
         </div>
       </Link>
 
+      {/* ================= ADD TO CART ================= */}
       <button className="product-card__btn" onClick={handleAddToCart}>
         <svg
           width="18"
@@ -110,9 +117,9 @@ const ProductCard = ({ book }: ProductCardProps) => {
           stroke="currentColor"
           strokeWidth="2"
         >
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
         </svg>
         Thêm vào giỏ
       </button>

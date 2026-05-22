@@ -1,140 +1,194 @@
-.register-page{
-  background:#f5f5f5;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+.register-page {
+  background: #f5f7fb;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
 }
 
-/* container */
-
-.register-container{
-  background:white;
-  width:700px;
-  padding:50px 40px;
-  border-radius:10px;
-  text-align:center;
-  box-shadow:0 10px 35px rgba(0,0,0,0.08);
+.register-container {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  padding: 50px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+  margin:30px;
 }
 
-/* logo */
+/* LOGO + TITLE */
+.logo-img-auth-re {
+  width: 400px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
 
-.logo{
-  font-size:52px;
-  color:rgba(57,96,107,1);
-  font-family:Urban Jungle;
-  letter-spacing:2px;
-  margin-bottom:10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+  transition: transform 0.2s ease;
 }
 
-.subtitle{
-  font-size:16px;
-  margin:25px 0 40px;
+.logo-img:hover {
+  transform: scale(1.05);
+}
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 30px;
+  color: #333;
 }
 
-/* form */
-
-.register-form{
-  display:flex;
-  flex-direction:column;
+/* FORM */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-/* ten, ns, gt, sdt, mk */
-.register-form label{
-  width:60%;
-  margin:16px auto 8px;
-  text-align:left;
-  font-size:14px;
-  font-weight:500;
+.register-form label {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 8px;
 }
 
-/* nhap+ chon*/
 .register-form input,
-.register-form select{
-  width:60%;
-  padding:13px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  font-size:14px;
-  box-sizing:border-box;
-  transition:0.2s;
+.register-form select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
 }
 
-
-/* layout chung cho các field */
-.name-row,
-.birth-row,
-.full{
-  width:60%;
-  margin:0 auto 16px;
+.register-form input:focus,
+.register-form select:focus {
+  border-color: rgba(57, 96, 107, 1);
 }
 
-/* họ tên + ns*/
-.name-row,
-.birth-row{
-  display:flex;
-  gap:12px;
+/* NAME ROW */
+.name-row {
+  display: flex;
+  gap: 10px;
 }
 
-.name-row input,
-.birth-row select{
-  flex:1;
-  min-width:0;
+.name-row input {
+  flex: 1;
 }
 
-
-.note{
-  width:60%;
-  margin:10px auto;
-  text-align:left;
-  font-size:13px;
-  line-height:1.6;
-  color:#555;
+/* BIRTH ROW */
+.birth-row {
+  display: flex;
+  gap: 10px;
 }
 
-.link{
-  color:rgba(57,96,107,1);
-  text-decoration:none;
+.birth-row select {
+  flex: 1;
 }
 
-.link:hover{
-  text-decoration:underline;
+/* BUTTON */
+.register-form button {
+  margin-top: 15px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(57, 96, 107, 1);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.register-form button{
-  width:60%;
-  padding:15px;
-  border:none;
-  border-radius:30px;
-  background:rgba(57,96,107,1);
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-  margin:35px auto 0;
-  transition:0.2s;
+.register-form button:hover {
+  background: #355558;
 }
 
-.register-form button:hover{
-  background:#2f555c;
-  transform:translateY(-1px);
+/* SOCIAL */
+.social-reg-wrapper {
+  margin-top: 20px;
 }
 
-/* login link */
+.social-reg {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
 
-.ask-register{
-  margin-top:20px;
-  font-size:14px;
-  display:flex;
-  justify-content:center;
-  gap:5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: white;
+
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.login-link{
-  color:#2c6f7b;
-  text-decoration:none;
-  cursor:pointer;
+.social-reg:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.login-link:hover{
-  text-decoration:underline;
+/* LOGIN LINK */
+.ask-register {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.login-link {
+  margin-left: 5px;
+  color: rgba(57, 96, 107, 1);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .register-container {
+    width: 90%;
+    padding: 25px;
+  }
+
+  .name-row,
+  .birth-row {
+    flex-direction: column;
+  }
+}
+
+.input {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+}
+
+.input.error {
+  border: 1px solid #ff3b30;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #ff3b30;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
 }

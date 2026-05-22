@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { addressApi } from "../../../../services/addressApi";
-import "./ManagerAddress.css";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
+import "./ManagerAddress.css";
 
 export default function AddressPage() {
+  const { user } = useAuth();
 
   const [list, setList] = useState<any[]>([]);
   const [form, setForm] = useState<any>({});
@@ -13,159 +14,217 @@ export default function AddressPage() {
   const [districts, setDistricts] = useState<any[]>([]);
   const [wards, setWards] = useState<any[]>([]);
 
-  const { user } = useAuth();
-
+  // ================= LOAD PROVINCES =================
   useEffect(() => {
     addressApi.getProvinces().then(setProvinces);
   }, []);
 
+  // ================= LOAD ADDRESSES =================
+  const fetchData = async () => {
+    const data = await addressApi.getAll();
+    setList(data);
+  };
 
-const fetchData = async () => {
-  if (!user?.user_id) return;
-
-  const data = await addressApi.getAll(user.user_id);
-  setList(data);
-};
-
-useEffect(() => {
-  if (user?.user_id) {
+  useEffect(() => {
     fetchData();
-  }
-}, [user]);
+  }, [user]);
 
+  // ================= SAVE =================
   const handleSave = async (id: number) => {
-    if (!form.customer_name || !form.customer_phone) {
-      alert("Nhập thiếu thông tin!");
+    if (!form.customerName || !form.customerPhone) {
+      alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
     await addressApi.update(id, form);
 
     setEditingId(null);
+    setForm({});
     fetchData();
   };
 
+  // ================= DELETE =================
   const handleDelete = async (id: number) => {
-    if (!confirm("Xóa địa chỉ này?")) return;
+    if (!confirm("Bạn có chắc muốn xóa địa chỉ này?")) return;
+
     await addressApi.remove(id);
     fetchData();
   };
 
+  // ================= SET DEFAULT =================
   const handleDefault = async (id: number) => {
-    await addressApi.setDefault(id);
-    fetchData();
+    try {
+      await addressApi.setDefault(id);
+
+      await fetchData();
+
+      alert("Đặt địa chỉ mặc định thành công!");
+    } catch (error) {
+      console.error(error);
+
+      alert("Không thể đặt mặc định!");
+    }
   };
 
   return (
-    <div>
+    <div className="address-container">
       <h2>Địa chỉ giao hàng</h2>
 
       <div className="address-list">
         {list.map((item) => (
-          <div key={item.address_id} className="address-card">
+          <div key={item.addressId} className="address-card">
 
-            {/* DEFAULT */}
-            {item.is_default && (
+            {/* DEFAULT BADGE */}
+            {item.isDefault && (
               <div className="default-badge">Mặc định</div>
             )}
 
-            {/* 🔥 EDIT MODE */}
-            {editingId === item.address_id ? (
+            {/* ================= EDIT MODE ================= */}
+            {editingId === item.addressId ? (
               <>
                 <input
-                  value={form.customer_name || ""}
-                  onChange={e => setForm({ ...form, customer_name: e.target.value })}
+                  value={form.customerName || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      customerName: e.target.value,
+                    })
+                  }
+                  placeholder="Tên khách hàng"
                 />
 
                 <input
-                  value={form.customer_phone || ""}
-                  onChange={e => setForm({ ...form, customer_phone: e.target.value })}
+                  value={form.customerPhone || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      customerPhone: e.target.value,
+                    })
+                  }
+                  placeholder="Số điện thoại"
                 />
 
                 <input
-                  placeholder="Số nhà, đường"
-                  value={form.detail_address || ""}
-                  onChange={e => setForm({ ...form, detail_address: e.target.value })}
+                  value={form.detailAddress || ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      detailAddress: e.target.value,
+                    })
+                  }
+                  placeholder="Địa chỉ chi tiết"
                 />
 
+                {/* PROVINCE */}
                 <select
                   value={form.province || ""}
                   onChange={async (e) => {
-                    const provinceName = e.target.value;
-                    const province = provinces.find(p => p.name === provinceName);
+                    const name = e.target.value;
+                    const p = provinces.find(
+                      (x) => x.provinceName === name
+                    );
 
                     setForm({
                       ...form,
-                      province: provinceName,
+                      province: name,
                       district: "",
-                      ward: ""
+                      ward: "",
                     });
 
-                    if (province) {
-                      const data = await addressApi.getDistricts(province.code);
+                    if (p) {
+                      const data =
+                        await addressApi.getDistricts(
+                          p.provinceId
+                        );
                       setDistricts(data);
                       setWards([]);
                     }
                   }}
                 >
                   <option value="">Chọn tỉnh</option>
-                  {provinces.map(p => (
-                    <option key={p.code} value={p.name}>
-                      {p.name}
+                  {provinces.map((p) => (
+                    <option
+                      key={p.provinceId}
+                      value={p.provinceName}
+                    >
+                      {p.provinceName}
                     </option>
                   ))}
                 </select>
 
+                {/* DISTRICT */}
                 <select
                   value={form.district || ""}
                   onChange={async (e) => {
-                    const districtName = e.target.value;
-                    const district = districts.find(d => d.name === districtName);
+                    const name = e.target.value;
+                    const d = districts.find(
+                      (x) => x.districtName === name
+                    );
 
                     setForm({
                       ...form,
-                      district: districtName,
-                      ward: ""
+                      district: name,
+                      ward: "",
                     });
 
-                    if (district) {
-                      const data = await addressApi.getWards(district.code);
+                    if (d) {
+                      const data =
+                        await addressApi.getWards(
+                          d.districtId
+                        );
                       setWards(data);
                     }
                   }}
                 >
                   <option value="">Chọn quận</option>
-                  {districts.map(d => (
-                    <option key={d.code} value={d.name}>
-                      {d.name}
+                  {districts.map((d) => (
+                    <option
+                      key={d.districtId}
+                      value={d.districtName}
+                    >
+                      {d.districtName}
                     </option>
                   ))}
                 </select>
 
+                {/* WARD */}
                 <select
                   value={form.ward || ""}
                   onChange={(e) =>
-                    setForm({ ...form, ward: e.target.value })
+                    setForm({
+                      ...form,
+                      ward: e.target.value,
+                    })
                   }
                 >
                   <option value="">Chọn phường</option>
-                  {wards.map(w => (
-                    <option key={w.code} value={w.name}>
-                      {w.name}
+                  {wards.map((w) => (
+                    <option
+                      key={w.wardId}
+                      value={w.wardName}
+                    >
+                      {w.wardName}
                     </option>
                   ))}
                 </select>
 
-
-                <div className="address-actions"  >
-                  <button className="address-btn btn-save"
-                    onClick={() => handleSave(item.address_id)}
+                {/* ACTIONS */}
+                <div className="address-actions">
+                  <button
+                    className="address-btn btn-save"
+                    onClick={() =>
+                      handleSave(item.addressId)
+                    }
                   >
                     Lưu
                   </button>
 
-                  <button className="address-btn btn-cancel"
-                    onClick={() => setEditingId(null)}
+                  <button
+                    className="address-btn btn-cancel"
+                    onClick={() => {
+                      setEditingId(null);
+                      setForm({});
+                    }}
                   >
                     Hủy
                   </button>
@@ -173,27 +232,31 @@ useEffect(() => {
               </>
             ) : (
               <>
-                <div className="address-header">
-                  {item.customer_name}
+                {/* VIEW MODE */}
+                <div className="address-name">
+                  {item.customerName}
                 </div>
 
                 <div className="address-info">
-                  <div className="address-phone">
-                    Số điện thoại: {item.customer_phone}
-                  </div>
                   <div>
-                    Địa chỉ:  {item.detail_address}, {item.ward}, {item.district}, {item.province}
+                    SĐT: {item.customerPhone}
+                  </div>
+
+                  <div>
+                    {item.detailAddress},{" "}
+                    {item.ward}, {item.district},{" "}
+                    {item.province}
                   </div>
                 </div>
 
+                {/* ACTIONS */}
                 <div className="address-actions">
-                  {!item.is_default && (
+                  {!item.isDefault && (
                     <button
                       className="address-btn btn-default"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDefault(item.address_id);
-                      }}
+                      onClick={() =>
+                        handleDefault(item.addressId)
+                      }
                     >
                       Đặt mặc định
                     </button>
@@ -201,10 +264,19 @@ useEffect(() => {
 
                   <button
                     className="address-btn btn-edit"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingId(item.address_id);
-                      setForm({ ...item });
+                    onClick={() => {
+                      setEditingId(item.addressId);
+                      setForm({
+                        customerName:
+                          item.customerName,
+                        customerPhone:
+                          item.customerPhone,
+                        detailAddress:
+                          item.detailAddress,
+                        province: item.province,
+                        district: item.district,
+                        ward: item.ward,
+                      });
                     }}
                   >
                     Sửa
@@ -212,17 +284,15 @@ useEffect(() => {
 
                   <button
                     className="address-btn btn-delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(item.address_id);
-                    }}
+                    onClick={() =>
+                      handleDelete(item.addressId)
+                    }
                   >
                     Xóa
                   </button>
                 </div>
               </>
             )}
-
           </div>
         ))}
       </div>

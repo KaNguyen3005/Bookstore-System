@@ -1,127 +1,390 @@
-import { useEffect, useState } from "react";
-import { getOrdersByStatus } from "../../../../services/orderApi";
-import "./PurchaseOrder.css";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { getMyOrders, cancelOrder  } from "../../../../services/orderApi";
 import { useAuth } from "../../../../features/auth/hooks/useAuth";
-import type { Order, OrderStatus } from "../../../../data/purchaseOrder";
+
+import styles from "./PurchaseOrder.module.css";
+import OrderModal from "../OrderModal/OrderModal";
+import ReviewFormModal from "../ReviewFormModal/ReviewFormModal";
+import { reviewOrderItem } from "../../../../services/orderApi";
+
+import ReviewModal from "../ReviewModal/reviewModal";
+
+const getOrderItemCoverImage = (item: any) =>
+  item?.coverImage ||
+  item?.coverImageUrl ||
+  item?.coverImgUrl ||
+  item?.book?.coverImage ||
+  item?.book?.coverImageUrl ||
+  item?.book?.coverImgUrl ||
+  item?.image;
 
 export default function Orders() {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  const [active, setActive] = useState<OrderStatus>("pending");
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [active, setActive] = useState("ALL");
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
-  const tabs: { key: OrderStatus; label: string }[] = [
-    { key: "pending", label: "Chờ xác nhận" },
-    { key: "pickup", label: "Chờ lấy hàng" },
-    { key: "shipping", label: "Chờ giao hàng" },
-    { key: "delivered", label: "Đã giao" },
-    { key: "return", label: "Trả hàng" },
-    { key: "cancel", label: "Đã hủy" },
+  const [reviewOrder, setReviewOrder] = useState<any | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [openReviewForm, setOpenReviewForm] = useState(false);
+
+  const tabs = [
+    { key: "ALL", label: "Tất cả" },
+    { key: "PENDING", label: "Chờ xác nhận" },
+    { key: "PICKING_UP", label: "Chờ lấy hàng" },
+    { key: "SHIPPING", label: "Chờ giao hàng" },
+    { key: "DELIVERED", label: "Đã giao" },
+    { key: "RETURNED", label: "Trả hàng" },
+    { key: "CANCELLED", label: "Đã hủy" },
   ];
 
-  const loadOrders = async (status: OrderStatus, userId: number) => {
-    const data = await getOrdersByStatus(status, userId);
-    setOrders(data);
+  const statusMap: Record<string, string> = {
+    CREATED: "Chờ xác nhận",
+    PENDING: "Chờ xác nhận",
+    CONFIRMED: "Chờ lấy hàng",
+    PICKING_UP: "Chờ lấy hàng",
+    PROCESSING: "Chờ lấy hàng",
+    PENDING_PAYMENT: "Chờ thanh toán",
+    PAID: "Đã thanh toán",
+    SHIPPING: "Đang giao hàng",
+    COMPLETED: "Đã giao",
+    DELIVERED: "Đã giao",
+    REFUNDED: "Đã hoàn tiền",
+    FAILED: "Thanh toán thất bại",
+    RETURNED: "Trả hàng",
+    CANCELLED: "Đã hủy",
+    UNKNOWN: "Đang cập nhật",
   };
 
+  const statusGroups: Record<string, string[]> = {
+    PENDING: ["CREATED", "PENDING", "PENDING_PAYMENT"],
+    PICKING_UP: ["CONFIRMED", "PROCESSING", "PICKING_UP", "PAID"],
+    SHIPPING: ["SHIPPING"],
+    DELIVERED: ["DELIVERED", "COMPLETED"],
+    RETURNED: ["RETURNED", "REFUNDED", "FAILED"],
+    CANCELLED: ["CANCELLED"],
+  };
+
+  // ================= LOAD ORDERS =================
+const loadOrders = async () => {
+  try {
+    setLoading(true);
+
+    const res = await getMyOrders();
+
+    console.log("RAW API:", res);
+
+    let nextOrders: any[] = [];
+
+    if (Array.isArray(res)) {
+      nextOrders = res;
+    }
+    else if (Array.isArray(res?.result?.content)) {
+      nextOrders = res.result.content;
+    }
+    else if (Array.isArray(res?.result)) {
+      nextOrders = res.result;
+    }
+    else if (Array.isArray(res?.data)) {
+      nextOrders = res.data;
+    }
+    else if (Array.isArray(res?.content)) {
+      nextOrders = res.content;
+    }
+
+    console.log("NEXT ORDERS:", nextOrders);
+
+    setOrders(nextOrders);
+  } catch (error) {
+    console.error("Load orders failed:", error);
+    setOrders([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
   useEffect(() => {
-    if (!user?.user_id) return;
+    const hasToken = Boolean(localStorage.getItem("access_token"));
+    if (!isAuthenticated && !hasToken) return;
 
-    loadOrders(active, user.user_id);
-  }, [user?.user_id, active]);
+    loadOrders();
+  }, [isAuthenticated]);
 
-  const renderActions = (status: OrderStatus) => {
+  // ================= ACTIONS =================
+  const renderActions = (order: any) => {
+    const status = order.status;
+
     switch (status) {
-      case "pending":
-        return <button>Hủy đơn</button>;
-
-      case "pickup":
-      case "shipping":
-        return null;
-
-      case "delivered":
+      case "PENDING":
+      case "CREATED":
+      case "PENDING_PAYMENT":
         return (
           <>
-            <button>Đánh giá</button>
-            <button>Mua lại</button>
-            <button>Trả hàng/Hoàn tiền</button>
+            <button
+              className={styles.cancelBtn}
+              onClick={() => {
+                if (confirm("Bạn có chắc muốn hủy đơn này không?")) {
+                  handleCancelOrder(order.orderId);
+                }
+              }}
+            >
+              Hủy đơn
+            </button>
+
+            <button onClick={() => navigate("/help")}>
+              Liên hệ
+            </button>
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
+            </button>
           </>
         );
 
-      case "return":
-      case "cancel":
-        return <button>Mua lại</button>;
+      case "PICKING_UP":
+      case "CONFIRMED":
+      case "PROCESSING":
+      case "PAID":
+      case "SHIPPING":
+        return (
+          <>
+            <button onClick={() => navigate("/help")}>
+              Liên hệ
+            </button>
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
+            </button>
+          </>
+        );
+
+      case "DELIVERED":
+      case "COMPLETED":
+        return (
+          <>
+            <button onClick={() => setReviewOrder(order)}>
+                 Đánh giá sản phẩm
+            </button>
+
+            {/*}<button>Mua lại</button>*/}
+            <button onClick={() => navigate("/help")}>
+              Liên hệ
+            </button>
+            <button onClick={() => setSelectedOrder(order)}>
+              Xem chi tiết
+            </button>
+          </>
+        );
 
       default:
-        return null;
+        return (
+           <>
+              <button onClick={() => setSelectedOrder(order)}>
+                Xem chi tiết
+              </button>
+
+              <button onClick={() => navigate("/help")}>
+                Liên hệ
+              </button>
+           </>
+        );
     }
   };
 
-  return (
-    <div className="order-page">
-      <div className="order-header">
-        <h3>Đơn mua</h3>
+  // ================= FILTER =================
+  const filteredOrders = useMemo(() => {
+    if (active === "ALL") return orders;
 
-        <div className="order-tabs">
-          {tabs.map((tab) => (
-            <span
-              key={tab.key}
-              className={`tab ${active === tab.key ? "active" : ""}`}
-              onClick={() => setActive(tab.key)}
-            >
-              {tab.label}
-            </span>
-          ))}
+    const group = statusGroups[active] || [active];
+
+    return orders.filter((o) => group.includes(o.status));
+  }, [orders, active]);
+
+    //Xu ly dơn hang ( huy don)
+    const handleCancelOrder = async (id: number) => {
+      try {
+        await cancelOrder(id);
+
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.orderId === id
+              ? { ...o, status: "CANCELLED" }
+              : o
+          )
+        );
+
+        // tự chuyển sang tab Đã hủy
+        setActive("CANCELLED");
+      } catch (error) {
+        console.error("Cancel order failed:", error);
+      }
+    };
+
+    //review
+    const handleReview = (item: ReviewItem) => {
+      console.log("REVIEW ITEM:", item);
+
+      reviewOrderItem(item.orderId!, item.itemId!, {
+        rating,
+        content,
+      });
+    };
+  // ================= UI =================
+  return (
+    <>
+      <div className={styles.orderPage}>
+        <div className={styles.orderHeader}>
+          <h3>Đơn mua</h3>
+
+          <div className={styles.orderTabs}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                className={`${styles.tab} ${
+                  active === tab.key ? styles.active : ""
+                }`}
+                onClick={() => setActive(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.orderBox}>
+          {loading ? (
+            <p className={styles.emptyOrder}>Đang tải đơn hàng...</p>
+          ) : filteredOrders.length === 0 ? (
+            <div className={styles.emptyOrder}>
+              <p>Không có đơn hàng nào</p>
+            </div>
+          ) : (
+            <div className={styles.orderList}>
+              {filteredOrders.map((o, index) => {
+                const firstItem = o.items?.[0];
+
+
+                const orderImage = getOrderItemCoverImage(firstItem);
+
+                const orderTitle =
+                  firstItem?.bookTitle ||
+                  `Đơn hàng #${o.orderId || index + 1}`;
+
+                return (
+                  <div key={o.orderId || index} className={styles.orderItem}>
+                    <span
+                      className={`${styles.shippingStatus} ${
+                        o.status === "SHIPPING"
+                          ? styles.blue
+                          : o.status === "CANCELLED"
+                          ? styles.red
+                          : o.status === "DELIVERED" ||
+                            o.status === "COMPLETED"
+                          ? styles.green
+                          : ""
+                      }`}
+                    >
+                      Trạng thái: {statusMap[o.status] || o.status}
+                    </span>
+
+                    <div className={styles.orderTop}>
+                      {orderImage && <img src={orderImage} alt={orderTitle} />}
+
+                      <div className={styles.orderInfo}>
+                        <h4>{orderTitle}</h4>
+
+                        {firstItem ? (
+                          o.items.length > 1 ? (
+                            <span>
+                              Số lượng: {firstItem.quantity} (+{" "}
+                              {o.items.length - 1} sản phẩm khác)
+                            </span>
+                          ) : (
+                            <span>
+                              Số lượng: {firstItem.quantity}
+                            </span>
+                          )
+                        ) : (
+                          <span>
+                            Đang cập nhật thông tin sản phẩm
+                          </span>
+                        )}
+                      </div>
+
+                      <div className={styles.orderPrice}>
+                        <p>
+                          {(firstItem?.price || 0).toLocaleString()} đ
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className={styles.orderBottom}>
+                      <strong>
+                        Thành tiền:{" "}
+                        <span className={styles.totalPrice}>
+                          {(o.totalAmount || 0).toLocaleString()} đ
+                        </span>
+                      </strong>
+
+                      <div className={styles.orderActions}>
+                        {renderActions(o)}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="order-box">
-        {orders.length === 0 ? (
-          <div>
-            <p>Bạn chưa có đơn hàng nào</p>
-            <button>Mua sắm ngay</button>
-          </div>
-        ) : (
-          <div className="order-list">
-            {orders.map((o) => (
-              <div key={`${o.id}-${o.user_id}`} className="order-item">
-                {/* TOP */}
-                <div className="order-top">
-                  <img src={o.image} alt={o.name} className="order-img" />
+      <OrderModal
+        order={selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+      />
 
-                  <div className="order-info">
-                    <h4>{o.name}</h4>
-                    <span>x{o.quantity}</span>
-                  </div>
+      <ReviewModal
+        order={reviewOrder}
+        onClose={() => setReviewOrder(null)}
+        onReview={(item) => {
+          setSelectedItem(item);
+          setOpenReviewForm(true);
+        }}
+      />
 
-                  <div className="order-price">
-                    <p className="new-price">
-                      {o.price.toLocaleString()}đ
-                    </p>
-                    <p className="old-price">
-                      {(o.price + 30000).toLocaleString()}đ
-                    </p>
-                  </div>
-                </div>
+      {openReviewForm && selectedItem && (
+        <ReviewFormModal
+          item={selectedItem}
+          onClose={() => {
+            setOpenReviewForm(false);
+            setSelectedItem(null);
+          }}
+          onSubmit={async (data) => {
+            if (!selectedItem || !reviewOrder) return;
 
-                {/* BOTTOM */}
-                <div className="order-bottom">
-                  <p>
-                    Tổng tiền:{" "}
-                    <strong>
-                      {(o.price * o.quantity).toLocaleString()}đ
-                    </strong>
-                  </p>
+            await reviewOrderItem(
+              reviewOrder.orderId,
+              selectedItem.bookId,
+              data
+            );
 
-                  <div className="order-actions">
-                    {renderActions(o.status)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+            setReviewOrder((prev: any) => ({
+              ...prev,
+              items: prev.items.map((it: any) =>
+                it.bookId === selectedItem.bookId
+                  ? { ...it, hasReview: true }
+                  : it
+              ),
+            }));
+
+            setOpenReviewForm(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
+    </>
   );
 }
