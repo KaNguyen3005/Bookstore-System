@@ -211,4 +211,37 @@ public class AuthenticationController {
                 .message("Password reset successful")
                 .build();
     }
+
+    @PostMapping("/me/reset-password/init")
+    @Operation(summary = "Gửi OTP đổi mật khẩu cho tài khoản hiện tại",
+            description = "Gửi OTP đến email của người dùng đang đăng nhập. Client không được tự truyền email.",
+            tags = "Authentication")
+    public ApiResponse<Void> sendCurrentUserResetPasswordOtp() {
+        authenticationService.sendOtpToCurrentUserResetPassword();
+        return ApiResponse.<Void>builder()
+                .message("OTP sent to current user's email")
+                .build();
+    }
+
+    @PostMapping("/me/reset-password/verify")
+    @Operation(summary = "Xác minh OTP đổi mật khẩu cho tài khoản hiện tại",
+            description = "Xác minh OTP theo email của người dùng đang đăng nhập và trả về reset token.",
+            tags = "Authentication")
+    public ApiResponse<String> verifyCurrentUserResetPasswordOtp(@RequestBody @Valid VerifyCurrentUserOtpRequest request) {
+        return ApiResponse.<String>builder()
+                .result(authenticationService.verifyCurrentUserResetPasswordOtp(request))
+                .build();
+    }
+
+    @PostMapping("/me/reset-password/complete")
+    @Operation(summary = "Hoàn tất đổi mật khẩu cho tài khoản hiện tại",
+            description = "Đổi mật khẩu cho người dùng đang đăng nhập sau khi OTP hợp lệ.",
+            tags = "Authentication")
+    public ApiResponse<Void> resetCurrentUserPassword(@RequestBody @Valid ResetPasswordRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.resetCurrentUserPassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Password reset successful")
+                .build();
+    }
 }

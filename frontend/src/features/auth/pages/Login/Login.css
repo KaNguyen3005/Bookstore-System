@@ -122,6 +122,7 @@
   font-size: 12px;
   color: rgba(57, 96, 107, 1);
   cursor: pointer;
+  text-decoration: none;
   transition: 0.2s;
 }
 

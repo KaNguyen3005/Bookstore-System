@@ -148,9 +148,7 @@ export const authApi = {
 
       return res?.data ?? res;
     } catch (error: any) {
-      throw new Error(
-        error?.response?.data?.message || "Register init failed"
-      );
+      throw error;
     }
   },
 
@@ -174,10 +172,7 @@ export const authApi = {
       return res?.data ?? res;
 
     } catch (error: any) {
-      throw new Error(
-        error?.response?.data?.message ||
-        "Register complete failed"
-      );
+      throw error;
     }
   },
 

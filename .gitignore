@@ -46,7 +46,7 @@ recommendation-service/**/__pycache__/
 recommendation-service/.pytest_cache/
 recommendation-service/.mypy_cache/
 recommendation-service/.ruff_cache/
-recommendation-service/.ipynb_checkpoints/
+recommendation-service/.ipynb_checkpoints/do
 # Frontend / Node.js
 frontend/node_modules/
 frontend/dist/

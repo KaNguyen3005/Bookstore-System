@@ -70,10 +70,12 @@ INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES
 (1, 26), (1, 27), (1, 28),
 (1, 29), (1, 30), (1, 31),
 (1, 32), (1, 33), (1, 34),
--- STAFF: Order + Book Management + Report
+-- STAFF: Order + Book + Author + Publisher + Report
 (2, 5), (2, 6), (2, 7), (2, 8),    -- Book Management
+(2, 9), (2, 10), (2, 11), (2, 12), -- Author Management
+(2, 13), (2, 14), (2, 15), (2, 16),-- Publisher Management
 (2, 24), (2, 25),                  -- Order Management
-(2, 33), (2, 34),                  -- Dashboard & Report
+(2, 34),                           -- Report
 -- CUSTOMER: Basic permissions
 (3, 6),                            -- READ_BOOK
 (3, 20), (3, 21), (3, 22), (3, 23),-- Address Management

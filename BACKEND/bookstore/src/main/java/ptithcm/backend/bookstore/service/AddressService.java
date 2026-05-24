@@ -65,7 +65,7 @@ public class AddressService {
         return addressMapper.toResponse(addressRepository.save(address));
     }
 
-    public List<AddressResponse> getAll() {
+    public List<AddressResponse> getAll() { 
         UserResponse userResponse = userService.getMyInfo();
 
         User user = userRepository.findById(userResponse.getUserId())

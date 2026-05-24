@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
+import { getPermissionsFromToken } from "../utils/authPermissions";
 
 export interface User {
   userId: number;
@@ -15,6 +16,7 @@ export interface User {
   username: string;
   name: string;
   role: string;
+  permissions?: string[];
   avatarUrl?: string;
   token?: string;
 }
@@ -38,18 +40,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const withTokenPermissions = useCallback((userData: User): User => {
+    const token = userData.token || localStorage.getItem("access_token") || "";
+
+    return {
+      ...userData,
+      permissions: getPermissionsFromToken(token),
+    };
+  }, []);
+
   // ================= UPDATE USER =================
   const updateUser = useCallback((data: Partial<User>) => {
     setUser((prev) => {
       if (!prev) return prev;
 
-      const updated = { ...prev, ...data };
+      const updated = withTokenPermissions({ ...prev, ...data });
 
       localStorage.setItem("user", JSON.stringify(updated));
 
       return updated;
     });
-  }, []);
+  }, [withTokenPermissions]);
 
   // ================= INIT AUTH =================
   useEffect(() => {
@@ -66,14 +77,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         const savedUser = localStorage.getItem("user");
 
         if (savedUser) {
-          setUser(JSON.parse(savedUser));
+          setUser(withTokenPermissions(JSON.parse(savedUser)));
         }
 
         const fetchedUser = await userApi.getMe();
 
         if (fetchedUser) {
-          localStorage.setItem("user", JSON.stringify(fetchedUser));
-          setUser(fetchedUser);
+          const authUser = withTokenPermissions(fetchedUser as User);
+
+          localStorage.setItem("user", JSON.stringify(authUser));
+          setUser(authUser);
         } else {
           clearAuthStorage();
           setUser(null);
@@ -89,18 +102,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     initAuth();
-  }, []);
+  }, [withTokenPermissions]);
 
   // ================= LOGIN =================
   const login = useCallback((userData: User) => {
-    localStorage.setItem("user", JSON.stringify(userData));
-
     if (userData.token) {
       localStorage.setItem("access_token", userData.token);
     }
 
-    setUser(userData);
-  }, []);
+    const authUser = withTokenPermissions(userData);
+
+    localStorage.setItem("user", JSON.stringify(authUser));
+    setUser(authUser);
+  }, [withTokenPermissions]);
 
   // ================= LOGOUT =================
   const logout = useCallback(() => {

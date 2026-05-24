@@ -15,4 +15,5 @@ public class RoleResponse {
     Integer roleId;
     String roleName;
     List<String> permissions;
+    Long userCount;
 }

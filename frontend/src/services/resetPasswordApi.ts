@@ -37,3 +37,29 @@ export const completeResetPassword = async (
 
   return res.data;
 };
+
+export const initMyPasswordReset = async () => {
+  const res = await axiosClient.post("/auth/me/reset-password/init");
+
+  return res.data;
+};
+
+export const verifyMyPasswordResetOtp = async (otp: string) => {
+  const res = await axiosClient.post("/auth/me/reset-password/verify", {
+    otp,
+  });
+
+  return res.data;
+};
+
+export const completeMyPasswordReset = async (
+  resetToken: string,
+  newPassword: string
+) => {
+  const res = await axiosClient.post("/auth/me/reset-password/complete", {
+    resetToken,
+    newPassword,
+  });
+
+  return res.data;
+};

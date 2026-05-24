@@ -1,7 +1,22 @@
 import "./otp.css";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../../../../services/authApi";
+
+const OTP_DURATION = 300;
+const OTP_INCORRECT_MESSAGE = "OTP không đúng";
+
+const getOtpErrorMessage = (err: any, fallback = OTP_INCORRECT_MESSAGE) => {
+  const message =
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    err?.message ||
+    fallback;
+
+  return String(message).toLowerCase().includes("otp not found")
+    ? OTP_INCORRECT_MESSAGE
+    : message;
+};
 
 const OTP = () => {
   const navigate = useNavigate();
@@ -9,64 +24,56 @@ const OTP = () => {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // 5 phút
-  const OTP_DURATION = 300;
   const [timeLeft, setTimeLeft] = useState(OTP_DURATION);
-
-  const email = sessionStorage.getItem("registerEmail");
-
-  const registerPayload = JSON.parse(
-    sessionStorage.getItem("registerPayload") || "{}"
+  const [sendStatus, setSendStatus] = useState(
+    sessionStorage.getItem("registerOtpStatus") || ""
   );
 
-  // ================= COUNTDOWN =================
-useEffect(() => {
+  const email = sessionStorage.getItem("registerEmail");
+  const registerPayload = useMemo(
+    () => JSON.parse(sessionStorage.getItem("registerPayload") || "{}"),
+    []
+  );
 
-  let otpExpireTime =
-    sessionStorage.getItem("otpExpireTime");
+  useEffect(() => {
+    let otpExpireTime = sessionStorage.getItem("otpExpireTime");
 
-  // chưa có thì tạo mới
-  if (!otpExpireTime) {
+    if (!otpExpireTime) {
+      otpExpireTime = String(Date.now() + OTP_DURATION * 1000);
+      sessionStorage.setItem("otpExpireTime", otpExpireTime);
+    }
 
-    const expire =
-      Date.now() + OTP_DURATION * 1000;
+    const updateTimer = () => {
+      const remain = Math.floor((Number(otpExpireTime) - Date.now()) / 1000);
+      setTimeLeft(remain > 0 ? remain : 0);
+    };
 
-    sessionStorage.setItem(
-      "otpExpireTime",
-      String(expire)
-    );
+    updateTimer();
 
-    otpExpireTime = String(expire);
-  }
+    const timer = window.setInterval(updateTimer, 1000);
 
-  const updateTimer = () => {
+    return () => window.clearInterval(timer);
+  }, []);
 
-    const remain =
-      Math.floor(
-        (Number(otpExpireTime) - Date.now()) / 1000
-      );
+  useEffect(() => {
+    const updateOtpStatus = () => {
+      const status = sessionStorage.getItem("registerOtpStatus") || "";
+      const sendError = sessionStorage.getItem("registerOtpError") || "";
 
-    setTimeLeft(remain > 0 ? remain : 0);
-  };
+      setSendStatus(status);
 
-  updateTimer();
+      if (status === "error" && sendError) {
+        setError(getOtpErrorMessage({ message: sendError }));
+      }
+    };
 
-  const timer = setInterval(updateTimer, 1000);
+    updateOtpStatus();
 
-  return () => clearInterval(timer);
+    const timer = window.setInterval(updateOtpStatus, 500);
 
-}, []);
+    return () => window.clearInterval(timer);
+  }, []);
 
-  // ================= FORMAT TIME =================
-  const formatTime = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-
-    return `${m}:${s < 10 ? "0" : ""}${s}`;
-  };
-
-  // ================= SCROLL TOP =================
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -74,7 +81,13 @@ useEffect(() => {
     });
   }, []);
 
-  // ================= SUBMIT =================
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -83,22 +96,23 @@ useEffect(() => {
     setError("");
 
     if (!email) {
-      return setError("Không tìm thấy email đăng ký");
+      setError("Không tìm thấy email đăng ký");
+      return;
     }
 
     if (!otp.trim()) {
-      return setError("Vui lòng nhập OTP");
+      setError("Vui lòng nhập OTP");
+      return;
     }
 
     if (timeLeft <= 0) {
-      return setError("Mã OTP đã hết hạn");
+      setError("Mã OTP đã hết hạn");
+      return;
     }
 
     setLoading(true);
 
     try {
-
-      // ===== VERIFY OTP =====
       const verifyRes: any = await authApi.verifyOtp({
         email,
         otp,
@@ -106,101 +120,64 @@ useEffect(() => {
 
       const verifyData = verifyRes?.data ?? verifyRes;
 
-      console.log("VERIFY OTP:", verifyData);
-
       if (verifyData?.code !== 0) {
-        throw new Error(
-          verifyData?.message || "OTP không hợp lệ"
-        );
+        throw new Error(verifyData?.message || OTP_INCORRECT_MESSAGE);
       }
 
-      // ===== COMPLETE REGISTER =====
-      const res: any = await authApi.registerComplete({
+      await authApi.registerComplete({
         ...registerPayload,
         otp,
       });
 
-      const data = res?.data ?? res;
-
-      console.log("REGISTER COMPLETE:", data);
-
-      // clear session
-      // clear session
       sessionStorage.removeItem("registerEmail");
       sessionStorage.removeItem("registerPayload");
       sessionStorage.removeItem("otpExpireTime");
+      sessionStorage.removeItem("registerOtpStatus");
+      sessionStorage.removeItem("registerOtpError");
 
       navigate("/login");
-
     } catch (err: any) {
-
-      console.log("FULL ERROR:", err);
-
-      setError(
-        err?.response?.data?.message ||
-        err?.message ||
-        "OTP không hợp lệ"
-      );
+      setError(getOtpErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
-const handleResendOtp = async () => {
-  try {
-
+  const handleResendOtp = async () => {
     if (!email) {
-      return setError("Không tìm thấy email");
+      setError("Không tìm thấy email");
+      return;
     }
 
-    setLoading(true);
-    setError("");
+    try {
+      setLoading(true);
+      setError("");
 
-    await authApi.sendOtp(email);
+      await authApi.sendOtp(email);
 
-    // tạo thời gian hết hạn mới
-    const newExpire =
-      Date.now() + OTP_DURATION * 1000;
+      const newExpire = Date.now() + OTP_DURATION * 1000;
+      sessionStorage.setItem("otpExpireTime", String(newExpire));
+      sessionStorage.setItem("registerOtpStatus", "sent");
+      sessionStorage.removeItem("registerOtpError");
 
-    sessionStorage.setItem(
-      "otpExpireTime",
-      String(newExpire)
-    );
+      setSendStatus("sent");
+      setTimeLeft(OTP_DURATION);
+      setOtp("");
+    } catch (err: any) {
+      setError(getOtpErrorMessage(err, "Gửi lại OTP thất bại"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // reset UI
-    setTimeLeft(OTP_DURATION);
-
-    setOtp("");
-
-  } catch (err: any) {
-
-    setError(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Gửi lại OTP thất bại"
-    );
-
-  } finally {
-    setLoading(false);
-  }
-};
   return (
     <div className="otp-page">
       <div className="otp-container">
+        <h1 className="logo-otp">KATIIA BOOKSTORE</h1>
 
-        <h1 className="logo-otp">
-          KATIIA BOOKSTORE
-        </h1>
+        <p className="subtitle">Nhập mã xác nhận</p>
 
-        <p className="subtitle">
-          Nhập mã xác nhận
-        </p>
-
-        <form
-          className="otp-form"
-          onSubmit={handleSubmit}
-        >
-
+        <form className="otp-form" onSubmit={handleSubmit}>
           <input
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
@@ -209,23 +186,20 @@ const handleResendOtp = async () => {
           />
 
           <div className="otp-timer">
-            ⏱ Thời gian còn lại:{" "}
-            <span
-              style={{
-                color: timeLeft < 60
-                  ? "red"
-                  : "green",
-              }}
-            >
+            Thời gian còn lại:{" "}
+            <span style={{ color: timeLeft < 60 ? "red" : "green" }}>
               {formatTime(timeLeft)}
             </span>
           </div>
 
+          {sendStatus === "pending" && (
+            <p className="otp-timer">Đang gửi OTP đến email của bạn...</p>
+          )}
+
           {timeLeft <= 0 && (
             <div className="otp-expired">
-
               <p style={{ color: "red" }}>
-                 OTP đã hết hạn, vui lòng gửi lại mã
+                OTP đã hết hạn, vui lòng gửi lại mã
               </p>
 
               <button
@@ -234,30 +208,17 @@ const handleResendOtp = async () => {
                 onClick={handleResendOtp}
                 disabled={loading}
               >
-                {loading
-                  ? "Đang gửi..."
-                  : "Gửi lại OTP"}
+                {loading ? "Đang gửi..." : "Gửi lại OTP"}
               </button>
-
             </div>
           )}
 
-          {error && (
-            <p className="error-text">
-              {error}
-            </p>
-          )}
+          {error && <p className="error-text">{error}</p>}
 
-          <button
-            disabled={loading || timeLeft <= 0}
-          >
-            {loading
-              ? "Đang xác nhận..."
-              : "Xác nhận"}
+          <button disabled={loading || timeLeft <= 0}>
+            {loading ? "Đang xác nhận..." : "Xác nhận"}
           </button>
-
         </form>
-
       </div>
     </div>
   );

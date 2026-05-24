@@ -2,64 +2,72 @@ import { useEffect, useState } from "react";
 import styles from "./ResetPassword.module.css";
 
 import {
-  initResetPassword,
-  verifyResetOtp,
-  completeResetPassword,
+  initMyPasswordReset,
+  verifyMyPasswordResetOtp,
+  completeMyPasswordReset,
 } from "../../../../services/resetPasswordApi";
+import { useAuth } from "../../../auth/hooks/useAuth";
 
-const OTP_TIME = 5 * 60 * 1000; // 5 phút
-const STORAGE_KEY = "reset_password_otp_expire";
+const OTP_TIME = 5 * 60 * 1000;
+const STORAGE_KEY = "profile_password_otp_expire";
+const OTP_INCORRECT_MESSAGE = "OTP không đúng";
 
 export default function ResetPassword() {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
-
-  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-
   const [resetToken, setResetToken] = useState("");
-
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
-
   const [timeLeft, setTimeLeft] = useState(0);
-
   const [message, setMessage] = useState({
     text: "",
     type: "",
   });
 
-  // FORMAT TIME
-  const formatTime = (ms) => {
+  const email = user?.email || "";
+
+  const formatTime = (ms: number) => {
     const total = Math.floor(ms / 1000);
     const m = Math.floor(total / 60);
     const s = total % 60;
+
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  // BACK STEP
+  const getErrorMessage = (err: any, fallback: string) => {
+    const message =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.message ||
+      fallback;
+
+    return String(message).toLowerCase().includes("otp not found")
+      ? OTP_INCORRECT_MESSAGE
+      : message;
+  };
+
   const handleBack = () => {
     setStep((prev) => Math.max(prev - 1, 1));
     setMessage({ text: "", type: "" });
   };
 
-  // SEND EMAIL
   const handleSendEmail = async () => {
     try {
       setLoading(true);
       setMessage({ text: "", type: "" });
 
-      await initResetPassword(email);
-
-      // set expire time (5 phút)
       const expireTime = Date.now() + OTP_TIME;
-      localStorage.setItem(STORAGE_KEY, expireTime);
+      localStorage.setItem(STORAGE_KEY, String(expireTime));
 
+      setOtp("");
       setStep(2);
+
+      await initMyPasswordReset();
     } catch (err) {
       setMessage({
-        text: err?.response?.data?.message || "Lỗi gửi email",
+        text: getErrorMessage(err, "Không thể gửi OTP"),
         type: "error",
       });
     } finally {
@@ -67,19 +75,18 @@ export default function ResetPassword() {
     }
   };
 
-  // VERIFY OTP
   const handleVerifyOtp = async () => {
     try {
       setLoading(true);
       setMessage({ text: "", type: "" });
 
-      const res = await verifyResetOtp(email, otp);
+      const res = await verifyMyPasswordResetOtp(otp.trim());
       setResetToken(res?.result);
 
       setStep(3);
     } catch (err) {
       setMessage({
-        text: err?.response?.data?.message || "OTP không hợp lệ",
+        text: getErrorMessage(err, "OTP không hợp lệ"),
         type: "error",
       });
     } finally {
@@ -87,7 +94,6 @@ export default function ResetPassword() {
     }
   };
 
-  // RESET PASSWORD
   const handleResetPassword = async () => {
     if (newPassword !== confirmPassword) {
       setMessage({
@@ -101,17 +107,22 @@ export default function ResetPassword() {
       setLoading(true);
       setMessage({ text: "", type: "" });
 
-      await completeResetPassword(resetToken, newPassword);
+      await completeMyPasswordReset(resetToken, newPassword);
 
       localStorage.removeItem(STORAGE_KEY);
+      setOtp("");
+      setResetToken("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setStep(1);
 
       setMessage({
-        text: "Đổi mật khẩu thành công 🎉",
+        text: "Đổi mật khẩu thành công",
         type: "success",
       });
     } catch (err) {
       setMessage({
-        text: err?.response?.data?.message || "Lỗi đặt lại mật khẩu",
+        text: getErrorMessage(err, "Không thể đổi mật khẩu"),
         type: "error",
       });
     } finally {
@@ -119,11 +130,10 @@ export default function ResetPassword() {
     }
   };
 
-  // TIMER (F5 KHÔNG MẤT)
   useEffect(() => {
     if (step !== 2) return;
 
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       const expireTime = Number(localStorage.getItem(STORAGE_KEY));
 
       if (!expireTime) return;
@@ -140,16 +150,19 @@ export default function ResetPassword() {
       }
 
       setTimeLeft(diff);
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
+    updateTimer();
+
+    const interval = window.setInterval(updateTimer, 1000);
+
+    return () => window.clearInterval(interval);
   }, [step]);
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Đổi mật khẩu</h2>
 
-      {/* MESSAGE */}
       {message.text && (
         <p
           className={styles.message}
@@ -161,56 +174,53 @@ export default function ResetPassword() {
         </p>
       )}
 
-      {/* STEP 1 */}
       {step === 1 && (
         <div className={styles.box}>
+          <label className={styles.label}>Email nhận OTP</label>
           <input
-            className={styles.input}
-            placeholder="Nhập email"
+            className={`${styles.input} ${styles.readonly}`}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            readOnly
           />
 
           <button
             className={styles.button}
             onClick={handleSendEmail}
-            disabled={loading}
+            disabled={loading || !email}
           >
             Gửi OTP
           </button>
         </div>
       )}
 
-      {/* STEP 2 */}
       {step === 2 && (
         <div className={styles.box}>
           <input
             className={styles.input}
             placeholder="Nhập OTP"
             value={otp}
-            onChange={(e) => setOtp(e.target.value)}
+            maxLength={6}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
           />
 
-          {/* TIMER */}
-          <p style={{ fontSize: "13px", color: "#6b7280" }}>
+          <p className={styles.timer}>
             OTP hết hạn sau: <b>{formatTime(timeLeft)}</b>
           </p>
 
           <button
             className={styles.button}
             onClick={handleVerifyOtp}
-            disabled={loading || timeLeft <= 0}
+            disabled={loading || timeLeft <= 0 || otp.length !== 6}
           >
             Xác minh
           </button>
 
           <button className={styles.backButton} onClick={handleBack}>
-            ← Quay lại
+            Quay lại
           </button>
         </div>
       )}
 
-      {/* STEP 3 */}
       {step === 3 && (
         <div className={styles.box}>
           <input
@@ -232,13 +242,13 @@ export default function ResetPassword() {
           <button
             className={styles.button}
             onClick={handleResetPassword}
-            disabled={loading}
+            disabled={loading || !resetToken || !newPassword}
           >
             Đổi mật khẩu
           </button>
 
           <button className={styles.backButton} onClick={handleBack}>
-            ← Quay lại
+            Quay lại
           </button>
         </div>
       )}

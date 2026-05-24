@@ -19,6 +19,9 @@ const getRoleBadge = (role: RoleItem) => {
   return "Tùy chỉnh";
 };
 
+const isPermissionProtectedRole = (role: RoleItem) =>
+  ["ADMIN", "CUSTOMER", "USER"].includes(role.roleName.trim().toUpperCase());
+
 export const RoleTable = ({
   roles,
   loading,
@@ -94,7 +97,7 @@ export const RoleTable = ({
                       type="button"
                       className="role-mgmt__icon-btn"
                       onClick={() => onEdit(role)}
-                      disabled={actionLoading}
+                      disabled={actionLoading || isPermissionProtectedRole(role)}
                       title="Chỉnh sửa vai trò"
                       aria-label={`Chỉnh sửa vai trò ${role.roleName}`}
                     >

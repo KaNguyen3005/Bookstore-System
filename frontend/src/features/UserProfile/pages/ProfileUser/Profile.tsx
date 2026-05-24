@@ -13,19 +13,18 @@ type User = {
   name?: string;
   email?: string;
   phone?: string;
+  dob?: Date | string | null;
+  gender?: string;
   role?: string;
   avatarUrl?: string;
 };
 
+type EditableProfileField = "name" | "phone" | "dob";
+
 export default function Profile() {
-  const { user: authUser } = useAuth();
+  const { user: authUser, updateUser } = useAuth();
   const [user, setUser] = useState<User | null>(() => authUser);
-  const [edit, setEdit] = useState(false);
 
-  const [avatar, setAvatar] = useState("");
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-
-  // ================= FETCH USER =================
   useEffect(() => {
     let isMounted = true;
 
@@ -33,19 +32,14 @@ export default function Profile() {
       try {
         if (authUser) {
           setUser((prev) => prev ?? authUser);
-          setAvatar((prev) => prev || authUser.avatarUrl || "");
         }
 
-        const res = await userApi.getMe();
-        const data = res?.data ?? res;
-
-        console.log("PROFILE USER:", data);
+        const data = await userApi.getMe();
 
         if (!isMounted) return;
 
         if (data) {
           setUser(data);
-          setAvatar(data?.avatarUrl || "");
           return;
         }
 
@@ -68,104 +62,31 @@ export default function Profile() {
     };
   }, [authUser]);
 
-  // ================= CLEAN OBJECT URL =================
-  useEffect(() => {
-    return () => {
-      if (avatar.startsWith("blob:")) {
-        URL.revokeObjectURL(avatar);
-      }
-    };
-  }, [avatar]);
-
-  // ================= HANDLE AVATAR =================
-  const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
-
-    if (!validTypes.includes(file.type)) {
-      alert("Chỉ chấp nhận file JPG, PNG!");
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Ảnh phải nhỏ hơn 2MB!");
-      return;
-    }
-
-    const preview = URL.createObjectURL(file);
-
-    setAvatar(preview);
-    setAvatarFile(file);
-
-    e.target.value = "";
-  };
-
-  // ================= HANDLE CHANGE =================
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+  const handleSaveField = async (
+    field: EditableProfileField,
+    value: string
   ) => {
-    const { name, value } = e.target;
+    if (!user) return null;
 
-    setUser((prev) =>
-      prev
-        ? {
-            ...prev,
-            [name]: value,
-          }
-        : prev
-    );
+    const updated = await userApi.updateMe({
+      [field]: value,
+    });
+
+    setUser(updated);
+
+    updateUser({
+      name: updated.name,
+      phone: updated.phone,
+      avatarUrl: updated.avatarUrl,
+    });
+
+    return updated;
   };
 
-  // ================= HANDLE SAVE =================
-  const handleSave = async () => {
-    try {
-      if (!user) return;
-
-      let avatarUrl = user.avatarUrl;
-
-      // upload avatar nếu có
-      if (avatarFile) {
-        const formData = new FormData();
-        formData.append("file", avatarFile);
-
-        const uploadRes = await userApi.uploadAvatar(formData);
-        const uploadData = uploadRes?.data ?? uploadRes;
-
-        avatarUrl = uploadData.url;
-      }
-
-      // loại bỏ file khỏi payload
-      const { ...cleanUser } = user;
-
-      const updatedPayload = {
-        ...cleanUser,
-        avatarUrl,
-      };
-
-      const res = await userApi.updateMe(updatedPayload);
-      const updated = res?.data ?? res;
-
-      setUser(updated);
-      setAvatar(updated.avatarUrl || "");
-      setAvatarFile(null);
-
-      setEdit(false);
-
-      alert("Đã lưu thông tin");
-    } catch (err) {
-      console.error("SAVE ERROR:", err);
-      alert("Có lỗi xảy ra");
-    }
-  };
-
-  // ================= LOADING =================
   if (!user) {
     return <p>Loading...</p>;
   }
 
-  // ================= RENDER =================
   return (
     <div className="account-page">
       <Sidebar />
@@ -174,12 +95,7 @@ export default function Profile() {
         <Outlet
           context={{
             user,
-            edit,
-            setEdit,
-            avatar,
-            handleAvatar,
-            handleChange,
-            handleSave,
+            handleSaveField,
           }}
         />
       </div>

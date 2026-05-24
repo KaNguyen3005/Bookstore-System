@@ -108,6 +108,18 @@
   transition: opacity 0.3s;
 }
 
+.card-name-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.card-name-content span {
+  overflow-wrap: anywhere;
+}
+
 /* hover */
 .menu-admin li a.card-name:hover {
   background: rgba(217, 217, 217, 1);

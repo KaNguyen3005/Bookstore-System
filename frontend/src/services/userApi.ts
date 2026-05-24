@@ -14,7 +14,7 @@ export interface UserFE {
   phone: string;
   point: number;
   avatarUrl?: string;
-  dob: Date | string;
+  dob: Date | string | null;
   status?: boolean;
   gender: string;
   role: string;
@@ -57,7 +57,7 @@ export type UpdateUserPayload = {
   email?: string;
   phone?: string;
   gender?: string;
-  dob?: Date | string;
+  dob?: Date | string | null;
   status?: boolean;
   roleId?: number;
   point?: number;
@@ -117,12 +117,22 @@ const toUsersResponse = (data: any): UsersResponse => {
 
 const getUserPayload = (data: any) => data?.result ?? data?.data ?? data;
 
-const formatDatePayload = (date?: Date | string) => {
+const formatDatePayload = (date?: Date | string | null) => {
   if (!date) return undefined;
   if (typeof date === "string") return date;
   if (Number.isNaN(date.getTime())) return undefined;
 
   return date.toISOString().slice(0, 10);
+};
+
+const parseOptionalDate = (value: any) => {
+  const rawDate = value?.dob ?? value?.birth;
+
+  if (!rawDate) return null;
+
+  const date = new Date(rawDate);
+
+  return Number.isNaN(date.getTime()) ? null : date;
 };
 
 const mapToFE = (u: any = {}): UserFE => {
@@ -145,7 +155,7 @@ const mapToFE = (u: any = {}): UserFE => {
     phone: clean(u.phone) ?? "",
     point: Number(u.point ?? 0),
     avatarUrl: u.avatarUrl ?? u.avatar_url,
-    dob: u.dob || u.birth ? new Date(u.dob ?? u.birth) : new Date(),
+    dob: parseOptionalDate(u),
     status: getStatusBoolean(u.status ?? u.active ?? u.enabled ?? u.isActive),
     gender: getGenderCode(u.gender),
     role: getRoleName(u.role ?? u.roleName ?? u.role_id),

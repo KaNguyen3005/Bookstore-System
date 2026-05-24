@@ -33,7 +33,7 @@ const genderLabel: Record<string, string> = {
   OTHER: "Khác",
 };
 
-const formatDob = (dob?: Date | string) => {
+const formatDob = (dob?: Date | string | null) => {
   if (!dob) return "Chưa cập nhật";
 
   const parsedDate = typeof dob === "string" ? new Date(dob) : dob;

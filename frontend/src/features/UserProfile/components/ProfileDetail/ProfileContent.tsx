@@ -11,53 +11,111 @@ import {
   calculateAge,
 } from "./utils/profileUtils";
 
+type EditableField = "name" | "phone" | "dob";
+
 export default function ProfileContent() {
   const {
     user,
-    edit,
-    setEdit,
-    avatar,
-    handleAvatar,
-    handleChange,
-    handleSave,
+    handleSaveField,
   }: any = useOutletContext();
 
   const [showPhone, setShowPhone] = useState(false);
   const [errors, setErrors] = useState<any>({});
+  const [editingField, setEditingField] = useState<EditableField | null>(null);
+  const [draftValue, setDraftValue] = useState("");
+  const [savingField, setSavingField] = useState<EditableField | null>(null);
 
   if (!user) return <p>Loading...</p>;
 
-  const validate = () => {
-    const err: any = {};
+  const getFieldValue = (field: EditableField) => {
+    if (field === "dob") return normalizeDob(user.dob);
 
-    if (!user.name?.trim())
-      err.name = "Vui lòng nhập họ tên";
-
-    if (!user.phone?.trim())
-      err.phone = "Vui lòng nhập số điện thoại";
-
-    if (!user.dob) err.dob = "Vui lòng nhập ngày sinh";
-    else {
-      const age = calculateAge(normalizeDob(user.dob));
-      if (age < 15)
-        err.dob = "Bạn phải từ 15 tuổi trở lên";
-    }
-
-    setErrors(err);
-    return Object.keys(err).length === 0;
+    return user[field] || "";
   };
 
-  const handleSaveClick = async () => {
-    if (!validate()) return;
+  const validateField = (field: EditableField, value: string) => {
+    const nextErrors = { ...errors };
+    const normalizedValue = value.trim();
 
-    const payload = {
-      ...user,
-      dob: normalizeDob(user.dob),
-      avatar,
-    };
+    delete nextErrors[field];
 
-    await handleSave(payload);
-    setEdit(false);
+    if (field === "name" && !normalizedValue) {
+      nextErrors.name = "Vui lòng nhập họ tên";
+    }
+
+    if (field === "phone") {
+      if (!normalizedValue) {
+        nextErrors.phone = "Vui lòng nhập số điện thoại";
+      } else if (!/^0(3|5|7|8|9)\d{8}$/.test(normalizedValue)) {
+        nextErrors.phone = "Số điện thoại không hợp lệ";
+      }
+    }
+
+    if (field === "dob") {
+      if (!normalizedValue) {
+        nextErrors.dob = "Vui lòng nhập ngày sinh";
+      } else {
+        const age = calculateAge(normalizedValue);
+
+        if (age < 15) {
+          nextErrors.dob = "Bạn phải từ 15 tuổi trở lên";
+        }
+      }
+    }
+
+    setErrors(nextErrors);
+    return !nextErrors[field];
+  };
+
+  const handleEditField = (field: EditableField) => {
+    setEditingField(field);
+    setDraftValue(getFieldValue(field));
+    setErrors((prev: any) => {
+      const next = { ...prev };
+      delete next[field];
+
+      return next;
+    });
+  };
+
+  const handleCancelField = () => {
+    const field = editingField;
+
+    setEditingField(null);
+    setDraftValue("");
+
+    if (field) {
+      setErrors((prev: any) => {
+        const next = { ...prev };
+        delete next[field];
+
+        return next;
+      });
+    }
+  };
+
+  const handleSaveCurrentField = async () => {
+    if (!editingField || savingField) return;
+
+    const normalizedValue =
+      editingField === "dob" ? draftValue : draftValue.trim();
+
+    if (!validateField(editingField, normalizedValue)) return;
+
+    try {
+      setSavingField(editingField);
+      await handleSaveField(editingField, normalizedValue);
+      setEditingField(null);
+      setDraftValue("");
+    } catch (error) {
+      console.error("SAVE PROFILE FIELD ERROR:", error);
+      setErrors((prev: any) => ({
+        ...prev,
+        [editingField]: "Không thể lưu thay đổi",
+      }));
+    } finally {
+      setSavingField(null);
+    }
   };
 
   return (
@@ -65,34 +123,21 @@ export default function ProfileContent() {
       <h2 className={styles.title}>Hồ sơ cá nhân</h2>
 
       <div className={styles.profileContainer}>
-        <AvatarSection
-          avatar={avatar}
-          user={user}
-          handleAvatar={handleAvatar}
-        />
+        <AvatarSection />
 
         <ProfileForm
           user={user}
-          edit={edit}
           errors={errors}
+          editingField={editingField}
+          draftValue={draftValue}
+          savingField={savingField}
           showPhone={showPhone}
           setShowPhone={setShowPhone}
-          handleChange={handleChange}
+          onDraftChange={setDraftValue}
+          onEditField={handleEditField}
+          onCancelField={handleCancelField}
+          onSaveField={handleSaveCurrentField}
         />
-      </div>
-
-      <div className={styles.buttonWrapper}>
-        <div className={styles.btnGroup}>
-            <button className={styles.cancelBtn} onClick={() => setEdit(!edit)}>
-              {edit ? "Hủy" : "Sửa"}
-            </button>
-
-            {edit && (
-              <button className={styles.saveBtn} onClick={handleSaveClick}>
-                 Lưu
-              </button> )}
-        </div>
-
       </div>
 
       <MemberInfo user={user} />

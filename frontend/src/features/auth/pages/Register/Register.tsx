@@ -4,8 +4,39 @@ import { useState } from "react";
 import { authApi } from "../../../../services/authApi";
 import logo from "../../../../assets/images/logo-auth.png";
 
+type RegisterErrors = Partial<Record<
+  | "username"
+  | "firstName"
+  | "lastName"
+  | "birth"
+  | "gender"
+  | "email"
+  | "password"
+  | "confirmPassword"
+  | "phone",
+  string
+>>;
+
+const genderMap: Record<string, string> = {
+  male: "MALE",
+  female: "FEMALE",
+  other: "OTHER",
+  MALE: "MALE",
+  FEMALE: "FEMALE",
+  OTHER: "OTHER",
+};
+
+const getRegisterErrorMessage = (error: any) =>
+  error?.response?.data?.message ||
+  error?.message ||
+  "Đăng ký thất bại";
+
 const Register = () => {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const years = Array.from({ length: 80 }, (_, i) => currentYear - i);
 
   const [form, setForm] = useState({
     username: "",
@@ -20,27 +51,29 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<RegisterErrors>({});
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState("");
 
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
-
-    const currentYear = new Date().getFullYear();
-
-    const years = Array.from(
-      { length: 80 },
-      (_, i) => currentYear - i
-    );
-
-  // VALIDATE
   const validate = () => {
-    const err: any = {};
+    const err: RegisterErrors = {};
+    const username = form.username.trim();
+    const firstName = form.firstName.trim();
+    const lastName = form.lastName.trim();
+    const fullName = `${firstName} ${lastName}`.trim();
+    const email = form.email.trim();
 
-    if (!form.username.trim()) err.username = "Vui lòng nhập tên đăng nhập";
-    if (!form.firstName.trim()) err.firstName = "Vui lòng nhập họ";
-    if (!form.lastName.trim()) err.lastName = "Vui lòng nhập tên";
+    if (!username) {
+      err.username = "Vui lòng nhập tên đăng nhập";
+    } else if (!/^[a-zA-Z0-9_]{3,255}$/.test(username)) {
+      err.username = "Tên đăng nhập chỉ gồm chữ, số, dấu _ và tối thiểu 3 ký tự";
+    }
+
+    if (!firstName) err.firstName = "Vui lòng nhập họ";
+    if (!lastName) err.lastName = "Vui lòng nhập tên";
+    if (fullName && fullName.length < 6) {
+      err.lastName = "Họ và tên phải có tối thiểu 6 ký tự";
+    }
 
     if (!form.day || !form.month || !form.year) {
       err.birth = "Vui lòng chọn ngày sinh";
@@ -50,13 +83,14 @@ const Register = () => {
         Number(form.month) - 1,
         Number(form.day)
       );
-
       const today = new Date();
-
       let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
 
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
         age--;
       }
 
@@ -67,110 +101,90 @@ const Register = () => {
 
     if (!form.gender) err.gender = "Vui lòng chọn giới tính";
 
-    if (!form.email.trim()) err.email = "Vui lòng nhập email";
+    if (!email) {
+      err.email = "Vui lòng nhập email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      err.email = "Email không hợp lệ";
+    }
 
-    if (!form.password) err.password = "Vui lòng nhập mật khẩu";
+    if (!form.password) {
+      err.password = "Vui lòng nhập mật khẩu";
+    } else if (form.password.length < 6) {
+      err.password = "Mật khẩu phải có tối thiểu 6 ký tự";
+    }
 
-    if (form.password !== form.confirmPassword)
+    if (form.password !== form.confirmPassword) {
       err.confirmPassword = "Mật khẩu không khớp";
+    }
 
     setErrors(err);
     return Object.keys(err).length === 0;
   };
 
-  //  REGISTER INIT
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
 
+    setGlobalError("");
     if (!validate()) return;
 
     setLoading(true);
     setErrors({});
-    setGlobalError("");
-
-    try {
-      const dob = `${form.year}-${String(form.month).padStart(2, "0")}-${String(
-        form.day
-      ).padStart(2, "0")}`;
-
-    const genderMap: any = {
-      male: "MALE",
-      female: "FEMALE",
-      other: "OTHER",
-      MALE: "MALE",
-      FEMALE: "FEMALE",
-      OTHER: "OTHER",
-    };
 
     const now = new Date();
+    const dob = `${form.year}-${String(form.month).padStart(2, "0")}-${String(
+      form.day
+    ).padStart(2, "0")}T${String(now.getHours()).padStart(2, "0")}:${String(
+      now.getMinutes()
+    ).padStart(2, "0")}`;
 
     const payload = {
-      email: form.email,
+      email: form.email.trim(),
       password: form.password,
-      username: form.username,
-      name: `${form.firstName} ${form.lastName}`.trim(),
+      username: form.username.trim(),
+      name: `${form.firstName.trim()} ${form.lastName.trim()}`.trim(),
       phone: "+84008938116",
       gender: genderMap[form.gender] || "OTHER",
-
-      dob: `${form.year}-${String(form.month).padStart(2, "0")}-${String(form.day).padStart(2, "0")}T${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`
+      dob,
     };
 
-      //  CALL REGISTER INIT
-      console.log("REGISTER PAYLOAD:", payload);
-      console.log("FINAL GENDER:", payload.gender);
-
-    await authApi.registerInit(payload);
-
-    //await authApi.sendOtp(form.email);
-
-    // lưu payload đầy đủ
-    sessionStorage.setItem(
-      "registerPayload",
-      JSON.stringify(payload)
-    );
-
-    sessionStorage.setItem("registerEmail", form.email);
+    sessionStorage.setItem("registerPayload", JSON.stringify(payload));
+    sessionStorage.setItem("registerEmail", payload.email);
+    sessionStorage.setItem("registerOtpStatus", "pending");
+    sessionStorage.removeItem("registerOtpError");
 
     navigate("/otp");
 
-    } catch (err: any) {
-      console.log("REGISTER ERROR:", err);
-
-      const msg =
-        err?.response?.data?.message || "Đăng ký thất bại";
-
-      setGlobalError(msg);
-
-      const lower = msg.toLowerCase();
-
-      if (lower.includes("email")) {
-        setErrors((p: any) => ({ ...p, email: msg }));
-      } else if (lower.includes("username")) {
-        setErrors((p: any) => ({ ...p, username: msg }));
-      }
-    } finally {
-      setLoading(false);
-    }
+    authApi
+      .registerInit(payload)
+      .then(() => {
+        sessionStorage.setItem("registerOtpStatus", "sent");
+      })
+      .catch((error: any) => {
+        sessionStorage.setItem("registerOtpStatus", "error");
+        sessionStorage.setItem("registerOtpError", getRegisterErrorMessage(error));
+      });
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev: any) => ({ ...prev, [field]: "" }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+
+    if (field === "day" || field === "month" || field === "year") {
+      setErrors((prev) => ({ ...prev, birth: "" }));
+    }
+
+    setGlobalError("");
   };
 
   return (
     <div className="register-page">
       <div className="register-container">
-
         <img src={logo} alt="KATIIA BOOKSTORE" className="logo-img-auth-re" />
         <p className="subtitle">Đăng ký tài khoản</p>
 
-        {globalError && (
-          <div className="error-message">{globalError}</div>
-        )}
+        {globalError && <div className="error-message">{globalError}</div>}
 
         <form className="register-form" onSubmit={handleRegister}>
-
           <label>Tên đăng nhập</label>
           <input
             className={`full input ${errors.username ? "error" : ""}`}
@@ -204,27 +218,33 @@ const Register = () => {
 
           <label>Ngày sinh</label>
           <div className="birth-row">
-            <select value={form.day}
-              onChange={(e) => handleChange("day", e.target.value)}>
+            <select
+              value={form.day}
+              onChange={(e) => handleChange("day", e.target.value)}
+            >
               <option value="">Ngày</option>
-              {days.map((d) => (
-                <option key={d}>{d}</option>
+              {days.map((day) => (
+                <option key={day}>{day}</option>
               ))}
             </select>
 
-            <select value={form.month}
-              onChange={(e) => handleChange("month", e.target.value)}>
+            <select
+              value={form.month}
+              onChange={(e) => handleChange("month", e.target.value)}
+            >
               <option value="">Tháng</option>
-              {months.map((m) => (
-                <option key={m}>{m}</option>
+              {months.map((month) => (
+                <option key={month}>{month}</option>
               ))}
             </select>
 
-            <select value={form.year}
-              onChange={(e) => handleChange("year", e.target.value)}>
+            <select
+              value={form.year}
+              onChange={(e) => handleChange("year", e.target.value)}
+            >
               <option value="">Năm</option>
-              {years.map((y) => (
-                <option key={y}>{y}</option>
+              {years.map((year) => (
+                <option key={year}>{year}</option>
               ))}
             </select>
           </div>
@@ -233,13 +253,13 @@ const Register = () => {
           <select
             value={form.gender}
             onChange={(e) => handleChange("gender", e.target.value)}
+            className={errors.gender ? "error" : ""}
           >
             <option value="">Giới tính</option>
             <option value="MALE">Nam</option>
             <option value="FEMALE">Nữ</option>
             <option value="OTHER">Khác</option>
           </select>
-
           <p className="error-text">{errors.gender}</p>
 
           <label>Email</label>
@@ -271,13 +291,11 @@ const Register = () => {
           <button type="submit" disabled={loading}>
             {loading ? "Đang xử lý..." : "Đăng ký tài khoản"}
           </button>
-
         </form>
 
         <p className="ask-register">
           Đã có tài khoản? <Link to="/login">đăng nhập ngay</Link>
         </p>
-
       </div>
     </div>
   );

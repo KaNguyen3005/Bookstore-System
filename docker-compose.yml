@@ -15,6 +15,9 @@ services:
 
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./backend/bookstore/src/main/resources/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./backend/bookstore/src/main/resources/seed_db_bookstore_v2_vietnamese.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ./infra/mysql/docker-app-grants.sql:/docker-entrypoint-initdb.d/99-app-grants.sql:ro
 
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
@@ -61,7 +64,23 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
       SPRING_DATASOURCE_USERNAME: app
       SPRING_DATASOURCE_PASSWORD: app
+      SPRING_SQL_INIT_MODE: never
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       RECOMMENDATION_SERVICE_URL: http://recommendation-service:8000
+    networks:
+      - bookstore-network
+
+  frontend:
+    image: morex3/bookstore-frontend:latest
+    container_name: frontend-dev
+
+    ports:
+      - "3000:80"
+
+    depends_on:
+      backend:
+        condition: service_started
+
     networks:
       - bookstore-network
 

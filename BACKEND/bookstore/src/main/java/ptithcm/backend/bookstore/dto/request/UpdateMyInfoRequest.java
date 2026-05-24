@@ -1,7 +1,6 @@
 package ptithcm.backend.bookstore.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -33,7 +32,6 @@ public class UpdateMyInfoRequest {
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate dob;
 
-    @NotBlank(message = "INVALID_USERNAME")
     @Size(min = 3, max = 255, message = "INVALID_USERNAME")
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "INVALID_USERNAME")
     String username;

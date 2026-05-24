@@ -30,7 +30,7 @@ public class OtpStoreService {
         OtpData data = otpStorage.get(email);
 
         if (data == null) {
-            throw new AppException(ErrorCode.OTP_NOT_FOUND);
+            throw new AppException(ErrorCode.OTP_INVALID);
         }
 
         if (LocalDateTime.now().isAfter(data.expiredAt())) {

@@ -80,6 +80,7 @@ public enum ErrorCode {
     INVALID_PARENT_ID(6003, "Parent category not found", HttpStatus.BAD_REQUEST),
     // ===== ROLE (61xx) =====
     ROLE_NOT_FOUND(6101, "Role not found", HttpStatus.NOT_FOUND),
+    SYSTEM_ROLE_PROTECTED(6102, "System role cannot be changed or deleted", HttpStatus.BAD_REQUEST),
     // ===== PERMISSION (62xx) =====
     PERMISSION_NOT_FOUND(6201, "Permission not found", HttpStatus.NOT_FOUND),
     // ===== FILE (7xxx) =====
@@ -128,9 +129,9 @@ public enum ErrorCode {
     // ===== CART (9xxx) =====
     INVALID_QUANTITY(9001, "Quantity must be between {min} and {max}", HttpStatus.BAD_REQUEST),
     // ===== OTP (91xx) =====
-    OTP_NOT_FOUND(9101, "OTP not found", HttpStatus.NOT_FOUND),
+    OTP_NOT_FOUND(9101, "OTP không đúng", HttpStatus.BAD_REQUEST),
     OTP_EXPIRED(9102, "OTP has expired", HttpStatus.BAD_REQUEST),
-    OTP_INVALID(9103, "Invalid OTP", HttpStatus.BAD_REQUEST),
+    OTP_INVALID(9103, "OTP không đúng", HttpStatus.BAD_REQUEST),
     // ===== FILE (92xx) =====
     INVALID_FILE(9201, "Invalid file", HttpStatus.BAD_REQUEST),
     FILE_NOT_FOUND(9202, "File not found", HttpStatus.NOT_FOUND),

@@ -27,8 +27,21 @@ const systemRoleNames = new Set([
   "USER",
 ]);
 
-const assignableRoleNames = new Set(["STAFF"]);
-const internalRoleNames = new Set(["ADMIN", "STAFF"]);
+const customerRoleNames = new Set(["CUSTOMER", "USER"]);
+const assignmentBlockedRoleNames = new Set(["ADMIN", "CUSTOMER", "USER"]);
+const permissionProtectedRoleNames = new Set(["ADMIN", "CUSTOMER", "USER"]);
+
+const isCustomerRole = (roleName?: string) =>
+  customerRoleNames.has(normalizeText(roleName));
+
+const isProtectedSystemRole = (roleName?: string) =>
+  systemRoleNames.has(normalizeText(roleName));
+
+const isAssignmentBlockedRole = (roleName?: string) =>
+  assignmentBlockedRoleNames.has(normalizeText(roleName));
+
+const isPermissionProtectedRole = (roleName?: string) =>
+  permissionProtectedRoleNames.has(normalizeText(roleName));
 
 const roleDescriptions: Record<string, string> = {
   ADMIN: "Quản trị viên với quyền vận hành hệ thống",
@@ -126,9 +139,15 @@ const toRoleItem = (
   const roleId = toRoleId(role);
   const permissionNames = (role.permissions ?? []).map(getPermissionName);
   const permissionIds = toPermissionIds(role, permissions);
-  const userCount = users.filter(
-    (user) => normalizeText(user.roleName) === normalizedRoleName
-  ).length;
+  const responseUserCount = Number(role.userCount);
+  const userCount =
+    Number.isFinite(responseUserCount) && responseUserCount >= 0
+      ? responseUserCount
+      : users.filter(
+          (user) =>
+            (roleId && user.roleId === roleId) ||
+            normalizeText(user.roleName) === normalizedRoleName
+        ).length;
 
   return {
     clientId: String(roleId ?? `${normalizedRoleName}-${index}`),
@@ -143,7 +162,7 @@ const toRoleItem = (
     userCount,
     createdAt: role.createdAt,
     updatedAt: role.updatedAt,
-    isSystemRole: systemRoleNames.has(normalizedRoleName),
+    isSystemRole: isProtectedSystemRole(normalizedRoleName),
   };
 };
 
@@ -324,13 +343,13 @@ export const useRoleManagement = () => {
 
   const filteredUsers = useMemo(() => {
     const searchValue = keyword.trim().toLowerCase();
-    const internalUsers = users.filter((user) =>
-      internalRoleNames.has(normalizeText(user.roleName))
+    const manageableUsers = users.filter(
+      (user) => !isAssignmentBlockedRole(user.roleName)
     );
 
-    if (!searchValue) return internalUsers;
+    if (!searchValue) return manageableUsers;
 
-    return internalUsers.filter((user) =>
+    return manageableUsers.filter((user) =>
       [user.username, user.name, user.email, user.roleName].some((field) =>
         field.toLowerCase().includes(searchValue)
       )
@@ -341,7 +360,7 @@ export const useRoleManagement = () => {
     () =>
       roles
         .filter((role) => role.roleId)
-        .filter((role) => assignableRoleNames.has(normalizeText(role.roleName)))
+        .filter((role) => !isAssignmentBlockedRole(role.roleName))
         .map((role) => ({
           roleId: role.roleId as number,
           roleName: role.roleName,
@@ -357,6 +376,11 @@ export const useRoleManagement = () => {
   }, []);
 
   const openEditModal = useCallback((role: RoleItem) => {
+    if (isPermissionProtectedRole(role.roleName)) {
+      alert("Không thể thay đổi quyền của vai trò admin hoặc khách hàng");
+      return;
+    }
+
     setForm({
       roleName: role.roleName,
       description: role.description,
@@ -432,6 +456,11 @@ export const useRoleManagement = () => {
 
       const roleName = form.roleName.trim();
 
+      if (modalMode === "edit" && isPermissionProtectedRole(editingRole?.roleName)) {
+        setActionError("Không thể thay đổi quyền của vai trò admin hoặc khách hàng");
+        return;
+      }
+
       if (!roleName) {
         setActionError("Tên vai trò không được để trống");
         return;
@@ -469,6 +498,7 @@ export const useRoleManagement = () => {
       actionLoading,
       closeModal,
       editingRole?.roleId,
+      editingRole?.roleName,
       fetchData,
       form.permissionIds,
       form.roleName,
@@ -478,6 +508,11 @@ export const useRoleManagement = () => {
 
   const handleDeleteRole = useCallback(
     async (role: RoleItem) => {
+      if (isProtectedSystemRole(role.roleName)) {
+        alert("Không được xóa các vai trò có sẵn của hệ thống");
+        return;
+      }
+
       if (!role.roleId) {
         alert("Backend chưa trả roleId cho vai trò này nên không thể xóa");
         return;
@@ -511,10 +546,9 @@ export const useRoleManagement = () => {
 
       try {
         const targetRole = roles.find((role) => role.roleId === roleId);
-        const targetRoleName = normalizeText(targetRole?.roleName);
 
-        if (!targetRole || !assignableRoleNames.has(targetRoleName)) {
-          alert("Chỉ được phân quyền vai trò nhân viên nội bộ");
+        if (!targetRole || isAssignmentBlockedRole(targetRole.roleName)) {
+          alert("Không thể phân quyền người dùng thành vai trò admin hoặc khách hàng");
           return;
         }
 
@@ -527,7 +561,7 @@ export const useRoleManagement = () => {
         setActionLoading(false);
       }
     },
-    [currentUserId, fetchData]
+    [currentUserId, fetchData, roles]
   );
 
   return {

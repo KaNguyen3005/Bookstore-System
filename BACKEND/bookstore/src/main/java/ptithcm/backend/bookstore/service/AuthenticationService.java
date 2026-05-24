@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,8 +98,9 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) throws ParseException, JOSEException {
+        String account = request.getUsername().trim();
         User user = userRepository
-                .findByUsername(request.getUsername())
+                .findByUsernameOrEmail(account, account)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
@@ -371,7 +374,35 @@ public class AuthenticationService {
 
     public void sendOtpToResetPassword(ResetPasswordInitRequest request) {
         if (!isExistingEmail(request.getEmail())) throw new AppException(ErrorCode.USER_NOT_FOUND);
-        otpService.sendOtp(request.getEmail());
+        otpService.sendPasswordResetOtp(request.getEmail());
+    }
+
+    public void sendOtpToCurrentUserResetPassword() {
+        User user = getCurrentAuthenticatedUser();
+        otpService.sendPasswordResetOtp(user.getEmail());
+    }
+
+    public String verifyCurrentUserResetPasswordOtp(VerifyCurrentUserOtpRequest request) {
+        User user = getCurrentAuthenticatedUser();
+
+        if (!otpService.verifyOtp(user.getEmail(), request.getOtp())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        return generateResetToken(user.getEmail());
+    }
+
+    public void resetCurrentUserPassword(ResetPasswordRequest request) throws ParseException, JOSEException {
+        User currentUser = getCurrentAuthenticatedUser();
+        SignedJWT signedJWT = verifyToken(request.getResetToken(), false);
+        String email = signedJWT.getJWTClaimsSet().getSubject();
+
+        if (email == null || !email.equals(currentUser.getEmail())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(currentUser);
     }
 
     private Boolean isExistingEmail(String email) {
@@ -385,6 +416,27 @@ public class AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    private User getCurrentAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getName())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        try {
+            Long userId = Long.parseLong(authentication.getName());
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            ensureUserActive(user);
+
+            return user;
+        } catch (NumberFormatException e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
     }
 
     public UserResponse register(RegisterRequest request) {

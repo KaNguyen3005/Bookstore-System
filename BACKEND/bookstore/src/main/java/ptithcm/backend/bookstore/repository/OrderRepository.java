@@ -70,7 +70,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
            COUNT(o.order_id) AS order_count
     FROM orders o
     LEFT JOIN payments p ON p.order_id = o.order_id
-    WHERE o.status = :status
+    WHERE o.status IN (:statuses)
       AND o.deleted_at IS NULL
       AND o.created_at BETWEEN :from AND :to
     GROUP BY CONCAT(LPAD(HOUR(o.created_at), 2, '0'), ':00')
@@ -79,7 +79,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Object[]> getDashboardRevenueByHour(
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to,
-            @Param("status") String status
+            @Param("statuses") List<String> statuses
     );
 
     @Query(value = """
@@ -88,7 +88,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
            COUNT(o.order_id) AS order_count
     FROM orders o
     LEFT JOIN payments p ON p.order_id = o.order_id
-    WHERE o.status = :status
+    WHERE o.status IN (:statuses)
       AND o.deleted_at IS NULL
       AND o.created_at BETWEEN :from AND :to
     GROUP BY DATE(o.created_at)
@@ -97,7 +97,25 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Object[]> getDashboardRevenueByDay(
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to,
-            @Param("status") String status
+            @Param("statuses") List<String> statuses
+    );
+
+    @Query(value = """
+    SELECT DATE_FORMAT(o.created_at, '%Y-%m') AS period,
+           COALESCE(SUM(p.amount), 0) AS revenue,
+           COUNT(o.order_id) AS order_count
+    FROM orders o
+    LEFT JOIN payments p ON p.order_id = o.order_id
+    WHERE o.status IN (:statuses)
+      AND o.deleted_at IS NULL
+      AND o.created_at BETWEEN :from AND :to
+    GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
+    ORDER BY DATE_FORMAT(o.created_at, '%Y-%m')
+    """, nativeQuery = true)
+    List<Object[]> getDashboardRevenueByMonth(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("statuses") List<String> statuses
     );
 
     @Query(value = """
@@ -108,6 +126,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
       AND o.deleted_at IS NULL
     """, nativeQuery = true)
     Object sumRevenueByStatus(@Param("status") String status);
+
+    @Query(value = """
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM orders o
+    LEFT JOIN payments p ON p.order_id = o.order_id
+    WHERE o.status IN (:statuses)
+      AND o.deleted_at IS NULL
+    """, nativeQuery = true)
+    Object sumRevenueByStatuses(@Param("statuses") List<String> statuses);
 
     @Query("""
         SELECT o
@@ -167,7 +194,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         FROM BookOrder bo
         JOIN bo.book b
         JOIN bo.order o
-        WHERE o.status = :status
+        WHERE o.status IN :statuses
           AND o.deletedAt IS NULL
           AND b.deletedAt IS NULL
           AND o.createdAt BETWEEN :from AND :to
@@ -177,7 +204,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Object[]> findDashboardTopSellingBooks(
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to,
-            @Param("status") OrderStatus status,
+            @Param("statuses") List<OrderStatus> statuses,
             Pageable pageable
     );
 

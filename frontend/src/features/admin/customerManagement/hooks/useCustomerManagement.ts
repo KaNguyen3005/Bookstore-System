@@ -43,6 +43,7 @@ const emptyForm: UserFormState = {
 };
 
 const staffAdminRoles = new Set(["ADMIN", "STAFF"]);
+const assignableStaffRoles = new Set(["STAFF"]);
 
 const normalizeRole = (role?: string) => role?.trim().toUpperCase() ?? "";
 
@@ -103,7 +104,7 @@ const getRoleOptionsByTab = (
   tab: AccountManagementTab
 ) => {
   const allowedRoles =
-    tab === "staffAdmin" ? staffAdminRoles : new Set(["CUSTOMER"]);
+    tab === "staffAdmin" ? assignableStaffRoles : new Set(["CUSTOMER"]);
 
   return roleOptions.filter((role) =>
     allowedRoles.has(normalizeRole(role.roleName))
@@ -122,7 +123,7 @@ const getCurrentUserId = () => {
   }
 };
 
-const formatDateInput = (date: Date | string) => {
+const formatDateInput = (date?: Date | string | null) => {
   if (!date) return "";
 
   const parsedDate = typeof date === "string" ? new Date(date) : date;

@@ -18,6 +18,7 @@ export interface RoleResponse {
   description?: string;
   permissions?: Array<string | PermissionResponse>;
   permissionIds?: number[];
+  userCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }

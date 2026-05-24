@@ -40,6 +40,7 @@ import HelpPage from "../features/help/pages/helpPage";
 import Login from "../features/auth/pages/Login/Login";
 import Register from "../features/auth/pages/Register/Register";
 import Otp from "../features/auth/pages/Otp/Otp";
+import ForgotPassword from "../features/auth/pages/ForgotPassword/ForgotPassword";
 
 /*admin*/
 import LayoutAdmin from "../layout/layoutAdmin/MainLayout/LayoutAdmin";
@@ -198,6 +199,11 @@ export default function AppRoutes() {
         />
 
         <Route
+          path="forgot-password"
+          element={<ForgotPassword />}
+        />
+
+        <Route
           path="register"
           element={<Register />}
         />
@@ -224,48 +230,110 @@ export default function AppRoutes() {
 
           <Route
             index
-            element={<Dashboard />}
+            element={
+              <ProtectedRoute permissions={["READ_DASHBOARD"]}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="products"
-            element={<ProductManagement />}
+            element={
+              <ProtectedRoute
+                permissions={[
+                  "CREATE_BOOK",
+                  "READ_BOOK",
+                  "UPDATE_BOOK",
+                  "DELETE_BOOK",
+                ]}
+              >
+                <ProductManagement />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="categories"
-            element={<CategoryManagement />}
+            element={
+              <ProtectedRoute
+                permissions={[
+                  "CREATE_CATEGORY",
+                  "UPDATE_CATEGORY",
+                  "DELETE_CATEGORY",
+                ]}
+              >
+                <CategoryManagement />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="orders"
-            element={<OrderManagement />}
+            element={
+              <ProtectedRoute permissions={["READ_ORDER"]}>
+                <OrderManagement />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="customers"
-            element={<CustomerManagement />}
+            element={
+              <ProtectedRoute permissions={["READ_USER"]}>
+                <CustomerManagement />
+              </ProtectedRoute>
+            }
           />
 
 
           <Route
             path="author"
-            element={<AuthorManagement />}
+            element={
+              <ProtectedRoute permissions={["READ_AUTHOR"]}>
+                <AuthorManagement />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="publishers"
-            element={<PublisherManagement />}
+            element={
+              <ProtectedRoute permissions={["READ_PUBLISHER"]}>
+                <PublisherManagement />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="vouchers"
-            element={<VoucherManagement />}
+            element={
+              <ProtectedRoute
+                permissions={[
+                  "CREATE_VOUCHER",
+                  "UPDATE_VOUCHER",
+                  "DELETE_VOUCHER",
+                ]}
+              >
+                <VoucherManagement />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="role"
-            element={<RoleManagement />}
+            element={
+              <ProtectedRoute
+                permissions={[
+                  "READ_PERMISSION",
+                  "CREATE_ROLE",
+                  "UPDATE_ROLE",
+                  "DELETE_ROLE",
+                ]}
+              >
+                <RoleManagement />
+              </ProtectedRoute>
+            }
           />
 
         </Route>

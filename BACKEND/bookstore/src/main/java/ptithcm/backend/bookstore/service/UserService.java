@@ -33,6 +33,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+    private static final String ADMIN_ROLE_NAME = "ADMIN";
+    private static final String CUSTOMER_ROLE_NAME = "CUSTOMER";
+
     BookRepository bookRepository;
     RoleRepository roleRepository;
     UserRepository userRepository;
@@ -47,6 +50,10 @@ public class UserService {
 
         Role role = roleRepository.findByRoleName(request.getRoleName())
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+        if (isAdminRole(role)) {
+            throw new AppException(ErrorCode.SYSTEM_ROLE_PROTECTED);
+        }
 
         user.setRole(role);
 
@@ -119,6 +126,9 @@ public class UserService {
         if (request.getRoleId() != null) {
             Role role = roleRepository.findById(request.getRoleId())
                     .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+            if (isAdminRole(user.getRole()) || isCustomerRole(user.getRole()) || isCustomerRole(role) || isAdminRole(role)) {
+                throw new AppException(ErrorCode.SYSTEM_ROLE_PROTECTED);
+            }
             user.setRole(role);
         }
 
@@ -321,5 +331,17 @@ public class UserService {
         } else {
             user.setTier(Tier.BRONZE.name());
         }
+    }
+
+    private boolean isCustomerRole(Role role) {
+        return role != null && CUSTOMER_ROLE_NAME.equals(normalizeRoleName(role.getRoleName()));
+    }
+
+    private boolean isAdminRole(Role role) {
+        return role != null && ADMIN_ROLE_NAME.equals(normalizeRoleName(role.getRoleName()));
+    }
+
+    private String normalizeRoleName(String roleName) {
+        return roleName == null ? "" : roleName.trim().toUpperCase();
     }
 }

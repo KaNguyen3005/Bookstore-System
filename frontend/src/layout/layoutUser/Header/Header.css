@@ -56,6 +56,8 @@ html {
 
 /* HEADER TOP */
 .header-top {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   padding: 0 clamp(10px, 2vw, 20px);
@@ -185,6 +187,8 @@ html {
 
 /* MENU */
 .header-menu {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -367,4 +371,8 @@ html {
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.user-menu {
+  z-index: 3;
 }

@@ -124,6 +124,11 @@
     0 8px 22px rgba(15, 23, 42, 0.08);
 }
 
+.refreshBtn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 /* ================= GRID ================= */
 
 .grid {
@@ -202,6 +207,30 @@
   font-weight: 600;
 
   color: var(--muted);
+}
+
+.kpiLabelRevenue,
+.kpiLabelOrders,
+.kpiLabelCustomers,
+.kpiLabelStock {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kpiLabelRevenue {
+  color: var(--success);
+}
+
+.kpiLabelOrders {
+  color: var(--warning);
+}
+
+.kpiLabelCustomers {
+  color: var(--info);
+}
+
+.kpiLabelStock {
+  color: var(--danger);
 }
 
 .card h2,
@@ -330,6 +359,16 @@
   color: var(--warning);
 }
 
+.confirmed {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--info);
+}
+
+.shipping {
+  background: rgba(50, 88, 99, 0.12);
+  color: var(--primary);
+}
+
 .success {
   background: rgba(16, 185, 129, 0.12);
   color: var(--success);
@@ -345,13 +384,44 @@
   color: var(--muted);
 }
 
-/* ================= AI ================= */
+/* ================= INSIGHT ================= */
 
+.insightTitle,
 .aiTitle {
   display: flex;
   align-items: center;
 
   gap: 10px;
+}
+
+.insightTitle {
+  color: var(--primary);
+}
+
+.insightGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.insightItem {
+  padding: 12px 14px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: var(--radius-sm);
+  background: rgba(50, 88, 99, 0.04);
+}
+
+.insightItem span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.insightItem b {
+  color: var(--text);
+  font-size: 15px;
 }
 
 .robotIcon {
@@ -393,6 +463,25 @@
 .chartWrapper {
   width: 100%;
   height: 280px;
+}
+
+.chartContainer {
+  width: 100%;
+  height: 340px;
+}
+
+.compactChartContainer {
+  width: 100%;
+  height: 300px;
+}
+
+.statusList {
+  display: grid;
+  gap: 6px;
+}
+
+.statusLabel {
+  font-weight: 600;
 }
 
 .recharts-cartesian-grid line {
@@ -445,6 +534,16 @@
   }
 }
 
+.error {
+  margin: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+  font-weight: 700;
+}
+
 /* ================= SCROLLBAR ================= */
 
 ::-webkit-scrollbar {
@@ -494,5 +593,14 @@
   .card h2,
   .cardDanger h2 {
     font-size: 24px;
+  }
+
+  .insightGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chartContainer,
+  .compactChartContainer {
+    height: 280px;
   }
 }

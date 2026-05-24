@@ -344,7 +344,7 @@ CREATE TABLE `shipments` (
   `tracking_number` VARCHAR(255) NULL,
   `carrier_name` VARCHAR(255) NULL,
   `status` VARCHAR(255) NULL DEFAULT 'PENDING',
-  `weight` DOUBLE NULL,
+  `weight` INT NULL,
   `length` INT NULL,
   `width` INT NULL,
   `height` INT NULL,

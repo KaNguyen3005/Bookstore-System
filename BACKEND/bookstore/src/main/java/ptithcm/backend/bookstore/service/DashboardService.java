@@ -26,6 +26,13 @@ import java.util.List;
 public class DashboardService {
     private static final int DEFAULT_LOW_STOCK_THRESHOLD = 5;
     private static final int MAX_DASHBOARD_LIMIT = 10;
+    private static final List<OrderStatus> REVENUE_ORDER_STATUSES = List.of(
+            OrderStatus.DELIVERED,
+            OrderStatus.COMPLETED
+    );
+    private static final List<String> REVENUE_ORDER_STATUS_NAMES = REVENUE_ORDER_STATUSES.stream()
+            .map(OrderStatus::name)
+            .toList();
 
     OrderRepository orderRepository;
     BookRepository bookRepository;
@@ -39,7 +46,7 @@ public class DashboardService {
         DateRange dateRange = resolveDateRange(range);
 
         return DashboardOverviewResponse.builder()
-                .totalRevenue(toBigDecimal(orderRepository.sumRevenueByStatus(OrderStatus.COMPLETED.name())))
+                .totalRevenue(toBigDecimal(orderRepository.sumRevenueByStatuses(REVENUE_ORDER_STATUS_NAMES)))
                 .monthlyRevenue(getRevenueForCurrentMonth())
                 .dailyRevenue(getRevenueForToday())
                 .totalOrders(orderRepository.countTotalOrders())
@@ -119,9 +126,23 @@ public class DashboardService {
     }
 
     private List<DashboardRevenuePointResponse> getRevenueChart(DateRange dateRange) {
-        List<Object[]> rows = dateRange.groupByHour()
-                ? orderRepository.getDashboardRevenueByHour(dateRange.from(), dateRange.to(), OrderStatus.COMPLETED.name())
-                : orderRepository.getDashboardRevenueByDay(dateRange.from(), dateRange.to(), OrderStatus.COMPLETED.name());
+        List<Object[]> rows = switch (dateRange.groupBy()) {
+            case HOUR -> orderRepository.getDashboardRevenueByHour(
+                    dateRange.from(),
+                    dateRange.to(),
+                    REVENUE_ORDER_STATUS_NAMES
+            );
+            case MONTH -> orderRepository.getDashboardRevenueByMonth(
+                    dateRange.from(),
+                    dateRange.to(),
+                    REVENUE_ORDER_STATUS_NAMES
+            );
+            case DAY -> orderRepository.getDashboardRevenueByDay(
+                    dateRange.from(),
+                    dateRange.to(),
+                    REVENUE_ORDER_STATUS_NAMES
+            );
+        };
 
         return rows.stream()
                 .map(row -> DashboardRevenuePointResponse.builder()
@@ -136,7 +157,7 @@ public class DashboardService {
         return orderRepository.findDashboardTopSellingBooks(
                         dateRange.from(),
                         dateRange.to(),
-                        OrderStatus.COMPLETED,
+                        REVENUE_ORDER_STATUSES,
                         PageRequest.of(0, normalizeLimit(limit))
                 ).stream()
                 .map(row -> DashboardBookStatResponse.builder()
@@ -177,10 +198,10 @@ public class DashboardService {
 
     private BigDecimal getRevenueForToday() {
         LocalDate today = LocalDate.now();
-        return sumRows(orderRepository.getRevenueByDay(
+        return sumRows(orderRepository.getDashboardRevenueByDay(
                 today.atStartOfDay(),
                 today.atTime(LocalTime.MAX),
-                OrderStatus.COMPLETED.name()
+                REVENUE_ORDER_STATUS_NAMES
         ));
     }
 
@@ -188,10 +209,10 @@ public class DashboardService {
         LocalDate today = LocalDate.now();
         LocalDate firstDayOfMonth = today.withDayOfMonth(1);
         LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
-        return sumRows(orderRepository.getRevenueByDay(
+        return sumRows(orderRepository.getDashboardRevenueByDay(
                 firstDayOfMonth.atStartOfDay(),
                 lastDayOfMonth.atTime(LocalTime.MAX),
-                OrderStatus.COMPLETED.name()
+                REVENUE_ORDER_STATUS_NAMES
         ));
     }
 
@@ -209,17 +230,27 @@ public class DashboardService {
             case "7days", "7_days", "7ngay", "7_ngay", "week" -> new DateRange(
                     today.minusDays(6).atStartOfDay(),
                     today.atTime(LocalTime.MAX),
-                    false
+                    ChartGroupBy.DAY
             );
             case "month", "1month", "1_month", "1thang", "1_thang" -> new DateRange(
                     today.withDayOfMonth(1).atStartOfDay(),
                     today.withDayOfMonth(today.lengthOfMonth()).atTime(LocalTime.MAX),
-                    false
+                    ChartGroupBy.DAY
+            );
+            case "year", "1year", "1_year", "nam", "năm" -> new DateRange(
+                    today.withDayOfYear(1).atStartOfDay(),
+                    today.withDayOfYear(today.lengthOfYear()).atTime(LocalTime.MAX),
+                    ChartGroupBy.MONTH
+            );
+            case "all", "all_time", "tatca", "tất cả" -> new DateRange(
+                    LocalDate.of(1970, 1, 1).atStartOfDay(),
+                    today.atTime(LocalTime.MAX),
+                    ChartGroupBy.MONTH
             );
             default -> new DateRange(
                     today.atStartOfDay(),
                     today.atTime(LocalTime.MAX),
-                    true
+                    ChartGroupBy.HOUR
             );
         };
     }
@@ -267,6 +298,12 @@ public class DashboardService {
         return value == null ? null : value.toString();
     }
 
-    private record DateRange(LocalDateTime from, LocalDateTime to, boolean groupByHour) {
+    private enum ChartGroupBy {
+        HOUR,
+        DAY,
+        MONTH
+    }
+
+    private record DateRange(LocalDateTime from, LocalDateTime to, ChartGroupBy groupBy) {
     }
 }

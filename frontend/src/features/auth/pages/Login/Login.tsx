@@ -43,6 +43,15 @@ const Login = () => {
   const normalizeRole = (value?: string) =>
     value?.trim().toUpperCase().replace(/^ROLE_/, "");
 
+  const getAdminStartPath = (role?: string) => {
+    const normalizedRole = normalizeRole(role);
+
+    if (normalizedRole === "ADMIN") return "/admin";
+    if (normalizedRole === "STAFF") return "/admin/products";
+
+    return "/";
+  };
+
   const isInactiveAccount = (value?: boolean) => value === false;
 
   const normalizeErrorMessage = (value?: string) =>
@@ -100,11 +109,7 @@ if (hasToken && user) {
 
   return (
     <Navigate
-      to={
-        role === "ADMIN" || role === "STAFF"
-          ? "/admin"
-          : "/"
-      }
+      to={getAdminStartPath(role)}
       replace
     />
   );
@@ -167,7 +172,7 @@ if (hasToken && user) {
 
       navigate(
         role === "ADMIN" || role === "STAFF"
-          ? "/admin"
+          ? getAdminStartPath(role)
           : from,
         { replace: true }
       );
@@ -237,9 +242,9 @@ if (hasToken && user) {
           />
 
           <div className="forgot-wrapper">
-            <div className="forgot">
+            <Link to="/forgot-password" className="forgot">
               Quên mật khẩu
-            </div>
+            </Link>
           </div>
 
           <button
@@ -283,7 +288,7 @@ if (hasToken && user) {
 
                   const role = normalizeRole(fullUser.role);
 
-                  navigate(role === "ADMIN" ? "/admin" : "/", {
+                  navigate(getAdminStartPath(role), {
                     replace: true,
                   });
                 } catch (err: any) {

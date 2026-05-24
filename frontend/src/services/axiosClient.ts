@@ -1,10 +1,11 @@
 import axios from "axios";
-import type {
-  AxiosResponse,
-} from "axios";
+import type { AxiosResponse } from "axios";
+
+const apiBaseUrl =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/bookstore/api/v1";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8080/bookstore/api/v1",
+  baseURL: apiBaseUrl,
   headers: {
     "Content-Type": "application/json",
   },
