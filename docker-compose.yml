@@ -70,19 +70,19 @@ services:
     networks:
       - bookstore-network
 
-  frontend:
-    image: morex3/bookstore-frontend:latest
-    container_name: frontend-dev
-
-    ports:
-      - "3000:80"
-
-    depends_on:
-      backend:
-        condition: service_started
-
-    networks:
-      - bookstore-network
+#  frontend:
+#    image: morex3/bookstore-frontend:latest
+#    container_name: frontend-dev
+#
+#    ports:
+#      - "3000:80"
+#
+#    depends_on:
+#      backend:
+#        condition: service_started
+#
+#    networks:
+#      - bookstore-network
 
   recommendation-service:
     image: morex3/bookstore-recommendation:latest
