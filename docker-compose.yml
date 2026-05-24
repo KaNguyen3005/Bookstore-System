@@ -11,7 +11,7 @@ services:
       TZ: Asia/Ho_Chi_Minh
 
     ports:
-      - "3307:3306"
+      - "3308:3306"
 
     volumes:
       - mysql_data:/var/lib/mysql
