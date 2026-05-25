@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="KATIIA Bookstore">
+  <rect width="64" height="64" rx="14" fill="#2c6f7b"/>
+  <path d="M17 16h18c6 0 10 4 10 10v24H25c-4 0-8-4-8-8V16z" fill="#fff"/>
+  <path d="M25 16h22v28c0 3-3 6-6 6H25c3 0 6-3 6-6V22c0-3-3-6-6-6z" fill="#d9f0ed"/>
+  <path d="M24 24h14M24 31h17M24 38h12" stroke="#2c6f7b" stroke-width="3" stroke-linecap="round"/>
+  <path d="M17 16c5 0 8 3 8 8v26" fill="none" stroke="#17454d" stroke-width="3" stroke-linecap="round"/>
+</svg>

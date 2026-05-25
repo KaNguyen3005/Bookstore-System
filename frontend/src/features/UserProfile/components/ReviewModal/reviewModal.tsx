@@ -4,9 +4,12 @@ type ReviewItem = {
   bookId: number | string;
   orderId?: number | string;
   itemId?: number | string;
+  orderItemId?: number | string;
   bookTitle?: string;
   quantity?: number;
   hasReview?: boolean;
+  hasRating?: boolean;
+  rate?: number | null;
   coverImage?: string;
   coverImageUrl?: string;
   coverImgUrl?: string;
@@ -28,7 +31,6 @@ type Props = {
   order: ReviewOrder | null;
   onClose: () => void;
   onReview: (item: ReviewItem) => void;
-  onViewReview: (item: ReviewItem) => void;
 };
 
 const getBookImage = (item: ReviewItem) =>
@@ -44,7 +46,6 @@ export default function ReviewModal({
   order,
   onClose,
   onReview,
-  onViewReview,
 }: Props) {
   if (!order) return null;
 
@@ -69,10 +70,15 @@ export default function ReviewModal({
         <div className={styles.content}>
           {order.items?.map((item) => {
             const image = getBookImage(item);
+            const reviewItemId = item.orderItemId ?? item.itemId;
+            const isReviewed =
+              item.hasReview === true ||
+              item.hasRating === true ||
+              (typeof item.rate === "number" && item.rate > 0);
 
             return (
               <div
-                key={item.bookId}
+                key={reviewItemId ?? item.bookId}
                 className={styles.reviewItem}
               >
                 <div className={styles.bookInfo}>
@@ -92,18 +98,20 @@ export default function ReviewModal({
                   </div>
                 </div>
 
-                {item.hasReview ? (
+                {isReviewed ? (
                   <button className={styles.reviewedBtn} disabled>
                     Đã đánh giá
                   </button>
                 ) : (
                   <button
                     className={styles.reviewBtn}
+                    disabled={!reviewItemId}
                     onClick={() =>
-                      onReview({
+                      reviewItemId && onReview({
                         ...item,
                         orderId: order.orderId,
-                        itemId: item.itemId ?? item.bookId,
+                        itemId: reviewItemId,
+                        orderItemId: reviewItemId,
                       })
                     }
                   >

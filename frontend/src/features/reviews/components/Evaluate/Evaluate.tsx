@@ -16,7 +16,10 @@ interface EvaluateProps {
   reviews?: Review[];
   myReview?: Review | null;
   orderStatus?: string | null;
-  onSuccess?: () => void;
+  onSubmitReview?: (data: {
+    rating: number;
+    content: string;
+  }) => Promise<boolean>;
 }
 
 const filters = ["Tất cả", "5 sao", "4 sao", "3 sao", "2 sao", "1 sao"];
@@ -25,26 +28,63 @@ const Evaluate: React.FC<EvaluateProps> = ({
   reviews = [],
   myReview = null,
   orderStatus = null,
+  onSubmitReview,
 }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
 
   const [selectedFilter, setSelectedFilter] = useState("Tất cả");
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [visibleCount, setVisibleCount] = useState(4);
 
   const hasOrder = orderStatus !== null;
-  const canReview = orderStatus === "DELIVERED";
+  const canReview = orderStatus === "DELIVERED" || orderStatus === "COMPLETED";
 
   // reset khi đổi filter
   useEffect(() => {
     setVisibleCount(4);
   }, [selectedFilter]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ rating, content });
+
+    const trimmedContent = content.trim();
+
+    if (!trimmedContent) {
+      setSubmitError("Vui lòng nhập nội dung đánh giá.");
+      return;
+    }
+
+    if (!onSubmitReview) {
+      setSubmitError("Không thể gửi đánh giá cho sản phẩm này.");
+      return;
+    }
+
+    try {
+      setSubmitError("");
+      setIsSubmitting(true);
+
+      const success = await onSubmitReview({
+        rating,
+        content: trimmedContent,
+      });
+
+      if (success) {
+        setContent("");
+        setRating(5);
+      }
+    } catch (error: any) {
+      setSubmitError(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Gửi đánh giá thất bại. Vui lòng thử lại."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // AVG
@@ -189,7 +229,13 @@ const Evaluate: React.FC<EvaluateProps> = ({
             onChange={(e) => setContent(e.target.value)}
           />
 
-          <button type="submit" className={styles.submitBtn}>
+          {submitError && (
+            <p className={styles.empty} role="alert">
+              {submitError}
+            </p>
+          )}
+
+          <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
             Gửi đánh giá
           </button>
         </form>

@@ -23,10 +23,40 @@ type Option = {
   label: string;
 };
 
+const isValidIsbn10 = (isbn: string) => {
+  if (!/^\d{9}[\dXx]$/.test(isbn)) return false;
+
+  const sum = isbn
+    .split("")
+    .reduce((total, char, index) => {
+      const value = char.toUpperCase() === "X" ? 10 : Number(char);
+
+      return total + value * (10 - index);
+    }, 0);
+
+  return sum % 11 === 0;
+};
+
+const isValidIsbn13 = (isbn: string) => {
+  if (!/^(978|979)\d{10}$/.test(isbn)) return false;
+
+  const sum = isbn
+    .slice(0, 12)
+    .split("")
+    .reduce((total, char, index) => {
+      const multiplier = index % 2 === 0 ? 1 : 3;
+
+      return total + Number(char) * multiplier;
+    }, 0);
+  const checkDigit = (10 - (sum % 10)) % 10;
+
+  return checkDigit === Number(isbn[12]);
+};
+
 const isValidIsbn = (isbn: string) => {
   const normalizedIsbn = isbn.replace(/[-\s]/g, "");
 
-  return /^(?:\d{9}[\dXx]|\d{13})$/.test(normalizedIsbn);
+  return isValidIsbn10(normalizedIsbn) || isValidIsbn13(normalizedIsbn);
 };
 
 export const CreateProductModal: React.FC<CreateProductModalProps> = ({
@@ -48,6 +78,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
   });
 
   const [coverImgFile, setCoverImgFile] = useState<File | null>(null);
+  const [bookImgFiles, setBookImgFiles] = useState<File[]>([]);
   const [isbnError, setIsbnError] = useState("");
 
   // ================= SELECT =================
@@ -122,6 +153,10 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
     }
   };
 
+  const handleBookImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBookImgFiles(Array.from(e.target.files ?? []));
+  };
+
   // ================= SUBMIT =================
   const handleSubmit = async () => {
     if (
@@ -154,7 +189,8 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       coverType: formData.coverType,
 
       coverImgFile: coverImgFile || undefined, // upload file
-      coverImgUrl: formData.coverImgUrl || undefined, // URL
+      coverImgUrl: formData.coverImageUrl || undefined, // URL
+      bookImgFiles,
 
       price: parseFloat(formData.price),
       categoryIds: selectedCategories.map((c) => c.value),
@@ -180,6 +216,7 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
       setSelectedCategories([]);
       setSelectedPublisher(null);
       setCoverImgFile(null);
+      setBookImgFiles([]);
       setIsbnError("");
     }
   };
@@ -263,6 +300,23 @@ export const CreateProductModal: React.FC<CreateProductModalProps> = ({
                     setSelectedCategories((val as Option[]) || [])
                   }
                 />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Ảnh chi tiết sách</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleBookImagesChange}
+                />
+                {bookImgFiles.length > 0 && (
+                  <span className="form-helper-text">
+                    Đã chọn {bookImgFiles.length} ảnh
+                  </span>
+                )}
               </div>
             </div>
 

@@ -173,7 +173,8 @@
 }
 
 .reviewBtn,
-.viewBtn {
+.viewBtn,
+.reviewedBtn {
   min-width: 150px;
   height: 44px;
 
@@ -197,10 +198,17 @@
   color: #ffffff;
 }
 
-.reviewBtn:hover {
+.reviewBtn:hover:not(:disabled) {
   transform: translateY(-1px);
 
   background: #0f172a;
+}
+
+.reviewBtn:disabled,
+.reviewedBtn {
+  cursor: not-allowed;
+  background: #e5e7eb;
+  color: #64748b;
 }
 
 .viewBtn {
@@ -267,7 +275,8 @@
   }
 
   .reviewBtn,
-  .viewBtn {
+  .viewBtn,
+  .reviewedBtn {
     width: 100%;
   }
 }

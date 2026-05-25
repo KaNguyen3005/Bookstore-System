@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import type { Book } from "../types/Book";
 import "../../pages/ProductDetailPage/ProductDetailPage.css";
@@ -10,34 +10,61 @@ interface Props {
 const ProductGallery: React.FC<Props> = ({
   book,
 }) => {
+  const galleryImages = useMemo(() => {
+    const images = [
+      book.coverImgUrl,
+      ...(book.bookImgs?.map((image) => image.imgUrl) ?? []),
+    ].filter((image): image is string => Boolean(image));
+
+    return Array.from(new Set(images));
+  }, [book.bookImgs, book.coverImgUrl]);
+
+  const [selectedImage, setSelectedImage] = useState("");
+
+  useEffect(() => {
+    setSelectedImage(galleryImages[0] ?? "");
+  }, [galleryImages]);
+
+  const mainImage =
+    selectedImage ||
+    galleryImages[0] ||
+    "/default-book.png";
+
   return (
     <>
       <div className="main-image-wrapper">
         <img
-          src={
-            book.coverImgUrl ||
-            `https://picsum.photos/seed/book${book.bookId}/400/600`
-          }
+          src={mainImage}
           alt={book.title}
           className="main-image"
+          onError={(event) => {
+            (event.currentTarget as HTMLImageElement).src = "/default-book.png";
+          }}
         />
       </div>
 
-      <div className="thumbnails-grid">
-        {[1, 2, 3, 4].map((i) => (
+      {galleryImages.length > 1 && (
+        <div className="thumbnails-grid">
+        {galleryImages.map((image, index) => (
           <div
-            key={i}
-            className="thumb-box"
+            key={image}
+            className={`thumb-box ${
+              image === mainImage ? "thumb-box--active" : ""
+            }`}
+            onClick={() => setSelectedImage(image)}
           >
             <img
-              src={`https://picsum.photos/seed/book${
-                book.bookId + i
-              }/100/150`}
-              alt="thumb"
+              src={image}
+              alt={`${book.title} ${index + 1}`}
+              onError={(event) => {
+                (event.currentTarget as HTMLImageElement).src =
+                  "/default-book.png";
+              }}
             />
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </>
   );
 };

@@ -11,8 +11,6 @@ const formatPrice = (price: number): string =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({ totals, itemCount }) => {
-
-    const vat = totals.subtotal * 0.05;
   return (
     <section className="order-summary" aria-label="Tóm tắt đơn hàng">
       <div className="order-summary__header">
@@ -28,7 +26,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ totals, itemCount }) => {
 
         <div className="order-summary__row">
           <span>VAT (5%)</span>
-          <span>{formatPrice(vat)}</span>
+          <span>{formatPrice(totals.vat)}</span>
         </div>
 
         <div className="order-summary__row">

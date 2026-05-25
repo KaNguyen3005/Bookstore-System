@@ -30,10 +30,40 @@ const flattenCategories = (categories: Category[]): Category[] => {
   ]);
 };
 
+const isValidIsbn10 = (isbn: string) => {
+  if (!/^\d{9}[\dXx]$/.test(isbn)) return false;
+
+  const sum = isbn
+    .split("")
+    .reduce((total, char, index) => {
+      const value = char.toUpperCase() === "X" ? 10 : Number(char);
+
+      return total + value * (10 - index);
+    }, 0);
+
+  return sum % 11 === 0;
+};
+
+const isValidIsbn13 = (isbn: string) => {
+  if (!/^(978|979)\d{10}$/.test(isbn)) return false;
+
+  const sum = isbn
+    .slice(0, 12)
+    .split("")
+    .reduce((total, char, index) => {
+      const multiplier = index % 2 === 0 ? 1 : 3;
+
+      return total + Number(char) * multiplier;
+    }, 0);
+  const checkDigit = (10 - (sum % 10)) % 10;
+
+  return checkDigit === Number(isbn[12]);
+};
+
 const isValidIsbn = (isbn: string) => {
   const normalizedIsbn = isbn.replace(/[-\s]/g, "");
 
-  return /^(?:\d{9}[\dXx]|\d{13})$/.test(normalizedIsbn);
+  return isValidIsbn10(normalizedIsbn) || isValidIsbn13(normalizedIsbn);
 };
 
 export const ProductEditModal: React.FC<ProductEditModalProps> = ({
@@ -56,6 +86,7 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
     avgRating: "",
   });
   const [coverImg, setCoverImg] = useState<File | null>(null);
+  const [bookImgFiles, setBookImgFiles] = useState<File[]>([]);
   const [selectedAuthors, setSelectedAuthors] = useState<Option[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
   const [selectedPublisher, setSelectedPublisher] = useState<Option | null>(null);
@@ -96,6 +127,7 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
         : null,
     );
     setCoverImg(null);
+    setBookImgFiles([]);
     setIsbnError("");
   }, [product]);
 
@@ -202,6 +234,7 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
       pageCount: formData.pageCount ? Number(formData.pageCount) : undefined,
       coverType: formData.coverType,
       coverImg: coverImg ?? undefined,
+      bookImgFiles,
       stockQuantity: nextStockQuantity,
       isActive: formData.isActive,
       price: Number(formData.price),
@@ -281,6 +314,25 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
                   accept="image/*"
                   onChange={(event) => setCoverImg(event.target.files?.[0] ?? null)}
                 />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Ảnh chi tiết sách mới</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(event) =>
+                    setBookImgFiles(Array.from(event.target.files ?? []))
+                  }
+                />
+                {bookImgFiles.length > 0 && (
+                  <span className="form-helper-text">
+                    Đã chọn {bookImgFiles.length} ảnh
+                  </span>
+                )}
               </div>
             </div>
 

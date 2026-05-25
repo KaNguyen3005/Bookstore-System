@@ -949,11 +949,23 @@ public class OrderService {
         BookOrder bookOrder = bookOrderRepository.findByBookOrderIdAndOrder_OrderId(itemId, orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_ITEM_NOT_FOUND));
 
-        if(bookOrder.getContent() != null || bookOrder.getRate() != null){
+        boolean hasExistingReview = bookOrder.getRate() != null
+                && bookOrder.getContent() != null
+                && !bookOrder.getContent().isBlank();
+
+        if (hasExistingReview) {
             throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
 
-        bookOrder.setContent(request.getContent());
+        if (request.getRating() == null) {
+            throw new AppException(ErrorCode.INVALID_RATING);
+        }
+
+        if (request.getContent() == null || request.getContent().isBlank()) {
+            throw new AppException(ErrorCode.INVALID_COMMENT);
+        }
+
+        bookOrder.setContent(request.getContent().trim());
         bookOrder.setRate(request.getRating());
         interactEventService.recordEvent(user.getUserId(), bookOrder.getBook().getBookId(), InteractEventType.REVIEW);
         return bookOrderMapper.toResponse(bookOrderRepository.save(bookOrder));

@@ -34,7 +34,7 @@ export interface CheckoutVoucher {
   voucherCode: string;
   title: string;
   description: string;
-  type: "FIXED" | "PERCENT";
+  type: "FIXED" | "PERCENTAGE";
   discountValue: number;
   maxDiscountAmount: number;
   minOrderValue: number;
@@ -79,6 +79,7 @@ export interface CreateOrderResponse {
 
 export interface CalculateOrderResponse {
   subtotal: number;
+  vat: number;
   shippingFee: number;
   discount: number;
   shippingDiscount: number;
@@ -89,6 +90,7 @@ export interface CalculateOrderResponse {
 
 export interface CheckoutTotals {
   subtotal: number;
+  vat: number;
   shippingFee: number;
   discount: number;
   shippingDiscount: number;

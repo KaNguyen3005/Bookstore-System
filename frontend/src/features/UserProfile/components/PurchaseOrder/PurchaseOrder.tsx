@@ -7,7 +7,6 @@ import { useAuth } from "../../../../features/auth/hooks/useAuth";
 import styles from "./PurchaseOrder.module.css";
 import OrderModal from "../OrderModal/OrderModal";
 import ReviewFormModal from "../ReviewFormModal/ReviewFormModal";
-import { reviewOrderItem } from "../../../../services/orderApi";
 
 import ReviewModal from "../ReviewModal/reviewModal";
 
@@ -223,15 +222,6 @@ const loadOrders = async () => {
       }
     };
 
-    //review
-    const handleReview = (item: ReviewItem) => {
-      console.log("REVIEW ITEM:", item);
-
-      reviewOrderItem(item.orderId!, item.itemId!, {
-        rating,
-        content,
-      });
-    };
   // ================= UI =================
   return (
     <>
@@ -362,26 +352,35 @@ const loadOrders = async () => {
             setOpenReviewForm(false);
             setSelectedItem(null);
           }}
-          onSubmit={async (data) => {
+          onSuccess={() => {
             if (!selectedItem || !reviewOrder) return;
 
-            await reviewOrderItem(
-              reviewOrder.orderId,
-              selectedItem.bookId,
-              data
-            );
+            const selectedReviewItemId =
+              selectedItem.orderItemId ?? selectedItem.itemId;
 
             setReviewOrder((prev: any) => ({
               ...prev,
               items: prev.items.map((it: any) =>
-                it.bookId === selectedItem.bookId
-                  ? { ...it, hasReview: true }
+                (it.orderItemId ?? it.itemId) === selectedReviewItemId
+                  ? { ...it, hasReview: true, hasRating: true }
                   : it
               ),
             }));
 
-            setOpenReviewForm(false);
-            setSelectedItem(null);
+            setOrders((prev) =>
+              prev.map((order) =>
+                order.orderId === reviewOrder.orderId
+                  ? {
+                      ...order,
+                      items: order.items?.map((it: any) =>
+                        (it.orderItemId ?? it.itemId) === selectedReviewItemId
+                          ? { ...it, hasReview: true, hasRating: true }
+                          : it,
+                      ),
+                    }
+                  : order,
+              ),
+            );
           }}
         />
       )}
