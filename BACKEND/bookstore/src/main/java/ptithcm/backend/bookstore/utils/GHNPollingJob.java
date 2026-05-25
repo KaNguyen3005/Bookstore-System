@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import ptithcm.backend.bookstore.entity.Order;
 import ptithcm.backend.bookstore.entity.Shipment;
 import ptithcm.backend.bookstore.entity.User;
+import ptithcm.backend.bookstore.enums.OrderStatus;
 import ptithcm.backend.bookstore.enums.ShippingStatus;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
@@ -61,9 +62,15 @@ public class GHNPollingJob {
                     Order order = shipment.getOrder();
 
                     if (order != null) {
-                        LocalDateTime now = LocalDateTime.now();
+                        LocalDateTime now = AppTime.now();
+                        order.setStatus(OrderStatus.DELIVERED);
                         order.setDeliveredAt(now);
                         order.setRewardEligibleAt(now.plusDays(3)); // chờ 3 ngày
+                    }
+                } else if (newStatus == ShippingStatus.PICKING_UP || newStatus == ShippingStatus.IN_TRANSIT) {
+                    Order order = shipment.getOrder();
+                    if (order != null && order.getStatus() != OrderStatus.DELIVERED) {
+                        order.setStatus(OrderStatus.SHIPPING);
                     }
                 }
 
@@ -78,7 +85,7 @@ public class GHNPollingJob {
     @Scheduled(fixedDelay = 2000) // mỗi 2 giây
     @Transactional
     public void awardRewardPointsForEligibleOrders() {
-        List<Order> orders = orderRepository.findEligibleOrdersForReward(LocalDateTime.now());
+        List<Order> orders = orderRepository.findEligibleOrdersForReward(AppTime.now());
 
         for (Order order : orders) {
             if (Boolean.TRUE.equals(order.getRewardPointApplied())) {

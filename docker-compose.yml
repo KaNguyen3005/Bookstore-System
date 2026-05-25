@@ -9,9 +9,20 @@ services:
       MYSQL_USER: app
       MYSQL_PASSWORD: app
       TZ: Asia/Ho_Chi_Minh
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_0900_ai_ci",
+        "--default-time-zone=+07:00",
+        "--init-connect=SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci"
+      ]
 
     ports:
-      - "3308:3306"
+      - "3307:3306"
 
     volumes:
       - mysql_data:/var/lib/mysql
@@ -47,7 +58,10 @@ services:
       - bookstore-network
 
   backend:
-    image: morex3/bookstore-backend:latest
+    build:
+      context: ./backend/bookstore
+      dockerfile: dockerfile
+    image: bookstore-backend:latest
     container_name: backend-dev
 
     ports:
@@ -59,42 +73,57 @@ services:
 
     environment:
       TZ: Asia/Ho_Chi_Minh
-      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Ho_Chi_Minh
+      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Ho_Chi_Minh -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_0900_ai_ci
       SPRING_DATASOURCE_USERNAME: app
       SPRING_DATASOURCE_PASSWORD: app
       SPRING_SQL_INIT_MODE: never
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      GOOGLE_CLIENT_ID: 792560388634-ce149cikhu3i84tbim33rd01kvi9loih.apps.googleusercontent.com
       RECOMMENDATION_SERVICE_URL: http://recommendation-service:8000
     networks:
       - bookstore-network
 
-#  frontend:
-#    image: morex3/bookstore-frontend:latest
-#    container_name: frontend-dev
-#
-#    ports:
-#      - "3000:80"
-#
-#    depends_on:
-#      backend:
-#        condition: service_started
-#
-#    networks:
-#      - bookstore-network
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_GOOGLE_CLIENT_ID: 792560388634-ce149cikhu3i84tbim33rd01kvi9loih.apps.googleusercontent.com
+        VITE_API_BASE_URL: http://localhost:8080/bookstore/api/v1
+    container_name: frontend-dev
+
+    ports:
+      - "5173:80"
+
+    depends_on:
+      backend:
+        condition: service_started
+
+    networks:
+      - bookstore-network
 
   recommendation-service:
-    image: morex3/bookstore-recommendation:latest
+    build:
+      context: ./recommendation-service
+      dockerfile: Dockerfile
+    image: bookstore-recommendation:local
     container_name: recommendation-service-dev
 
     environment:
-      DATABASE_URL: mysql+pymysql://app:app@mysql:3306/db_bookstore
+      DATABASE_URL: mysql+pymysql://app:app@mysql:3306/db_bookstore?charset=utf8mb4
       QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
       COLLAB_WEIGHT: 0.6
       CONTENT_WEIGHT: 0.4
+      TZ: Asia/Ho_Chi_Minh
       PYTHONUNBUFFERED: 1
+      PYTHONUTF8: 1
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
 
     ports:
       - "8000:8000"

@@ -1,4 +1,4 @@
-import styles from "./ReviewModal.module.css";
+import styles from "./reviewModal.module.css";
 
 type ReviewItem = {
   bookId: number | string;

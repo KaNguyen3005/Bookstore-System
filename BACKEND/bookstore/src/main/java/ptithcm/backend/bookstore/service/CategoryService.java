@@ -1,6 +1,8 @@
 package ptithcm.backend.bookstore.service;
 
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -126,7 +128,7 @@ public class CategoryService {
         }
 
         // Soft delete category này
-        category.setDeletedAt(LocalDateTime.now());
+        category.setDeletedAt(AppTime.now());
         categoryRepository.save(category);
 
         // Soft delete tất cả children categories
@@ -143,7 +145,7 @@ public class CategoryService {
         List<Category> children = categoryRepository.findChildCategories(parentId);
         
         for (Category child : children) {
-            child.setDeletedAt(LocalDateTime.now());
+            child.setDeletedAt(AppTime.now());
             categoryRepository.save(child);
             
             // Recursively delete grandchildren

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./DropdownAdmin.css";
 
 type Props = {
@@ -6,8 +7,16 @@ type Props = {
 };
 
 const DropdownAdmin: React.FC<Props> = ({ onLogout }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="dropdown-user">
+      <div
+        className="dropdown-item"
+        onClick={() => navigate("/profile/password")}
+      >
+        Đổi mật khẩu
+      </div>
       <div className="dropdown-item">Cài đặt</div>
       <div className="dropdown-item">Trợ giúp</div>
 

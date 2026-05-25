@@ -136,6 +136,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     """, nativeQuery = true)
     Object sumRevenueByStatuses(@Param("statuses") List<String> statuses);
 
+    @Query(value = """
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM orders o
+    LEFT JOIN payments p ON p.order_id = o.order_id
+    WHERE o.status IN (:statuses)
+      AND o.deleted_at IS NULL
+      AND o.created_at BETWEEN :from AND :to
+    """, nativeQuery = true)
+    Object sumRevenueByStatusesBetween(
+            @Param("statuses") List<String> statuses,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
     @Query("""
         SELECT o
         FROM Order o
@@ -240,6 +254,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         WHERE o.deleted_at IS NULL
         """, nativeQuery = true)
     Long countTotalOrders();
+
+    @Query(value = """
+        SELECT COUNT(o.order_id)
+        FROM orders o
+        WHERE o.deleted_at IS NULL
+          AND o.created_at BETWEEN :from AND :to
+        """, nativeQuery = true)
+    Long countTotalOrdersBetween(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
 
     Long countByDeletedAtIsNull();
 

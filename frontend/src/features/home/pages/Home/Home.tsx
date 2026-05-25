@@ -5,7 +5,7 @@ import HotSearchBooks from "../../components/HotsearchBooks/HotSearchBooks";
 import TopSellingBooks from "../../components/TopsellingBooks/TopSellingBooks";
 import ExploreCategories from "../../components/ExploreCategories/ExploreCategories";
 import Banner from "../../components/Banner/Banner";
-import Pagination from "../../components/Pagination/Pagination";
+import Pagination from "../../components/Pagination/pagination";
 
 import { useHomeData } from "../../hooks/useHomeData";
 import { useAISuggestion } from "../../../AI/hooks/useAISuggestion";

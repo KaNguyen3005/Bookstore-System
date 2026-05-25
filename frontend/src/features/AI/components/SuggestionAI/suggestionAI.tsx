@@ -1,6 +1,6 @@
 import ProductCard from "../../../product/components/ProductCard";
 import type { Book } from "../../../product/types/Book";
-import styles from "./SuggestionAI.module.css";
+import styles from "./suggestionAI.module.css";
 
 interface SuggestionProps {
   books?: Book[];

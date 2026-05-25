@@ -88,6 +88,12 @@ public class GHNCreateOrderRequest {
 
     Integer service_type_id; // bỏ qua validate ID
 
+    @Min(value = 0, message = "VALIDATION_ERROR")
+    Integer cod_amount;
+
+    @Min(value = 0, message = "VALIDATION_ERROR")
+    Integer insurance_value;
+
     @NotEmpty(message = "VALIDATION_ERROR")
     @Valid
     List<GHNItemRequest> items;

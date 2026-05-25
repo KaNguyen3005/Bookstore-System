@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.service;
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +67,7 @@ public class VoucherService {
     }
 
     public List<VoucherResponse> getAllActive(){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppTime.now();
         return voucherRepository.findByDeletedAtIsNull().stream()
                 .filter(v -> isVoucherActiveNow(v, now))
                 .map(voucherMapper::toResponse)
@@ -73,7 +75,7 @@ public class VoucherService {
     }
 
     public List<VoucherResponse> getAllInactive(){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppTime.now();
         return voucherRepository.findByDeletedAtIsNull().stream()
                 .filter(v -> v.getDeletedAt() == null)
                 .filter(v -> !isVoucherActiveNow(v, now))
@@ -149,7 +151,7 @@ public class VoucherService {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.VOUCHER_NOT_FOUND));
 
-        voucher.setDeletedAt(LocalDateTime.now());
+        voucher.setDeletedAt(AppTime.now());
 
         voucherRepository.save(voucher);
     }

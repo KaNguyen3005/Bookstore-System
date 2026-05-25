@@ -14,8 +14,10 @@ export type ShippingStatus =
 
 export type PaymentStatus =
   | 'PENDING'
+  | 'SUCCESS'
   | 'PAID'
-  | 'FAILED';
+  | 'FAILED'
+  | 'CANCELLED';
 
 export type PaymentMethod =
   | 'COD'
@@ -61,6 +63,11 @@ export interface ShippingAddress {
 
 export interface Shipment {
   address?: ShippingAddress;
+  trackingNumber?: string;
+  weight?: number;
+  length?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface Order {
@@ -73,6 +80,7 @@ export interface Order {
 
   totalAmount: number;
   subtotal: number;
+  discountAmount?: number;
 
   items: OrderItem[];
 
@@ -84,6 +92,7 @@ export interface Order {
   status: OrderStatus;
 
   shippingStatus: ShippingStatus;
+  paymentMethod?: PaymentMethod;
   paymentStatus: PaymentStatus;
 
   createdAt: string;

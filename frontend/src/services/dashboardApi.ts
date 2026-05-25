@@ -3,12 +3,16 @@ import axiosClient from "./axiosClient";
 // ================= DASHBOARD OVERVIEW =================
 export const getDashboard = async (params?: {
   range?: string;
+  from?: string;
+  to?: string;
   limit?: number;
   lowStockThreshold?: number;
 }) => {
   const res = await axiosClient.get("/dashboard", {
     params: {
       range: params?.range || "today",
+      from: params?.from,
+      to: params?.to,
       limit: params?.limit || 10,
       lowStockThreshold: params?.lowStockThreshold || 5,
     },
@@ -24,9 +28,12 @@ export const getOrderStatus = async () => {
 };
 
 // ================= REVENUE CHART =================
-export const getRevenueChart = async (range: string = "today") => {
+export const getRevenueChart = async (
+  range: string = "today",
+  dateRange?: { from?: string; to?: string }
+) => {
   const res = await axiosClient.get("/dashboard/revenue-chart", {
-    params: { range },
+    params: { range, from: dateRange?.from, to: dateRange?.to },
   });
   return res.data?.result;
 };
@@ -34,10 +41,11 @@ export const getRevenueChart = async (range: string = "today") => {
 // ================= TOP SELLING BOOKS =================
 export const getTopSellingBooks = async (
   range: string = "month",
-  limit: number = 10
+  limit: number = 10,
+  dateRange?: { from?: string; to?: string }
 ) => {
   const res = await axiosClient.get("/dashboard/top-selling-books", {
-    params: { range, limit },
+    params: { range, limit, from: dateRange?.from, to: dateRange?.to },
   });
   return res.data?.result;
 };

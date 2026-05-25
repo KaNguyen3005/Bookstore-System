@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import ptithcm.backend.bookstore.dto.response.DashboardRevenuePointResponse;
 import ptithcm.backend.bookstore.dto.response.OrderStatusStatisticResponse;
 import ptithcm.backend.bookstore.service.DashboardService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -33,12 +35,23 @@ public class DashboardController {
     @GetMapping
     public ApiResponse<DashboardOverviewResponse> getDashboard(
             @RequestParam(name = "range", defaultValue = "today") String range,
+            @RequestParam(name = "from", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(name = "to", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(name = "limit", defaultValue = "10") int limit,
             @RequestParam(name = "lowStockThreshold", defaultValue = "5") int lowStockThreshold
     ) {
-        log.info("Get dashboard overview, range={}, limit={}, lowStockThreshold={}", range, limit, lowStockThreshold);
+        log.info(
+                "Get dashboard overview, range={}, from={}, to={}, limit={}, lowStockThreshold={}",
+                range,
+                from,
+                to,
+                limit,
+                lowStockThreshold
+        );
         return ApiResponse.<DashboardOverviewResponse>builder()
-                .result(dashboardService.getOverview(range, limit, lowStockThreshold))
+                .result(dashboardService.getOverview(range, from, to, limit, lowStockThreshold))
                 .build();
     }
 
@@ -53,10 +66,14 @@ public class DashboardController {
     @PreAuthorize("hasAuthority('READ_DASHBOARD')")
     @GetMapping("/revenue-chart")
     public ApiResponse<List<DashboardRevenuePointResponse>> getRevenueChart(
-            @RequestParam(name = "range", defaultValue = "today") String range
+            @RequestParam(name = "range", defaultValue = "today") String range,
+            @RequestParam(name = "from", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(name = "to", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
     ) {
         return ApiResponse.<List<DashboardRevenuePointResponse>>builder()
-                .result(dashboardService.getRevenueChart(range))
+                .result(dashboardService.getRevenueChart(range, from, to))
                 .build();
     }
 
@@ -64,10 +81,14 @@ public class DashboardController {
     @GetMapping("/top-selling-books")
     public ApiResponse<List<DashboardBookStatResponse>> getTopSellingBooks(
             @RequestParam(name = "range", defaultValue = "month") String range,
+            @RequestParam(name = "from", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(name = "to", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(name = "limit", defaultValue = "10") int limit
     ) {
         return ApiResponse.<List<DashboardBookStatResponse>>builder()
-                .result(dashboardService.getTopSellingBooks(range, limit))
+                .result(dashboardService.getTopSellingBooks(range, from, to, limit))
                 .build();
     }
 

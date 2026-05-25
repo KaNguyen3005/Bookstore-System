@@ -16,12 +16,17 @@ import ptithcm.backend.bookstore.dto.response.ghn.GHNDistrictResponse;
 import ptithcm.backend.bookstore.dto.response.ghn.GHNProvinceResponse;
 import ptithcm.backend.bookstore.dto.response.ghn.GHNWardResponse;
 import ptithcm.backend.bookstore.entity.Order;
+import ptithcm.backend.bookstore.entity.Payment;
 import ptithcm.backend.bookstore.entity.Shipment;
+import ptithcm.backend.bookstore.enums.PaymentMethod;
+import ptithcm.backend.bookstore.enums.PaymentStatus;
 import ptithcm.backend.bookstore.enums.ShippingStatus;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.repository.ShipmentRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 import java.util.List;
 
@@ -43,6 +48,7 @@ public class GHNService {
 
         Shipment shipment = shipmentRepository.findByOrder_OrderId(order.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.SHIPMENT_NOT_FOUND));
+        int codAmount = calculateCodAmount(order);
 
         GHNCreateOrderRequest requestBody = GHNCreateOrderRequest.builder()
                 .payment_type_id(1)
@@ -65,12 +71,16 @@ public class GHNService {
                 .width(shipment.getWidth() != null ? shipment.getWidth() : 15)
                 .height(shipment.getHeight() != null ? shipment.getHeight() : 10)
                 .service_type_id(2)
+                .cod_amount(codAmount)
+                .insurance_value(calculateInsuranceValue(order))
 
                 .items(order.getBookOrders().stream()
                         .map(item -> GHNItemRequest.builder()
                                 .name(item.getBook().getTitle())
                                 .quantity(item.getQuantity())
                                 .price(item.getBook().getPrice().intValue())
+                                .weight(toItemWeight(item.getBook().getWeight()))
+                                .image_url(item.getBook().getCoverImageUrl())
                                 .build())
                         .toList())
                 .build();
@@ -94,6 +104,40 @@ public class GHNService {
         shipment.setTrackingNumber(ghnOrderCode);
         shipmentRepository.save(shipment);
         return ghnOrderCode;
+    }
+
+    private int calculateCodAmount(Order order) {
+        Payment payment = order.getPayment();
+        if (payment != null
+                && payment.getMethod() == PaymentMethod.VNPAY
+                && payment.getStatus() == PaymentStatus.SUCCESS) {
+            return 0;
+        }
+
+        BigDecimal amount = calculateOrderTotal(order);
+        return amount.setScale(0, RoundingMode.CEILING).intValue();
+    }
+
+    private int calculateInsuranceValue(Order order) {
+        return calculateOrderTotal(order)
+                .setScale(0, RoundingMode.CEILING)
+                .intValue();
+    }
+
+    private BigDecimal calculateOrderTotal(Order order) {
+        if (order == null || order.getPayment() == null || order.getPayment().getAmount() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return order.getPayment().getAmount();
+    }
+
+    private Integer toItemWeight(Double weight) {
+        if (weight == null || weight <= 0) {
+            return 1;
+        }
+
+        return (int) Math.ceil(weight);
     }
 
     public String getOrderStatus(String orderCode) {

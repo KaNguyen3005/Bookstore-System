@@ -28,12 +28,15 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: mysql+pymysql://katila_user:katila_pass@mysql:3306/katila_db
+      DATABASE_URL: mysql+pymysql://katila_user:katila_pass@mysql:3306/katila_db?charset=utf8mb4
       QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
       ENVIRONMENT: production
       DEBUG: "False"
       LOG_LEVEL: INFO
+      PYTHONUTF8: "1"
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     depends_on:
       mysql:
         condition: service_healthy
@@ -58,12 +61,19 @@ services:
       MYSQL_USER: katila_user
       MYSQL_PASSWORD: katila_pass
       MYSQL_DATABASE: katila_db
-      MYSQL_INITIALIZTION_FILES: /docker-entrypoint-initdb.d
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--init-connect=SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+      ]
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - katila-network
     healthcheck:

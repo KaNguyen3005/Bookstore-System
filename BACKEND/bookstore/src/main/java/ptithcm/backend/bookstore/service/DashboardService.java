@@ -13,6 +13,7 @@ import ptithcm.backend.bookstore.mapper.OrderMapper;
 import ptithcm.backend.bookstore.repository.BookRepository;
 import ptithcm.backend.bookstore.repository.OrderRepository;
 import ptithcm.backend.bookstore.repository.UserRepository;
+import ptithcm.backend.bookstore.utils.AppTime;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -41,15 +42,30 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public DashboardOverviewResponse getOverview(String range, int limit, int lowStockThreshold) {
+        return getOverview(range, null, null, limit, lowStockThreshold);
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardOverviewResponse getOverview(
+            String range,
+            LocalDate fromDate,
+            LocalDate toDate,
+            int limit,
+            int lowStockThreshold
+    ) {
         int safeLimit = normalizeLimit(limit);
         int safeLowStockThreshold = normalizeLowStockThreshold(lowStockThreshold);
-        DateRange dateRange = resolveDateRange(range);
+        DateRange dateRange = resolveDateRange(range, fromDate, toDate);
 
         return DashboardOverviewResponse.builder()
-                .totalRevenue(toBigDecimal(orderRepository.sumRevenueByStatuses(REVENUE_ORDER_STATUS_NAMES)))
+                .totalRevenue(toBigDecimal(orderRepository.sumRevenueByStatusesBetween(
+                        REVENUE_ORDER_STATUS_NAMES,
+                        dateRange.from(),
+                        dateRange.to()
+                )))
                 .monthlyRevenue(getRevenueForCurrentMonth())
                 .dailyRevenue(getRevenueForToday())
-                .totalOrders(orderRepository.countTotalOrders())
+                .totalOrders(orderRepository.countTotalOrdersBetween(dateRange.from(), dateRange.to()))
                 .totalCustomers(userRepository.countByRole_RoleNameAndDeletedAtIsNull("CUSTOMER"))
                 .totalProducts(bookRepository.countByDeletedAtIsNull())
                 .pendingOrders(orderRepository.countByStatus(OrderStatus.PENDING.name()))
@@ -81,12 +97,27 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public List<DashboardRevenuePointResponse> getRevenueChart(String range) {
-        return getRevenueChart(resolveDateRange(range));
+        return getRevenueChart(resolveDateRange(range, null, null));
+    }
+
+    @Transactional(readOnly = true)
+    public List<DashboardRevenuePointResponse> getRevenueChart(String range, LocalDate fromDate, LocalDate toDate) {
+        return getRevenueChart(resolveDateRange(range, fromDate, toDate));
     }
 
     @Transactional(readOnly = true)
     public List<DashboardBookStatResponse> getTopSellingBooks(String range, int limit) {
-        return getTopSellingBooks(resolveDateRange(range), normalizeLimit(limit));
+        return getTopSellingBooks(resolveDateRange(range, null, null), normalizeLimit(limit));
+    }
+
+    @Transactional(readOnly = true)
+    public List<DashboardBookStatResponse> getTopSellingBooks(
+            String range,
+            LocalDate fromDate,
+            LocalDate toDate,
+            int limit
+    ) {
+        return getTopSellingBooks(resolveDateRange(range, fromDate, toDate), normalizeLimit(limit));
     }
 
     @Transactional(readOnly = true)
@@ -197,7 +228,7 @@ public class DashboardService {
     }
 
     private BigDecimal getRevenueForToday() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         return sumRows(orderRepository.getDashboardRevenueByDay(
                 today.atStartOfDay(),
                 today.atTime(LocalTime.MAX),
@@ -206,7 +237,7 @@ public class DashboardService {
     }
 
     private BigDecimal getRevenueForCurrentMonth() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = AppTime.today();
         LocalDate firstDayOfMonth = today.withDayOfMonth(1);
         LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
         return sumRows(orderRepository.getDashboardRevenueByDay(
@@ -223,7 +254,29 @@ public class DashboardService {
     }
 
     private DateRange resolveDateRange(String rawRange) {
-        LocalDate today = LocalDate.now();
+        return resolveDateRange(rawRange, null, null);
+    }
+
+    private DateRange resolveDateRange(String rawRange, LocalDate fromDate, LocalDate toDate) {
+        if (fromDate != null || toDate != null) {
+            LocalDate safeFrom = fromDate != null ? fromDate : toDate;
+            LocalDate safeTo = toDate != null ? toDate : fromDate;
+
+            if (safeFrom.isAfter(safeTo)) {
+                throw new IllegalArgumentException("from must be before or equal to to");
+            }
+
+            long days = java.time.temporal.ChronoUnit.DAYS.between(safeFrom, safeTo) + 1;
+            ChartGroupBy groupBy = days <= 1 ? ChartGroupBy.HOUR : days > 62 ? ChartGroupBy.MONTH : ChartGroupBy.DAY;
+
+            return new DateRange(
+                    safeFrom.atStartOfDay(),
+                    safeTo.atTime(LocalTime.MAX),
+                    groupBy
+            );
+        }
+
+        LocalDate today = AppTime.today();
         String normalized = rawRange == null ? "today" : rawRange.trim().toLowerCase();
 
         return switch (normalized) {

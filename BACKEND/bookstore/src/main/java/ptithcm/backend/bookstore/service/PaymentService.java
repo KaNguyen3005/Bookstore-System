@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.service;
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -295,8 +297,6 @@ public class PaymentService {
                 payment.setAmount(BigDecimal.valueOf(amountVND));
                 payment.setPaidAt(parseVNPayPayDate(payDate));
 
-                order.setStatus(OrderStatus.CONFIRMED);
-
                 // 9. Clean cart sau khi thanh toán thành công
                 cleanCartAfterPaymentSuccess(order);
             } else {
@@ -354,13 +354,13 @@ public class PaymentService {
     private LocalDateTime parseVNPayPayDate(String payDate) {
         try {
             if (payDate == null || payDate.isBlank()) {
-                return LocalDateTime.now();
+                return AppTime.now();
             }
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
             return LocalDateTime.parse(payDate, formatter);
         } catch (Exception e) {
             log.warn("Cannot parse vnp_PayDate={}, fallback to now()", payDate);
-            return LocalDateTime.now();
+            return AppTime.now();
         }
     }
 

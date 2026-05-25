@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.service;
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -161,6 +163,9 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         OrderStatus newStatus = request.getStatus();
+        if (newStatus != OrderStatus.CANCELLED) {
+            throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
+        }
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
         return orderMapper.toResponse(updatedOrder);
@@ -180,6 +185,13 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         if (order.getStatus() != OrderStatus.PENDING) {
+            throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        Payment payment = paymentRepository.findByOrder_OrderId(order.getOrderId());
+        if (payment != null
+                && payment.getMethod() == PaymentMethod.VNPAY
+                && payment.getStatus() != PaymentStatus.SUCCESS) {
             throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
         }
 
@@ -225,14 +237,14 @@ public class OrderService {
 
         // 5. Cập nhật trạng thái đơn hàng thành CANCELLED
         order.setStatus(OrderStatus.CANCELLED);
-        order.setUpdatedAt(LocalDateTime.now());
+        order.setUpdatedAt(AppTime.now());
         orderRepository.save(order);
 
         // 6. Cập nhật trạng thái payment nếu có
         Payment payment = paymentRepository.findByOrder_OrderId(order.getOrderId());
         if (payment != null) {
             payment.setStatus(PaymentStatus.CANCELLED);
-            payment.setUpdatedAt(LocalDateTime.now());
+            payment.setUpdatedAt(AppTime.now());
             paymentRepository.save(payment);
         }
 
@@ -366,7 +378,7 @@ public class OrderService {
     }
 
     private void validateVoucher(Voucher voucher, BigDecimal subtotal) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppTime.now();
 
         if (Boolean.FALSE.equals(voucher.getIsActive())) {
             throw new AppException(ErrorCode.VOUCHER_INACTIVE);
@@ -570,7 +582,7 @@ public class OrderService {
 
             // Tính tổng trọng lượng (kg)
             if (book.getWeight() != null) {
-                totalWeight += book.getWeight() * quantity;
+                totalWeight += (int) Math.ceil(book.getWeight() * quantity);
             }
 
             // Lấy chiều dài và chiều rộng lớn nhất
@@ -591,7 +603,7 @@ public class OrderService {
         if (maxLength == 0) maxLength = 20;  // Default 20cm
         if (maxWidth == 0) maxWidth = 15;   // Default 15cm
         if (totalHeight == 0) totalHeight = 5; // Default 5cm
-        if (totalWeight == 0) totalWeight = 1; // Default 1kg
+        if (totalWeight == 0) totalWeight = 1000; // Default 1000g
 
         return ShipmentDimensions.builder()
                 .weight(totalWeight)
@@ -784,8 +796,8 @@ public class OrderService {
         Long cancelledOrders = orderRepository.countByStatus(OrderStatus.CANCELLED.name());
         
         // Calculate revenue for today
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = LocalDate.now().atTime(23, 59, 59);
+        LocalDateTime startOfDay = AppTime.today().atStartOfDay();
+        LocalDateTime endOfDay = AppTime.today().atTime(23, 59, 59);
         
         List<Object[]> dailyRevenue = orderRepository.getRevenueByDay(
                 startOfDay, 
@@ -798,8 +810,8 @@ public class OrderService {
                 toBigDecimal(dailyRevenue.get(0)[1]);
         
         // Calculate revenue for this month
-        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
-        LocalDateTime endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
+        LocalDateTime startOfMonth = AppTime.today().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endOfMonth = AppTime.today().withDayOfMonth(AppTime.today().lengthOfMonth()).atTime(23, 59, 59);
         
         List<Object[]> monthlyRevenue = orderRepository.getRevenueByMonth(
                 startOfMonth, 
@@ -814,8 +826,8 @@ public class OrderService {
         }
         
         // Calculate total revenue all time
-        LocalDateTime startOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
-        LocalDateTime endOfYear = LocalDate.now().withDayOfYear(LocalDate.now().lengthOfYear()).atTime(23, 59, 59);
+        LocalDateTime startOfYear = AppTime.today().withDayOfYear(1).atStartOfDay();
+        LocalDateTime endOfYear = AppTime.today().withDayOfYear(AppTime.today().lengthOfYear()).atTime(23, 59, 59);
         
         List<Object[]> yearlyRevenue = orderRepository.getRevenueByYear(
                 startOfYear, 

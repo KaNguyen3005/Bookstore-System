@@ -43,7 +43,7 @@ public class VNPayUtil {
         params.put("vnp_Locale", language != null ? language : "vn");
         params.put("vnp_ReturnUrl", config.getReturnUrl());
         params.put("vnp_IpAddr", getIpAddress(request));
-        params.put("vnp_CreateDate", LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))
+        params.put("vnp_CreateDate", AppTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
 
         // BankCode không bắt buộc — để trống thì VNPay hiển thị trang chọn ngân hàng

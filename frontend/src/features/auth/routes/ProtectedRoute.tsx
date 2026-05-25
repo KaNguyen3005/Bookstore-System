@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import {
+  hasAdminAccess,
   hasAnyPermission,
   isAdminRole,
   normalizeRole,
@@ -11,12 +12,14 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   roles?: string[];
   permissions?: string[];
+  requireAdminAccess?: boolean;
 }
 
 const ProtectedRoute = ({
   children,
   roles,
   permissions,
+  requireAdminAccess,
 }: ProtectedRouteProps) => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
@@ -38,6 +41,10 @@ const ProtectedRoute = ({
   const userRole = normalizeRole(user.role);
 
   if (roles && !roles.some((role) => normalizeRole(role) === userRole)) {
+    return <ForbiddenAccess />;
+  }
+
+  if (requireAdminAccess && !hasAdminAccess(user.role, user.permissions)) {
     return <ForbiddenAccess />;
   }
 

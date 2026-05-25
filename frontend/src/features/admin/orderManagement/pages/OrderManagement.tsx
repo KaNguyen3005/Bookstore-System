@@ -25,6 +25,7 @@ export const OrderManagement: React.FC = () => {
     handleApprove,
     handleUpdateStatus,
     handleExport,
+    handlePrintInvoice,
     allowedTransitions,
     ...stats
   } = useOrders();
@@ -70,6 +71,7 @@ export const OrderManagement: React.FC = () => {
           onViewDetail={setSelectedOrderId}
           onApprove={handleApprove}
           onUpdateStatus={handleUpdateStatus}
+          onPrintInvoice={handlePrintInvoice}
         />
 
         <Pagination 

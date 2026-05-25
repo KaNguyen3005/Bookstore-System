@@ -7,8 +7,8 @@ import React, {
 import { useSearchParams } from "react-router-dom";
 import FilterSidebar from "../components/FilterSidebar";
 import BookGrid from "../components/BookGrid";
-import Pagination from "../../home/components/Pagination/Pagination";
-import TopSellingBooks from "../../home/components/TopSellingBooks/TopSellingBooks";
+import Pagination from "../../home/components/Pagination/pagination";
+import TopSellingBooks from "../../home/components/TopsellingBooks/TopSellingBooks";
 
 import { useBookSearch } from "../hooks/useBookSearch";
 

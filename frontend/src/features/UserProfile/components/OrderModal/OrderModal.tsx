@@ -1,4 +1,5 @@
 import styles from "./OrderModal.module.css";
+import { formatVietnamDateTime } from "../../../../utils/dateTime";
 
 const formatPrice = (value: number) => {
   return Number(value || 0).toLocaleString("vi-VN");
@@ -114,9 +115,7 @@ export default function OrderModal({
           <div className={styles.row}>
             <span>Ngày đặt</span>
             <span>
-              {new Date(
-                new Date(order.createdAt).getTime() + 7 * 60 * 60 * 1000,
-              ).toLocaleString("vi-VN")}
+              {formatVietnamDateTime(order.createdAt)}
             </span>
           </div>
         </div>

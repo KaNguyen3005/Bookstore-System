@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { toDateParam } from "../../../../utils/dateTime";
 
 // 👇 import component bạn đã tách
 import BigCard from "./BigCard";
@@ -55,8 +56,8 @@ export default function StatisticalReport() {
         break;
     }
 
-    setFromDate(from.toISOString().split("T")[0]);
-    setToDate(today.toISOString().split("T")[0]);
+    setFromDate(toDateParam(from) ?? "");
+    setToDate(toDateParam(today) ?? "");
   };
 
   const handleFilter = () => {

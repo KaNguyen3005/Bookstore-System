@@ -1,4 +1,5 @@
 import axiosClient from "./axiosClient";
+import { toDateParam } from "../utils/dateTime";
 import users from "../data/user1";
 
 const IS_MOCK = false;
@@ -122,7 +123,7 @@ const formatDatePayload = (date?: Date | string | null) => {
   if (typeof date === "string") return date;
   if (Number.isNaN(date.getTime())) return undefined;
 
-  return date.toISOString().slice(0, 10);
+  return toDateParam(date);
 };
 
 const parseOptionalDate = (value: any) => {

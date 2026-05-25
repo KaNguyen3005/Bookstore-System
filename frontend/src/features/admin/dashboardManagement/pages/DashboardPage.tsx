@@ -9,6 +9,7 @@ import {
   getRecentOrders,
   getOutOfStockBooks,
 } from "../../../../services/dashboardApi";
+import { toDateParam } from "../../../../utils/dateTime";
 
 import {
   Area,
@@ -39,6 +40,11 @@ type DashboardData = {
   topRated: any[];
   recent: any[];
   outOfStock: any[];
+};
+
+type DashboardDateRange = {
+  from?: string;
+  to?: string;
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -76,12 +82,27 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState("today");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const lastOrderRef = useRef<number | null>(null);
 
+  const selectedDateRange = useMemo<DashboardDateRange | undefined>(() => {
+    if (range !== "custom") return undefined;
+
+    return {
+      from: toDateParam(customFrom),
+      to: toDateParam(customTo),
+    };
+  }, [customFrom, customTo, range]);
+
   const fetchDashboardData = useCallback(
-    async (rangeValue: string, manualRefresh = false) => {
+    async (
+      rangeValue: string,
+      manualRefresh = false,
+      dateRange?: DashboardDateRange
+    ) => {
       try {
         if (manualRefresh) {
           setRefreshing(true);
@@ -92,9 +113,9 @@ export default function DashboardPage() {
 
         const [dashboard, chart, topSelling, topRated, recent, outOfStock] =
           await Promise.all([
-            getDashboard({ range: rangeValue, limit: 10 }),
-            getRevenueChart(rangeValue),
-            getTopSellingBooks(rangeValue, 5),
+            getDashboard({ range: rangeValue, limit: 10, ...dateRange }),
+            getRevenueChart(rangeValue, dateRange),
+            getTopSellingBooks(rangeValue, 5, dateRange),
             getTopRatedBooks(5),
             getRecentOrders(5),
             getOutOfStockBooks(10),
@@ -120,8 +141,8 @@ export default function DashboardPage() {
   );
 
   useEffect(() => {
-    void fetchDashboardData(range);
-  }, [fetchDashboardData, range]);
+    void fetchDashboardData(range, false, selectedDateRange);
+  }, [fetchDashboardData, range, selectedDateRange]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -243,12 +264,35 @@ export default function DashboardPage() {
             <option value="week">Tuần</option>
             <option value="month">Tháng</option>
             <option value="year">Năm</option>
+            <option value="custom">Tùy chọn</option>
             <option value="all">Toàn bộ thời gian</option>
           </select>
 
+          {range === "custom" && (
+            <div className={styles.dateRange}>
+              <input
+                type="date"
+                value={customFrom}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                className={styles.dateInput}
+                max={customTo || undefined}
+                aria-label="Từ ngày"
+              />
+              <span className={styles.dateSeparator}>-</span>
+              <input
+                type="date"
+                value={customTo}
+                onChange={(e) => setCustomTo(e.target.value)}
+                className={styles.dateInput}
+                min={customFrom || undefined}
+                aria-label="Đến ngày"
+              />
+            </div>
+          )}
+
           <button
             className={styles.refreshBtn}
-            onClick={() => fetchDashboardData(range, true)}
+            onClick={() => fetchDashboardData(range, true, selectedDateRange)}
             disabled={refreshing}
             aria-label="Làm mới dashboard"
           >

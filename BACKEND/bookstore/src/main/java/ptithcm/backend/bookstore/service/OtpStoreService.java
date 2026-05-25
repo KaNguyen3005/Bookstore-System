@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.service;
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +23,7 @@ public class OtpStoreService {
     private final Map<String, OtpData> otpStorage = new ConcurrentHashMap<>();
 
     public LocalDateTime saveOtp(String email, String otp) {
-        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
+        LocalDateTime expiryTime = AppTime.now().plusMinutes(5);
         otpStorage.put(email, new OtpData(otp, expiryTime));
         return expiryTime; // Trả về thời gian hết hạn
     }
@@ -33,7 +35,7 @@ public class OtpStoreService {
             throw new AppException(ErrorCode.OTP_INVALID);
         }
 
-        if (LocalDateTime.now().isAfter(data.expiredAt())) {
+        if (AppTime.now().isAfter(data.expiredAt())) {
             otpStorage.remove(email);
             throw new AppException(ErrorCode.OTP_EXPIRED);
         }

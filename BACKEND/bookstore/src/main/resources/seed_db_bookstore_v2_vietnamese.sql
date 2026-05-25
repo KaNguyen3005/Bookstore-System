@@ -4,6 +4,11 @@
 -- Currency: VNĐ (VND)
 -- Exchange Rate: 1 USD ≈ 24,000 VNĐ
 
+SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS=0;
 
 -- =====================================================
@@ -378,11 +383,11 @@ INSERT INTO `book_cart` (`book_cart_id`, `quantity`, `book_id`, `cart_id`, `crea
 -- VOUCHERS (MÃ GIẢM GIÁ)
 -- =====================================================
 INSERT INTO `vouchers` (`voucher_id`, `voucher_code`, `title`, `description`, `type`, `discount_value`, `min_order_value`, `start_date`, `end_date`, `total_limit`, `limit_per_user`, `is_active`, `created_at`) VALUES
-(1, 'GIAM10', 'Giảm 10%', 'Giảm 10% cho tất cả các sách', 'PERCENTAGE', 10, 1200000, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 100, 1, 1, NOW()),
-(2, 'TIET50', 'Tiết kiệm 50k', 'Giảm 50,000 VNĐ cho đơn hàng', 'FIXED', 50000, 1200000, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 150, 2, 1, NOW()),
-(3, 'WELCOME15', 'Chào Mừng 15%', 'Giảm 15% cho khách mua lần đầu', 'PERCENTAGE', 15, 1200000, NOW(), DATE_ADD(NOW(), INTERVAL 60 DAY), 200, 1, 1, NOW()),
-(4, 'HE20', 'Hè 20%', 'Khuyến mãi mùa hè 20%', 'PERCENTAGE', 20, 1500000, NOW(), DATE_ADD(NOW(), INTERVAL 45 DAY), 80, 1, 1, NOW()),
-(5, 'THANK5', 'Cảm ơn 5%', 'Lợi nhuận khách hàng 5%', 'PERCENTAGE', 5, 800000, NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 300, 3, 1, NOW());
+(1, 'GIAM10', 'Giảm 10%', 'Giảm 10% cho tất cả các sách', 'PERCENTAGE', 10, 150000, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 100, 1, 1, NOW()),
+(2, 'TIET50', 'Tiết kiệm 50k', 'Giảm 50,000 VNĐ cho đơn hàng', 'FIXED', 50000, 300000, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 150, 2, 1, NOW()),
+(3, 'WELCOME15', 'Chào Mừng 15%', 'Giảm 15% cho khách mua lần đầu', 'PERCENTAGE', 15, 120000, NOW(), DATE_ADD(NOW(), INTERVAL 60 DAY), 200, 1, 1, NOW()),
+(4, 'HE20', 'Hè 20%', 'Khuyến mãi mùa hè 20%', 'PERCENTAGE', 20, 400000, NOW(), DATE_ADD(NOW(), INTERVAL 45 DAY), 80, 1, 1, NOW()),
+(5, 'THANK5', 'Cảm ơn 5%', 'Lợi nhuận khách hàng 5%', 'PERCENTAGE', 5, 100000, NOW(), DATE_ADD(NOW(), INTERVAL 90 DAY), 300, 3, 1, NOW());
 
 -- =====================================================
 -- ORDERS (ĐƠN HÀNG)
@@ -741,6 +746,34 @@ INSERT INTO `book_order` (`book_order_id`, `quantity`, `unit`, `rate`, `content`
 (75, 1, 'quyen', NULL, NULL, 46, 69, '2026-05-21 11:45:00'),
 (76, 2, 'quyen', 5, 'Don hang trong ngay hien tai de demo daily revenue.', 5, 70, '2026-05-23 09:20:00'),
 (77, 3, 'quyen', 5, 'Don hang moi nhat ngay 23/05/2026.', 15, 71, '2026-05-23 15:40:00');
+
+-- Normalize seeded order totals after all order items are available.
+UPDATE `orders` o
+JOIN (
+    SELECT
+        bo.order_id,
+        SUM(bo.quantity * b.price) AS subtotal
+    FROM `book_order` bo
+    JOIN `books` b ON b.book_id = bo.book_id
+    GROUP BY bo.order_id
+) totals ON totals.order_id = o.order_id
+SET o.vat_amount = CEIL(totals.subtotal * COALESCE(o.vat_rate, 0.05));
+
+UPDATE `payments` p
+JOIN (
+    SELECT
+        o.order_id,
+        ROUND(
+            SUM(bo.quantity * b.price)
+            + COALESCE(o.vat_amount, CEIL(SUM(bo.quantity * b.price) * COALESCE(o.vat_rate, 0.05))),
+            2
+        ) AS expected_amount
+    FROM `orders` o
+    JOIN `book_order` bo ON bo.order_id = o.order_id
+    JOIN `books` b ON b.book_id = bo.book_id
+    GROUP BY o.order_id, o.vat_rate, o.vat_amount
+) totals ON totals.order_id = p.order_id
+SET p.amount = totals.expected_amount;
 
 INSERT INTO `interact_events` (`interact_event_id`, `event_type`, `value`, `book_id`, `user_id`, `created_at`) VALUES
 -- Tháng 1/2025

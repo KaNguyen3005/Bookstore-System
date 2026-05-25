@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.service;
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -169,7 +171,7 @@ public class BookService {
             throw new AppException(ErrorCode.BOOK_ALREADY_DELETED);
         }
 
-        book.setDeletedAt(LocalDateTime.now());
+        book.setDeletedAt(AppTime.now());
     }
 
     @Transactional
@@ -214,7 +216,7 @@ public class BookService {
             updateCoverImage(book, request.getCoverImg());
         }
 
-        book.setUpdatedAt(LocalDateTime.now());
+        book.setUpdatedAt(AppTime.now());
         bookRepository.save(book);
 
         return bookMapper.toResponse(book);

@@ -53,3 +53,14 @@ export const hasAnyPermission = (
 };
 
 export const isAdminRole = (role?: string) => normalizeRole(role) === "ADMIN";
+
+export const isCustomerRole = (role?: string) => {
+  const normalizedRole = normalizeRole(role);
+
+  return normalizedRole === "CUSTOMER" || normalizedRole === "USER";
+};
+
+export const hasAdminAccess = (
+  role?: string,
+  permissions: string[] = [],
+) => isAdminRole(role) || (!isCustomerRole(role) && permissions.length > 0);

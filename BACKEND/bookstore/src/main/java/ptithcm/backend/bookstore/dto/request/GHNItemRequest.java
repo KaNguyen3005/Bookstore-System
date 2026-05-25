@@ -23,4 +23,10 @@ public class GHNItemRequest {
     @NotNull(message = "INVALID_PRICE")
     @Min(value = 1, message = "INVALID_PRICE")
     Integer price;
+
+    @Min(value = 1, message = "VALIDATION_ERROR")
+    Integer weight;
+
+    @Size(max = 500, message = "VALIDATION_ERROR")
+    String image_url;
 }

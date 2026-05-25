@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.env.local
+*.log
+build_output.txt
+tsc_output.txt
+vite-dev.err.log
+vite-dev.log

@@ -18,6 +18,11 @@ import { GoogleLogin } from "@react-oauth/google";
 import { authApi } from "../../../../services/authApi";
 import { userApi } from "../../../../services/userApi";
 import type { User } from "../../context/AuthContext";
+import {
+  getPermissionsFromToken,
+  hasAdminAccess,
+  normalizeRole,
+} from "../../utils/authPermissions";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -40,14 +45,17 @@ const Login = () => {
 
   const from = location.state?.from || "/";
 
-  const normalizeRole = (value?: string) =>
-    value?.trim().toUpperCase().replace(/^ROLE_/, "");
-
-  const getAdminStartPath = (role?: string) => {
+  const getAdminStartPath = (role?: string, permissions: string[] = []) => {
     const normalizedRole = normalizeRole(role);
 
     if (normalizedRole === "ADMIN") return "/admin";
-    if (normalizedRole === "STAFF") return "/admin/products";
+    if (permissions.includes("READ_DASHBOARD")) return "/admin";
+    if (permissions.includes("READ_BOOK") || permissions.includes("CREATE_BOOK")) {
+      return "/admin/products";
+    }
+    if (permissions.includes("READ_ORDER")) return "/admin/orders";
+    if (permissions.includes("READ_USER")) return "/admin/customers";
+    if (permissions.includes("READ_PERMISSION")) return "/admin/role";
 
     return "/";
   };
@@ -98,6 +106,7 @@ const Login = () => {
     name: fullUser.name || "",
     role: fullUser.role || "",
     avatarUrl: fullUser.avatarUrl,
+    permissions: getPermissionsFromToken(token),
     token,
   });
 
@@ -109,7 +118,7 @@ if (hasToken && user) {
 
   return (
     <Navigate
-      to={getAdminStartPath(role)}
+      to={getAdminStartPath(role, user.permissions ?? [])}
       replace
     />
   );
@@ -168,11 +177,11 @@ if (hasToken && user) {
       // 4. update auth context
       login(toAuthUser(fullUser, loginRes.token));
 
-      const role = normalizeRole(fullUser.role);
+      const authUser = toAuthUser(fullUser, loginRes.token);
 
       navigate(
-        role === "ADMIN" || role === "STAFF"
-          ? getAdminStartPath(role)
+        hasAdminAccess(authUser.role, authUser.permissions)
+          ? getAdminStartPath(authUser.role, authUser.permissions)
           : from,
         { replace: true }
       );
@@ -286,11 +295,14 @@ if (hasToken && user) {
 
                   login(toAuthUser(fullUser, loginRes.token));
 
-                  const role = normalizeRole(fullUser.role);
+                  const authUser = toAuthUser(fullUser, loginRes.token);
 
-                  navigate(getAdminStartPath(role), {
-                    replace: true,
-                  });
+                  navigate(
+                    hasAdminAccess(authUser.role, authUser.permissions)
+                      ? getAdminStartPath(authUser.role, authUser.permissions)
+                      : from,
+                    { replace: true }
+                  );
                 } catch (err: any) {
                   setError(err.message || "Đăng nhập Google thất bại");
                 } finally {

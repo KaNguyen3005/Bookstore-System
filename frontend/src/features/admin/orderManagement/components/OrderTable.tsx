@@ -7,8 +7,7 @@ import type {
 } from '../types/order';
 
 import '../styles/OrderTable.css';
-
-const VIETNAM_TIME_OFFSET_MS = 7 * 60 * 60 * 1000;
+import { formatVietnamDate } from '../../../../utils/dateTime';
 
 interface OrderTableProps {
   orders: Order[];
@@ -17,11 +16,12 @@ interface OrderTableProps {
   onViewDetail: (id: number) => void;
   onApprove: (id: number) => void;
   onUpdateStatus: (id: number, current: OrderStatus, next: OrderStatus) => void;
+  onPrintInvoice: (id: number) => void;
 }
 
 export const OrderTable: React.FC<
   OrderTableProps
-> = ({ orders, loading, allowedTransitions, onViewDetail, onApprove, onUpdateStatus }) => {
+> = ({ orders, loading, allowedTransitions, onViewDetail, onApprove, onUpdateStatus, onPrintInvoice }) => {
   // ================= FORMAT MONEY =================
   const formatCurrency = (
     amount: number
@@ -37,13 +37,18 @@ export const OrderTable: React.FC<
       .replace('₫', 'đ');
   };
 
+  // ================= ACTIONS =================
+  const handleAction = (orderId: number, current: OrderStatus, next: OrderStatus, label: string) => {
+    if (window.confirm(`Bạn có chắc muốn chuyển đơn hàng sang trạng thái "${label}"?`)) {
+      onUpdateStatus(orderId, current, next);
+    }
+  };
+
   // ================= FORMAT DATE =================
   const formatDate = (
     date: string
   ) => {
-    return new Date(
-      new Date(date).getTime() + VIETNAM_TIME_OFFSET_MS
-    ).toLocaleDateString('vi-VN');
+    return formatVietnamDate(date);
   };
 
   // ================= STATUS LABEL =================
@@ -97,13 +102,6 @@ export const OrderTable: React.FC<
 
       default:
         return 'order-table__badge--default';
-    }
-  };
-
-  // ================= ACTIONS =================
-  const handleAction = (orderId: number, current: OrderStatus, next: OrderStatus, label: string) => {
-    if (window.confirm(`Bạn có chắc muốn chuyển đơn hàng sang trạng thái "${label}"?`)) {
-      onUpdateStatus(orderId, current, next);
     }
   };
 
@@ -280,7 +278,11 @@ export const OrderTable: React.FC<
                       />
                     </button>
 
-                    <button className="order-table__action-btn" title="In hóa đơn">
+                    <button
+                      className="order-table__action-btn"
+                      title="In hóa đơn"
+                      onClick={() => onPrintInvoice(order.orderId)}
+                    >
                       <Printer
                         size={16}
                         strokeWidth={2.5}

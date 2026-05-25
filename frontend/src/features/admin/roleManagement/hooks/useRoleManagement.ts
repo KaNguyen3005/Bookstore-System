@@ -27,12 +27,8 @@ const systemRoleNames = new Set([
   "USER",
 ]);
 
-const customerRoleNames = new Set(["CUSTOMER", "USER"]);
-const assignmentBlockedRoleNames = new Set(["ADMIN", "CUSTOMER", "USER"]);
+const assignmentBlockedRoleNames = new Set(["ADMIN"]);
 const permissionProtectedRoleNames = new Set(["ADMIN", "CUSTOMER", "USER"]);
-
-const isCustomerRole = (roleName?: string) =>
-  customerRoleNames.has(normalizeText(roleName));
 
 const isProtectedSystemRole = (roleName?: string) =>
   systemRoleNames.has(normalizeText(roleName));
@@ -548,7 +544,7 @@ export const useRoleManagement = () => {
         const targetRole = roles.find((role) => role.roleId === roleId);
 
         if (!targetRole || isAssignmentBlockedRole(targetRole.roleName)) {
-          alert("Không thể phân quyền người dùng thành vai trò admin hoặc khách hàng");
+          alert("Không thể phân quyền người dùng thành vai trò admin");
           return;
         }
 

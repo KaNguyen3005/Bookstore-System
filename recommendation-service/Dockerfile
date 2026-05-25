@@ -25,6 +25,9 @@ WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONUTF8=1
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \

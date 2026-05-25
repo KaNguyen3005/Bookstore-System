@@ -3,8 +3,7 @@ import { X, Package, Clock, CreditCard, MapPin, Phone } from 'lucide-react';
 import type { Order } from '../types/order';
 import { orderService } from '../services/orderService';
 import './OrderDetailModal.css';
-
-const VIETNAM_TIME_OFFSET_MS = 7 * 60 * 60 * 1000;
+import { formatVietnamDateTime } from '../../../../utils/dateTime';
 
 interface OrderDetailModalProps {
   orderId: number | null;
@@ -39,12 +38,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   const formatCurrency = (amount?: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0).replace('₫', 'đ');
-  };
-
-  const formatVietnamDateTime = (date: string) => {
-    return new Date(
-      new Date(date).getTime() + VIETNAM_TIME_OFFSET_MS
-    ).toLocaleString('vi-VN');
   };
 
   const getLineTotal = (item: Order['items'][number]) => {

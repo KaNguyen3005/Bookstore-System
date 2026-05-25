@@ -1,4 +1,4 @@
-import styles from "./MemberPage.module.css";
+import styles from "./memberPage.module.css";
 import { Star, Crown, Gem } from "lucide-react";
 
 import { MdLocalShipping } from "react-icons/md";

@@ -32,6 +32,7 @@ public interface OrderMapper {
     @Mapping(source = "customer.name", target = "customerName")
     @Mapping(source = "voucher", target = "voucher", qualifiedByName = "mapVoucher")
     @Mapping(source = "shipment", target = "shipment", qualifiedByName = "mapShipment")
+    @Mapping(target = "paymentMethod", expression = "java(order.getPayment() != null ? order.getPayment().getMethod() : null)")
     @Mapping(target = "paymentStatus", expression = "java(order.getPayment() != null ? order.getPayment().getStatus() : null)")
     OrderResponse toResponse(Order order);
 

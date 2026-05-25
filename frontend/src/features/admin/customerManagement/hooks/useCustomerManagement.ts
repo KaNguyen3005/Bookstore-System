@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent, MouseEvent } from "react";
 
 import { userApi, type UserFE } from "../../../../services/userApi";
+import { toDateParam } from "../../../../utils/dateTime";
 import type { UpdateUserPayload } from "../../../../services/userApi";
 import { roleService } from "../../roleManagement/services/roleService";
 import type { RoleResponse } from "../../roleManagement/types/role";
+import { isCustomerRole } from "../../../auth/utils/authPermissions";
 
 type FormMode = "create" | "edit";
 type AccountManagementTab = "staffAdmin" | "customers";
@@ -42,8 +44,7 @@ const emptyForm: UserFormState = {
   point: "0",
 };
 
-const staffAdminRoles = new Set(["ADMIN", "STAFF"]);
-const assignableStaffRoles = new Set(["STAFF"]);
+const adminRoleNames = new Set(["ADMIN"]);
 
 const normalizeRole = (role?: string) => role?.trim().toUpperCase() ?? "";
 
@@ -103,12 +104,15 @@ const getRoleOptionsByTab = (
   roleOptions: RoleOption[],
   tab: AccountManagementTab
 ) => {
-  const allowedRoles =
-    tab === "staffAdmin" ? assignableStaffRoles : new Set(["CUSTOMER"]);
+  return roleOptions.filter((role) => {
+    const roleName = normalizeRole(role.roleName);
 
-  return roleOptions.filter((role) =>
-    allowedRoles.has(normalizeRole(role.roleName))
-  );
+    if (adminRoleNames.has(roleName)) return false;
+
+    return tab === "staffAdmin"
+      ? !isCustomerRole(roleName)
+      : isCustomerRole(roleName);
+  });
 };
 
 const getCurrentUserId = () => {
@@ -130,7 +134,7 @@ const formatDateInput = (date?: Date | string | null) => {
 
   if (Number.isNaN(parsedDate.getTime())) return "";
 
-  return parsedDate.toISOString().slice(0, 10);
+  return toDateParam(parsedDate) ?? "";
 };
 
 const getGenderInputValue = (gender: string) => {
@@ -323,10 +327,10 @@ export const useCustomerManagement = () => {
     return allUsers
       .filter((user) => {
         const role = normalizeRole(user.role);
-        const isStaffAdmin = staffAdminRoles.has(role);
+        const isStaffAdmin = adminRoleNames.has(role) || !isCustomerRole(role);
 
         if (activeTab === "staffAdmin" && !isStaffAdmin) return false;
-        if (activeTab === "customers" && role !== "CUSTOMER") return false;
+        if (activeTab === "customers" && !isCustomerRole(role)) return false;
 
         if (!normalizedKeyword) return true;
 
@@ -342,9 +346,9 @@ export const useCustomerManagement = () => {
       (counts, user) => {
         const role = normalizeRole(user.role);
 
-        if (staffAdminRoles.has(role)) {
+        if (adminRoleNames.has(role) || !isCustomerRole(role)) {
           counts.staffAdmin += 1;
-        } else if (role === "CUSTOMER") {
+        } else if (isCustomerRole(role)) {
           counts.customers += 1;
         }
 

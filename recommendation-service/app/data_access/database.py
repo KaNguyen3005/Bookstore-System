@@ -1,8 +1,30 @@
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 import pandas as pd
 from app.core.config import settings
 
-engine = create_engine(settings.DATABASE_URL)
+
+def create_database_engine(database_url: str):
+    """Create a DB engine with explicit UTF-8 settings for MySQL/PyMySQL."""
+    if not database_url:
+        raise ValueError("DATABASE_URL is not configured")
+
+    url = make_url(database_url)
+    connect_args = {}
+
+    if url.drivername.startswith("mysql"):
+        query = dict(url.query)
+        query.setdefault("charset", "utf8mb4")
+        url = url.set(query=query)
+        connect_args.update({
+            "charset": "utf8mb4",
+            "use_unicode": True,
+        })
+
+    return create_engine(url, pool_pre_ping=True, connect_args=connect_args)
+
+
+engine = create_database_engine(settings.DATABASE_URL)
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_colwidth", None)

@@ -1,15 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Order, OrderStatus } from "../types/order";
 import { orderService, type OrdersResponse } from "../services/orderService";
-
-const VIETNAM_TIME_OFFSET_MS = 7 * 60 * 60 * 1000;
+import { formatVietnamDateTime, toDateParam } from "../../../../utils/dateTime";
 
 export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  PENDING: ["CONFIRMED", "CANCELLED"],
-  CONFIRMED: ["SHIPPING"],
-  PROCESSING: ["SHIPPING"],
-  SHIPPING: ["DELIVERED"],
-  DELIVERED: ["COMPLETED"],
+  PENDING: ["CONFIRMED"],
+  CONFIRMED: [],
+  PROCESSING: [],
+  SHIPPING: [],
+  DELIVERED: [],
   COMPLETED: [],
   CANCELLED: [],
 };
@@ -65,16 +64,6 @@ export const useOrders = () => {
     return Number(amount || 0).toLocaleString("vi-VN");
   };
 
-  const formatVietnamDateTime = (date?: string) => {
-    if (!date) return "";
-
-    const time = new Date(date).getTime();
-
-    if (Number.isNaN(time)) return "";
-
-    return new Date(time + VIETNAM_TIME_OFFSET_MS).toLocaleString("vi-VN");
-  };
-
   const getStatusLabel = (status: OrderStatus) => {
     switch (status) {
       case "PENDING":
@@ -99,6 +88,7 @@ export const useOrders = () => {
   const getPaymentStatusLabel = (status?: string) => {
     switch (status) {
       case "PAID":
+      case "SUCCESS":
         return "Đã thanh toán";
       case "PENDING":
         return "Chờ thanh toán";
@@ -141,8 +131,8 @@ export const useOrders = () => {
         status:
           statusFilter === "Tất cả" ? undefined : mapStatusToData(statusFilter),
         keyword: searchTerm,
-        startDate: dateRange.startDate?.toISOString(),
-        endDate: dateRange.endDate?.toISOString(),
+        startDate: toDateParam(dateRange.startDate),
+        endDate: toDateParam(dateRange.endDate),
       };
       const summary = await orderService.getOrders({
         ...filters,
@@ -183,12 +173,8 @@ export const useOrders = () => {
   const safeOrders = useMemo(() => {
     const mappedStatus = mapStatusToData(statusFilter);
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    const startTime = dateRange.startDate
-      ? new Date(dateRange.startDate).setHours(0, 0, 0, 0)
-      : undefined;
-    const endTime = dateRange.endDate
-      ? new Date(dateRange.endDate).setHours(23, 59, 59, 999)
-      : undefined;
+    const startDate = toDateParam(dateRange.startDate);
+    const endDate = toDateParam(dateRange.endDate);
 
     return [...rawOrders]
       .filter((order: Order) => {
@@ -209,10 +195,10 @@ export const useOrders = () => {
           if (!matchedSearch) return false;
         }
 
-        const createdTime = orderTime(order);
+        const createdDate = toDateParam(order.createdAt);
 
-        if (startTime !== undefined && createdTime < startTime) return false;
-        if (endTime !== undefined && createdTime > endTime) return false;
+        if (startDate && createdDate && createdDate < startDate) return false;
+        if (endDate && createdDate && createdDate > endDate) return false;
 
         return true;
       })
@@ -379,6 +365,145 @@ export const useOrders = () => {
     }
   };
 
+  const escapeHtml = (value: unknown) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+  const handlePrintInvoice = async (id: number) => {
+    const printWindow = window.open("", "_blank", "width=920,height=720");
+
+    if (!printWindow) {
+      alert("Trinh duyet dang chan cua so in hoa don");
+      return false;
+    }
+
+    try {
+      printWindow.document.write("<p>Dang tai hoa don...</p>");
+      const order = await orderService.getOrderById(id);
+      const items = order.items ?? [];
+      const itemRows = items
+        .map((item, index) => {
+          const lineTotal = Number(item.lineTotal ?? Number(item.price || 0) * Number(item.quantity || 0));
+
+          return `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${escapeHtml(item.bookTitle)}</td>
+              <td class="number">${item.quantity}</td>
+              <td class="number">${formatCurrency(Number(item.price || 0))} VND</td>
+              <td class="number">${formatCurrency(lineTotal)} VND</td>
+            </tr>
+          `;
+        })
+        .join("");
+      const invoiceHtml = `
+        <!doctype html>
+        <html>
+          <head>
+            <meta charset="UTF-8" />
+            <title>Hoa don #${order.orderId}</title>
+            <style>
+              * { box-sizing: border-box; }
+              body { margin: 0; padding: 32px; color: #17252a; font-family: Arial, Helvetica, sans-serif; }
+              .invoice { max-width: 860px; margin: 0 auto; }
+              .header { display: flex; justify-content: space-between; gap: 24px; border-bottom: 2px solid #183b4a; padding-bottom: 18px; }
+              .brand { font-size: 24px; font-weight: 800; color: #183b4a; }
+              .muted { color: #667780; font-size: 13px; line-height: 1.6; }
+              .title { margin: 28px 0 8px; font-size: 26px; }
+              .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0; }
+              .box { border: 1px solid #dde7ea; border-radius: 8px; padding: 16px; }
+              .box h2 { margin: 0 0 12px; font-size: 15px; color: #183b4a; }
+              .row { display: flex; justify-content: space-between; gap: 16px; margin: 8px 0; font-size: 14px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+              th { background: #183b4a; color: #fff; text-align: left; padding: 11px; font-size: 13px; }
+              td { border-bottom: 1px solid #e6eeee; padding: 11px; font-size: 13px; vertical-align: top; }
+              .number { text-align: right; white-space: nowrap; }
+              .totals { width: 320px; margin-left: auto; margin-top: 18px; }
+              .total { font-size: 18px; font-weight: 800; color: #0f766e; }
+              .footer { margin-top: 32px; padding-top: 14px; border-top: 1px solid #e6eeee; }
+              @media print { body { padding: 0; } .invoice { max-width: none; } }
+            </style>
+          </head>
+          <body>
+            <main class="invoice">
+              <section class="header">
+                <div>
+                  <div class="brand">KATIIA Bookstore</div>
+                  <div class="muted">Hoa don ban hang duoc phat hanh tu he thong quan tri</div>
+                </div>
+                <div class="muted">
+                  <strong>Ma don:</strong> #${order.orderId}<br />
+                  <strong>Ngay dat:</strong> ${escapeHtml(formatVietnamDateTime(order.createdAt))}<br />
+                  <strong>Van don:</strong> ${escapeHtml(order.shipment?.trackingNumber || "Chua co")}
+                </div>
+              </section>
+
+              <h1 class="title">Hoa don ban hang</h1>
+              <div class="grid">
+                <section class="box">
+                  <h2>Khach hang</h2>
+                  <div class="row"><span>Ten</span><strong>${escapeHtml(order.customerName)}</strong></div>
+                  <div class="row"><span>Nguoi nhan</span><strong>${escapeHtml(order.shipment?.address?.customerName || order.shipping?.receiverName || order.customerName)}</strong></div>
+                  <div class="row"><span>Dien thoai</span><strong>${escapeHtml(order.shipment?.address?.customerPhone || order.shipping?.receiverPhone || "")}</strong></div>
+                  <div class="row"><span>Dia chi</span><strong>${escapeHtml(getShippingAddress(order))}</strong></div>
+                </section>
+                <section class="box">
+                  <h2>Thanh toan va xu ly</h2>
+                  <div class="row"><span>Phuong thuc</span><strong>${escapeHtml(order.paymentMethod || "")}</strong></div>
+                  <div class="row"><span>Trang thai thanh toan</span><strong>${escapeHtml(getPaymentStatusLabel(order.paymentStatus))}</strong></div>
+                  <div class="row"><span>Trang thai don</span><strong>${escapeHtml(getStatusLabel(order.status))}</strong></div>
+                  <div class="row"><span>Nhan vien</span><strong>${escapeHtml(order.staffName || "Chua phan cong")}</strong></div>
+                </section>
+              </div>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>San pham</th>
+                    <th class="number">SL</th>
+                    <th class="number">Don gia</th>
+                    <th class="number">Thanh tien</th>
+                  </tr>
+                </thead>
+                <tbody>${itemRows}</tbody>
+              </table>
+
+              <section class="totals">
+                <div class="row"><span>Tam tinh</span><strong>${formatCurrency(order.subtotal)} VND</strong></div>
+                <div class="row"><span>Giam gia</span><strong>${formatCurrency(order.discountAmount || 0)} VND</strong></div>
+                <div class="row"><span>VAT</span><strong>${formatCurrency(order.vatAmount)} VND</strong></div>
+                <div class="row total"><span>Tong cong</span><strong>${formatCurrency(order.totalAmount)} VND</strong></div>
+              </section>
+
+              <div class="footer muted">Cam on quy khach da mua hang tai KATIIA Bookstore.</div>
+            </main>
+            <script>
+              window.onload = () => {
+                window.focus();
+                window.print();
+              };
+            </script>
+          </body>
+        </html>
+      `;
+
+      printWindow.document.open();
+      printWindow.document.write(invoiceHtml);
+      printWindow.document.close();
+      return true;
+    } catch (err) {
+      printWindow.close();
+      console.error("PRINT INVOICE ERROR:", err);
+      alert("Loi khi in hoa don");
+      return false;
+    }
+  };
+
   // ================= GLOBAL STATS =================
   const [globalStats, setGlobalStats] = useState({
     pending: 0,
@@ -458,6 +583,7 @@ export const useOrders = () => {
     handleApprove,
     handleUpdateStatus,
     handleExport,
+    handlePrintInvoice,
     refresh: fetchOrders,
     allowedTransitions: ALLOWED_TRANSITIONS,
   };

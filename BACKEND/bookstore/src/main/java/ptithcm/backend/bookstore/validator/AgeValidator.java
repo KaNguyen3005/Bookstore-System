@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.validator;
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
@@ -21,7 +23,7 @@ public class AgeValidator implements ConstraintValidator<ValidAge, LocalDate> {
         }
 
         try {
-            LocalDate today = LocalDate.now();
+            LocalDate today = AppTime.today();
             int age = Period.between(dob, today).getYears();
 
             if (age < minimumAge) {

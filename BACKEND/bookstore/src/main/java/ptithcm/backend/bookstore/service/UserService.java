@@ -1,6 +1,8 @@
 package ptithcm.backend.bookstore.service;
 
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
     CloudinaryService cloudinaryService;
+    EmailService emailService;
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
 
@@ -57,7 +60,10 @@ public class UserService {
 
         user.setRole(role);
 
-        return userMapper.toResponse(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+        emailService.sendRoleChangedEmail(savedUser, null, role, resolveCurrentActorName());
+
+        return userMapper.toResponse(savedUser);
     }
 
     public Page<UserResponse> getAll(int page, int size){
@@ -76,6 +82,8 @@ public class UserService {
     public UserResponse update(Long userId, UpdateUserRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Role previousRoleForEmail = null;
+        Role newRoleForEmail = null;
 
         if (request.getUsername() != null && !request.getUsername().isBlank()) {
             if (!request.getUsername().equals(user.getUsername()) && userRepository.existsByUsernameAndUserIdNot(request.getUsername(), userId)) {
@@ -124,15 +132,23 @@ public class UserService {
         }
 
         if (request.getRoleId() != null) {
+            Role oldRole = user.getRole();
             Role role = roleRepository.findById(request.getRoleId())
                     .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-            if (isAdminRole(user.getRole()) || isCustomerRole(user.getRole()) || isCustomerRole(role) || isAdminRole(role)) {
+            if (isAdminRole(user.getRole()) || isAdminRole(role)) {
                 throw new AppException(ErrorCode.SYSTEM_ROLE_PROTECTED);
             }
             user.setRole(role);
+            if (oldRole == null || !oldRole.getRoleId().equals(role.getRoleId())) {
+                previousRoleForEmail = oldRole;
+                newRoleForEmail = role;
+            }
         }
 
         User savedUser = userRepository.save(user);
+        if (newRoleForEmail != null) {
+            emailService.sendRoleChangedEmail(savedUser, previousRoleForEmail, newRoleForEmail, resolveCurrentActorName());
+        }
         return userMapper.toResponse(savedUser);
     }
 
@@ -157,7 +173,7 @@ public class UserService {
             throw new AppException(ErrorCode.USER_ALREADY_DELETED);
         }
 
-        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedAt(AppTime.now());
     }
 
     @Transactional
@@ -339,6 +355,26 @@ public class UserService {
 
     private boolean isAdminRole(Role role) {
         return role != null && ADMIN_ROLE_NAME.equals(normalizeRoleName(role.getRoleName()));
+    }
+
+    private String resolveCurrentActorName() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null
+                    || !authentication.isAuthenticated()
+                    || "anonymousUser".equals(authentication.getName())) {
+                return null;
+            }
+
+            Long actorId = Long.parseLong(authentication.getName());
+            return userRepository.findById(actorId)
+                    .map(user -> user.getName() != null && !user.getName().isBlank()
+                            ? user.getName()
+                            : user.getUsername())
+                    .orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String normalizeRoleName(String roleName) {

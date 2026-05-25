@@ -1,6 +1,8 @@
 package ptithcm.backend.bookstore.service;
 
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -135,7 +137,7 @@ public class AddressService {
         if (!address.getUser().getUserId().equals(user.getUserId())) {
             throw new AppException(ErrorCode.ACCESS_DENIED);
         }
-        address.setDeletedAt(LocalDateTime.now());
+        address.setDeletedAt(AppTime.now());
     }
 
     @Transactional

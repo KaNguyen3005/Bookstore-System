@@ -1,5 +1,7 @@
 package ptithcm.backend.bookstore.service;
 
+
+import ptithcm.backend.bookstore.utils.AppTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ptithcm.backend.bookstore.entity.Book;
@@ -34,14 +36,14 @@ public class InteractEventService {
                 .book(book)
                 .eventType(type.name())
                 .value(type.getScore())
-                .eventTime(LocalDateTime.now())
+                .eventTime(AppTime.now())
                 .build();
 
         interactEventRepository.save(event);
     }
 
     public void recordViewBookEvent(Long userId, Integer bookId) {
-        LocalDateTime thirtyMinutesAgo = LocalDateTime.now().minusMinutes(30);
+        LocalDateTime thirtyMinutesAgo = AppTime.now().minusMinutes(30);
 
         boolean exists = interactEventRepository
                 .existsByCustomer_UserIdAndBook_BookIdAndEventTypeAndEventTimeAfter(

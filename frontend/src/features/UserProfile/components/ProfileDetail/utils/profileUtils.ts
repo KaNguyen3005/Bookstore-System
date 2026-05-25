@@ -1,3 +1,5 @@
+import { toDateParam } from "../../../../../utils/dateTime";
+
 export const normalizeDob = (dob: any): string => {
   if (!dob) return "";
 
@@ -6,11 +8,11 @@ export const normalizeDob = (dob: any): string => {
   }
 
   if (dob instanceof Date) {
-    return dob.toISOString().split("T")[0];
+    return toDateParam(dob) ?? "";
   }
 
   if (typeof dob === "number") {
-    return new Date(dob).toISOString().split("T")[0];
+    return toDateParam(new Date(dob)) ?? "";
   }
 
   return "";

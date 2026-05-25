@@ -1,6 +1,7 @@
 import axiosClient from "./axiosClient";
 import type { Book } from "../features/product/types/Book";
 import type { Category } from "../features/book-category/types/category";
+import { toDateParam } from "../utils/dateTime";
 
 const unwrap = (res: any) => res?.data?.result ?? res?.data?.data ?? res?.data;
 
@@ -30,7 +31,7 @@ const byBookId = (book: Book) => book.bookId;
 
 const getDefaultTopSellingRange = () => ({
   from: "2000-01-01",
-  to: new Date().toISOString().slice(0, 10),
+  to: toDateParam(new Date()),
 });
 
 const uniqueBooks = (books: Book[]) => {
