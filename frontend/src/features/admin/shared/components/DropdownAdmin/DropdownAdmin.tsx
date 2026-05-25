@@ -13,7 +13,7 @@ const DropdownAdmin: React.FC<Props> = ({ onLogout }) => {
     <div className="dropdown-user">
       <div
         className="dropdown-item"
-        onClick={() => navigate("/profile/password")}
+        onClick={() => navigate("/admin/change-password")}
       >
         Đổi mật khẩu
       </div>

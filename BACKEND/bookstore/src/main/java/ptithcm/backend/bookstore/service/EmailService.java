@@ -83,6 +83,35 @@ public class EmailService {
         }
     }
 
+    public void sendStaffAccountCreatedEmail(User user, String rawPassword, Role role, String actorName) {
+        if (user == null || isBlank(user.getEmail()) || isBlank(rawPassword) || role == null) {
+            return;
+        }
+
+        try {
+            validateResendConfig();
+
+            RestClient restClient = RestClient.builder()
+                    .baseUrl(resendEmailProperties.getApiUrl())
+                    .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + resendEmailProperties.getApiKey())
+                    .build();
+
+            restClient.post()
+                    .uri("/emails")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "from", buildFromAddress(),
+                            "to", new String[]{user.getEmail()},
+                            "subject", "Tai khoan KATIIA Bookstore cua ban da duoc tao",
+                            "html", buildStaffAccountCreatedHtml(user, rawPassword, role, actorName)
+                    ))
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            log.warn("Cannot send account created email to {}", user.getEmail(), e);
+        }
+    }
+
     private void validateResendConfig() {
         if (isBlank(resendEmailProperties.getApiKey())) {
             throw new IllegalStateException("Missing resend.api-key or RESEND_API_KEY");
@@ -228,6 +257,73 @@ public class EmailService {
                   </body>
                 </html>
                 """.formatted(displayName, username, email, oldRoleName, newRoleName, updater, updatedAt);
+    }
+
+    private String buildStaffAccountCreatedHtml(User user, String rawPassword, Role role, String actorName) {
+        String displayName = escapeHtml(isBlank(user.getName()) ? user.getUsername() : user.getName());
+        String username = escapeHtml(user.getUsername());
+        String email = escapeHtml(user.getEmail());
+        String password = escapeHtml(rawPassword);
+        String roleName = escapeHtml(role.getRoleName());
+        String creator = escapeHtml(isBlank(actorName) ? "Quan tri vien he thong" : actorName);
+        String createdAt = escapeHtml(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+
+        return """
+                <!doctype html>
+                <html lang="vi">
+                  <head>
+                    <meta charset="UTF-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                    <title>Tai khoan noi bo KATIIA Bookstore</title>
+                  </head>
+                  <body style="margin:0;padding:0;background:#f3f6f8;font-family:Arial,Helvetica,sans-serif;color:#17252a;">
+                    <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="background:#f3f6f8;padding:30px 12px;">
+                      <tr>
+                        <td align="center">
+                          <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e1e8ec;box-shadow:0 14px 34px rgba(24,47,58,0.12);">
+                            <tr>
+                              <td style="background:#183b4a;padding:26px 30px;color:#ffffff;">
+                                <div style="font-size:21px;font-weight:700;">KATIIA Bookstore</div>
+                                <div style="font-size:13px;opacity:0.9;margin-top:7px;">Thong tin tai khoan noi bo</div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:30px 30px 10px;">
+                                <h1 style="margin:0;font-size:22px;line-height:1.35;color:#17252a;">Tai khoan cua ban da duoc tao</h1>
+                                <p style="margin:14px 0 0;font-size:15px;line-height:1.65;color:#52636a;">Xin chao <strong>%s</strong>, ban co the dang nhap vao he thong quan tri voi thong tin ben duoi.</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:18px 30px 8px;">
+                                <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0 10px;">
+                                  <tr><td style="color:#6b7b84;font-size:13px;width:150px;">Ten dang nhap</td><td style="font-size:14px;font-weight:700;color:#17252a;">%s</td></tr>
+                                  <tr><td style="color:#6b7b84;font-size:13px;">Email</td><td style="font-size:14px;color:#17252a;">%s</td></tr>
+                                  <tr><td style="color:#6b7b84;font-size:13px;">Mat khau tam</td><td style="font-size:15px;font-weight:800;color:#0f766e;">%s</td></tr>
+                                  <tr><td style="color:#6b7b84;font-size:13px;">Vai tro</td><td style="font-size:14px;color:#17252a;">%s</td></tr>
+                                  <tr><td style="color:#6b7b84;font-size:13px;">Nguoi tao</td><td style="font-size:14px;color:#17252a;">%s</td></tr>
+                                  <tr><td style="color:#6b7b84;font-size:13px;">Thoi gian</td><td style="font-size:14px;color:#17252a;">%s</td></tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:14px 30px 30px;">
+                                <div style="border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;padding:15px 17px;color:#7c2d12;font-size:13px;line-height:1.6;">
+                                  Hay doi mat khau sau lan dang nhap dau tien va khong chia se mat khau nay cho bat ky ai.
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:18px 30px;background:#f8fbfb;border-top:1px solid #e6eeee;color:#789;font-size:12px;line-height:1.5;">
+                                Email nay duoc gui tu he thong KATIIA Bookstore. Vui long khong tra loi truc tiep email nay.
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </body>
+                </html>
+                """.formatted(displayName, username, email, password, roleName, creator, createdAt);
     }
 
     private String escapeHtml(String value) {

@@ -47,6 +47,12 @@ public class UserService {
     EmailService emailService;
     public UserResponse create(CreateUserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+        if (request.getPhone() != null && userRepository.existsByPhone(request.getPhone())) {
+            throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
+        }
 
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -61,7 +67,7 @@ public class UserService {
         user.setRole(role);
 
         User savedUser = userRepository.save(user);
-        emailService.sendRoleChangedEmail(savedUser, null, role, resolveCurrentActorName());
+        emailService.sendStaffAccountCreatedEmail(savedUser, request.getPassword(), role, resolveCurrentActorName());
 
         return userMapper.toResponse(savedUser);
     }

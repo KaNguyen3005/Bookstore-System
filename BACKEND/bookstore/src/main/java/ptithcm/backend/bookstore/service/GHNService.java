@@ -162,9 +162,12 @@ public class GHNService {
         return switch (ghnStatus) {
             case "ready_to_pick" -> ShippingStatus.READY_TO_SHIP;
             case "picking", "money_collect_picking" -> ShippingStatus.PICKING_UP;
-            case "transporting" -> ShippingStatus.IN_TRANSIT;
+            case "storing", "transporting", "sorting" -> ShippingStatus.IN_TRANSIT;
+            case "delivering", "money_collect_delivering" -> ShippingStatus.OUT_FOR_DELIVERY;
             case "delivered" -> ShippingStatus.DELIVERED;
-            case "delivery_fail", "returned" -> ShippingStatus.DELIVERY_FAILED;
+            case "delivery_fail" -> ShippingStatus.DELIVERY_FAILED;
+            case "cancel" -> ShippingStatus.CANCELLED;
+            case "return", "return_transporting", "return_sorting", "returning", "returned" -> ShippingStatus.RETURNING;
             default -> null;
         };
     }

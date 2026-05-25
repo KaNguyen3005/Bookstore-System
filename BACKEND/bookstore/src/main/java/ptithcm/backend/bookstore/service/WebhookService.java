@@ -7,13 +7,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ptithcm.backend.bookstore.utils.AppTime;
 import ptithcm.backend.bookstore.entity.Order;
+import ptithcm.backend.bookstore.entity.Payment;
 import ptithcm.backend.bookstore.entity.Shipment;
 import ptithcm.backend.bookstore.enums.OrderStatus;
+import ptithcm.backend.bookstore.enums.PaymentMethod;
+import ptithcm.backend.bookstore.enums.PaymentStatus;
 import ptithcm.backend.bookstore.enums.ShippingStatus;
 import ptithcm.backend.bookstore.exception.AppException;
 import ptithcm.backend.bookstore.exception.ErrorCode;
 import ptithcm.backend.bookstore.repository.OrderRepository;
+import ptithcm.backend.bookstore.repository.PaymentRepository;
 import ptithcm.backend.bookstore.repository.ShipmentRepository;
 
 import java.util.Map;
@@ -26,6 +31,7 @@ public class WebhookService {
 
     ShipmentRepository shipmentRepository;
     OrderRepository orderRepository;
+    PaymentRepository paymentRepository;
 
     @Transactional
     public void handleGHNWebhook(Map<String, Object> payload) {
@@ -50,9 +56,21 @@ public class WebhookService {
         Order order = shipment.getOrder();
         if (order != null) {
             if ("delivered".equals(status)) {
-                order.setStatus(OrderStatus.COMPLETED);
+                order.setStatus(OrderStatus.DELIVERED);
+                order.setDeliveredAt(AppTime.now());
+                order.setRewardEligibleAt(AppTime.now().plusDays(3));
+                markCodPayment(order, PaymentStatus.SUCCESS);
             } else if ("cancel".equals(status) || "returned".equals(status)) {
                 order.setStatus(OrderStatus.CANCELLED);
+                markCodPayment(order, PaymentStatus.CANCELLED);
+            } else if ("delivery_fail".equals(status)) {
+                markCodPayment(order, PaymentStatus.FAILED);
+            } else if (
+                    newShippingStatus == ShippingStatus.PICKING_UP
+                            || newShippingStatus == ShippingStatus.IN_TRANSIT
+                            || newShippingStatus == ShippingStatus.OUT_FOR_DELIVERY
+            ) {
+                order.setStatus(OrderStatus.SHIPPING);
             }
             orderRepository.save(order);
         }
@@ -84,6 +102,24 @@ public class WebhookService {
     private String getString(Map<String, Object> payload, String key) {
         Object value = payload.get(key);
         return value == null ? null : value.toString();
+    }
+
+    private void markCodPayment(Order order, PaymentStatus status) {
+        Payment payment = order.getPayment();
+
+        if (payment == null || payment.getMethod() != PaymentMethod.COD) {
+            return;
+        }
+
+        if (payment.getStatus() == status) {
+            return;
+        }
+
+        payment.setStatus(status);
+        if (status == PaymentStatus.SUCCESS) {
+            payment.setPaidAt(AppTime.now());
+        }
+        paymentRepository.save(payment);
     }
 }
 

@@ -61,7 +61,7 @@ services:
     build:
       context: ./backend/bookstore
       dockerfile: dockerfile
-    image: bookstore-backend:latest
+    image: morex3/bookstore-backend:latest
     container_name: backend-dev
 
     ports:
@@ -94,6 +94,7 @@ services:
       args:
         VITE_GOOGLE_CLIENT_ID: 792560388634-ce149cikhu3i84tbim33rd01kvi9loih.apps.googleusercontent.com
         VITE_API_BASE_URL: http://localhost:8080/bookstore/api/v1
+    image: morex3/bookstore-frontend:latest
     container_name: frontend-dev
 
     ports:
@@ -110,7 +111,7 @@ services:
     build:
       context: ./recommendation-service
       dockerfile: Dockerfile
-    image: bookstore-recommendation:local
+    image: morex3/bookstore-recommendation:latest
     container_name: recommendation-service-dev
 
     environment:

@@ -54,6 +54,7 @@ import { VoucherManagement } from "../features/admin/voucherManagement";
 import { CategoryManagement } from "../features/admin/categoryManagement";
 import { PublisherManagement } from "../features/admin/publisherManagement";
 import { RoleManagement } from "../features/admin/roleManagement";
+import AdminChangePassword from "../features/admin/pages/ChangePassword/AdminChangePassword";
 
 /*search*/
 import SearchPage from "../features/Search/pages/SearchPage/SearchPage";
@@ -334,6 +335,11 @@ export default function AppRoutes() {
                 <RoleManagement />
               </ProtectedRoute>
             }
+          />
+
+          <Route
+            path="change-password"
+            element={<AdminChangePassword />}
           />
 
         </Route>

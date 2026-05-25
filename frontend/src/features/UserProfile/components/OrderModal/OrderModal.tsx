@@ -72,6 +72,13 @@ const getVoucherDiscountLabel = (order: any) => {
   return `-${formatPrice(voucher.discountValue)} đ`;
 };
 
+const formatVatRate = (value: unknown) => {
+  const rate = Number(value || 0);
+  const percent = rate > 1 ? rate : rate * 100;
+
+  return Number.isInteger(percent) ? String(percent) : percent.toFixed(2);
+};
+
 export default function OrderModal({
   order,
   onClose,
@@ -180,7 +187,7 @@ export default function OrderModal({
           </div>
 
           <div className={styles.summaryRow}>
-            <span>VAT ({order.vatRate}%)</span>
+            <span>VAT ({formatVatRate(order.vatRate)}%)</span>
             <span>{formatPrice(order.vatAmount)} đ</span>
           </div>
 

@@ -16,7 +16,6 @@ import type {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SHIPPING_FEE_DELIVERY = 30_000;
 const SHIPPING_FEE_PICKUP = 0;
 const VAT_RATE = 0.05;
 
@@ -27,8 +26,8 @@ const getItemPrice = (item: CartItemType): number => item.book.price;
 const calcSubtotal = (items: CartItemType[]): number =>
   items.reduce((sum, item) => sum + getItemPrice(item) * item.quantity, 0);
 
-const calcShippingFee = (method: ShippingMethodType): number =>
-  method === "DELIVERY" ? SHIPPING_FEE_DELIVERY : SHIPPING_FEE_PICKUP;
+const calcShippingFee = (_method: ShippingMethodType): number =>
+  SHIPPING_FEE_PICKUP;
 
 const normalizeMoney = (value?: number | null): number =>
   Number.isFinite(value) ? Number(value) : 0;

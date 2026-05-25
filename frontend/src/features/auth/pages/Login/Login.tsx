@@ -12,7 +12,6 @@ import "./Login.css";
 
 import logo from "../../../../assets/images/logo-auth.png";
 
-import { FcGoogle } from "react-icons/fc";
 import { GoogleLogin } from "@react-oauth/google";
 
 import { authApi } from "../../../../services/authApi";
@@ -29,7 +28,7 @@ const Login = () => {
 
   const location = useLocation();
 
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, user } = useAuth();
 
   const [account, setAccount] = useState("");
 
@@ -44,6 +43,7 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState(false);
 
   const from = location.state?.from || "/";
+  const userStartPath = String(from).startsWith("/admin") ? "/" : from;
 
   const getAdminStartPath = (role?: string, permissions: string[] = []) => {
     const normalizedRole = normalizeRole(role);
@@ -115,10 +115,14 @@ const hasToken = !!localStorage.getItem("access_token");
 
 if (hasToken && user) {
   const role = normalizeRole(user.role);
+  const permissions = user.permissions ?? [];
+  const redirectPath = hasAdminAccess(user.role, permissions)
+    ? getAdminStartPath(role, permissions)
+    : userStartPath;
 
   return (
     <Navigate
-      to={getAdminStartPath(role, user.permissions ?? [])}
+      to={redirectPath}
       replace
     />
   );
@@ -182,7 +186,7 @@ if (hasToken && user) {
       navigate(
         hasAdminAccess(authUser.role, authUser.permissions)
           ? getAdminStartPath(authUser.role, authUser.permissions)
-          : from,
+          : userStartPath,
         { replace: true }
       );
     } catch (error: any) {
@@ -300,7 +304,7 @@ if (hasToken && user) {
                   navigate(
                     hasAdminAccess(authUser.role, authUser.permissions)
                       ? getAdminStartPath(authUser.role, authUser.permissions)
-                      : from,
+                      : userStartPath,
                     { replace: true }
                   );
                 } catch (err: any) {

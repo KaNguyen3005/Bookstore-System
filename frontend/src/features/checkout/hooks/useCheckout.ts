@@ -113,7 +113,7 @@ export const useCheckout = (
   // =========================
 
   const [shippingMethod, setShippingMethod] =
-    useState<ShippingMethodType>("DELIVERY");
+    useState<ShippingMethodType>("PICKUP");
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId | null>(
     null,

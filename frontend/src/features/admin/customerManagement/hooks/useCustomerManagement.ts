@@ -7,6 +7,7 @@ import type { UpdateUserPayload } from "../../../../services/userApi";
 import { roleService } from "../../roleManagement/services/roleService";
 import type { RoleResponse } from "../../roleManagement/types/role";
 import { isCustomerRole } from "../../../auth/utils/authPermissions";
+import { useToast } from "../../../../shared/components/Toast/ToastProvider";
 
 type FormMode = "create" | "edit";
 type AccountManagementTab = "staffAdmin" | "customers";
@@ -243,6 +244,30 @@ const validateUserForm = (
 
 const parseBackendErrors = (err: any) => {
   const data = err?.response?.data;
+  const code = Number(data?.code);
+  const message = String(data?.message || data?.error || "");
+
+  if (code === 2001 || message.includes("User already existed")) {
+    return {
+      summary: "Tên đăng nhập đã tồn tại",
+      errors: { username: "Tên đăng nhập đã tồn tại" } as UserFormErrors,
+    };
+  }
+
+  if (code === 2006 || message.includes("Email already existed")) {
+    return {
+      summary: "Email đã tồn tại",
+      errors: { email: "Email đã tồn tại" } as UserFormErrors,
+    };
+  }
+
+  if (code === 2007 || message.includes("Phone already existed")) {
+    return {
+      summary: "Số điện thoại đã tồn tại",
+      errors: { phone: "Số điện thoại đã tồn tại" } as UserFormErrors,
+    };
+  }
+
   const errors: UserFormErrors = {};
   const fieldMap: Record<string, UserFormField> = {
     email: "email",
@@ -295,6 +320,7 @@ const parseBackendErrors = (err: any) => {
 };
 
 export const useCustomerManagement = () => {
+  const { showToast } = useToast();
   const [users, setUsers] = useState<UserFE[]>([]);
   const [allUsers, setAllUsers] = useState<UserFE[]>([]);
   const [activeTab, setActiveTab] =
@@ -531,6 +557,7 @@ export const useCustomerManagement = () => {
             },
             ...prev,
           ]);
+          showToast("Thêm tài khoản thành công");
         } else if (formMode === "edit" && editingUser) {
           const isAdminUser = normalizeRole(editingUser.role) === "ADMIN";
           const updatePayload: UpdateUserPayload = {
@@ -622,6 +649,7 @@ export const useCustomerManagement = () => {
       form,
       formMode,
       roleOptions,
+      showToast,
       updateUserInList,
     ]
   );
