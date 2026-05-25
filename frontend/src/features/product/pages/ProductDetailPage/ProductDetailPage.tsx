@@ -50,7 +50,7 @@ const ProductDetailPage: React.FC = () => {
     reviews,
     myReview,
     orderStatus,
-    fetchReviews,
+    submitReview,
   } = useProductReviews({
     bookId,
     orderId,
@@ -144,7 +144,7 @@ const ProductDetailPage: React.FC = () => {
             reviews={reviews}
             myReview={myReview}
             orderStatus={orderStatus}
-            onSuccess={fetchReviews}
+            onSubmitReview={submitReview}
           />
         </div>
 

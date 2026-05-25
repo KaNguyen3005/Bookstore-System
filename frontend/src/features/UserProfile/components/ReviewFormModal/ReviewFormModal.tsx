@@ -20,11 +20,15 @@ export default function ReviewFormModal({
 
   const handleSubmit = async () => {
 
-      console.log("ORDER ID:", item.orderId);
-      console.log("ITEM ID:", item.itemId);
-      console.log("FULL ITEM:", item);
     if (!content.trim()) {
       setError("Không được bỏ trống");
+      return;
+    }
+
+    const reviewItemId = item.orderItemId ?? item.itemId;
+
+    if (!item.orderId || !reviewItemId) {
+      setError("Không thể xác định sản phẩm cần đánh giá");
       return;
     }
 
@@ -35,7 +39,7 @@ export default function ReviewFormModal({
 
       await reviewOrderItem(
         item.orderId,
-        item.orderItemId,
+        reviewItemId,
         {
           rating,
           content,

@@ -1,7 +1,7 @@
-import React from 'react';
-import type { CheckoutVoucher } from '../../types';
-import { FiTag, FiX } from 'react-icons/fi';
-import './VoucherInput.css';
+import React from "react";
+import type { CheckoutVoucher } from "../../types";
+import { FiTag, FiX } from "react-icons/fi";
+import "./VoucherInput.css";
 
 interface VoucherInputProps {
   code: string;
@@ -12,10 +12,22 @@ interface VoucherInputProps {
   onChange: (value: string) => void;
   onApply: () => void;
   onRemove: () => void;
-
-  // 👉 thêm cái này
   onOpenVoucherList: () => void;
 }
+
+const formatVoucherDiscount = (voucher: CheckoutVoucher) => {
+  if (voucher.type === "PERCENTAGE") {
+    const cap =
+      voucher.maxDiscountAmount > 0
+        ? `, tối đa ${voucher.maxDiscountAmount.toLocaleString("vi-VN")}đ`
+        : "";
+
+    return `Giảm ${voucher.discountValue}%${cap}`;
+  }
+
+  return `Giảm ${voucher.discountValue.toLocaleString("vi-VN")}đ`;
+};
+
 const VoucherInput: React.FC<VoucherInputProps> = ({
   code,
   appliedVoucher,
@@ -28,7 +40,7 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
   onOpenVoucherList,
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') onApply();
+    if (e.key === "Enter") onApply();
   };
 
   return (
@@ -42,9 +54,11 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
         <div className="voucher-input__applied">
           <div className="voucher-input__applied-info">
             <FiTag />
-            <span className="voucher-input__applied-code">{appliedVoucher.voucherCode}</span>
+            <span className="voucher-input__applied-code">
+              {appliedVoucher.voucherCode}
+            </span>
             <span className="voucher-input__applied-desc">
-              Giảm {appliedVoucher.discountValue.toLocaleString('vi-VN')}đ
+              {formatVoucherDiscount(appliedVoucher)}
             </span>
           </div>
           <button
@@ -63,7 +77,7 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
             <input
               id="voucher-code-input"
               type="text"
-              className={`voucher-input__field ${error ? 'voucher-input__field--error' : ''}`}
+              className={`voucher-input__field ${error ? "voucher-input__field--error" : ""}`}
               placeholder="Nhập mã giảm giá"
               value={code}
               onChange={(e) => onChange(e.target.value)}
@@ -78,22 +92,26 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
               disabled={isLoading || !code.trim()}
               type="button"
             >
-              {isLoading ? 'Đang áp dụng...' : 'Áp dụng'}
+              {isLoading ? "Đang áp dụng..." : "Áp dụng"}
             </button>
           </div>
 
           {error && (
-            <p className="voucher-input__error" role="alert">{error}</p>
+            <p className="voucher-input__error" role="alert">
+              {error}
+            </p>
           )}
           {success && (
-            <p className="voucher-input__success" role="status">{success}</p>
+            <p className="voucher-input__success" role="status">
+              {success}
+            </p>
           )}
 
           <button
             id="btn-browse-vouchers"
             className="voucher-input__browse-btn"
             type="button"
-             onClick={onOpenVoucherList}
+            onClick={onOpenVoucherList}
           >
             Chọn hoặc nhập mã khác &rsaquo;
           </button>

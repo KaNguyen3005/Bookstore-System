@@ -79,6 +79,12 @@
   overflow: hidden;
   aspect-ratio: 1/1.4;
   cursor: pointer;
+  background: #fff;
+}
+
+.thumb-box--active {
+  border-color: #0d5cb6;
+  box-shadow: 0 0 0 2px rgba(13, 92, 182, 0.16);
 }
 
 .thumb-box img {

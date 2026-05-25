@@ -18,6 +18,7 @@ import type {
 
 const SHIPPING_FEE_DELIVERY = 30_000;
 const SHIPPING_FEE_PICKUP = 0;
+const VAT_RATE = 0.05;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -29,13 +30,21 @@ const calcSubtotal = (items: CartItemType[]): number =>
 const calcShippingFee = (method: ShippingMethodType): number =>
   method === "DELIVERY" ? SHIPPING_FEE_DELIVERY : SHIPPING_FEE_PICKUP;
 
-const calcDiscount = (
+const normalizeMoney = (value?: number | null): number =>
+  Number.isFinite(value) ? Number(value) : 0;
+
+const calcVoucherDiscount = (
   subtotal: number,
-  voucher: CheckoutVoucher | null,
+  voucher: CheckoutVoucher,
 ): number => {
-  if (!voucher) return 0;
-  if (subtotal < voucher.minOrderValue) return 0;
-  return Math.min(voucher.discountValue, voucher.maxDiscountAmount);
+  if (voucher.type === "PERCENTAGE") {
+    const rawDiscount = subtotal * (normalizeMoney(voucher.discountValue) / 100);
+    const maxDiscount = normalizeMoney(voucher.maxDiscountAmount);
+
+    return maxDiscount > 0 ? Math.min(rawDiscount, maxDiscount) : rawDiscount;
+  }
+
+  return Math.min(normalizeMoney(voucher.discountValue), subtotal);
 };
 
 // ─── calculateOrder ───────────────────────────────────────────────────────────
@@ -53,27 +62,21 @@ export const calculateOrder = (
 
   if (voucher && subtotal >= voucher.minOrderValue) {
     const isFreeship = voucher.voucherCode.toLowerCase().includes("freeship");
-    
-    let calcVal = 0;
-    if (voucher.type === "PERCENT") {
-      calcVal = subtotal * (voucher.discountValue / 100);
-      if (voucher.maxDiscountAmount > 0) {
-        calcVal = Math.min(calcVal, voucher.maxDiscountAmount);
-      }
-    } else {
-      calcVal = voucher.discountValue;
-    }
+    const calcVal = calcVoucherDiscount(subtotal, voucher);
 
     if (isFreeship) {
       shippingDiscount = Math.min(calcVal, shippingFee);
     } else {
-      discount = calcVal;
+      discount = Math.min(calcVal, subtotal);
     }
   }
 
-  const total = subtotal - discount + (shippingFee - shippingDiscount);
+  const amountAfterDiscount = Math.max(subtotal - discount, 0);
+  const vat = Math.ceil(amountAfterDiscount * VAT_RATE);
+  const total =
+    amountAfterDiscount + vat + Math.max(shippingFee - shippingDiscount, 0);
 
-  return { subtotal, shippingFee, discount, shippingDiscount, total };
+  return { subtotal, vat, shippingFee, discount, shippingDiscount, total };
 };
 
 // ─── applyVoucher ─────────────────────────────────────────────────────────────

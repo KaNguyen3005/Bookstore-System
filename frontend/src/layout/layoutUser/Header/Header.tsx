@@ -48,6 +48,8 @@ const Header: React.FC = () => {
 
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const [showNotificationSoon, setShowNotificationSoon] = useState(false);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -128,6 +130,13 @@ const Header: React.FC = () => {
 
       if (menuRef.current && !menuRef.current.contains(target)) {
         setOpen(false);
+      }
+
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(target)
+      ) {
+        setShowNotificationSoon(false);
       }
 
       if (
@@ -224,8 +233,35 @@ const Header: React.FC = () => {
 
         {/* ACTIONS */}
         <div className="actions">
-          <div className="action-item">
+          <div
+            className="action-item"
+            ref={notificationRef}
+            role="button"
+            tabIndex={0}
+            aria-label="Thông báo"
+            aria-expanded={showNotificationSoon}
+            onClick={() => setShowNotificationSoon((prev) => !prev)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setShowNotificationSoon((prev) => !prev);
+              }
+            }}
+          >
             <IoNotificationsOutline />
+            {showNotificationSoon && (
+              <div
+                className="notification-coming-soon"
+                role="status"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <strong>Thông báo sắp ra mắt</strong>
+                <span>
+                  Tính năng thông báo đang được phát triển. Bạn vui lòng quay
+                  lại sau.
+                </span>
+              </div>
+            )}
             <p>Thông báo</p>
           </div>
 

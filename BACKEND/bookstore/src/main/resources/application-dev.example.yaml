@@ -55,21 +55,11 @@ spring:
         order_inserts: true
         order_updates: true
   
-  # Email Configuration (Gmail SMTP)
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: YOUR_EMAIL@gmail.com
-    password: "YOUR_APP_PASSWORD"  # Generate from Google Account Security settings
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+resend:
+  api-url: ${RESEND_API_URL:https://api.resend.com}
+  api-key: ${RESEND_API_KEY:YOUR_RESEND_API_KEY}
+  from-email: ${RESEND_FROM_EMAIL:no-reply@your-domain.com}
+  from-name: ${RESEND_FROM_NAME:KATIIA Bookstore}
 
 # VNPay Payment Configuration
 vnpay:

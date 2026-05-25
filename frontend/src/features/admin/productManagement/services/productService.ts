@@ -12,6 +12,7 @@ export interface CreateBookPayload {
   coverType: string;
   coverImgFile?: File;
   coverImgUrl?: string;
+  bookImgFiles?: File[];
   stockQuantity?: number;
   price: number;
   avgRating?: number;
@@ -29,6 +30,7 @@ export interface UpdateBookPayload {
   pageCount?: number;
   coverType: string;
   coverImg?: File;
+  bookImgFiles?: File[];
   stockQuantity?: number;
   isActive?: boolean;
   price: number;
@@ -65,6 +67,22 @@ const appendIfDefined = (
   if (value === undefined || value === "") return;
 
   formData.append(key, value instanceof File ? value : String(value));
+};
+
+const uploadBookImages = async (bookId: number, files: File[]) => {
+  if (files.length === 0) return;
+
+  const formData = new FormData();
+
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  await axiosClient.post(`/books/${bookId}/book-images`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
 export const productService = {
@@ -177,7 +195,15 @@ export const productService = {
       }
     );
 
-    return response.data.result;
+    const createdBook = response.data.result;
+
+    if (payload.bookImgFiles?.length && createdBook?.bookId) {
+      await uploadBookImages(createdBook.bookId, payload.bookImgFiles);
+
+      return productService.getProductDetail(createdBook.bookId);
+    }
+
+    return createdBook;
   },
 
   // ================= DELETE =================
@@ -221,6 +247,12 @@ export const productService = {
         "Content-Type": "multipart/form-data",
       },
     });
+
+    if (payload.bookImgFiles?.length) {
+      await uploadBookImages(bookId, payload.bookImgFiles);
+
+      return productService.getProductDetail(bookId);
+    }
 
     return response.data.result;
   },

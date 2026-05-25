@@ -26,10 +26,12 @@ const getStatusLabel = (status: string) => {
 
 const getPaymentStatusLabel = (status: string) => {
   const map: Record<string, string> = {
+    PENDING: "Chờ thanh toán",
     PAID: "Đã thanh toán",
     UNPAID: "Chưa thanh toán",
     FAILED: "Thanh toán thất bại",
     REFUNDED: "Đã hoàn tiền",
+    CANCELLED: "Đã hủy",
   };
 
   return map[status] || status;
@@ -44,6 +46,31 @@ const getOrderItemCoverImage = (item: any) =>
   item?.book?.coverImgUrl ||
   item?.image;
 
+const getVoucherDiscountLabel = (order: any) => {
+  const discountAmount = Number(order?.discountAmount || 0);
+
+  if (discountAmount > 0) {
+    return `-${formatPrice(discountAmount)} đ`;
+  }
+
+  const voucher = order?.voucher;
+
+  if (!voucher) {
+    return "0 đ";
+  }
+
+  if (voucher.type === "PERCENTAGE") {
+    const maxDiscount =
+      Number(voucher.maxDiscountAmount || 0) > 0
+        ? `, tối đa ${formatPrice(voucher.maxDiscountAmount)} đ`
+        : "";
+
+    return `-${voucher.discountValue}%${maxDiscount}`;
+  }
+
+  return `-${formatPrice(voucher.discountValue)} đ`;
+};
+
 export default function OrderModal({
   order,
   onClose,
@@ -57,23 +84,12 @@ export default function OrderModal({
   const address = shipment?.address;
 
   return (
-    <div
-      className={styles.modal}
-      onClick={onClose}
-    >
-      <div
-        className={styles.modalContent}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className={styles.title}>
-          Chi tiết đơn hàng
-        </h3>
+    <div className={styles.modal} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <h3 className={styles.title}>Chi tiết đơn hàng</h3>
 
-        {/* INFO */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            Thông tin đơn hàng
-          </div>
+          <div className={styles.sectionTitle}>Thông tin đơn hàng</div>
 
           <div className={styles.row}>
             <span>Mã đơn hàng</span>
@@ -87,9 +103,7 @@ export default function OrderModal({
 
           <div className={styles.row}>
             <span>Trạng thái</span>
-            <span>
-              {getStatusLabel(order.status)}
-            </span>
+            <span>{getStatusLabel(order.status)}</span>
           </div>
 
           <div className={styles.row}>
@@ -101,30 +115,23 @@ export default function OrderModal({
             <span>Ngày đặt</span>
             <span>
               {new Date(
-                new Date(order.createdAt).getTime() + 7 * 60 * 60 * 1000
+                new Date(order.createdAt).getTime() + 7 * 60 * 60 * 1000,
               ).toLocaleString("vi-VN")}
             </span>
           </div>
         </div>
 
-        {/* SHIPPING */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            Thông tin giao hàng
-          </div>
+          <div className={styles.sectionTitle}>Thông tin giao hàng</div>
 
           <div className={styles.row}>
             <span>Người nhận</span>
-            <span>
-              {address?.customerName}
-            </span>
+            <span>{address?.customerName}</span>
           </div>
 
           <div className={styles.row}>
             <span>Số điện thoại</span>
-            <span>
-              {address?.customerPhone}
-            </span>
+            <span>{address?.customerPhone}</span>
           </div>
 
           <div className={styles.row}>
@@ -142,76 +149,50 @@ export default function OrderModal({
           </div>
         </div>
 
-        {/* ITEMS */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            Sản phẩm
-          </div>
+          <div className={styles.sectionTitle}>Sản phẩm</div>
 
           {(order.items ?? []).map((item: any) => {
             const imageUrl = getOrderItemCoverImage(item);
             const title = item.bookTitle || item.title || "Sản phẩm";
 
             return (
-            <div
-              key={item.itemId || item.bookId}
-              className={styles.item}
-            >
-              {imageUrl && <img src={imageUrl} alt={title} />}
+              <div
+                key={item.orderItemId || item.itemId || item.bookId}
+                className={styles.item}
+              >
+                {imageUrl && <img src={imageUrl} alt={title} />}
 
-              <div className={styles.itemInfo}>
-                <div className={styles.itemTitle}>
-                  {title}
+                <div className={styles.itemInfo}>
+                  <div className={styles.itemTitle}>{title}</div>
+                  <div className={styles.itemQty}>SL: {item.quantity}</div>
                 </div>
 
-                <div className={styles.itemQty}>
-                  SL: {item.quantity}
-                </div>
+                <div className={styles.itemPrice}>{formatPrice(item.price)} đ</div>
               </div>
-
-              <div className={styles.itemPrice}>
-                {formatPrice(item.price)} đ
-              </div>
-            </div>
             );
           })}
         </div>
 
-        {/* SUMMARY */}
         <div className={styles.summary}>
           <div className={styles.summaryRow}>
             <span>Tạm tính</span>
-
-            <span>
-              {formatPrice(order.subtotal)} đ
-            </span>
+            <span>{formatPrice(order.subtotal)} đ</span>
           </div>
 
           <div className={styles.summaryRow}>
-            <span>
-              VAT ({order.vatRate}%)
-            </span>
-
-            <span>
-              {formatPrice(order.vatAmount)} đ
-            </span>
+            <span>VAT ({order.vatRate}%)</span>
+            <span>{formatPrice(order.vatAmount)} đ</span>
           </div>
 
           <div className={styles.summaryRow}>
             <span>Giảm giá</span>
-
-            <span>
-              {formatPrice(
-                order.voucher?.discountValue
-              )}{" "}
-              đ
-            </span>
+            <span>{getVoucherDiscountLabel(order)}</span>
           </div>
+
           <div className={styles.summaryRow}>
             <strong>Thành tiền</strong>
-            <strong>
-              {formatPrice(order.totalAmount)} đ
-            </strong>
+            <strong>{formatPrice(order.totalAmount)} đ</strong>
           </div>
         </div>
       </div>

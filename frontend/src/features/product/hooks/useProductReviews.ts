@@ -65,43 +65,39 @@ export const useProductReviews = ({
     [bookId, isValidBookId]
   );
 
+  const submitReview = useCallback(
+    async (data: { rating: number; content: string }) => {
+      if (!validReviewParams) {
+        return false;
+      }
+
+      const reviewedItem = await evaluateApi.reviewOrderItem(
+        orderId!,
+        itemId!,
+        data
+      );
+
+      setMyReview({
+        bookId,
+        bookTitle: reviewedItem?.bookTitle ?? null,
+        quantity: reviewedItem?.quantity ?? 0,
+        price: reviewedItem?.price ?? null,
+        rate: reviewedItem?.rate ?? data.rating,
+        content: reviewedItem?.content ?? data.content,
+        unit: reviewedItem?.unit ?? "",
+      });
+
+      await fetchReviews();
+
+      return true;
+    },
+    [bookId, fetchReviews, itemId, orderId, validReviewParams]
+  );
+
   // ================= REVIEWS =================
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
-
-  // ================= MY REVIEW =================
-  useEffect(() => {
-    if (!isAuthenticated || !validReviewParams) return;
-
-    const fetchMyReview =
-      async () => {
-        try {
-          const data =
-            await evaluateApi.getMyReview(
-              bookId,
-              orderId!,
-              itemId!
-            );
-
-          setMyReview(data || null);
-        } catch (err) {
-          console.log(
-            "Fetch my review failed",
-            err
-          );
-        }
-      };
-
-    fetchMyReview();
-  }, [
-    validReviewParams,
-    isAuthenticated,
-    bookId,
-    orderId,
-    itemId,
-    view,
-  ]);
 
   // ================= ORDER STATUS =================
   useEffect(() => {
@@ -121,6 +117,24 @@ export const useProductReviews = ({
             );
 
           setOrderStatus(order.status);
+
+          const reviewedItem = order.items?.find(
+            (item: any) => Number(item.orderItemId) === Number(itemId)
+          );
+
+          if (reviewedItem?.rate && reviewedItem?.content?.trim()) {
+            setMyReview({
+              bookId,
+              bookTitle: reviewedItem.bookTitle ?? null,
+              quantity: reviewedItem.quantity ?? 0,
+              price: reviewedItem.price ?? null,
+              rate: reviewedItem.rate,
+              content: reviewedItem.content,
+              unit: reviewedItem.unit ?? "",
+            });
+          } else {
+            setMyReview(null);
+          }
         } catch (err) {
           console.log(
             "Fetch order status failed",
@@ -130,12 +144,13 @@ export const useProductReviews = ({
       };
 
     fetchOrderStatus();
-  }, [isAuthenticated, orderId]);
+  }, [bookId, isAuthenticated, itemId, orderId, view]);
 
   return {
     reviews,
     myReview,
     orderStatus,
     fetchReviews,
+    submitReview,
   };
 };

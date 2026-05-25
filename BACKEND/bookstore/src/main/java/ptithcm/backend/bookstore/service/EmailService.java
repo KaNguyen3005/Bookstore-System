@@ -1,13 +1,16 @@
 package ptithcm.backend.bookstore.service;
 
-import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import ptithcm.backend.bookstore.configuration.ResendEmailProperties;
+
+import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -15,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class EmailService {
 
-    JavaMailSender mailSender;
+    ResendEmailProperties resendEmailProperties;
 
     public void sendOtpEmail(String toEmail, String otp) {
         sendOtpEmail(toEmail, otp, "Ma OTP xac thuc", "Xac thuc tai khoan");
@@ -23,18 +26,53 @@ public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otp, String subject, String title) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            validateResendConfig();
 
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(buildOtpHtml(otp, title), true);
+            RestClient restClient = RestClient.builder()
+                    .baseUrl(resendEmailProperties.getApiUrl())
+                    .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + resendEmailProperties.getApiKey())
+                    .build();
 
-            mailSender.send(message);
+            restClient.post()
+                    .uri("/emails")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "from", buildFromAddress(),
+                            "to", new String[]{toEmail},
+                            "subject", subject,
+                            "html", buildOtpHtml(otp, title)
+                    ))
+                    .retrieve()
+                    .toBodilessEntity();
         } catch (Exception e) {
             log.error("Cannot send OTP email to {}", toEmail, e);
             throw new IllegalStateException("Cannot send OTP email", e);
         }
+    }
+
+    private void validateResendConfig() {
+        if (isBlank(resendEmailProperties.getApiKey())) {
+            throw new IllegalStateException("Missing resend.api-key or RESEND_API_KEY");
+        }
+
+        if (isBlank(resendEmailProperties.getFromEmail())) {
+            throw new IllegalStateException("Missing resend.from-email or RESEND_FROM_EMAIL");
+        }
+    }
+
+    private String buildFromAddress() {
+        if (isBlank(resendEmailProperties.getFromName())) {
+            return resendEmailProperties.getFromEmail();
+        }
+
+        return "%s <%s>".formatted(
+                resendEmailProperties.getFromName().trim(),
+                resendEmailProperties.getFromEmail().trim()
+        );
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     private String buildOtpHtml(String otp, String title) {

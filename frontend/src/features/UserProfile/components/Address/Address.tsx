@@ -170,12 +170,61 @@ export default function AddressPage() {
 
       setEditingId(null);
       setForm({});
+      setDistricts([]);
+      setWards([]);
       await fetchData();
     } catch (error) {
       console.error("UPDATE ADDRESS ERROR:", error);
       alert(
         getErrorMessage(error, "Không thể cập nhật địa chỉ. Vui lòng thử lại.")
       );
+    }
+  };
+
+  const handleStartEdit = async (item: any) => {
+    setEditingId(item.addressId);
+    setForm({
+      customerName: item.customerName,
+      customerPhone: item.customerPhone,
+      detailAddress: item.detailAddress,
+      province: item.province,
+      district: item.district,
+      ward: item.ward,
+    });
+    setDistricts([]);
+    setWards([]);
+
+    try {
+      const provinceOptions =
+        provinces.length > 0 ? provinces : await addressApi.getProvinces();
+
+      if (provinces.length === 0) {
+        setProvinces(provinceOptions);
+      }
+
+      const selectedProvince = provinceOptions.find(
+        (province: any) => province.provinceName === item.province
+      );
+
+      if (!selectedProvince) return;
+
+      const districtOptions = await addressApi.getDistricts(
+        selectedProvince.provinceId
+      );
+      setDistricts(districtOptions);
+
+      const selectedDistrict = districtOptions.find(
+        (district: any) => district.districtName === item.district
+      );
+
+      if (!selectedDistrict) return;
+
+      const wardOptions = await addressApi.getWards(
+        selectedDistrict.districtId
+      );
+      setWards(wardOptions);
+    } catch (error) {
+      console.error("LOAD ADDRESS LOCATION OPTIONS ERROR:", error);
     }
   };
 
@@ -446,6 +495,9 @@ export default function AddressPage() {
                         );
                       setDistricts(data);
                       setWards([]);
+                    } else {
+                      setDistricts([]);
+                      setWards([]);
                     }
                   }}
                 >
@@ -532,6 +584,8 @@ export default function AddressPage() {
                     onClick={() => {
                       setEditingId(null);
                       setForm({});
+                      setDistricts([]);
+                      setWards([]);
                     }}
                   >
                     Hủy
@@ -573,18 +627,7 @@ export default function AddressPage() {
                   <button
                     className="address-btn btn-edit"
                     onClick={() => {
-                      setEditingId(item.addressId);
-                      setForm({
-                        customerName:
-                          item.customerName,
-                        customerPhone:
-                          item.customerPhone,
-                        detailAddress:
-                          item.detailAddress,
-                        province: item.province,
-                        district: item.district,
-                        ward: item.ward,
-                      });
+                      void handleStartEdit(item);
                     }}
                   >
                     Sửa
