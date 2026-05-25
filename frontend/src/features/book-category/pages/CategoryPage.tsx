@@ -45,7 +45,7 @@ const CategoryPage: React.FC = () => {
   const [topPage, setTopPage] =
     useState(1);
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 20;
 
   // ================= REFS =================
 
