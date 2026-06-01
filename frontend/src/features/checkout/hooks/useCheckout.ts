@@ -303,13 +303,6 @@ export const useCheckout = (
             throw new Error("Không nhận được link thanh toán VNPay");
           }
 
-          // remove cart
-          if (shouldRemovePurchasedItems) {
-            await removePurchasedItems(
-              selectedItems.map((item) => item.book.bookId),
-            );
-          }
-
           // redirect
           window.location.href = redirectUrl;
 

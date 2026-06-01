@@ -85,11 +85,12 @@ public class RoleService {
             throw new AppException(ErrorCode.SYSTEM_ROLE_PROTECTED);
         }
 
-        if (request.getRoleName() != null) {
+        if (request.getRoleName() != null
+                && !normalizeRoleName(request.getRoleName()).equals(normalizeRoleName(role.getRoleName()))) {
             if (isSystemRole(request.getRoleName())) {
                 throw new AppException(ErrorCode.SYSTEM_ROLE_PROTECTED);
             }
-            role.setRoleName(request.getRoleName());
+            role.setRoleName(request.getRoleName().trim());
         }
 
         if (request.getPermissionIds() != null) {

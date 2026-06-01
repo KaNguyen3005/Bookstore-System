@@ -1,20 +1,23 @@
 package ptithcm.backend.bookstore.service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-import ptithcm.backend.bookstore.configuration.ResendEmailProperties;
 import ptithcm.backend.bookstore.entity.Role;
 import ptithcm.backend.bookstore.entity.User;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -22,7 +25,23 @@ import java.util.Map;
 @Slf4j
 public class EmailService {
 
-    ResendEmailProperties resendEmailProperties;
+    JavaMailSender mailSender;
+
+    @NonFinal
+    @Value("${app.mail.from-email:${spring.mail.username:}}")
+    String fromEmail;
+
+    @NonFinal
+    @Value("${spring.mail.username:}")
+    String mailUsername;
+
+    @NonFinal
+    @Value("${spring.mail.password:}")
+    String mailPassword;
+
+    @NonFinal
+    @Value("${app.mail.from-name:KATIIA Bookstore}")
+    String fromName;
 
     public void sendOtpEmail(String toEmail, String otp) {
         sendOtpEmail(toEmail, otp, "Ma OTP xac thuc", "Xac thuc tai khoan");
@@ -30,24 +49,7 @@ public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otp, String subject, String title) {
         try {
-            validateResendConfig();
-
-            RestClient restClient = RestClient.builder()
-                    .baseUrl(resendEmailProperties.getApiUrl())
-                    .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + resendEmailProperties.getApiKey())
-                    .build();
-
-            restClient.post()
-                    .uri("/emails")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of(
-                            "from", buildFromAddress(),
-                            "to", new String[]{toEmail},
-                            "subject", subject,
-                            "html", buildOtpHtml(otp, title)
-                    ))
-                    .retrieve()
-                    .toBodilessEntity();
+            sendHtmlEmail(toEmail, subject, buildOtpHtml(otp, title));
         } catch (Exception e) {
             log.error("Cannot send OTP email to {}", toEmail, e);
             throw new IllegalStateException("Cannot send OTP email", e);
@@ -60,24 +62,11 @@ public class EmailService {
         }
 
         try {
-            validateResendConfig();
-
-            RestClient restClient = RestClient.builder()
-                    .baseUrl(resendEmailProperties.getApiUrl())
-                    .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + resendEmailProperties.getApiKey())
-                    .build();
-
-            restClient.post()
-                    .uri("/emails")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of(
-                            "from", buildFromAddress(),
-                            "to", new String[]{user.getEmail()},
-                            "subject", "Cap nhat quyen truy cap tai khoan KATIIA Bookstore",
-                            "html", buildRoleChangedHtml(user, oldRole, newRole, actorName)
-                    ))
-                    .retrieve()
-                    .toBodilessEntity();
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "Cap nhat quyen truy cap tai khoan KATIIA Bookstore",
+                    buildRoleChangedHtml(user, oldRole, newRole, actorName)
+            );
         } catch (Exception e) {
             log.warn("Cannot send role update email to {}", user.getEmail(), e);
         }
@@ -89,48 +78,49 @@ public class EmailService {
         }
 
         try {
-            validateResendConfig();
-
-            RestClient restClient = RestClient.builder()
-                    .baseUrl(resendEmailProperties.getApiUrl())
-                    .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + resendEmailProperties.getApiKey())
-                    .build();
-
-            restClient.post()
-                    .uri("/emails")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of(
-                            "from", buildFromAddress(),
-                            "to", new String[]{user.getEmail()},
-                            "subject", "Tai khoan KATIIA Bookstore cua ban da duoc tao",
-                            "html", buildStaffAccountCreatedHtml(user, rawPassword, role, actorName)
-                    ))
-                    .retrieve()
-                    .toBodilessEntity();
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "Tai khoan KATIIA Bookstore cua ban da duoc tao",
+                    buildStaffAccountCreatedHtml(user, rawPassword, role, actorName)
+            );
         } catch (Exception e) {
             log.warn("Cannot send account created email to {}", user.getEmail(), e);
         }
     }
 
-    private void validateResendConfig() {
-        if (isBlank(resendEmailProperties.getApiKey())) {
-            throw new IllegalStateException("Missing resend.api-key or RESEND_API_KEY");
+    private void sendHtmlEmail(String toEmail, String subject, String html)
+            throws MessagingException, UnsupportedEncodingException {
+        validateMailConfig();
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
+        helper.setFrom(buildFromAddress());
+        helper.setTo(toEmail);
+        helper.setSubject(subject);
+        helper.setText(html, true);
+        mailSender.send(message);
+    }
+
+    private void validateMailConfig() {
+        if (isBlank(mailUsername)) {
+            throw new IllegalStateException("Missing MAIL_USERNAME or spring.mail.username");
         }
 
-        if (isBlank(resendEmailProperties.getFromEmail())) {
-            throw new IllegalStateException("Missing resend.from-email or RESEND_FROM_EMAIL");
+        if (isBlank(mailPassword)) {
+            throw new IllegalStateException("Missing MAIL_PASSWORD or spring.mail.password");
+        }
+
+        if (isBlank(fromEmail)) {
+            throw new IllegalStateException("Missing MAIL_FROM_EMAIL, MAIL_USERNAME, or app.mail.from-email");
         }
     }
 
-    private String buildFromAddress() {
-        if (isBlank(resendEmailProperties.getFromName())) {
-            return resendEmailProperties.getFromEmail();
+    private InternetAddress buildFromAddress() throws MessagingException, UnsupportedEncodingException {
+        if (isBlank(fromName)) {
+            return new InternetAddress(fromEmail.trim());
         }
 
-        return "%s <%s>".formatted(
-                resendEmailProperties.getFromName().trim(),
-                resendEmailProperties.getFromEmail().trim()
-        );
+        return new InternetAddress(fromEmail.trim(), fromName.trim(), "UTF-8");
     }
 
     private boolean isBlank(String value) {

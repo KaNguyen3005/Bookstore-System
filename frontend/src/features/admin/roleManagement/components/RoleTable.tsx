@@ -22,6 +22,11 @@ const getRoleBadge = (role: RoleItem) => {
 const isPermissionProtectedRole = (role: RoleItem) =>
   ["ADMIN", "CUSTOMER", "USER"].includes(role.roleName.trim().toUpperCase());
 
+const isDeleteProtectedRole = (role: RoleItem) =>
+  ["ADMIN", "STAFF", "CUSTOMER", "USER"].includes(
+    role.roleName.trim().toUpperCase()
+  );
+
 export const RoleTable = ({
   roles,
   loading,
@@ -107,7 +112,7 @@ export const RoleTable = ({
                       type="button"
                       className="role-mgmt__icon-btn role-mgmt__icon-btn--danger"
                       onClick={() => onDelete(role)}
-                      disabled={actionLoading}
+                      disabled={actionLoading || isDeleteProtectedRole(role)}
                       title="Xóa vai trò"
                       aria-label={`Xóa vai trò ${role.roleName}`}
                     >

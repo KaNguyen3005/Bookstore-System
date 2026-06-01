@@ -24,6 +24,19 @@ spring:
     active: dev
   jackson:
     time-zone: Asia/Ho_Chi_Minh
+
+  # SMTP Email Configuration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
   
   # Multipart Upload Configuration
   servlet:
@@ -54,12 +67,10 @@ spring:
           batch_size: 20
         order_inserts: true
         order_updates: true
-  
-resend:
-  api-url: ${RESEND_API_URL:https://api.resend.com}
-  api-key: ${RESEND_API_KEY:YOUR_RESEND_API_KEY}
-  from-email: ${RESEND_FROM_EMAIL:no-reply@your-domain.com}
-  from-name: ${RESEND_FROM_NAME:KATIIA Bookstore}
+app:
+  mail:
+    from-email: ${MAIL_FROM_EMAIL:${MAIL_USERNAME:your-email@gmail.com}}
+    from-name: ${MAIL_FROM_NAME:KATIIA Bookstore}
 
 # VNPay Payment Configuration
 vnpay:

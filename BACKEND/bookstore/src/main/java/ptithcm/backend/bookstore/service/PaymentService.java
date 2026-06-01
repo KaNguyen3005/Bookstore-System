@@ -63,8 +63,8 @@ public class PaymentService {
                 order.getOrderId(), order.getStatus(), orderService.calculateOrderTotalAmount(order));
 
         // 2. Kiểm tra order có thể thanh toán không
-        if (order.getStatus() != OrderStatus.PENDING) {
-            log.warn("Order status is not PENDING: {}", order.getStatus());
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.PENDING_PAYMENT) {
+            log.warn("Order status is not payable: {}", order.getStatus());
             throw new AppException(ErrorCode.VALIDATION_ERROR);
         }
 
@@ -237,6 +237,7 @@ public class PaymentService {
             // 5. Chống xử lý lặp
             if (PaymentStatus.SUCCESS.equals(payment.getStatus())) {
                 log.warn("Payment already marked SUCCESS, skip updating. orderId={}", orderId);
+                orderService.activatePaidVnpayOrder(order);
 
                 return VNPayCallbackResponse.builder()
                         .transactionNo(transactionNo)
@@ -260,14 +261,12 @@ public class PaymentService {
                 log.error("Amount mismatch! orderId={}, expected={}, received={}",
                         orderId, expectedAmount, amountVND);
 
-                payment.setStatus(PaymentStatus.FAILED);
+                payment.setMethod(PaymentMethod.VNPAY);
                 payment.setTransactionId(transactionNo);
+                payment.setAmount(BigDecimal.valueOf(amountVND));
 
                 // Tuỳ business: có thể để PENDING thay vì CANCELLED
-                order.setStatus(OrderStatus.CANCELLED);
-
-                paymentRepository.save(payment);
-                orderRepository.save(order);
+                orderService.cancelUnpaidVnpayOrder(order, payment, PaymentStatus.FAILED);
 
                 return VNPayCallbackResponse.builder()
                         .transactionNo(transactionNo)
@@ -296,6 +295,7 @@ public class PaymentService {
                 payment.setTransactionId(transactionNo);
                 payment.setAmount(BigDecimal.valueOf(amountVND));
                 payment.setPaidAt(parseVNPayPayDate(payDate));
+                orderService.activatePaidVnpayOrder(order);
 
                 // 9. Clean cart sau khi thanh toán thành công
                 cleanCartAfterPaymentSuccess(order);
@@ -303,12 +303,11 @@ public class PaymentService {
                 log.warn("Payment failed for orderId={}, responseCode={}, transactionStatus={}",
                         orderId, responseCode, transactionStatus);
 
-                payment.setStatus(PaymentStatus.FAILED);
                 payment.setMethod(PaymentMethod.VNPAY);
                 payment.setTransactionId(transactionNo);
 
                 // Tuỳ business
-                order.setStatus(OrderStatus.CANCELLED);
+                orderService.cancelUnpaidVnpayOrder(order, payment, PaymentStatus.FAILED);
             }
 
             // 8. Save DB

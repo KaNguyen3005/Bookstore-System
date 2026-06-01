@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { voucherService } from "../services/voucherService";
 
-import type { CreateVoucherRequest, VoucherApiType } from "../types/voucher";
+import type { CreateVoucherRequest, VoucherApiType, Voucher, UpdateVoucherRequest } from "../types/voucher";
 import "../styles/VoucherCreateModal.css";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  editingVoucher?: Voucher | null;
 }
 
 // ================= FORM TYPE =================
@@ -71,10 +72,41 @@ export default function VoucherCreateModal({
   open,
   onClose,
   onSuccess,
+  editingVoucher,
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<VoucherFormState>(initialForm);
   const [errors, setErrors] = useState<Partial<Record<keyof VoucherFormState, string>>>({});
+
+  // ================= LOAD EDITING DATA =================
+  useEffect(() => {
+    if (editingVoucher) {
+      const type: VoucherApiType =
+        editingVoucher.discountType === 'percent'
+          ? 'PERCENTAGE'
+          : editingVoucher.discountType === 'fixed'
+          ? 'FIXED'
+          : 'FIXED';
+
+      setForm({
+        voucherCode: editingVoucher.code,
+        title: editingVoucher.title,
+        description: editingVoucher.description,
+        type: type,
+        discountValue: String(editingVoucher.value),
+        maxDiscountAmount: String(editingVoucher.maxDiscount || ''),
+        minOrderValue: String(editingVoucher.minOrder),
+        totalLimit: String(editingVoucher.usageLimit),
+        limitPerUser: String(editingVoucher.limitPerUser || '1'),
+        minPoint: String(editingVoucher.minPoint || '0'),
+        startDate: editingVoucher.startDate,
+        endDate: editingVoucher.endDate,
+      });
+    } else {
+      setForm(initialForm);
+    }
+    setErrors({});
+  }, [editingVoucher, open]);
 
   if (!open) return null;
 
@@ -162,31 +194,55 @@ export default function VoucherCreateModal({
 
       setLoading(true);
 
-      const payload: CreateVoucherRequest = {
-        voucherCode: form.voucherCode.toUpperCase(),
-        title: form.title,
-        description: form.description,
-        type: form.type,
-        discountValue: Number(form.discountValue),
-        maxDiscountAmount:
-          form.type === "PERCENTAGE" ? Number(form.maxDiscountAmount) : 1,
-        minOrderValue: Number(form.minOrderValue),
-        totalLimit: Number(form.totalLimit),
-        limitPerUser: Number(form.limitPerUser),
-        minPoint: Number(form.minPoint),
-        startDate: new Date(form.startDate).toISOString(),
-        endDate: new Date(form.endDate).toISOString(),
-      };
-      
-      await voucherService.createVoucher(payload);
-      alert("Tạo voucher thành công");
+      if (editingVoucher) {
+        // ================= UPDATE =================
+        const payload: UpdateVoucherRequest = {
+          voucherCode: form.voucherCode.toUpperCase(),
+          title: form.title,
+          description: form.description,
+          type: form.type,
+          discountValue: Number(form.discountValue),
+          maxDiscountAmount:
+            form.type === "PERCENTAGE" ? Number(form.maxDiscountAmount) : 1,
+          minOrderValue: Number(form.minOrderValue),
+          totalLimit: Number(form.totalLimit),
+          limitPerUser: Number(form.limitPerUser),
+          minPoint: Number(form.minPoint),
+          startDate: new Date(form.startDate).toISOString(),
+          endDate: new Date(form.endDate).toISOString(),
+        };
+
+        await voucherService.updateVoucher(editingVoucher.id, payload);
+        alert("Cập nhật voucher thành công");
+      } else {
+        // ================= CREATE =================
+        const payload: CreateVoucherRequest = {
+          voucherCode: form.voucherCode.toUpperCase(),
+          title: form.title,
+          description: form.description,
+          type: form.type,
+          discountValue: Number(form.discountValue),
+          maxDiscountAmount:
+            form.type === "PERCENTAGE" ? Number(form.maxDiscountAmount) : 1,
+          minOrderValue: Number(form.minOrderValue),
+          totalLimit: Number(form.totalLimit),
+          limitPerUser: Number(form.limitPerUser),
+          minPoint: Number(form.minPoint),
+          startDate: new Date(form.startDate).toISOString(),
+          endDate: new Date(form.endDate).toISOString(),
+        };
+
+        await voucherService.createVoucher(payload);
+        alert("Tạo voucher thành công");
+      }
+
       onSuccess();
       onClose();
       setForm(initialForm);
       setErrors({});
     } catch (error) {
       console.error(error);
-      alert("Tạo voucher thất bại");
+      alert(editingVoucher ? "Cập nhật voucher thất bại" : "Tạo voucher thất bại");
     } finally {
       setLoading(false);
     }
@@ -196,7 +252,7 @@ export default function VoucherCreateModal({
     <div className="voucher-modal-overlay">
       <div className="voucher-modal">
         <div className="voucher-modal-header">
-          <h2>Tạo voucher mới</h2>
+          <h2>{editingVoucher ? "Chỉnh sửa voucher" : "Tạo voucher mới"}</h2>
           <button onClick={onClose}>✕</button>
         </div>
 
@@ -369,7 +425,7 @@ export default function VoucherCreateModal({
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? "Đang tạo..." : "Tạo voucher"}
+            {loading ? (editingVoucher ? "Đang cập nhật..." : "Đang tạo...") : (editingVoucher ? "Cập nhật voucher" : "Tạo voucher")}
           </button>
         </div>
       </div>

@@ -20,24 +20,18 @@ const emptyForm: RoleFormState = {
   permissionIds: [],
 };
 
-const systemRoleNames = new Set([
-  "ADMIN",
-  "STAFF",
-  "CUSTOMER",
-  "USER",
-]);
-
 const assignmentBlockedRoleNames = new Set(["ADMIN"]);
 const permissionProtectedRoleNames = new Set(["ADMIN", "CUSTOMER", "USER"]);
-
-const isProtectedSystemRole = (roleName?: string) =>
-  systemRoleNames.has(normalizeText(roleName));
+const roleNameProtectedRoleNames = new Set(["ADMIN", "STAFF", "CUSTOMER", "USER"]);
 
 const isAssignmentBlockedRole = (roleName?: string) =>
   assignmentBlockedRoleNames.has(normalizeText(roleName));
 
 const isPermissionProtectedRole = (roleName?: string) =>
   permissionProtectedRoleNames.has(normalizeText(roleName));
+
+const isRoleNameProtectedRole = (roleName?: string) =>
+  roleNameProtectedRoleNames.has(normalizeText(roleName));
 
 const roleDescriptions: Record<string, string> = {
   ADMIN: "Quản trị viên với quyền vận hành hệ thống",
@@ -158,7 +152,7 @@ const toRoleItem = (
     userCount,
     createdAt: role.createdAt,
     updatedAt: role.updatedAt,
-    isSystemRole: isProtectedSystemRole(normalizedRoleName),
+    isSystemRole: isRoleNameProtectedRole(normalizedRoleName),
   };
 };
 
@@ -467,7 +461,10 @@ export const useRoleManagement = () => {
         setActionError(null);
 
         const payload = {
-          roleName,
+          roleName:
+            modalMode === "edit" && isRoleNameProtectedRole(editingRole?.roleName)
+              ? editingRole?.roleName ?? roleName
+              : roleName,
           permissionIds: form.permissionIds,
         };
 
@@ -504,7 +501,7 @@ export const useRoleManagement = () => {
 
   const handleDeleteRole = useCallback(
     async (role: RoleItem) => {
-      if (isProtectedSystemRole(role.roleName)) {
+      if (isRoleNameProtectedRole(role.roleName)) {
         alert("Không được xóa các vai trò có sẵn của hệ thống");
         return;
       }

@@ -1,6 +1,7 @@
 package ptithcm.backend.bookstore.enums;
 
 public enum OrderStatus {
+    PENDING_PAYMENT, // Waiting for online payment
     PENDING,        // Chờ xác nhận
     CONFIRMED,      // Đã xác nhận
     PROCESSING,     // Đang xử lý / đóng gói

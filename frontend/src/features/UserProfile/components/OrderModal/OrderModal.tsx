@@ -26,6 +26,8 @@ const getStatusLabel = (status: string) => {
 };
 
 const getPaymentStatusLabel = (status: string) => {
+  if (status === "SUCCESS") return "Đã thanh toán";
+
   const map: Record<string, string> = {
     PENDING: "Chờ thanh toán",
     PAID: "Đã thanh toán",
@@ -36,6 +38,15 @@ const getPaymentStatusLabel = (status: string) => {
   };
 
   return map[status] || status;
+};
+
+const getPaymentMethodLabel = (method: string) => {
+  const map: Record<string, string> = {
+    COD: "Thanh toán khi nhận hàng",
+    VNPAY: "VNPay",
+  };
+
+  return map[method] || method || "Chưa có";
 };
 
 const getOrderItemCoverImage = (item: any) =>
@@ -117,6 +128,11 @@ export default function OrderModal({
           <div className={styles.row}>
             <span>Thanh toán</span>
             <span>{getPaymentStatusLabel(order.paymentStatus)}</span>
+          </div>
+
+          <div className={styles.row}>
+            <span>Phương thức thanh toán</span>
+            <span>{getPaymentMethodLabel(order.paymentMethod)}</span>
           </div>
 
           <div className={styles.row}>

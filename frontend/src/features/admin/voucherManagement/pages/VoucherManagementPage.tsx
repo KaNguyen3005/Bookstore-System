@@ -12,6 +12,8 @@ import { VoucherCard } from "../components/VoucherCard";
 
 import VoucherCreateModal from "../components/VoucherCreateModal";
 
+import type { Voucher } from "../types/voucher";
+
 import "../styles/VoucherManagement.css";
 
 const VoucherManagementPage: React.FC = () => {
@@ -38,6 +40,9 @@ const VoucherManagementPage: React.FC = () => {
   // ================= CREATE MODAL =================
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
+  // ================= EDIT MODAL =================
+  const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
+
   // ================= LOADING =================
   if (loading) {
     return (
@@ -56,6 +61,18 @@ const VoucherManagementPage: React.FC = () => {
     );
   }
 
+  // ================= HANDLE EDIT =================
+  const handleEditVoucher = (voucher: Voucher) => {
+    setEditingVoucher(voucher);
+    setOpenCreateModal(true);
+  };
+
+  // ================= HANDLE CLOSE MODAL =================
+  const handleCloseModal = () => {
+    setOpenCreateModal(false);
+    setEditingVoucher(null);
+  };
+
   return (
     <>
       <div className="voucher-mgmt">
@@ -67,12 +84,15 @@ const VoucherManagementPage: React.FC = () => {
             <p>Tạo và quản lý các mã giảm giá cho khách hàng</p>
           </div>
 
-          <button
-            className="voucher-mgmt__btn-create"
-            onClick={() => setOpenCreateModal(true)}
-          >
-            <Plus size={18} />+ Tạo voucher mới
-          </button>
+       <button
+             className="voucher-mgmt__btn-create"
+             onClick={() => {
+               setEditingVoucher(null);
+               setOpenCreateModal(true);
+             }}
+           >
+             <Plus size={18} />+ Tạo voucher mới
+           </button>
         </div>
 
         {/* STATS */}
@@ -84,31 +104,33 @@ const VoucherManagementPage: React.FC = () => {
           onStatusFilterChange={setStatusFilter}
         />
 
-        {/* GRID */}
-        <div className="voucher-mgmt__grid">
-          {vouchers.length === 0 ? (
-            <div className="voucher-mgmt__empty">
-              Không tìm thấy voucher nào.
-            </div>
-          ) : (
-            vouchers.map((voucher) => (
-              <VoucherCard
-                key={voucher.id}
-                voucher={voucher}
-                onDelete={handleDeleteVoucher}
-                onCopy={handleCopyCode}
-              />
-            ))
-          )}
-        </div>
+         {/* GRID */}
+         <div className="voucher-mgmt__grid">
+           {vouchers.length === 0 ? (
+             <div className="voucher-mgmt__empty">
+               Không tìm thấy voucher nào.
+             </div>
+           ) : (
+             vouchers.map((voucher) => (
+               <VoucherCard
+                 key={voucher.id}
+                 voucher={voucher}
+                 onDelete={handleDeleteVoucher}
+                 onCopy={handleCopyCode}
+                 onEdit={handleEditVoucher}
+               />
+             ))
+           )}
+         </div>
       </div>
 
-      {/* ================= CREATE MODAL ================= */}
-      <VoucherCreateModal
-        open={openCreateModal}
-        onClose={() => setOpenCreateModal(false)}
-        onSuccess={refreshData}
-      />
+       {/* ================= CREATE MODAL ================= */}
+       <VoucherCreateModal
+         open={openCreateModal}
+         onClose={handleCloseModal}
+         onSuccess={refreshData}
+         editingVoucher={editingVoucher}
+       />
     </>
   );
 };

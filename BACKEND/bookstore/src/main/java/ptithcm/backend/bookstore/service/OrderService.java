@@ -134,7 +134,8 @@ public class OrderService {
         Voucher voucher = resolveVoucher(request.getVoucherCode(), subtotal);
         BigDecimal tierRate = getTierRate(customer);
         OrderPricing pricing = calculatePricing(subtotal, voucher, tierRate);
-        Order order = buildOrder(customer, voucher, pricing);
+        PaymentMethod paymentMethod = parsePaymentMethod(request.getPaymentMethod());
+        Order order = buildOrder(customer, voucher, pricing, paymentMethod);
         List<BookOrder> bookOrders = buildBookOrders(request, order, bookMap);
         order.setBookOrders(bookOrders);
         decreaseStock(request, bookMap);
@@ -143,7 +144,7 @@ public class OrderService {
         Shipment shipment = buildShipment(savedOrder, customer, address);
         shipmentRepository.save(shipment);
         increaseVoucherUsage(voucher);
-        Payment payment = buildPayment(savedOrder, request.getPaymentMethod(), pricing.getTotalAmount());
+        Payment payment = buildPayment(savedOrder, paymentMethod, pricing.getTotalAmount());
         paymentRepository.save(payment);
         logOrderCreated(savedOrder, customer, subtotal, pricing);
         OrderResponse response = orderMapper.toResponse(savedOrder);
@@ -231,7 +232,9 @@ public class OrderService {
         }
 
         // 4. Kiểm tra trạng thái đơn hàng có thể hủy không
-        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.CONFIRMED) {
+        if (order.getStatus() != OrderStatus.PENDING
+                && order.getStatus() != OrderStatus.PENDING_PAYMENT
+                && order.getStatus() != OrderStatus.CONFIRMED) {
             throw new AppException(ErrorCode.ORDER_CANNOT_CANCEL);
         }
 
@@ -249,13 +252,81 @@ public class OrderService {
         }
 
         // 7. Hoàn lại voucher nếu đã sử dụng
-        if (order.getVoucher() != null) {
-            Voucher voucher = order.getVoucher();
-            voucher.setUsedCount(voucher.getUsedCount() - 1);
-            voucherRepository.save(voucher);
-        }
+        restoreStock(order);
+        decreaseVoucherUsage(order.getVoucher());
 
         log.info("Order cancelled successfully - OrderId: {}, UserId: {}", order.getOrderId(), currentUser.getUserId());
+    }
+
+    @Transactional
+    public void cancelUnpaidVnpayOrder(Order order, Payment payment, PaymentStatus paymentStatus) {
+        if (order == null) return;
+
+        Payment resolvedPayment = payment != null
+                ? payment
+                : paymentRepository.findByOrder_OrderId(order.getOrderId());
+
+        if (resolvedPayment == null || resolvedPayment.getMethod() != PaymentMethod.VNPAY) {
+            return;
+        }
+
+        if (resolvedPayment.getStatus() == PaymentStatus.SUCCESS) {
+            return;
+        }
+
+        boolean shouldRestoreReservations = order.getStatus() != OrderStatus.CANCELLED;
+
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setUpdatedAt(AppTime.now());
+
+        resolvedPayment.setStatus(paymentStatus);
+        resolvedPayment.setUpdatedAt(AppTime.now());
+
+        if (shouldRestoreReservations) {
+            restoreStock(order);
+            decreaseVoucherUsage(order.getVoucher());
+        }
+
+        paymentRepository.save(resolvedPayment);
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public void activatePaidVnpayOrder(Order order) {
+        if (order == null) return;
+
+        if (order.getStatus() == OrderStatus.PENDING_PAYMENT) {
+            order.setStatus(OrderStatus.PENDING);
+            order.setUpdatedAt(AppTime.now());
+            orderRepository.save(order);
+        }
+    }
+
+    private void restoreStock(Order order) {
+        if (order.getBookOrders() == null || order.getBookOrders().isEmpty()) {
+            return;
+        }
+
+        List<Book> restoredBooks = order.getBookOrders().stream()
+                .filter(item -> item.getBook() != null && item.getQuantity() != null)
+                .map(item -> {
+                    Book book = item.getBook();
+                    book.setStockQuantity(book.getStockQuantity() + item.getQuantity());
+                    return book;
+                })
+                .toList();
+
+        if (!restoredBooks.isEmpty()) {
+            bookRepository.saveAll(restoredBooks);
+        }
+    }
+
+    private void decreaseVoucherUsage(Voucher voucher) {
+        if (voucher == null) return;
+
+        int currentUsedCount = voucher.getUsedCount() == null ? 0 : voucher.getUsedCount();
+        voucher.setUsedCount(Math.max(0, currentUsedCount - 1));
+        voucherRepository.save(voucher);
     }
 
     private Pageable buildOrderPageable(int page, int size) {
@@ -509,10 +580,10 @@ public class OrderService {
         return percentDiscountAmount;
     }
 
-    private Order buildOrder(User customer, Voucher voucher, OrderPricing pricing) {
+    private Order buildOrder(User customer, Voucher voucher, OrderPricing pricing, PaymentMethod paymentMethod) {
         Order order = Order.builder()
                 .customer(customer)
-                .status(OrderStatus.PENDING)
+                .status(paymentMethod == PaymentMethod.VNPAY ? OrderStatus.PENDING_PAYMENT : OrderStatus.PENDING)
                 .voucher(voucher)
                 .vatRate(pricing.getVatRate())
                 .vatAmount(pricing.getVatAmount())
@@ -621,9 +692,7 @@ public class OrderService {
         voucherRepository.save(voucher);
     }
 
-    private Payment buildPayment(Order order, String paymentMethodRaw, BigDecimal totalAmount) {
-        PaymentMethod paymentMethod = parsePaymentMethod(paymentMethodRaw);
-
+    private Payment buildPayment(Order order, PaymentMethod paymentMethod, BigDecimal totalAmount) {
         return Payment.builder()
                 .order(order)
                 .method(paymentMethod)

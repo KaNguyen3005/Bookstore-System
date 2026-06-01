@@ -82,6 +82,14 @@ services:
       SPRING_DATASOURCE_PASSWORD: app
       SPRING_SQL_INIT_MODE: never
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:?Set MAIL_USERNAME in .env}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?Set MAIL_PASSWORD in .env. Use a Gmail app password, not your account password}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL:-${MAIL_USERNAME}}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-KATIIA Bookstore}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS_ENABLE: ${MAIL_SMTP_STARTTLS_ENABLE:-true}
       GOOGLE_CLIENT_ID: 792560388634-ce149cikhu3i84tbim33rd01kvi9loih.apps.googleusercontent.com
       RECOMMENDATION_SERVICE_URL: http://recommendation-service:8000
     networks:

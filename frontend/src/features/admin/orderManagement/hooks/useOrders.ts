@@ -4,6 +4,7 @@ import { orderService, type OrdersResponse } from "../services/orderService";
 import { formatVietnamDateTime, toDateParam } from "../../../../utils/dateTime";
 
 export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  PENDING_PAYMENT: [],
   PENDING: ["CONFIRMED"],
   CONFIRMED: [],
   PROCESSING: [],
@@ -66,6 +67,8 @@ export const useOrders = () => {
 
   const getStatusLabel = (status: OrderStatus) => {
     switch (status) {
+      case "PENDING_PAYMENT":
+        return "Chờ thanh toán";
       case "PENDING":
         return "Chờ xác nhận";
       case "CONFIRMED":

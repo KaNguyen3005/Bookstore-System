@@ -56,6 +56,9 @@ export const OrderTable: React.FC<
     status: OrderStatus
   ): string => {
     switch (status) {
+      case 'PENDING_PAYMENT':
+        return 'Chờ thanh toán';
+
       case 'PENDING':
         return 'Chờ xác nhận';
 
@@ -84,6 +87,7 @@ export const OrderTable: React.FC<
     status: OrderStatus
   ): string => {
     switch (status) {
+      case 'PENDING_PAYMENT':
       case 'PENDING':
         return 'order-table__badge--warning';
 

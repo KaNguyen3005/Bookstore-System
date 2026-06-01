@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
+import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
 import { Button } from "../../../../components/ui/Button";
-import { getAuthors } from "../../../../services/authorApi";
+import { createAuthor, getAuthors } from "../../../../services/authorApi";
 import { categoryService } from "../../../book-category/services/categoryService";
 import { publisherService } from "../../../book-category/services/publisherService";
 import type { Category } from "../../../book-category/types/category";
@@ -66,6 +67,28 @@ const isValidIsbn = (isbn: string) => {
   return isValidIsbn10(normalizedIsbn) || isValidIsbn13(normalizedIsbn);
 };
 
+const normalizeAuthorName = (value: string) =>
+  value
+    .trim()
+    .toLocaleLowerCase("vi")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d");
+
+const createAuthorAlias = (authorName: string) => {
+  const baseAlias = normalizeAuthorName(authorName)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const alias = baseAlias || "author";
+
+  return alias.length >= 6 ? alias : `${alias}-author`;
+};
+
+const isSameFile = (first: File, second: File) =>
+  first.name === second.name &&
+  first.size === second.size &&
+  first.lastModified === second.lastModified;
+
 export const ProductEditModal: React.FC<ProductEditModalProps> = ({
   product,
   loading,
@@ -95,6 +118,7 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
   const [publisherOptions, setPublisherOptions] = useState<Option[]>([]);
   const [isbnError, setIsbnError] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [creatingAuthor, setCreatingAuthor] = useState(false);
 
   useEffect(() => {
     if (!product) return;
@@ -199,6 +223,80 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
     }
   };
 
+  const handleBookImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files ?? []);
+
+    setBookImgFiles((prev) => [
+      ...prev,
+      ...selectedFiles.filter(
+        (file) => !prev.some((existingFile) => isSameFile(existingFile, file)),
+      ),
+    ]);
+
+    event.target.value = "";
+  };
+
+  const handleRemoveBookImage = (fileToRemove: File) => {
+    setBookImgFiles((prev) =>
+      prev.filter((file) => !isSameFile(file, fileToRemove)),
+    );
+  };
+
+  const handleCreateAuthor = async (inputValue: string) => {
+    const authorName = inputValue.trim();
+
+    if (!authorName) return;
+
+    const existingAuthor = authorOptions.find(
+      (option) => normalizeAuthorName(option.label) === normalizeAuthorName(authorName),
+    );
+
+    if (existingAuthor) {
+      setSelectedAuthors((prev) =>
+        prev.some((author) => author.value === existingAuthor.value)
+          ? prev
+          : [...prev, existingAuthor],
+      );
+      return;
+    }
+
+    if (!window.confirm(`Tạo tác giả mới "${authorName}"?`)) {
+      return;
+    }
+
+    try {
+      setCreatingAuthor(true);
+      const createdAuthor = await createAuthor({
+        authorName,
+        alias: createAuthorAlias(authorName),
+      });
+      const nextAuthor = {
+        value: Number(createdAuthor.authorId),
+        label: createdAuthor.authorName,
+      };
+
+      if (!Number.isFinite(nextAuthor.value)) {
+        throw new Error("Invalid author id");
+      }
+
+      setAuthorOptions((prev) =>
+        prev.some((author) => author.value === nextAuthor.value)
+          ? prev
+          : [...prev, nextAuthor],
+      );
+      setSelectedAuthors((prev) =>
+        prev.some((author) => author.value === nextAuthor.value)
+          ? prev
+          : [...prev, nextAuthor],
+      );
+    } catch (error) {
+      console.error("Create author failed:", error);
+      alert("Không thể tạo tác giả mới. Vui lòng thử lại.");
+    } finally {
+      setCreatingAuthor(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!canSubmit) {
       alert("Vui lòng điền đầy đủ các trường bắt buộc (*)");
@@ -282,6 +380,9 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
                   isMulti
                   value={selectedAuthors}
                   options={authorOptions}
+                  isDisabled={creatingAuthor}
+                  isLoading={creatingAuthor}
+                  onCreateOption={handleCreateAuthor}
                   onChange={(value) => setSelectedAuthors((value as Option[]) || [])}
                 />
               </div>
@@ -301,7 +402,7 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
             <div className="form-row">
               <div className="form-group">
                 <label>Nhà xuất bản</label>
-                <CreatableSelect
+                <Select
                   value={selectedPublisher}
                   options={publisherOptions}
                   onChange={(value) => setSelectedPublisher(value as Option)}
@@ -324,14 +425,31 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(event) =>
-                    setBookImgFiles(Array.from(event.target.files ?? []))
-                  }
+                  onChange={handleBookImagesChange}
                 />
                 {bookImgFiles.length > 0 && (
-                  <span className="form-helper-text">
-                    Đã chọn {bookImgFiles.length} ảnh
-                  </span>
+                  <>
+                    <span className="form-helper-text">
+                      Đã chọn {bookImgFiles.length} ảnh
+                    </span>
+                    <div className="book-image-preview-list">
+                      {bookImgFiles.map((file) => (
+                        <div
+                          className="book-image-preview-item"
+                          key={`${file.name}-${file.size}-${file.lastModified}`}
+                        >
+                          <span title={file.name}>{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBookImage(file)}
+                            aria-label={`Xóa ${file.name}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
             </div>

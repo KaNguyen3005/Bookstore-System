@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.backend.bookstore.entity.Order;
 import ptithcm.backend.bookstore.enums.OrderStatus;
+import ptithcm.backend.bookstore.enums.PaymentMethod;
+import ptithcm.backend.bookstore.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -279,6 +281,26 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         ORDER BY o.createdAt DESC
         """)
     List<Order> findRecentDashboardOrders(Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT o
+        FROM Order o
+        JOIN FETCH o.payment p
+        LEFT JOIN FETCH o.bookOrders bo
+        LEFT JOIN FETCH bo.book
+        LEFT JOIN FETCH o.voucher
+        WHERE o.status = :orderStatus
+          AND p.method = :paymentMethod
+          AND p.status = :paymentStatus
+          AND o.deletedAt IS NULL
+          AND o.createdAt <= :createdBefore
+        """)
+    List<Order> findExpiredPendingVnpayOrders(
+            @Param("orderStatus") OrderStatus orderStatus,
+            @Param("paymentMethod") PaymentMethod paymentMethod,
+            @Param("paymentStatus") PaymentStatus paymentStatus,
+            @Param("createdBefore") LocalDateTime createdBefore
+    );
 
     Optional<List<Order>> findByCustomer_UserId(Long userId);
 
