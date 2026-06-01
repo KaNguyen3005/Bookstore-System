@@ -18,7 +18,7 @@ services:
         "--character-set-server=utf8mb4",
         "--collation-server=utf8mb4_0900_ai_ci",
         "--default-time-zone=+07:00",
-        "--init-connect=SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci"
+        "--init-connect=SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci",
       ]
 
     ports:
@@ -52,7 +52,6 @@ services:
 
     environment:
       QDRANT_API_KEY: ""
-
 
     networks:
       - bookstore-network
@@ -92,6 +91,11 @@ services:
       MAIL_SMTP_STARTTLS_ENABLE: ${MAIL_SMTP_STARTTLS_ENABLE:-true}
       GOOGLE_CLIENT_ID: 792560388634-ce149cikhu3i84tbim33rd01kvi9loih.apps.googleusercontent.com
       RECOMMENDATION_SERVICE_URL: http://recommendation-service:8000
+
+      JWT_SIGNERKEY: bookstore-secret-key-bookstore-secret-key-123456
+      JWT_VALID_DURATION: 3600
+      JWT_REFRESHABLE_DURATION: 36000
+
     networks:
       - bookstore-network
 
