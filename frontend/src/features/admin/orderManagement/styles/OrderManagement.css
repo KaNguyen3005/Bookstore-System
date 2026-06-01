@@ -1,0 +1,40 @@
+/* Order Management Layout CSS - BEM */
+
+.order-mgmt {
+  padding: 24px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.order-mgmt__header {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px -3px rgba(6, 81, 237, 0.1);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-mgmt__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #5f857a;
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.order-mgmt__subtitle {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.order-mgmt__content {
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px -3px rgba(6, 81, 237, 0.1);
+  padding: 24px;
+}

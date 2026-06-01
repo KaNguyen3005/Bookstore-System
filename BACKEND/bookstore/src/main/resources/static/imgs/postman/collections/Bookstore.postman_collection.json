@@ -1,0 +1,614 @@
+{
+  "info": {
+    "_postman_id": "a7ac3c87-e410-4271-a125-8022ef9746c7",
+    "name": "Bookstore",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Author",
+      "item": [
+        {
+          "name": "add author",
+          "id": "7f95176b-257f-4123-9361-b7512bca62d4",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"authorName\": \"Bu Ba Ka\",\r\n    \"alias\": \"morex3\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/authors ",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "authors "
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get authors",
+          "id": "a9fe4ec0-f06b-4e92-8b5e-d2b0e93459fe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete author",
+          "id": "c7863635-3382-49ff-986c-c707c855077a",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/authors/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "authors",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update author",
+          "id": "14843d7a-05ec-4d6f-8f48-6d9e9b5dca7c",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/authors",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "authors"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "45c4977c-e134-415b-9fdc-985842774d44"
+    },
+    {
+      "name": "Publisher",
+      "item": [
+        {
+          "name": "add publisher",
+          "id": "99745288-606e-4598-8eff-1b4e564c39a7",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"authorName\": \"Nguyễn Nhật Ánh\",\r\n    \"alias\": \"NNA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/authors",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "authors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get suppliers",
+          "id": "a4d6e7a9-5283-44da-aea0-d81b44709bb5",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update publisher",
+          "id": "254573c3-8d26-4dc2-8c45-dc0bbea10357",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"publisherName\": \"Ha Ha\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/publishers/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "publishers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete publisher",
+          "id": "17f6b101-828a-4617-b614-f804adb96bf0",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"publisherName\": \"Ha Ha\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/publishers/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "publishers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "de918e4a-386a-4989-8374-d0bedf4dbbcb"
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "add categories",
+          "id": "9a1acda2-b91b-4b62-961b-dfef3002b48d",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"authorName\": \"Nguyễn Nhật Ánh\",\r\n    \"alias\": \"NNA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/authors",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "authors"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f46e42b9-7c6b-429c-aadd-e9b529eda5e0",
+              "name": "Valid",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"categoriesName\": \"Tiểu thuyết\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8080/bookstore/api/categories",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "bookstore",
+                    "api",
+                    "categories"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "delete category",
+          "id": "6c77c34a-76b1-4c68-a567-311fde9cb1ab",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/categories/9",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "categories",
+                "9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get categories",
+          "id": "2316da11-7dda-4351-8bbe-74cdf89d74bc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update category",
+          "id": "9f18612c-b519-4ac6-af6d-b82b56d49ce1",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"categoryName\" : \"Văn học Việt Nam\",\r\n    \"parentId\" : null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookstore/api/v1/categories/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "bookstore",
+                "api",
+                "v1",
+                "categories",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "d930a85b-7adc-4916-a221-7d7609d6b1c7"
+    },
+    {
+      "name": "Permission",
+      "item": [
+        {
+          "name": "get permissions",
+          "id": "92f91a5c-b822-4d7a-ac24-bd16f836389a",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "50892eeb-e557-4772-9055-96c059e684a2"
+    },
+    {
+      "name": "add supplier",
+      "id": "4b547b93-b0d0-4f75-87da-334f856cb759",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"authorName\": \"Nguyễn Nhật Ánh\",\r\n    \"alias\": \"NNA\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/bookstore/api/authors",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "bookstore",
+            "api",
+            "authors"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "add book",
+      "id": "c4edabec-0cc9-49d0-913d-45bd3dc86d16",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "type": "text",
+            "uuid": "03f13dd3-7442-439a-bc47-c243219fcca0"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "title",
+              "value": "Machine Learning",
+              "type": "text"
+            },
+            {
+              "key": "authorIds",
+              "value": "04dfd140-c45a-4e97-b482-f56e3e7f91bf",
+              "type": "text"
+            },
+            {
+              "key": "supplierId",
+              "value": "5f65fade-44b7-4a05-ba10-c2ea5e15978f",
+              "type": "text"
+            },
+            {
+              "key": "publisherId",
+              "value": "4abb6011-aabf-4675-be0f-57f636959802",
+              "type": "text"
+            },
+            {
+              "key": "isbn",
+              "value": "example 1",
+              "type": "text"
+            },
+            {
+              "key": "language",
+              "value": "Tiếng Việt",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Đây là một cuốn sách mẫu",
+              "type": "text"
+            },
+            {
+              "key": "pageCount",
+              "value": "200",
+              "type": "text"
+            },
+            {
+              "key": "coverType",
+              "value": "Bìa cứng",
+              "type": "text"
+            },
+            {
+              "key": "stockQuantity",
+              "value": "100",
+              "type": "text"
+            },
+            {
+              "key": "price",
+              "value": "100000",
+              "type": "text"
+            },
+            {
+              "key": "avgRating",
+              "value": "5",
+              "type": "text"
+            },
+            {
+              "key": "salePercent",
+              "value": "10",
+              "type": "text"
+            },
+            {
+              "key": "coverImgFile",
+              "type": "file",
+              "uuid": "4667b112-974b-4694-b156-c1776d099e73",
+              "src": [
+                "postman-cloud:///1f113c9c-5db3-4db0-8c9a-78f34c103fba"
+              ]
+            },
+            {
+              "key": "categoriesIds",
+              "value": "",
+              "type": "text",
+              "uuid": "ddae610e-068d-462a-bee1-5e3755f8ad10"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8080/bookstore/api/books",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "bookstore",
+            "api",
+            "books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get publishers",
+      "id": "d4ade6db-c756-4022-8af3-1138654308bc",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get categories",
+      "id": "e5e7b0a1-bf63-4dce-ab99-f4b07b3ceac6",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get books",
+      "id": "1b035c2e-a59d-4d82-aafb-23f1eeff31b0",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": [
+        {
+          "id": "d5f0b108-308d-43d8-9007-1dd31e33431d",
+          "name": "get books",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "_postman_previewlanguage": "Text",
+          "header": null,
+          "cookie": [],
+          "body": null
+        }
+      ]
+    },
+    {
+      "name": "add payment",
+      "id": "261a3433-1f7c-4f15-b5db-871889d0f603",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    }
+  ]
+}

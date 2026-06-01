@@ -1,0 +1,3 @@
+from app.data_access.database import get_books_data
+from app.data_access.database import get_detailed_interactions
+from app.data_access.database import get_popular_books_from_db

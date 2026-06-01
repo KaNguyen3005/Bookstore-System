@@ -1,0 +1,63 @@
+/* ─── PaymentMethod ────────────────────────────────── */
+.payment-method__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #212121;
+  margin: 0 0 14px;
+}
+
+.payment-method__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-method__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fff;
+}
+
+.payment-method__item:hover {
+  border-color: #1565c0;
+  background: #f5f9ff;
+}
+
+.payment-method__item--active {
+  border-color: #1565c0;
+  background: #e8f0fe;
+}
+
+.payment-method__radio {
+  width: 16px;
+  height: 16px;
+  accent-color: #1565c0;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.payment-method__icon {
+  width: 36px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.payment-method__name {
+  flex: 1;
+  font-size: 14px;
+  color: #212121;
+  font-weight: 500;
+}
+
+.payment-method__check {
+  color: #1565c0;
+  font-size: 16px;
+  font-weight: 700;
+}

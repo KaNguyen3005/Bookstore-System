@@ -1,0 +1,170 @@
+/* Order Table CSS - BEM */
+
+.order-table__wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table__tr--header {
+  background-color: #f5f7f9;
+  border: none;
+}
+
+.order-table__th {
+  padding: 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.order-table__th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.order-table__th:last-child {
+  border-top-right-radius: 10px;
+  text-align: center;
+}
+
+.order-table__tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s;
+}
+
+.order-table__tr:hover {
+  background-color: rgba(249, 250, 251, 0.5);
+}
+
+.order-table__td {
+  padding: 16px;
+  white-space: nowrap;
+  font-size: 13px;
+  color: #374151;
+}
+
+.order-table__td--center {
+  text-align: center;
+}
+
+.order-table__id {
+  font-weight: 600;
+  color: #374151;
+}
+
+.order-table__customer {
+  font-weight: 700;
+  color: #1f2937;
+  max-width: 100px;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.order-table__products {
+  display: flex;
+  items-center: center;
+  gap: 4px;
+}
+
+.order-table__product-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 2px;
+  background-color: #f9fafb;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.order-table__amount {
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Badge Logic inside Table */
+.order-table__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 90px;
+  border: 1px solid transparent;
+}
+
+.order-table__badge--success { background-color: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+.order-table__badge--warning { background-color: #fff7ed; color: #f97316; border-color: #fed7aa; }
+.order-table__badge--danger { background-color: #fef2f2; color: #ef4444; border-color: #fecaca; }
+.order-table__badge--info { background-color: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+.order-table__badge--teal { background-color: #f0fdfa; color: #0d9488; border-color: #ccfbf1; }
+.order-table__badge--default { background-color: #f9fafb; color: #4b5563; border-color: #e5e7eb; }
+
+.order-table__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #9ca3af;
+}
+
+.order-table__action-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: inherit;
+  transition: color 0.2s;
+}
+
+.order-table__action-btn:hover {
+  color: #0d9488;
+}
+
+.order-table__action-btn--approve:hover {
+  color: #22c55e;
+}
+
+.order-table__action-btn--teal:hover {
+  color: #0d9488;
+}
+
+.order-table__action-btn--success:hover {
+  color: #16a34a;
+}
+
+.order-table__action-btn--danger:hover {
+  color: #ef4444;
+}
+
+.order-table__payment-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.order-table__payment-status--paid { color: #16a34a; }
+.order-table__payment-status--pending { color: #f97316; }
+.order-table__payment-status--failed { color: #ef4444; }
+
+.order-table__loading {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.order-table__td--empty {
+  padding: 40px;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}

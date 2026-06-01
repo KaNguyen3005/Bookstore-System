@@ -1,0 +1,94 @@
+# Application Configuration Template
+# Copy this file to your actual application.yaml or application-dev.yaml and update the values
+# This is an example configuration for development environment
+
+# Server Configuration
+server:
+  port: 8080
+  tomcat:
+    max-parameter-count: 1000
+    max-part-count: 100  # Tăng số lượng part tải lên
+  servlet:
+    context-path: /bookstore
+
+# Cloudinary Configuration (For image upload)
+cloudinary:
+  cloud-name: "YOUR_CLOUDINARY_CLOUD_NAME"
+  api-key: "YOUR_CLOUDINARY_API_KEY"
+  api-secret: "YOUR_CLOUDINARY_API_SECRET"
+
+spring:
+  application:
+    name: bookstore
+  profiles:
+    active: dev
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+
+  # SMTP Email Configuration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
+  
+  # Multipart Upload Configuration
+  servlet:
+    multipart:
+      enabled: true
+      location: /tmp/spring-uploads
+      max-file-size: 50MB
+      max-request-size: 100MB
+  
+  # Database Configuration
+  datasource:
+    url: "jdbc:mysql://localhost:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh"
+    username: root
+    password: "YOUR_DATABASE_PASSWORD"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update  # auto: create-drop, create, update, validate, none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+app:
+  mail:
+    from-email: ${MAIL_FROM_EMAIL:${MAIL_USERNAME:your-email@gmail.com}}
+    from-name: ${MAIL_FROM_NAME:KATIIA Bookstore}
+
+# VNPay Payment Configuration
+vnpay:
+  tmn-code: "YOUR_VNPAY_TMN_CODE"           # Get from VNPay Merchant Admin
+  hash-secret: "YOUR_VNPAY_SECRET_KEY"      # Get from VNPay Merchant Admin (64 character key)
+  url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"  # Sandbox URL for testing
+  return-url: "http://localhost:8080/bookstore/api/v1/payments/callback"  # Callback URL after payment
+
+# JWT Configuration
+jwt:
+  signerKey: "YOUR_JWT_SECRET_KEY"          # Generate a strong random key (min 64 characters)
+  valid-duration: 3600                      # Token validity in seconds (1 hour)
+  refreshable-duration: 360000              # Refresh token validity in seconds (100 hours)
+
+# Logging Configuration (Optional)
+logging:
+  level:
+    root: INFO
+    ptithcm.backend.bookstore: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

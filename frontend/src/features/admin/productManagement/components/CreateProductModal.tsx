@@ -1,0 +1,539 @@
+import React, { useState, useEffect } from "react";
+import { Trash2, X } from "lucide-react";
+import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
+
+import { Button } from "../../../../components/ui/Button";
+import type { CreateBookPayload } from "../services/productService";
+
+import { createAuthor, getAuthors } from "../../../../services/authorApi";
+import { categoryService } from "../../../../features/book-category/services/categoryService";
+import { publisherService } from "../../../../features/book-category/services/publisherService";
+
+import "../styles/CreateProductModal.css";
+
+interface CreateProductModalProps {
+  open: boolean;
+  onClose: () => void;
+  onCreate: (payload: CreateBookPayload) => Promise<boolean>;
+  loading: boolean;
+}
+
+type Option = {
+  value: number;
+  label: string;
+};
+
+const isValidIsbn10 = (isbn: string) => {
+  if (!/^\d{9}[\dXx]$/.test(isbn)) return false;
+
+  const sum = isbn
+    .split("")
+    .reduce((total, char, index) => {
+      const value = char.toUpperCase() === "X" ? 10 : Number(char);
+
+      return total + value * (10 - index);
+    }, 0);
+
+  return sum % 11 === 0;
+};
+
+const isValidIsbn13 = (isbn: string) => {
+  if (!/^(978|979)\d{10}$/.test(isbn)) return false;
+
+  const sum = isbn
+    .slice(0, 12)
+    .split("")
+    .reduce((total, char, index) => {
+      const multiplier = index % 2 === 0 ? 1 : 3;
+
+      return total + Number(char) * multiplier;
+    }, 0);
+  const checkDigit = (10 - (sum % 10)) % 10;
+
+  return checkDigit === Number(isbn[12]);
+};
+
+const isValidIsbn = (isbn: string) => {
+  const normalizedIsbn = isbn.replace(/[-\s]/g, "");
+
+  return isValidIsbn10(normalizedIsbn) || isValidIsbn13(normalizedIsbn);
+};
+
+const normalizeAuthorName = (value: string) =>
+  value
+    .trim()
+    .toLocaleLowerCase("vi")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d");
+
+const createAuthorAlias = (authorName: string) => {
+  const baseAlias = normalizeAuthorName(authorName)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const alias = baseAlias || "author";
+
+  return alias.length >= 6 ? alias : `${alias}-author`;
+};
+
+const isSameFile = (first: File, second: File) =>
+  first.name === second.name &&
+  first.size === second.size &&
+  first.lastModified === second.lastModified;
+
+export const CreateProductModal: React.FC<CreateProductModalProps> = ({
+  open,
+  onClose,
+  onCreate,
+  loading,
+}) => {
+  // ================= FORM =================
+  const [formData, setFormData] = useState({
+    title: "",
+    isbn: "",
+    language: "Tiếng Việt",
+    description: "",
+    pageCount: "",
+    coverType: "",
+    price: "",
+    coverImageUrl: "", // ✅ thêm URL ảnh
+  });
+
+  const [coverImgFile, setCoverImgFile] = useState<File | null>(null);
+  const [bookImgFiles, setBookImgFiles] = useState<File[]>([]);
+  const [isbnError, setIsbnError] = useState("");
+
+  // ================= SELECT =================
+  const [selectedAuthors, setSelectedAuthors] = useState<Option[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
+  const [selectedPublisher, setSelectedPublisher] = useState<Option | null>(
+    null,
+  );
+
+  // ================= OPTIONS =================
+  const [authorOptions, setAuthorOptions] = useState<Option[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<Option[]>([]);
+  const [publisherOptions, setPublisherOptions] = useState<Option[]>([]);
+  const [creatingAuthor, setCreatingAuthor] = useState(false);
+
+  // ================= LOAD DATA =================
+  useEffect(() => {
+    if (!open) return;
+
+    const fetchData = async () => {
+      try {
+        const [authors, categories, publishers] = await Promise.all([
+          getAuthors(),
+          categoryService.getCategories(),
+          publisherService.getPublishers(),
+        ]);
+
+        setAuthorOptions(
+          authors.map((a: any) => ({
+            value: a.authorId,
+            label: a.authorName,
+          })),
+        );
+
+        setCategoryOptions(
+          categories.map((c: any) => ({
+            value: c.categoryId,
+            label: c.categoryName,
+          })),
+        );
+
+        setPublisherOptions(
+          publishers.map((p: any) => ({
+            value: p.publisherId,
+            label: p.publisherName,
+          })),
+        );
+      } catch (error) {
+        console.error("Load dropdown error:", error);
+      }
+    };
+
+    fetchData();
+  }, [open]);
+
+  if (!open) return null;
+
+  // ================= HANDLERS =================
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "isbn") {
+      setIsbnError("");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setCoverImgFile(e.target.files[0]);
+    }
+  };
+
+  const handleBookImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files ?? []);
+
+    setBookImgFiles((prev) => [
+      ...prev,
+      ...selectedFiles.filter(
+        (file) => !prev.some((existingFile) => isSameFile(existingFile, file)),
+      ),
+    ]);
+
+    e.target.value = "";
+  };
+
+  const handleRemoveBookImage = (fileToRemove: File) => {
+    setBookImgFiles((prev) =>
+      prev.filter((file) => !isSameFile(file, fileToRemove)),
+    );
+  };
+
+  const handleCreateAuthor = async (inputValue: string) => {
+    const authorName = inputValue.trim();
+
+    if (!authorName) return;
+
+    const existingAuthor = authorOptions.find(
+      (option) => normalizeAuthorName(option.label) === normalizeAuthorName(authorName),
+    );
+
+    if (existingAuthor) {
+      setSelectedAuthors((prev) =>
+        prev.some((author) => author.value === existingAuthor.value)
+          ? prev
+          : [...prev, existingAuthor],
+      );
+      return;
+    }
+
+    if (!window.confirm(`Tạo tác giả mới "${authorName}"?`)) {
+      return;
+    }
+
+    try {
+      setCreatingAuthor(true);
+      const createdAuthor = await createAuthor({
+        authorName,
+        alias: createAuthorAlias(authorName),
+      });
+      const nextAuthor = {
+        value: Number(createdAuthor.authorId),
+        label: createdAuthor.authorName,
+      };
+
+      if (!Number.isFinite(nextAuthor.value)) {
+        throw new Error("Invalid author id");
+      }
+
+      setAuthorOptions((prev) =>
+        prev.some((author) => author.value === nextAuthor.value)
+          ? prev
+          : [...prev, nextAuthor],
+      );
+      setSelectedAuthors((prev) =>
+        prev.some((author) => author.value === nextAuthor.value)
+          ? prev
+          : [...prev, nextAuthor],
+      );
+    } catch (error) {
+      console.error("Create author failed:", error);
+      alert("Không thể tạo tác giả mới. Vui lòng thử lại.");
+    } finally {
+      setCreatingAuthor(false);
+    }
+  };
+
+  // ================= SUBMIT =================
+  const handleSubmit = async () => {
+    if (
+      !formData.title ||
+      !formData.isbn ||
+      !formData.coverType ||
+      !formData.price ||
+      selectedAuthors.length === 0 ||
+      selectedCategories.length === 0
+    ) {
+      alert("Vui lòng điền đầy đủ các trường bắt buộc (*)");
+      return;
+    }
+
+    if (!isValidIsbn(formData.isbn)) {
+      setIsbnError(
+        "ISBN không đúng định dạng. Ví dụ hợp lệ: 978-604-2-12345-6 hoặc 0306406152.",
+      );
+      return;
+    }
+
+    const payload: CreateBookPayload = {
+      title: formData.title,
+      authorIds: selectedAuthors.map((a) => a.value),
+      publisherId: selectedPublisher?.value,
+      isbn: formData.isbn,
+      language: formData.language,
+      description: formData.description,
+      pageCount: formData.pageCount ? parseInt(formData.pageCount) : undefined,
+      coverType: formData.coverType,
+
+      coverImgFile: coverImgFile || undefined, // upload file
+      coverImgUrl: formData.coverImageUrl || undefined, // URL
+      bookImgFiles,
+
+      price: parseFloat(formData.price),
+      categoryIds: selectedCategories.map((c) => c.value),
+    };
+
+    const success = await onCreate(payload);
+
+    if (success) {
+      onClose();
+
+      setFormData({
+        title: "",
+        isbn: "",
+        language: "Tiếng Việt",
+        description: "",
+        pageCount: "",
+        coverType: "",
+        price: "",
+        coverImageUrl: "",
+      });
+
+      setSelectedAuthors([]);
+      setSelectedCategories([]);
+      setSelectedPublisher(null);
+      setCoverImgFile(null);
+      setBookImgFiles([]);
+      setIsbnError("");
+    }
+  };
+
+  // ================= UI =================
+  return (
+    <div className="create-product-modal">
+      <div className="create-product-modal__overlay" onClick={onClose} />
+
+      <div className="create-product-modal__content">
+        {/* HEADER */}
+        <div className="create-product-modal__header">
+          <div>
+            <h2>Thêm sản phẩm</h2>
+            <p>Tạo mới sách trong hệ thống</p>
+          </div>
+
+          <button onClick={onClose} className="create-product-modal__close">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* BODY */}
+        <div className="create-product-modal__body">
+          <div className="create-product-form">
+
+            {/* TITLE */}
+            <div className="form-row">
+              <div className="form-group">
+                <label>Tên sách *</label>
+                <input name="title" value={formData.title} onChange={handleChange} />
+              </div>
+
+              {/* ISBN */}
+              <div className="form-group">
+                <label>ISBN *</label>
+                <input name="isbn" value={formData.isbn} onChange={handleChange} />
+                {isbnError && <span className="field-error">{isbnError}</span>}
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* IMAGE FILE */}
+              <div className="form-group">
+                <label>Ảnh bìa (Upload file)</label>
+                <input type="file" accept="image/*" onChange={handleFileChange} />
+              </div>
+
+              {/* IMAGE URL */}
+              <div className="form-group">
+                <label>Hoặc nhập URL ảnh</label>
+                <input
+                  name="coverImageUrl"
+                  value={formData.coverImageUrl}
+                  onChange={handleChange}
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* AUTHORS */}
+              <div className="form-group">
+                <label>Tác giả *</label>
+                <CreatableSelect
+                  isMulti
+                  value={selectedAuthors}
+                  options={authorOptions}
+                  isDisabled={creatingAuthor}
+                  isLoading={creatingAuthor}
+                  onCreateOption={handleCreateAuthor}
+                  onChange={(val) => setSelectedAuthors((val as Option[]) || [])}
+                />
+              </div>
+
+              {/* CATEGORY */}
+              <div className="form-group">
+                <label>Danh mục *</label>
+                <CreatableSelect
+                  isMulti
+                  value={selectedCategories}
+                  options={categoryOptions}
+                  onChange={(val) =>
+                    setSelectedCategories((val as Option[]) || [])
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Ảnh chi tiết sách</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleBookImagesChange}
+                />
+                {bookImgFiles.length > 0 && (
+                  <>
+                    <span className="form-helper-text">
+                      Đã chọn {bookImgFiles.length} ảnh
+                    </span>
+                    <div className="book-image-preview-list">
+                      {bookImgFiles.map((file) => (
+                        <div
+                          className="book-image-preview-item"
+                          key={`${file.name}-${file.size}-${file.lastModified}`}
+                        >
+                          <span title={file.name}>{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBookImage(file)}
+                            aria-label={`Xóa ${file.name}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* PUBLISHER */}
+              <div className="form-group">
+                <label>Nhà xuất bản</label>
+                <Select
+                  value={selectedPublisher}
+                  options={publisherOptions}
+                  onChange={(val) => setSelectedPublisher(val as Option)}
+                />
+              </div>
+
+              {/* LANGUAGE */}
+              <div className="form-group">
+                <label>Ngôn ngữ</label>
+                <select name="language" value={formData.language} onChange={handleChange}>
+                  <option value="Tiếng Việt">Tiếng Việt</option>
+                  <option value="Tiếng Anh">Tiếng Anh</option>
+                  <option value="Tiếng Nhật">Tiếng Nhật</option>
+                  <option value="Tiếng Trung">Tiếng Trung</option>
+                  <option value="Tiếng Hàn">Tiếng Hàn</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* PRICE */}
+              <div className="form-group">
+                <label>Giá *</label>
+                <input
+                  name="price"
+                  type="number"
+                  min="0"
+                  value={formData.price}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* STOCK */}
+              <div className="form-group">
+                <label>Số trang</label>
+                <input
+                  name="pageCount"
+                  type="number"
+                  min="0"
+                  value={formData.pageCount}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              {/* COVER TYPE */}
+              <div className="form-group">
+                <label>Loại bìa *</label>
+                <select name="coverType" value={formData.coverType} onChange={handleChange}>
+                  <option value="">Chọn loại bìa</option>
+                  <option value="Bìa mềm">Bìa mềm</option>
+                  <option value="Bìa cứng">Bìa cứng</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* DESCRIPTION */}
+            <div className="form-group">
+              <label>Mô tả</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Nhập mô tả ngắn về nội dung sách..."
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="create-product-modal__footer">
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={loading}
+            style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600 }}
+          >
+            Hủy
+          </Button>
+
+          <Button 
+            variant="primary" 
+            onClick={handleSubmit} 
+            disabled={loading}
+            style={{ borderRadius: '9999px', padding: '10px 28px', fontWeight: 600 }}
+          >
+            {loading ? "Đang thêm..." : "Thêm sản phẩm"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};

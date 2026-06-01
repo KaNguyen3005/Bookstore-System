@@ -1,0 +1,71 @@
+Thư viện cần tải
+npm install axios
+npm install react icon
+npm install json-server
+npm install react-router-dom
+
+Lý thuyết:
+React → gọi API → backend → trả JSON → React hiển thị
+API	dùng
+lấy dữ liệu	GET
+gửi dữ liệu	POST
+sửa	PUT
+xoá	DELETE
+
+Home.tsx
+   ↓
+bookService.ts
+   ↓
+mockBooks (data giả)
+
+
+import { useEffect, useState } from "react";
+import { getBooks } from "../services/bookService";
+
+import { useEffect, useState } from "react"
+import { getBooks } from "../services/bookService"
+import { Book } from "../types/Book"
+
+
+function Home() {
+
+  const [books, setBooks] = useState<Book[]>([])
+
+  useEffect(() => {
+    getBooks().then((data) => {
+      setBooks(data)
+    })
+  }, [])
+
+  return (
+    <div>
+      <h2>Book List</h2>
+
+      {books.map(book => (
+        <div key={book.id}>
+          <p>{book.title}</p>
+          <p>{book.price}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export default Home
+
+
+
+Backend API
+     ↓
+services (call API)
+     ↓
+types (định nghĩa dữ liệu)
+     ↓
+pages/components (hiển thị)
+
+export default Home;
+
+
+
+
+

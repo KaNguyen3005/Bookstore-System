@@ -1,0 +1,89 @@
+package ptithcm.backend.bookstore.entity;
+
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import ptithcm.backend.bookstore.enums.OrderStatus;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name="orders")
+//Do sử dụng lombok nên không sử dụng @Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
+    Long orderId;
+
+    // VAT Rate (Ví dụ: 0.05)
+    @Builder.Default
+    @Column(precision = 5, scale = 2, nullable = false)
+    BigDecimal vatRate = new BigDecimal("0.05");
+
+    // Tiền thuế
+    @Column(precision = 12, scale = 2)
+    BigDecimal vatAmount;
+
+    // Tier Rate (Ví dụ: 0.10 cho 10% giảm giá)
+    BigDecimal tierRate;
+
+    @ManyToOne
+    @JoinColumn(name = "voucher_id")
+    Voucher voucher;
+
+
+    // Cascade để khi tạo Order mới thì các BookOrder (items) được persist theo,
+    // tránh trường hợp tạo đơn xong nhưng get lại không thấy items vì chưa insert vào table book_order.
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<BookOrder> bookOrders;
+
+    @OneToOne(mappedBy = "order")
+    Shipment shipment;
+
+    @OneToOne(mappedBy = "order")
+    Payment payment;
+
+    @ManyToOne
+    @JoinColumn(name = "staff_id")
+    User staff;
+
+    @Column(name = "reward_point_applied")
+    Boolean rewardPointApplied = false;
+
+
+    LocalDateTime deliveredAt;
+
+    LocalDateTime rewardEligibleAt;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    User customer;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    LocalDateTime createdAt;
+
+    @Enumerated(EnumType.STRING)
+    OrderStatus status;
+
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
+
+    @Builder.Default
+    LocalDateTime deletedAt = null;
+}

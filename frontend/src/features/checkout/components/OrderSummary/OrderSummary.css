@@ -1,0 +1,79 @@
+.order-summary {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.order-summary__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.order-summary__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.order-summary__item-count {
+  font-size: 14px;
+  color: #718096;
+}
+
+.order-summary__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-summary__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.order-summary__row--discount {
+  color: #38a169;
+}
+
+.order-summary__free {
+  color: #38a169;
+  font-weight: 500;
+}
+
+.order-summary__divider {
+  height: 1px;
+  background: #eee;
+  margin: 20px 0;
+}
+
+.order-summary__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.order-summary__total-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.order-summary__total-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #e53e3e;
+}
+
+.order-summary__vat-note {
+  font-size: 12px;
+  color: #a0aec0;
+  font-style: italic;
+  line-height: 1.5;
+}

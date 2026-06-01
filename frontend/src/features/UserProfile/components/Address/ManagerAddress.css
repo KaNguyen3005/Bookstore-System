@@ -1,0 +1,202 @@
+/* =========================
+   CONTAINER LIST
+========================= */
+.address-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.address-create-card {
+  margin-top: 16px;
+  max-width: 520px;
+}
+
+/* =========================
+   CARD
+========================= */
+.address-card {
+  background: #ffffff;
+  border: 1px solid #eef0f3;
+  border-radius: 16px;
+  padding: 18px;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.address-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-color: #dbe4ff;
+}
+
+/* =========================
+   DEFAULT BADGE
+========================= */
+.default-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  background: #e8f0ff;
+  color: #2f6fed;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* =========================
+   TITLE
+========================= */
+.address-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+/* =========================
+   INFO TEXT
+========================= */
+.address-info {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.address-info div {
+  margin-bottom: 4px;
+}
+
+/* =========================
+   INPUT / SELECT (EDIT MODE)
+========================= */
+.address-card input,
+.address-card select {
+  width: 100%;
+  padding: 10px 12px;
+
+  margin-bottom: 10px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  outline: none;
+  transition: 0.2s;
+  background: #fff;
+}
+
+.address-card input:focus,
+.address-card select:focus {
+  border-color: #4f8cff;
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.15);
+}
+
+/* =========================
+   ACTIONS
+========================= */
+.address-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   BUTTON BASE
+========================= */
+.address-btn {
+  font-size: 13px;
+  font-weight: 500;
+
+  padding: 7px 12px;
+  border-radius: 10px;
+
+  cursor: pointer;
+  border: none;
+
+  transition: all 0.2s ease;
+}
+
+.address-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.address-error {
+  margin-top: 12px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* =========================
+   BUTTONS STYLE
+========================= */
+.btn-edit {
+  background: #4f8cff;
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background: #3b78f0;
+}
+
+.btn-save {
+  background: #22c55e;
+  color: #fff;
+}
+
+.btn-save:hover {
+  background: #16a34a;
+}
+
+.btn-cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
+}
+
+.btn-delete {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+}
+
+.btn-default {
+  background: transparent;
+  border: 1px solid #4f8cff;
+  color: #4f8cff;
+}
+
+.btn-default:hover {
+  background: #4f8cff;
+  color: white;
+}
+
+.btn-add {
+  margin-top: 12px;
+  background: #ff5a2f;
+  color: #fff;
+}
+
+.btn-add:hover {
+  background: #e84b22;
+}

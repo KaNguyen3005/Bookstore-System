@@ -1,0 +1,56 @@
+# Maven
+BACKEND/bookstore/target/
+BACKEND/bookstore/.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+BACKEND/bookstore/.idea/
+BACKEND/bookstore/.env/
+*.iws
+*.iml
+*.ipr
+
+# Application configuration files (QUAN TRỌNG)
+BACKEND/bookstore/src/main/resources/application.yaml
+BACKEND/bookstore/src/main/resources/application-dev.yaml
+!BACKEND/bookstore/src/main/resources/application-dev.example.yaml
+
+# Eclipse/STS
+BACKEND/bookstore/.apt_generated
+BACKEND/bookstore/.classpath
+BACKEND/bookstore/.factorypath
+BACKEND/bookstore/.project
+BACKEND/bookstore/.settings/
+BACKEND/bookstore/.springBeans
+BACKEND/bookstore/.sts4-cache/
+
+# NetBeans
+BACKEND/bookstore/nbproject/private/
+BACKEND/bookstore/nbbuild/
+BACKEND/bookstore/dist/
+BACKEND/bookstore/nbdist/
+BACKEND/bookstore/.nb-gradle/
+BACKEND/bookstore/build/
+
+# VS Code
+BACKEND/bookstore/.vscode/
+
+# Recommendation service / Python
+recommendation-service/.env
+!recommendation-service/.env.example
+recommendation-service/venv/
+recommendation-service/.venv/
+recommendation-service/env/
+recommendation-service/__pycache__/
+recommendation-service/**/*.py[cod]
+recommendation-service/**/__pycache__/
+recommendation-service/.pytest_cache/
+recommendation-service/.mypy_cache/
+recommendation-service/.ruff_cache/
+recommendation-service/.ipynb_checkpoints/do
+# Frontend / Node.js
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+!frontend/.env.example
+

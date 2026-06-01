@@ -1,0 +1,50 @@
+package ptithcm.backend.bookstore.dto.request;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import ptithcm.backend.bookstore.validator.ValidAge;
+
+import java.time.LocalDate;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class UpdateUserRequest {
+
+    @Size(min = 3, max = 255, message = "INVALID_USERNAME")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "INVALID_USERNAME")
+    String username;
+
+    @Size(min = 6, max = 50, message = "INVALID_PASSWORD")
+    String password;
+
+    @Size(min = 6, max = 100, message = "INVALID_NAME")
+    String name;
+
+    @Email(message = "INVALID_EMAIL")
+    String email;
+
+    @Pattern(regexp = "^(0|\\+84)[0-9]{9}$", message = "INVALID_PHONE")
+    String phone;
+
+    @Pattern(regexp = "MALE|FEMALE|OTHER", message = "INVALID_GENDER")
+    String gender;
+
+    Boolean isChangeAccount;
+
+    Integer roleId; // bỏ validate ID theo rule của bạn
+
+    @Min(value = 0, message = "VALIDATION_ERROR")
+    Long point;
+
+    @ValidAge(min = 18, message = "INVALID_AGE")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate dob;
+}

@@ -1,0 +1,51 @@
+# Maven
+target/
+.m2/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Logs
+*.log
+logs/
+
+# Node (if used)
+node_modules/
+npm-debug.log
+
+# Build
+*.jar
+*.war
+*.ear
+
+# Other
+.env
+.env.local
+*.md
+README.md
+HELP.md
+

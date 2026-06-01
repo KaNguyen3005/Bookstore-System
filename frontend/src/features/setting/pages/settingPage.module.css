@@ -1,0 +1,53 @@
+.container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f7fb;
+}
+
+.card {
+  width: 600px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.list {
+  text-align: left;
+  margin: 0;
+  padding: 0 10px;
+  list-style: none;
+}
+
+.list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.badge {
+  margin-top: 20px;
+  display: inline-block;
+  padding: 6px 12px;
+  background: #e3f2ff;
+  color: #1e88e5;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}

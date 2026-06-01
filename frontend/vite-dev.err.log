@@ -1,0 +1,27 @@
+[31mfailed to load config from D:\THUC_TAP_CO_SO\Bookstore-System\frontend\vite.config.ts[39m
+[31merror when starting dev server:
+Error: Build failed with 1 error:
+
+[plugin externalize-deps]
+Error: spawn EPERM
+    at ChildProcess.spawn (node:internal/child_process:421:11)
+    at spawn (node:child_process:796:9)
+    at Object.execFile (node:child_process:349:17)
+    at exec (node:child_process:236:25)
+    at optimizeSafeRealPathSync (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:1954:2)
+    at windowsSafeRealPathSync (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:1940:3)
+    at getRealPath (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:32413:36)
+    at tryResolveRealFileOrType (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:32407:9)
+    at tryCleanFsResolve (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:32151:21)
+    at tryFsResolve (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:32144:14)
+    at aggregateBindingErrorsIntoJsError (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/rolldown/dist/shared/error-DBGOT6sf.mjs:48:18)
+    at unwrapBindingResult (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/rolldown/dist/shared/error-DBGOT6sf.mjs:18:128)
+    at #build (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/rolldown/dist/shared/rolldown-build-hRnqgxyz.mjs:3313:34)
+    at async bundleConfigFile (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:34633:17)
+    at async bundleAndLoadConfigFile (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:34541:18)
+    at async loadConfigFromFile (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:34510:42)
+    at async resolveConfig (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:34134:22)
+    at async _createServer (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/chunks/node.js:26002:65)
+    at async CAC.<anonymous> (file:///D:/THUC_TAP_CO_SO/Bookstore-System/frontend/node_modules/vite/dist/node/cli.js:709:18) {
+  errors: [Getter/Setter]
+}[39m

@@ -1,0 +1,194 @@
+.register-page {
+  background: #f5f7fb;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.register-container {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  padding: 50px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+  margin:30px;
+}
+
+/* LOGO + TITLE */
+.logo-img-auth-re {
+  width: 400px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+  transition: transform 0.2s ease;
+}
+
+.logo-img:hover {
+  transform: scale(1.05);
+}
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* FORM */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.register-form label {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.register-form input,
+.register-form select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.register-form input:focus,
+.register-form select:focus {
+  border-color: rgba(57, 96, 107, 1);
+}
+
+/* NAME ROW */
+.name-row {
+  display: flex;
+  gap: 10px;
+}
+
+.name-row input {
+  flex: 1;
+}
+
+/* BIRTH ROW */
+.birth-row {
+  display: flex;
+  gap: 10px;
+}
+
+.birth-row select {
+  flex: 1;
+}
+
+/* BUTTON */
+.register-form button {
+  margin-top: 15px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(57, 96, 107, 1);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.register-form button:hover {
+  background: #355558;
+}
+
+/* SOCIAL */
+.social-reg-wrapper {
+  margin-top: 20px;
+}
+
+.social-reg {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: white;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.social-reg:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* LOGIN LINK */
+.ask-register {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.login-link {
+  margin-left: 5px;
+  color: rgba(57, 96, 107, 1);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .register-container {
+    width: 90%;
+    padding: 25px;
+  }
+
+  .name-row,
+  .birth-row {
+    flex-direction: column;
+  }
+}
+
+.input {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+}
+
+.input.error {
+  border: 1px solid #ff3b30;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #ff3b30;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}

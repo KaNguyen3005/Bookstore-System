@@ -1,0 +1,25 @@
+.forbidden-access {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 32px;
+  text-align: center;
+  color: #1f2937;
+}
+
+.forbidden-access h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.forbidden-access p {
+  margin: 0;
+  max-width: 480px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}

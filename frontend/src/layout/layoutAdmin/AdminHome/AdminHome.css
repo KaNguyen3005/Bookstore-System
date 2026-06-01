@@ -1,0 +1,171 @@
+.admin-layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+
+.admin-main-container {
+  display: flex;
+  flex: 1;
+  gap: 24px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.content-admin {
+  flex: 1;
+  background: white;
+  overflow-y: auto;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  /* Added padding to prevent content from hitting the edges */
+}
+
+
+/* sidebar*/
+.sidebar-admin {
+  width: 260px;
+  background: white;
+  color: white;
+  padding: 32px 20px;
+  box-sizing: border-box;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 48px);
+  position: sticky;
+  top: 24px;
+  flex-shrink: 0;
+}
+
+
+.logo-section {
+  padding: 0 12px;
+  margin-bottom: 40px;
+  color: black;
+}
+
+.logo-admin {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 2px;
+  color: black;
+}
+
+.admin-badge {
+  font-size: 18px;
+  opacity: 0.8;
+  display: block;
+  margin-top: 4px;
+}
+
+/* MENU LIST */
+.menu-admin {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.menu-admin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu-admin::-webkit-scrollbar-thumb {
+  background: rgba(217, 217, 217, 1);
+  border-radius: 10px;
+}
+
+.card-name-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-admin li a.card-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-decoration: none;
+  color: black;
+  padding: 14px 18px;
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.menu-icon {
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.card-name-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.card-name-content span {
+  overflow-wrap: anywhere;
+}
+
+/* hover */
+.menu-admin li a.card-name:hover {
+  background: rgba(217, 217, 217, 1);
+  color: rgba(57, 96, 107, 1);
+  transform: translateX(4px);
+}
+
+.menu-admin li a.card-name:hover .menu-icon {
+  opacity: 1;
+}
+
+/* active state */
+.menu-admin li a.card-name.active {
+  background: white;
+  color: rgba(57, 96, 107, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.menu-admin li a.card-name.active .menu-icon {
+  opacity: 1;
+}
+
+.logout-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}

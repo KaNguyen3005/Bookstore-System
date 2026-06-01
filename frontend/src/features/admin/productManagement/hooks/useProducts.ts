@@ -1,0 +1,393 @@
+import { useState, useEffect, useCallback, useMemo } from "react";
+
+import type { Category } from "../../../book-category/types/category";
+
+import type {
+  ProductFilters,
+  ProductsResponse,
+  ProductSummary,
+} from "../types/product";
+
+import {
+  productService,
+  type CreateBookPayload,
+  type UpdateBookPayload,
+} from "../services/productService";
+import { useToast } from "../../../../shared/components/Toast/ToastProvider";
+import type { Book } from "../../../product/types/Book";
+
+const getProductStatus = (book: Book) => {
+  if (!book.isActive) return "Tạm ngưng";
+  if (book.stockQuantity <= 0) return "Hết hàng";
+
+  return "Đang bán";
+};
+
+export const useProducts = () => {
+  const { showToast } = useToast();
+
+  // ================= STATES =================
+
+  const [allProducts, setAllProducts] =
+    useState<ProductsResponse>();
+
+  const [categories, setCategories] =
+    useState<Category[]>([]);
+
+  const [summary, setSummary] =
+    useState<ProductSummary>({
+      total: 0,
+      inStock: 0,
+      outOfStock: 0,
+    });
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [createLoading, setCreateLoading] =
+    useState(false);
+
+  const [updateLoading, setUpdateLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [page, setPage] =
+    useState(0);
+
+  const [size] =
+    useState(10);
+
+  // ================= FILTERS =================
+
+  const [filters, setFilters] =
+    useState<ProductFilters>({
+      category: "all",
+      status: "Tất cả trạng thái",
+      search: "",
+    });
+
+  // ================= FETCH PRODUCTS =================
+
+  const fetchProducts = useCallback(
+    async () => {
+      try {
+
+        setLoading(true);
+        setError(null);
+
+        const data =
+          await productService.getProducts({
+            page,
+            size,
+
+            keyword:
+              filters.search || undefined,
+
+            categoryId:
+              filters.category !== "all"
+                ? Number(filters.category)
+                : undefined,
+          });
+
+        setAllProducts(data);
+
+        // categories chỉ load 1 lần
+        if (categories.length === 0) {
+
+          const categoriesData =
+            await productService.getCategories();
+
+          setCategories(categoriesData);
+        }
+
+      } catch (err: any) {
+
+        setError(
+          err.message ||
+          "Đã xảy ra lỗi khi tải sản phẩm",
+        );
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    },
+    [
+      filters.search,
+      filters.category,
+      page,
+      size,
+    ],
+  );
+
+  // ================= AUTO FETCH =================
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [filters.search, filters.category]);
+
+  // ================= SUMMARY =================
+
+  useEffect(() => {
+
+    const content =
+      allProducts?.content ?? [];
+
+    const total =
+      allProducts?.totalElements || 0;
+
+    const inStock = content.filter(
+      (book) =>
+        book.isActive &&
+        book.stockQuantity > 0,
+    ).length;
+
+    const outOfStock = content.filter(
+      (book) =>
+        !book.isActive ||
+        book.stockQuantity <= 0,
+    ).length;
+
+    setSummary({
+      total,
+      inStock,
+      outOfStock,
+    });
+
+  }, [allProducts]);
+
+  const visibleProducts = useMemo(() => {
+    const content = allProducts?.content ?? [];
+
+    if (filters.status === "Tất cả trạng thái") return content;
+
+    return content.filter((book) => getProductStatus(book) === filters.status);
+  }, [allProducts, filters.status]);
+
+  // ================= FILTER CHANGE =================
+
+  const handleFilterChange = (
+    key: keyof ProductFilters,
+    value: string,
+  ) => {
+
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // ================= CREATE PRODUCT =================
+
+  const handleCreateProduct = async (
+    payload: CreateBookPayload,
+  ) => {
+
+    try {
+
+      setCreateLoading(true);
+
+      const newBook =
+        await productService.createProduct(
+          payload,
+        );
+
+      // update realtime UI
+      setAllProducts((prev) => {
+
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+
+          content: [
+            newBook,
+            ...prev.content,
+          ],
+
+          totalElements:
+            prev.totalElements + 1,
+        };
+      });
+
+      showToast("Thêm sản phẩm thành công", "success");
+
+      return true;
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Có lỗi xảy ra khi thêm sản phẩm",
+      );
+
+      return false;
+
+    } finally {
+
+      setCreateLoading(false);
+
+    }
+  };
+
+  // ================= DELETE PRODUCT =================
+
+  const handleDeleteProduct = async (
+    bookId: number,
+  ) => {
+
+    const confirmDelete =
+      window.confirm(
+        "Bạn có chắc muốn xóa sản phẩm?",
+      );
+
+    if (!confirmDelete) return;
+
+    try {
+
+      await productService.deleteProduct(
+        bookId,
+      );
+
+      setAllProducts((prev) => {
+
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+
+          content:
+            prev.content.filter(
+              (book) =>
+                book.bookId !== bookId,
+            ),
+
+          totalElements:
+            prev.totalElements - 1,
+        };
+      });
+
+      showToast("Xóa sản phẩm thành công", "success");
+
+    } catch {
+      alert(
+        "Đã xảy ra lỗi khi xóa sản phẩm",
+      );
+
+    }
+  };
+
+  // ================= UPDATE PRODUCT =================
+
+  const handleUpdateProduct = async (
+    bookId: number,
+    payload: UpdateBookPayload,
+  ) => {
+    try {
+      setUpdateLoading(true);
+
+      const updatedBook = await productService.updateProduct(bookId, payload);
+
+      setAllProducts((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          content: prev.content.map((book) =>
+            book.bookId === bookId ? updatedBook : book,
+          ),
+        };
+      });
+
+      showToast("Cập nhật sản phẩm thành công", "success");
+      return true;
+    } catch (error) {
+      console.error(error);
+      alert("Có lỗi xảy ra khi cập nhật sản phẩm");
+      return false;
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  // ================= UPDATE STATUS =================
+
+  const handleUpdateStatus = async (
+    bookId: number,
+    isActive: boolean,
+  ) => {
+
+    try {
+      setAllProducts((prev) => {
+
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+
+          content:
+            prev.content.map((book) =>
+              book.bookId === bookId
+                ? {
+                    ...book,
+                    isActive,
+                  }
+                : book,
+            ),
+        };
+      });
+
+    } catch {
+
+      alert(
+        "Lỗi khi cập nhật trạng thái",
+      );
+
+    }
+  };
+
+  // ================= RETURN =================
+
+  return {
+    // data
+    products:
+      visibleProducts,
+
+    categories,
+    summary,
+    currentPage: page,
+    totalPages: allProducts?.totalPages ?? 0,
+    totalElements: allProducts?.totalElements ?? 0,
+    setPage,
+    pageSize: size,
+
+    // loading
+    loading,
+    createLoading,
+    updateLoading,
+
+    // error
+    error,
+
+    // filters
+    filters,
+
+    // handlers
+    handleFilterChange,
+    handleCreateProduct,
+    handleUpdateProduct,
+    handleDeleteProduct,
+    handleUpdateStatus,
+
+    // refresh
+    refreshData: fetchProducts,
+  };
+};

@@ -2,16 +2,34 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql-dev
+
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: db_bookstore
       MYSQL_USER: app
       MYSQL_PASSWORD: app
       TZ: Asia/Ho_Chi_Minh
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_0900_ai_ci",
+        "--default-time-zone=+07:00",
+        "--init-connect=SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci",
+      ]
+
     ports:
       - "3307:3306"
+
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./backend/bookstore/src/main/resources/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./backend/bookstore/src/main/resources/seed_db_bookstore_v2_vietnamese.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ./infra/mysql/docker-app-grants.sql:/docker-entrypoint-initdb.d/99-app-grants.sql:ro
+
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
       interval: 10s
@@ -19,22 +37,133 @@ services:
       retries: 10
       start_period: 20s
 
+    networks:
+      - bookstore-network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-dev
+
+    ports:
+      - "6333:6333"
+
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+    environment:
+      QDRANT_API_KEY: ""
+
+    networks:
+      - bookstore-network
+
   backend:
+    build:
+      context: ./backend/bookstore
+      dockerfile: dockerfile
     image: morex3/bookstore-backend:latest
     container_name: backend-dev
+
     ports:
       - "8080:8080"
+
     depends_on:
       mysql:
         condition: service_healthy
+
     environment:
+      TZ: Asia/Ho_Chi_Minh
+      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Ho_Chi_Minh -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_bookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_0900_ai_ci
       SPRING_DATASOURCE_USERNAME: app
       SPRING_DATASOURCE_PASSWORD: app
+      SPRING_SQL_INIT_MODE: never
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:?Set MAIL_USERNAME in .env}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?Set MAIL_PASSWORD in .env. Use a Gmail app password, not your account password}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL:-${MAIL_USERNAME}}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-KATIIA Bookstore}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS_ENABLE: ${MAIL_SMTP_STARTTLS_ENABLE:-true}
+      GOOGLE_CLIENT_ID: 792560388634-ce149cikhu3i84tbim33rd01kvi9loih.apps.googleusercontent.com
+      RECOMMENDATION_SERVICE_URL: http://recommendation-service:8000
+
+      JWT_SIGNERKEY: bookstore-secret-key-bookstore-secret-key-123456
+      JWT_VALID_DURATION: 3600
+      JWT_REFRESHABLE_DURATION: 36000
+
+    networks:
+      - bookstore-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_GOOGLE_CLIENT_ID: 792560388634-ce149cikhu3i84tbim33rd01kvi9loih.apps.googleusercontent.com
+        VITE_API_BASE_URL: http://localhost:8080/bookstore/api/v1
+    image: morex3/bookstore-frontend:latest
+    container_name: frontend-dev
+
+    ports:
+      - "5173:80"
+
+    depends_on:
+      backend:
+        condition: service_started
+
+    networks:
+      - bookstore-network
+
+  recommendation-service:
+    build:
+      context: ./recommendation-service
+      dockerfile: Dockerfile
+    image: morex3/bookstore-recommendation:latest
+    container_name: recommendation-service-dev
+
+    environment:
+      DATABASE_URL: mysql+pymysql://app:app@mysql:3306/db_bookstore?charset=utf8mb4
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      COLLAB_WEIGHT: 0.6
+      CONTENT_WEIGHT: 0.4
+      TZ: Asia/Ho_Chi_Minh
+      PYTHONUNBUFFERED: 1
+      PYTHONUTF8: 1
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+      qdrant:
+        condition: service_started
+
+      backend:
+        condition: service_started
+
+    networks:
+      - bookstore-network
 
 volumes:
   mysql_data:
+  qdrant_data:
 
-#docker build -t kanguyen3005/bookstore-backend:latest ./backend/bookstore
-#docker push kanguyen3005/bookstore-backend:latest
+networks:
+  bookstore-network:
+    driver: bridge
+#docker build -t morex3/bookstore-backend:latest ./backend/bookstore
+#docker push morex3/bookstore-backend:latest
+#docker build -t morex3/bookstore-recommendation:latest ./recommendation-service
+#docker push morex3/bookstore-recommendation:latest
+#docker compose down -v
+#docker compose up --build

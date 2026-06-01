@@ -1,0 +1,137 @@
+/* UI Components Core CSS */
+
+/* --- Card --- */
+.ui-card {
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* --- Button --- */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.ui-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ui-btn-primary {
+  background-color: #0d9488;
+  color: white;
+}
+.ui-btn-primary:hover {
+  background-color: #0f766e;
+}
+
+.ui-btn-outline {
+  background-color: white;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+.ui-btn-outline:hover {
+  background-color: #f9fafb;
+}
+
+.ui-btn-ghost {
+  background-color: transparent;
+  color: #374151;
+}
+.ui-btn-ghost:hover {
+  background-color: #f3f4f6;
+}
+
+.ui-btn-sm {
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+.ui-btn-md {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+.ui-btn-lg {
+  padding: 12px 32px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+/* --- Input --- */
+.ui-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+.ui-input {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+}
+.ui-input:focus {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+}
+.ui-input-wrapper .icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+.ui-input-with-icon {
+  padding-left: 36px;
+}
+
+/* --- Badge --- */
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  min-width: 90px;
+}
+.ui-badge-success { background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.ui-badge-warning { background-color: #fff7ed; color: #f97316; border: 1px solid #fed7aa; }
+.ui-badge-danger { background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+.ui-badge-info { background-color: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; }
+.ui-badge-teal { background-color: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; }
+.ui-badge-default { background-color: #f9fafb; color: #4b5563; border: 1px solid #e5e7eb; }
+
+/* --- Table --- */
+.ui-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ui-table th {
+  padding: 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+}
+.ui-table td {
+  padding: 16px;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #374151;
+}
